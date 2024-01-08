@@ -10,6 +10,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 
 public class PipelineBluELeft extends Pipeline {
 
+
     public PipelineBluELeft(OpenCvCamera webcam, Telemetry telemetry){
         super(webcam, telemetry);
             this.webcam = webcam;
@@ -31,7 +32,6 @@ public class PipelineBluELeft extends Pipeline {
 
             leftCrop = YCbCr.submat(leftRect);
             midleCrop = YCbCr.submat(midleRect);
-
 
             double valueleft = Core.sumElems(leftCrop).val[0] / leftRect.area() / 255;
             double valuemiddle = Core.sumElems(midleCrop).val[0] / midleRect.area() / 255;

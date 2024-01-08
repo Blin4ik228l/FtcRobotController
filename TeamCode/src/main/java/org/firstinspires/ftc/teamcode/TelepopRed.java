@@ -129,16 +129,13 @@ public class TelepopRed extends LinearOpMode implements Inter{
                     m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     m5.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
                     En1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     En2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     En3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     while (!isStopRequested() & opModeIsActive()) {
 
-
                         //ТЕЛЕЖКА
-
 
                         //Коэффицент скорости робота
                         if(gamepad1.left_trigger<0.5){
@@ -147,12 +144,9 @@ public class TelepopRed extends LinearOpMode implements Inter{
                         else if(gamepad1.left_trigger>0.5){
                             a=10/1;
                         }
-//                        if(gamepad2.right_stick_y <0.5){
-//                            m5.setPower(gamepad2.right_stick_y);
-//                        }
+
                         //Поворот
                         turn = -gamepad1.right_stick_x;
-
 
                         //Мощность моторов тележки
                         zm1 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y - turn ) * a, -1, 1);
@@ -175,43 +169,29 @@ public class TelepopRed extends LinearOpMode implements Inter{
                             zm4 = 0;
                         }
 
-
-
                         //ТЕЛЕСКОП
-
                         if(gamepad1.left_bumper==true){
 
                             if(gamepad1.left_trigger > 0.08){
                                 m5.setPower(gamepad1.left_trigger*100);
                             }
-
                             if(gamepad1.right_trigger>0.08){
                                 m5.setPower(gamepad1.right_trigger*-100);
                             }
-
                         }
-
-
                         else {
                             if(gamepad1.left_trigger > 0.08){
                                 m5.setPower(gamepad1.left_trigger*1);
                             }
-
                             if(gamepad1.right_trigger>0.08){
                                 m5.setPower(gamepad1.right_trigger*-1);
                             }
-
-
                         }
 
                         //Захват конусов
-
-
-
-
-
                         moment_diff_serv = runtime.milliseconds() - last_moment_serv;
                         moment_diff_switch = runtime.milliseconds() - last_moment_switch;
+
                         //Ручной захват
                         if(touch.getState() == false){
                             zs5 = CLOSE;
@@ -229,51 +209,7 @@ public class TelepopRed extends LinearOpMode implements Inter{
                                  lamp = -0.1;
                              last_moment_serv = runtime.milliseconds();
                              }
-
-//                         } else {
-//
-//
-//                             while (touch.getState() == true && m5.getCurrentPosition() >= 10) {
-//                                 m5.setPower(0.7);
-//                             }
-//                             if (touch.getState() == false) {
-//                                 zs5 = CLOSE;
-//                                 lamp = -0.1;
-//                             }
-//
-//
-//
-//                         }
-//                         last_moment_serv = runtime.milliseconds();
                      }
-
-
-
-//                        if (gamepad2.a == true && moment_diff_serv > 350) {
-//                            if (zs5 == CLOSE) {
-//                                zs5 = OPEN;
-//                                lamp=0;
-//                            } else {
-//                                zs5 = CLOSE;
-//                                lamp=-0.1;
-//                            }
-//                            last_moment_serv = runtime.milliseconds();
-//                        }
-
-
-
-//                        if(svob==0) {
-//                            if (gamepad2.a == true && moment_diff_serv > 350) {
-//                                if (zs5 == CLOSE) {
-//                                    zs5 = OPEN;
-//                                    lamp=0;
-//                                } else {
-//                                    zs5 = CLOSE;
-//                                lamp=-0.1;
-//                                }
-//                                last_moment_serv = runtime.milliseconds();
-//                            }
-//                        }
 //                        //авто захват
 //                        if (svob==1 && gamepad2.x == true) {
 //
@@ -298,11 +234,7 @@ public class TelepopRed extends LinearOpMode implements Inter{
                             }
                             last_moment_switch = runtime.milliseconds();
                         }
-
-
-
                     }
-
                 } catch (Exception e) {
                     telemetry.addLine("Calc thread interrupted");
                     telemetry.update();
@@ -361,8 +293,7 @@ public class TelepopRed extends LinearOpMode implements Inter{
             telemetry.addData("Энкодер 3", En3.getCurrentPosition());
             telemetry.addData("Ускорение", a);
             telemetry.update();
-
-        };
+        }
         ReadWriteFile.writeFile(telescopeFile, Integer.toString(telescopePos));
     }
 }

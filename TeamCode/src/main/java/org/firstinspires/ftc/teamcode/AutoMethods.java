@@ -48,7 +48,7 @@ public class AutoMethods extends LinearOpMode implements Inter{
     File getAngleFile;
     File angleFile = AppUtil.getInstance().getSettingsFile("angle.txt"); //Файл с позицией робота
     //Железо
-    private double hyi = 0;
+    private double gap = 0;
     private DcMotor m1, m2, m3, m4, m5, EnX1,EnY2,EnY3;
     public Servo s5;
     private DigitalChannel touch;
@@ -82,13 +82,13 @@ public class AutoMethods extends LinearOpMode implements Inter{
     //Инициализируем железо
     public void initC(OpMode op) {
         this.op = op;
-        m1 = op.hardwareMap.get(DcMotor.class, "m1");
+        m1 = op.hardwareMap.get(DcMotor.class, "m1");//инициализируем каждый мотор так, как он назван на телефоне в конфе
         m2 = op.hardwareMap.get(DcMotor.class, "m2");
         m3 = op.hardwareMap.get(DcMotor.class, "m3");
         m4 = op.hardwareMap.get(DcMotor.class, "m4");
         m5 = op.hardwareMap.get(DcMotor.class, "m5");
 
-        s5 = op.hardwareMap.get(Servo.class, "s5");
+        s5 = op.hardwareMap.get(Servo.class, "s5");// по такому же принципу все сервомоторы, энкодеры, и что у вас там есть ещё
 
         s5.setPosition(OPEN);
 
@@ -132,16 +132,17 @@ public class AutoMethods extends LinearOpMode implements Inter{
         touch.setMode(DigitalChannel.Mode.INPUT);
     }
 
-    public void camStart(OpMode op) {
+    public void camStart(OpMode op) {//метод отвечающий за включение камеры
         try {
             this.op = op;
             int cameraMonitorViewId = op.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", op.hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(op.hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             webcam.openCameraDevice();
-            webcam.setPipeline(new Detector(op.telemetry));
+            webcam.setPipeline(new Detector(op.telemetry));//setPipeline значит "установить конвеер",
+            // под конвеером подразумевается фильтр по которому изображение будет обрабатыватся
             webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
         }catch (OpenCvCameraException e){camError = true;}
-        catch (NullPointerException e2){camError = true;}
+        catch (NullPointerException e2){camError = true;}//тут исползуется конструкция try/catch, которая позволяет "схватит" ошибку, чтобы программа работала дальше
     }
 
     public void camStop() {
@@ -164,11 +165,14 @@ public class AutoMethods extends LinearOpMode implements Inter{
         }
 
     }
-    public void drive (int X, int Y, OpMode op, double timeout) {
+    public void drive (int X, int Y, OpMode op, double timeout) { //метод движения робота, принимает цифры расстояния по X и Y
+        // ,и время ,за которое программа должна выполнится
         this.op = op;
+        //сам метод построен по принципу движения по диагонали треугольника(это будет кратчайшим путём), тоесть когда задаётся 2 значения(X и Y) это будут катеты
+        //по ним будет построена гипотенуза, а дальше мы выясняем скорость и напрваления колёс
 
         EnY2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        EnY3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        EnY3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);//обнуляем энкодер на случай если робот случайно сдвинулся
 
         int X_rasst = X;
         int Y_rasst = Y;
@@ -181,7 +185,7 @@ public class AutoMethods extends LinearOpMode implements Inter{
         double Gip = Math.sqrt(SquareGip);
         double turn = 0;
 
-        //PID
+        //PID - регулятор, сами почитайте
         double P = 0;
         double I = 0;
         double D = 0;
@@ -198,7 +202,7 @@ public class AutoMethods extends LinearOpMode implements Inter{
         runtime.reset();
 
 
-        while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout && Gip > hyi) {
+        while (!isStopRequested() && !opModeIsActive() && runtime.seconds() < timeout && Gip > gap) {
 
             P = Kp * Gip;
 
@@ -257,7 +261,6 @@ public class AutoMethods extends LinearOpMode implements Inter{
         m2.setPower(0);
         m3.setPower(0);
         m4.setPower(0);
-       // sleep(10000);
 
     }
 
@@ -406,16 +409,6 @@ public class AutoMethods extends LinearOpMode implements Inter{
             op.telemetry.update();
         }
     }
-//
-//    public void angleft(int ang) {
-//        while ((EnY3.getCurrentPosition() + EnY2.getCurrentPosition()) / 2 < ang) {
-//
-//
-//        }
-//
-//
-//    }
-
     public void close(){
         s5.setPosition(CLOSE);
     }
@@ -423,13 +416,12 @@ public class AutoMethods extends LinearOpMode implements Inter{
 
 
     public void open(){
-
         s5.setPosition(OPEN);
     }
 
 
     public void Telescope (int number){
-        while(!opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() != number){
+        while(!opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() != number){//мотор у телескопа будет крутится пока энкодер не досчитает нужную цифру
             if (number - m5.getCurrentPosition() > 10) {
                 m5.setPower(-0.75);
             }

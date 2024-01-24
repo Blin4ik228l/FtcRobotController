@@ -17,7 +17,7 @@ public class AutoTest extends LinearOpMode {
         bot.initC(this);
 
         // Захватываем предзагруженный конус
-        bot.Hook.setPosition(0.74);
+        bot.hook.setPosition(0.74);
 
         waitForStart();
 

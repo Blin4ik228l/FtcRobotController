@@ -19,7 +19,7 @@ public class AutoPark extends LinearOpMode {
         bot.camStart(this);
 
         // Захватываем предзагруженный конус
-        bot.Hook.setPosition(0.74);
+        bot.hook.setPosition(0.74);
 
         waitForStart();
 

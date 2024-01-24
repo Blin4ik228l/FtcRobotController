@@ -18,7 +18,7 @@ public class AutoBlue_rc_1cM extends LinearOpMode {
         bot.camStart(this);
 
         // Захватываем предзагруженный конус
-        bot.Hook.setPosition(0.75);
+        bot.hook.setPosition(0.75);
 
         waitForStart();
 
@@ -50,7 +50,7 @@ public class AutoBlue_rc_1cM extends LinearOpMode {
         bot.vpered(this, 0.3, 37, 2, 0);
 
         // Отпускаем конус
-        bot.Hook.setPosition(0.66);
+        bot.hook.setPosition(0.66);
         sleep(550);
 
         // Поднимаем стрелу

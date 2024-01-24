@@ -1,21 +1,20 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
-import com.qualcomm.robotcore.util.ReadWriteFile;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Inter;
 
@@ -26,9 +25,9 @@ import java.io.File;
 public class TelePOPHeadless extends LinearOpMode implements Inter {
 
     //Железо
-    private DcMotor LeftFront3, LeftBack2, RightFront0, RightBack1, motoOnTele1, Capture0, led;
+    private DcMotor leftFront, leftRear, rightFront, rightRear, motoOnTele, capture, led;
     public DistanceSensor r1, r2;
-    private Servo Plain, UnderTele, Hook;
+    private Servo plain, underHook, hook;
     private BNO055IMU imu;
     private DigitalChannel touch;
 
@@ -75,40 +74,39 @@ public class TelePOPHeadless extends LinearOpMode implements Inter {
     //Инициализируем железо
     public void initC() {
         //Инициализация
-        //Инициализация
-        LeftFront3 = hardwareMap.get(DcMotor.class, "LeftFront3");
-        LeftBack2 = hardwareMap.get(DcMotor.class, "LeftBack2");
-        RightFront0 = hardwareMap.get(DcMotor.class, "RightFront0");
-        RightBack1 = hardwareMap.get(DcMotor.class, "RightBack1");
-        motoOnTele1 = hardwareMap.get(DcMotor.class, "motoOnTele1");
-        Capture0 = hardwareMap.get(DcMotor.class, "Capture0");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotor.class, "leftRear");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        rightRear = hardwareMap.get(DcMotor.class, "rightRear");
+        motoOnTele = hardwareMap.get(DcMotor.class, "motoOnTele");
+        capture = hardwareMap.get(DcMotor.class, "Capture");
 
-        Plain = hardwareMap.get(Servo.class, "Plain");
-        UnderTele = hardwareMap.get(Servo.class, "UnderTele");
-        Hook = hardwareMap.get(Servo.class, "Hook");
+        plain = hardwareMap.get(Servo.class, "Plain");
+        underHook = hardwareMap.get(Servo.class, "UnderTele");
+        hook = hardwareMap.get(Servo.class, "Hook");
 
         initIMU();
 
-        LeftFront3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LeftBack2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RightFront0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RightBack1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motoOnTele1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Capture0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motoOnTele.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        capture.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        LeftFront3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LeftBack2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RightFront0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RightBack1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        capture.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LeftFront3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LeftBack2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RightFront0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RightBack1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         touch = hardwareMap.get(DigitalChannel.class, "touch");
         touch.setMode(DigitalChannel.Mode.INPUT);
@@ -127,12 +125,12 @@ public class TelePOPHeadless extends LinearOpMode implements Inter {
 
                 try {
 
-                    LeftFront3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    LeftBack2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    RightFront0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    RightBack1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    motoOnTele1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    Capture0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     LastAngle = Double.parseDouble(ReadWriteFile.readFile(angleFile).trim()); //Отклонение угла от начального
 
@@ -209,7 +207,7 @@ public class TelePOPHeadless extends LinearOpMode implements Inter {
                         if (gamepad2.left_stick_y < 0.05) {
                             a_telescope = 0.7;
                         } else if (gamepad2.left_stick_y > 0.05) {
-                            if (motoOnTele1.getCurrentPosition() < 175) {
+                            if (motoOnTele.getCurrentPosition() < 175) {
                                 a_telescope = 0.4;
                             } else {
                                 a_telescope = 0.125;
@@ -328,28 +326,28 @@ public class TelePOPHeadless extends LinearOpMode implements Inter {
 
         while(opModeIsActive() & !isStopRequested()) {
 
-            LeftFront3.setPower(zm1);//слева спереди
-            RightFront0.setPower(zm2);//справа спереди
-            LeftBack2.setPower(zm3);//слева сзади
-            RightBack1.setPower(zm4);//справа сздади
-            motoOnTele1.setPower(zm5);//барабан
+            leftFront.setPower(zm1);//слева спереди
+            rightFront.setPower(zm2);//справа спереди
+            leftRear.setPower(zm3);//слева сзади
+            rightRear.setPower(zm4);//справа сздади
+            motoOnTele.setPower(zm5);//барабан
 
-            Plain.setPosition(OPEN);
-            Hook.setPosition(OPEN);
-            UnderTele.setPosition(OPEN);
+            plain.setPosition(OPEN);
+            hook.setPosition(OPEN);
+            underHook.setPosition(OPEN);
 
             if (gamepad1.y) { initIMU(); reinit = true; } //Обнуление гироскопа
 
             telemetry.addData("Состояние захвата", teleservo);
-            telemetry.addData("Энкодер телескопа", motoOnTele1.getCurrentPosition());
+            telemetry.addData("Энкодер телескопа", motoOnTele.getCurrentPosition());
             telemetry.addData("Датчик захвата", pressed);
             telemetry.addData("Режим захвата", telemode);
             telemetry.addData("Режим", telestable);
             telemetry.addData("Скорость", telespeed);
-            telemetry.addData("Мотор слева спереди", LeftBack2.getCurrentPosition());
-            telemetry.addData("Мотор слева сзади", LeftFront3.getCurrentPosition());
-            telemetry.addData("Мотор справа спереди", RightFront0.getCurrentPosition());
-            telemetry.addData("Мотор справа сзади", RightBack1.getCurrentPosition());
+            telemetry.addData("Мотор слева спереди", leftRear.getCurrentPosition());
+            telemetry.addData("Мотор слева сзади", leftFront.getCurrentPosition());
+            telemetry.addData("Мотор справа спереди", rightFront.getCurrentPosition());
+            telemetry.addData("Мотор справа сзади", rightRear.getCurrentPosition());
             telemetry.addData("Угол", angles.firstAngle);
             telemetry.update();
 

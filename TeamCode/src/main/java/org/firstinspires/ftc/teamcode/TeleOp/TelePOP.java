@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -21,8 +22,8 @@ public class TelePOP extends LinearOpMode implements Inter {
     //Таймер
     Timer time = new Timer();
     //Железо
-    private DcMotor LeftFront3, LeftBack2, RightFront0, RightBack1, motoOnTele1,Capture0;
-    private Servo Plain, UnderTele, Hook;
+    private DcMotor leftFront, leftRear, rightRear, rightFront, motoOnTele, capture;
+    private Servo plain, underHook, hook;
     private DigitalChannel touch;
 
     //Переменные моторов
@@ -44,37 +45,37 @@ public class TelePOP extends LinearOpMode implements Inter {
     //Инициализируем железо
     public void initC() {
         //Инициализация
-        LeftFront3 = hardwareMap.get(DcMotor.class, "LeftFront3");
-        LeftBack2 = hardwareMap.get(DcMotor.class, "LeftBack2");
-        RightFront0 = hardwareMap.get(DcMotor.class, "RightFront0");
-        RightBack1 = hardwareMap.get(DcMotor.class, "RightBack1");
-        motoOnTele1 = hardwareMap.get(DcMotor.class, "motoOnTele1");
-        Capture0 = hardwareMap.get(DcMotor.class, "Capture0");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        motoOnTele = hardwareMap.get(DcMotor.class, "motoOnTele");
+        capture = hardwareMap.get(DcMotor.class, "capture");
 
-        Plain = hardwareMap.get(Servo.class, "Plain");
-        UnderTele = hardwareMap.get(Servo.class, "UnderTele");
-        Hook = hardwareMap.get(Servo.class, "Hook");
+        plain = hardwareMap.get(Servo.class, "plain");
+        underHook = hardwareMap.get(Servo.class, "underHook");
+        hook = hardwareMap.get(Servo.class, "hook");
 
-        LeftFront3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        LeftBack2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RightFront0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RightBack1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motoOnTele1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Capture0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motoOnTele.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        capture.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        LeftFront3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LeftBack2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RightFront0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RightBack1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        capture.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        LeftFront3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        LeftBack2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RightFront0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        RightBack1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
@@ -89,12 +90,12 @@ public class TelePOP extends LinearOpMode implements Inter {
                 telemetry.update();
 
                 try {
-                    LeftFront3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    LeftBack2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    RightFront0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    RightBack1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    motoOnTele1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    Capture0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                     while (!isStopRequested() & opModeIsActive()) {
 
@@ -142,26 +143,27 @@ public class TelePOP extends LinearOpMode implements Inter {
                         if(gamepad1.left_bumper==true){
 
                             if(gamepad1.left_trigger > 0.08){
-                                motoOnTele1.setPower(gamepad1.left_trigger*100);
+                                motoOnTele.setPower(gamepad1.left_trigger*100);
                             }
 
                             if(gamepad1.right_trigger>0.08){
-                                motoOnTele1.setPower(gamepad1.right_trigger*-100);
+                                motoOnTele.setPower(gamepad1.right_trigger*-100);
                             }
 
                         }
                         else {
                             if(gamepad1.left_trigger > 0.08){
-                                motoOnTele1.setPower(gamepad1.left_trigger*1);
+                                motoOnTele.setPower(gamepad1.left_trigger*1);
                             }
                             if(gamepad1.right_trigger>0.08){
-                                motoOnTele1.setPower(gamepad1.right_trigger*-1);
+                                motoOnTele.setPower(gamepad1.right_trigger*-1);
                             }
                         }
                         //Захват колёсами
                         if (gamepad1.right_bumper == true){
-                            Capture0.setPower(-1);
-                        }else {Capture0.setPower(0);}
+                            capture.setPower(-1);
+                        }else {
+                            capture.setPower(0);}
 
                         //Захват конусов
                         moment_diff_serv = runtime.milliseconds() - last_moment_serv;
@@ -284,15 +286,15 @@ public class TelePOP extends LinearOpMode implements Inter {
 
         while(opModeIsActive() & !isStopRequested()) {
 
-            LeftFront3.setPower(zm1);//слева спереди
-            RightFront0.setPower(zm2);//справа спереди
-            LeftBack2.setPower(zm3);//слева сзади
-            RightBack1.setPower(zm4);//справа сздади
-            motoOnTele1.setPower(zm5);//барабан
+            leftFront.setPower(zm1);//слева спереди
+            rightFront.setPower(zm2);//справа спереди
+            leftRear.setPower(zm3);//слева сзади
+            rightRear.setPower(zm4);//справа сздади
+            motoOnTele.setPower(zm5);//барабан
 
-            Plain.setPosition(OPEN);
-            Hook.setPosition(OPEN);
-            UnderTele.setPosition(OPEN);
+            plain.setPosition(OPEN);
+            hook.setPosition(OPEN);
+            underHook.setPosition(OPEN);
 
 
             telemetry.addData("Состояние тригера", gamepad1.left_trigger);
@@ -307,7 +309,7 @@ public class TelePOP extends LinearOpMode implements Inter {
             telemetry.addData("Стик1 Y", gamepad1.left_stick_y);
             telemetry.addData("Стик2 X", gamepad2.right_stick_x);
             telemetry.addData("Стик2 Y", gamepad2.right_stick_y);
-            telemetry.addData("Уровень по энкодеру", motoOnTele1.getCurrentPosition());
+            telemetry.addData("Уровень по энкодеру", motoOnTele.getCurrentPosition());
             telemetry.addData("Ускорение", a);
             telemetry.update();
 

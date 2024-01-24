@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Autonomus.red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Autonomus.methods.AutoMethods;
@@ -19,7 +18,7 @@ public class AutoRed_bc_1cL extends LinearOpMode {
         bot.camStart(this);
 
         // Захватываем предзагруженный конус
-        bot.Hook.setPosition(0.75);
+        bot.hook.setPosition(0.75);
 
         waitForStart();
 
@@ -52,7 +51,7 @@ public class AutoRed_bc_1cL extends LinearOpMode {
         bot.vpered(this, 0.3, 37, 2, 0);
 
         // Отпускаем конус
-        bot.Hook.setPosition(0.66);
+        bot.hook.setPosition(0.66);
         sleep(550);
 
         // Поднимаем стрелу

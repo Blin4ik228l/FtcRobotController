@@ -6,12 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -38,9 +36,9 @@ public class AutoMethods extends LinearOpMode {
     public int baza = 1;
 
     //Железо
-    public DcMotor leftFront, leftRear, rightFront, rightRear, motoOnTele1,Capture0;
+    public DcMotor leftFront, leftRear, rightFront, rightRear, motoOnTele, capture;
     public DistanceSensor r1, r2;
-    public Servo Plain, UnderTele, Hook;
+    public Servo plain, underHook, hook;
     private BNO055IMU imu;
     private DigitalChannel touch;
 
@@ -96,12 +94,12 @@ public class AutoMethods extends LinearOpMode {
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        motoOnTele1 = hardwareMap.get(DcMotor.class, "motoOnTele1");
-        Capture0 = hardwareMap.get(DcMotor.class, "Capture0");
+        motoOnTele = hardwareMap.get(DcMotor.class, "motoOnTele");
+        capture = hardwareMap.get(DcMotor.class, "capture");
 
-        Plain = hardwareMap.get(Servo.class, "Plain");
-        UnderTele = hardwareMap.get(Servo.class, "UnderTele");
-        Hook = hardwareMap.get(Servo.class, "Hook");
+        plain = hardwareMap.get(Servo.class, "plain");
+        underHook = hardwareMap.get(Servo.class, "underHook");
+        hook = hardwareMap.get(Servo.class, "hook");
 
         initIMU(op);
 
@@ -109,22 +107,22 @@ public class AutoMethods extends LinearOpMode {
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motoOnTele1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Capture0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motoOnTele.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        capture.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        capture.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        motoOnTele1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        Capture0.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         touch = op.hardwareMap.get(DigitalChannel.class, "touch");
         touch.setMode(DigitalChannel.Mode.INPUT);

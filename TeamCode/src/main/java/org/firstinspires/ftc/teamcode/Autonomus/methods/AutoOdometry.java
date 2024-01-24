@@ -5,12 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -37,9 +36,9 @@ public class AutoOdometry extends LinearOpMode {
     public int baza = 1;
 
     //Железо
-    public DcMotor m1, m2, m3, m4, m5, m6, m7, led;
+    public DcMotor leftFront, leftRear, rightRear, rightFront, capture, motoOnTele, led;
     public DistanceSensor r1, r2;
-    public Servo s1, s2, s3, s4;
+    public Servo plain, hook, underHook;
     private BNO055IMU imu;
     private DigitalChannel touch;
 
@@ -90,32 +89,39 @@ public class AutoOdometry extends LinearOpMode {
     //Инициализируем железо
     public void initC(OpMode op) {
         this.op = op;
-        m1 = op.hardwareMap.get(DcMotor.class, "m1");
-        m2 = op.hardwareMap.get(DcMotor.class, "m2");
-        m3 = op.hardwareMap.get(DcMotor.class, "m3");
-        m4 = op.hardwareMap.get(DcMotor.class, "m4");
-        m5 = op.hardwareMap.get(DcMotor.class, "m5");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        capture = hardwareMap.get(DcMotorEx.class, "rightRear");
+        motoOnTele = hardwareMap.get(DcMotorEx.class, "rightFront");
 
-        s1 = op.hardwareMap.get(Servo.class, "s1");
+        plain = hardwareMap.get(Servo.class, "plain");
+        underHook = hardwareMap.get(Servo.class, "underHook");
+        hook = hardwareMap.get(Servo.class, "hook");
+
         initIMU(op);
 
-        m1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        m2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        m3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        m4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        m5.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        capture.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        motoOnTele.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        m1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m3.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m4.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        m5.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        capture.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m5.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        capture.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motoOnTele.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         touch = op.hardwareMap.get(DigitalChannel.class, "touch");
         touch.setMode(DigitalChannel.Mode.INPUT);
@@ -160,167 +166,167 @@ public class AutoOdometry extends LinearOpMode {
     }
 
     public void measure(OpMode op) {
-        this.op = op;
-
-        double speed = 1;
-        boolean slowmode = false;
-
-        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        runtime.reset();
-
-        while (opModeIsActive() && !isStopRequested()) {
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            alpha = (angles.firstAngle + 450) % 360;
-
-            oldposx = curposx;
-            oldposy1 = curposy1;
-            oldposy2 = curposy2;
-
-            curposx = m1.getCurrentPosition() - prev_x;
-            curposy1 = m2.getCurrentPosition() - prev_y1;
-            curposy2 = m3.getCurrentPosition() - prev_y2;
-
-            ey1r = curposy1 - oldposy1;
-            ey2r = curposy2 - oldposy2;
-            exr = curposx - oldposx;
-
-            ey = (ey1r + ey2r) / 2;
-            ex = exr + (ey2r - ey1r) / 2;
-
-            sina = Math.sin(Math.toRadians(alpha));
-            cosa = Math.cos(Math.toRadians(alpha));
-
-            posx += ey*cosa + ex*sina;
-            posy += ey*sina - ex*cosa;
-
-            op.telemetry.addData("X:", posx);
-            op.telemetry.addData("Y", posy);
-            op.telemetry.addData("Alpha", alpha);
-            op.telemetry.addLine("________________________________________________");
-            op.telemetry.addData("Encoder X", curposx);
-            op.telemetry.addData("Encoder Y1", curposy1);
-            op.telemetry.addData("Encoder Y2", curposy2);
-            op.telemetry.update();
-
-        }
+//        this.op = op;
+//
+//        double speed = 1;
+//        boolean slowmode = false;
+//
+//        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//        runtime.reset();
+//
+//        while (opModeIsActive() && !isStopRequested()) {
+//
+//            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//            alpha = (angles.firstAngle + 450) % 360;
+//
+//            oldposx = curposx;
+//            oldposy1 = curposy1;
+//            oldposy2 = curposy2;
+//
+//            curposx = m1.getCurrentPosition() - prev_x;
+//            curposy1 = m2.getCurrentPosition() - prev_y1;
+//            curposy2 = m3.getCurrentPosition() - prev_y2;
+//
+//            ey1r = curposy1 - oldposy1;
+//            ey2r = curposy2 - oldposy2;
+//            exr = curposx - oldposx;
+//
+//            ey = (ey1r + ey2r) / 2;
+//            ex = exr + (ey2r - ey1r) / 2;
+//
+//            sina = Math.sin(Math.toRadians(alpha));
+//            cosa = Math.cos(Math.toRadians(alpha));
+//
+//            posx += ey*cosa + ex*sina;
+//            posy += ey*sina - ex*cosa;
+//
+//            op.telemetry.addData("X:", posx);
+//            op.telemetry.addData("Y", posy);
+//            op.telemetry.addData("Alpha", alpha);
+//            op.telemetry.addLine("________________________________________________");
+//            op.telemetry.addData("Encoder X", curposx);
+//            op.telemetry.addData("Encoder Y1", curposy1);
+//            op.telemetry.addData("Encoder Y2", curposy2);
+//            op.telemetry.update();
+//
+//        }
     }
 
     public void move(OpMode op, double x, double y, double spd, double ang, double timeout) {
-        this.op = op;
-
-        double speed = 1;
-        double xl, yl, xv, yv, hypl, ugol = 0;
-        boolean slowmode = false;
-
-        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        xl = x-posx;
-        yl = y-posy;
-
-        runtime.reset();
-
-        while (opModeIsActive() && !isStopRequested() && (Math.abs(xl) > 1 || Math.abs(yl) > 1) && (runtime.milliseconds() - timeout * 1000) < 0) {
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            alpha = (angles.firstAngle + 450) % 360;
-
-            oldposx = curposx;
-            oldposy1 = curposy1;
-            oldposy2 = curposy2;
-
-            curposx = m1.getCurrentPosition() - prev_x;
-            curposy1 = m2.getCurrentPosition() - prev_y1;
-            curposy2 = m3.getCurrentPosition() - prev_y2;
-
-            ey1r = curposy1 - oldposy1;
-            ey2r = curposy2 - oldposy2;
-            exr = curposx - oldposx;
-
-            ey = (ey1r + ey2r) / 2;
-            ex = exr + (ey2r - ey1r) / 2;
-
-            sina = Math.sin(Math.toRadians(alpha));
-            cosa = Math.cos(Math.toRadians(alpha));
-
-            posx += ey*cosa + ex*sina;
-            posy += ey*sina - ex*cosa;
-
-            xl = x-posx;
-            yl = y-posy;
-
-            if (yl > 0) {
-                if (xl >= 0) {
-                    ugol = Math.atan(xl/yl);
-                }
-                if (xl < 0) {
-                    ugol = 3.141592653589*2 - Math.abs(Math.atan(xl/yl));
-                }
-            }
-
-            if (yl < 0) {
-                if (x >= 0) {
-                    ugol = 3.141592653589 - Math.abs(Math.atan(xl/yl));
-                }
-                if (xl < 0) {
-                    ugol = 3.141592653589 + Math.atan(xl/yl);
-                }
-            }
-
-            if (yl == 0) {
-                if (xl >= 0) {
-                    ugol = 3.141592653589/2;
-                }
-                if (xl < 0) {
-                    ugol = -(3.141592653589/2);
-                }
-            }
-
-            ugol = ugol - Math.toRadians(ang);
-
-            vyr = (angles.firstAngle + ang) / 20;
-
-            hypl = Math.sqrt(xl*xl + yl*yl);
-
-            if (hypl <= 180) {
-                slowmode = true;
-            }
-            if (slowmode == true) {
-                spd = Range.clip(
-                        ((0.22 + hypl/270)),
-                        0.2,
-                        0.5);
-            }
-            if (slowmode == false) {
-                spd = 1;
-            }
-
-            voltage = op.hardwareMap.getAll(VoltageSensor.class).iterator().next().getVoltage();
-            voltage_k = (12.5/voltage);
-
-            theta = angles.firstAngle;
-            beta = theta + 90;
-
-            sinb = Math.sin(Math.toRadians(beta));
-            cosb = Math.cos(Math.toRadians(beta));
-
-            sint = Math.sin(Math.toRadians(theta));
-            cost = Math.cos(Math.toRadians(theta));
-
-            xv = Math.sin(ugol);
-            yv = Math.cos(ugol);
-
-            m1v = yv - xv;
-            m2v = xv + yv;
-            m3v = xv - yv;
-            m4v = -xv - yv;
+//        this.op = op;
+//
+//        double speed = 1;
+//        double xl, yl, xv, yv, hypl, ugol = 0;
+//        boolean slowmode = false;
+//
+//        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//        xl = x-posx;
+//        yl = y-posy;
+//
+//        runtime.reset();
+//
+//        while (opModeIsActive() && !isStopRequested() && (Math.abs(xl) > 1 || Math.abs(yl) > 1) && (runtime.milliseconds() - timeout * 1000) < 0) {
+//
+//            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//            alpha = (angles.firstAngle + 450) % 360;
+//
+//            oldposx = curposx;
+//            oldposy1 = curposy1;
+//            oldposy2 = curposy2;
+//
+//            curposx = m1.getCurrentPosition() - prev_x;
+//            curposy1 = m2.getCurrentPosition() - prev_y1;
+//            curposy2 = m3.getCurrentPosition() - prev_y2;
+//
+//            ey1r = curposy1 - oldposy1;
+//            ey2r = curposy2 - oldposy2;
+//            exr = curposx - oldposx;
+//
+//            ey = (ey1r + ey2r) / 2;
+//            ex = exr + (ey2r - ey1r) / 2;
+//
+//            sina = Math.sin(Math.toRadians(alpha));
+//            cosa = Math.cos(Math.toRadians(alpha));
+//
+//            posx += ey*cosa + ex*sina;
+//            posy += ey*sina - ex*cosa;
+//
+//            xl = x-posx;
+//            yl = y-posy;
+//
+//            if (yl > 0) {
+//                if (xl >= 0) {
+//                    ugol = Math.atan(xl/yl);
+//                }
+//                if (xl < 0) {
+//                    ugol = 3.141592653589*2 - Math.abs(Math.atan(xl/yl));
+//                }
+//            }
+//
+//            if (yl < 0) {
+//                if (x >= 0) {
+//                    ugol = 3.141592653589 - Math.abs(Math.atan(xl/yl));
+//                }
+//                if (xl < 0) {
+//                    ugol = 3.141592653589 + Math.atan(xl/yl);
+//                }
+//            }
+//
+//            if (yl == 0) {
+//                if (xl >= 0) {
+//                    ugol = 3.141592653589/2;
+//                }
+//                if (xl < 0) {
+//                    ugol = -(3.141592653589/2);
+//                }
+//            }
+//
+//            ugol = ugol - Math.toRadians(ang);
+//
+//            vyr = (angles.firstAngle + ang) / 20;
+//
+//            hypl = Math.sqrt(xl*xl + yl*yl);
+//
+//            if (hypl <= 180) {
+//                slowmode = true;
+//            }
+//            if (slowmode == true) {
+//                spd = Range.clip(
+//                        ((0.22 + hypl/270)),
+//                        0.2,
+//                        0.5);
+//            }
+//            if (slowmode == false) {
+//                spd = 1;
+//            }
+//
+//            voltage = op.hardwareMap.getAll(VoltageSensor.class).iterator().next().getVoltage();
+//            voltage_k = (12.5/voltage);
+//
+//            theta = angles.firstAngle;
+//            beta = theta + 90;
+//
+//            sinb = Math.sin(Math.toRadians(beta));
+//            cosb = Math.cos(Math.toRadians(beta));
+//
+//            sint = Math.sin(Math.toRadians(theta));
+//            cost = Math.cos(Math.toRadians(theta));
+//
+//            xv = Math.sin(ugol);
+//            yv = Math.cos(ugol);
+//
+//            m1v = yv - xv;
+//            m2v = xv + yv;
+//            m3v = xv - yv;
+//            m4v = -xv - yv;
 
             //Headless mode
             /*
@@ -330,153 +336,153 @@ public class AutoOdometry extends LinearOpMode {
             m4.setPower(Range.clip(((-sinb - cosb)*yv + (-sint - cost)*xv - vyr), -1, 1) * spd * voltage_k);
             */
             //Normal mode
-            m1.setPower(Range.clip((m1v - vyr), -1, 1) * spd * voltage_k);
-            m2.setPower(Range.clip((m2v - vyr), -1, 1) * spd * voltage_k);
-            m3.setPower(Range.clip((m3v - vyr), -1, 1) * spd * voltage_k);
-            m4.setPower(Range.clip((m4v - vyr), -1, 1) * spd * voltage_k);
-
-            op.telemetry.addData("X:", posx);
-            op.telemetry.addData("Y", posy);
-
-            op.telemetry.addData("Alpha", alpha);
-            op.telemetry.addLine("________________________________________________");
-
-            op.telemetry.addData("Энкодер оси x (готовый)", m1.getCurrentPosition());
-            op.telemetry.addData("Энкодер оси y2", m2.getCurrentPosition());
-            op.telemetry.addData("Энкодер оси y1", m3.getCurrentPosition());
-
-            op.telemetry.addData("Проех x", prev_x);
-            op.telemetry.addData("Проех y1", prev_y1);
-            op.telemetry.addData("Проех y2", prev_y2);
-
-            op.telemetry.addData("Encoder X", curposx);
-            op.telemetry.addData("Encoder Y1", curposy1);
-            op.telemetry.addData("Encoder Y2", curposy2);
-            op.telemetry.update();
-
-        }
+//            m1.setPower(Range.clip((m1v - vyr), -1, 1) * spd * voltage_k);
+//            m2.setPower(Range.clip((m2v - vyr), -1, 1) * spd * voltage_k);
+//            m3.setPower(Range.clip((m3v - vyr), -1, 1) * spd * voltage_k);
+//            m4.setPower(Range.clip((m4v - vyr), -1, 1) * spd * voltage_k);
+//
+//            op.telemetry.addData("X:", posx);
+//            op.telemetry.addData("Y", posy);
+//
+//            op.telemetry.addData("Alpha", alpha);
+//            op.telemetry.addLine("________________________________________________");
+//
+//            op.telemetry.addData("Энкодер оси x (готовый)", m1.getCurrentPosition());
+//            op.telemetry.addData("Энкодер оси y2", m2.getCurrentPosition());
+//            op.telemetry.addData("Энкодер оси y1", m3.getCurrentPosition());
+//
+//            op.telemetry.addData("Проех x", prev_x);
+//            op.telemetry.addData("Проех y1", prev_y1);
+//            op.telemetry.addData("Проех y2", prev_y2);
+//
+//            op.telemetry.addData("Encoder X", curposx);
+//            op.telemetry.addData("Encoder Y1", curposy1);
+//            op.telemetry.addData("Encoder Y2", curposy2);
+//            op.telemetry.update();
+//
+//        }
     }
 
     public void rotate(double ugolok) {
 
-        int vyr_znak;
-
-        ugolok = -ugolok;
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        prev_x = m1.getCurrentPosition() + prev_x;
-        prev_y1 = m2.getCurrentPosition() + prev_y1;
-        prev_y2 = m3.getCurrentPosition() + prev_y2;
-
-        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > 0.3) {
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-            vyr = (angles.firstAngle - ugolok) / 150;
-            vyr_znak = (int) (vyr/Math.abs(vyr));
-
-            m1.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m2.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m3.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m4.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-        }
-
-        m1.setPower(0);
-        m2.setPower(0);
-        m3.setPower(0);
-        m4.setPower(0);
-
-        prev_x = m1.getCurrentPosition() - prev_x;
-        prev_y1 = m2.getCurrentPosition() - prev_y1;
-        prev_y2 = m3.getCurrentPosition() - prev_y2;
+//        int vyr_znak;
+//
+//        ugolok = -ugolok;
+//
+//        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//        prev_x = m1.getCurrentPosition() + prev_x;
+//        prev_y1 = m2.getCurrentPosition() + prev_y1;
+//        prev_y2 = m3.getCurrentPosition() + prev_y2;
+//
+//        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > 0.3) {
+//
+//            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//            vyr = (angles.firstAngle - ugolok) / 150;
+//            vyr_znak = (int) (vyr/Math.abs(vyr));
+//
+//            m1.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m2.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m3.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m4.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//        }
+//
+//        m1.setPower(0);
+//        m2.setPower(0);
+//        m3.setPower(0);
+//        m4.setPower(0);
+//
+//        prev_x = m1.getCurrentPosition() - prev_x;
+//        prev_y1 = m2.getCurrentPosition() - prev_y1;
+//        prev_y2 = m3.getCurrentPosition() - prev_y2;
     }
 
     public void rotate_rough(double ugolok) {
 
-        int vyr_znak;
-
-        ugolok = -ugolok;
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > 1.5) {
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-            vyr = (angles.firstAngle - ugolok) / 100;
-            vyr_znak = (int) (vyr/Math.abs(vyr));
-
-            m1.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
-            m2.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
-            m3.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
-            m4.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
-        }
-
-        m1.setPower(0);
-        m2.setPower(0);
-        m3.setPower(0);
-        m4.setPower(0);
+//        int vyr_znak;
+//
+//        ugolok = -ugolok;
+//
+//        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > 1.5) {
+//
+//            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//            vyr = (angles.firstAngle - ugolok) / 100;
+//            vyr_znak = (int) (vyr/Math.abs(vyr));
+//
+//            m1.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
+//            m2.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
+//            m3.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
+//            m4.setPower(Range.clip(-(vyr + 0.2 * vyr_znak), -1, 1));
+//        }
+//
+//        m1.setPower(0);
+//        m2.setPower(0);
+//        m3.setPower(0);
+//        m4.setPower(0);
     }
 
     public void tele(double pos) {
-
-        if (m5.getCurrentPosition() < pos) {
-            while (opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() < pos) {
-                m5.setPower(-0.8);
-            }
-            m5.setPower(0);
-        }
-
-        if (m5.getCurrentPosition() > pos) {
-            while (opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() > pos) {
-                m5.setPower(0.3);
-            }
-            m5.setPower(0);
-        }
+//
+//        if (m5.getCurrentPosition() < pos) {
+//            while (opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() < pos) {
+//                m5.setPower(-0.8);
+//            }
+//            m5.setPower(0);
+//        }
+//
+//        if (m5.getCurrentPosition() > pos) {
+//            while (opModeIsActive() && !isStopRequested() && m5.getCurrentPosition() > pos) {
+//                m5.setPower(0.3);
+//            }
+//            m5.setPower(0);
+//        }
     }
 
     public void rotate_zamer() {
 
-        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        int vyr_znak;
-        double ugolok = 90;
-
-        ugolok = -ugolok;
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > -1) {
-
-            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-            vyr = (angles.firstAngle - ugolok) / 150;
-            vyr_znak = (int) (vyr/Math.abs(vyr));
-
-            m1.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m2.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m3.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-            m4.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
-
-            op.telemetry.addData("Энкодер оси x", m1.getCurrentPosition() - prev_x);
-            op.telemetry.addData("Энкодер оси y2", m2.getCurrentPosition() - prev_y1);
-            op.telemetry.addData("Энкодер оси y1", m3.getCurrentPosition() - prev_y2);
-
-            op.telemetry.addData("Энкодер оси x (истинный)", m1.getCurrentPosition());
-            op.telemetry.addData("Энкодер оси y1 (истинный)", m2.getCurrentPosition());
-            op.telemetry.addData("Энкодер оси y2 (истинный)", m3.getCurrentPosition());
-            op.telemetry.addData("Энкодер стрелы", m5.getCurrentPosition());
-            op.telemetry.addData("Угол робота", angles.firstAngle);
-            op.telemetry.update();
-        }
-
-        m1.setPower(0);
-        m2.setPower(0);
-        m3.setPower(0);
-        m4.setPower(0);
+//        m1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        m4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//        int vyr_znak;
+//        double ugolok = 90;
+//
+//        ugolok = -ugolok;
+//
+//        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//        while (opModeIsActive() && !isStopRequested() && Math.abs(angles.firstAngle - ugolok) > -1) {
+//
+//            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//
+//            vyr = (angles.firstAngle - ugolok) / 150;
+//            vyr_znak = (int) (vyr/Math.abs(vyr));
+//
+//            m1.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m2.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m3.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//            m4.setPower(Range.clip(-(vyr + 0.15 * vyr_znak), -1, 1));
+//
+//            op.telemetry.addData("Энкодер оси x", m1.getCurrentPosition() - prev_x);
+//            op.telemetry.addData("Энкодер оси y2", m2.getCurrentPosition() - prev_y1);
+//            op.telemetry.addData("Энкодер оси y1", m3.getCurrentPosition() - prev_y2);
+//
+//            op.telemetry.addData("Энкодер оси x (истинный)", m1.getCurrentPosition());
+//            op.telemetry.addData("Энкодер оси y1 (истинный)", m2.getCurrentPosition());
+//            op.telemetry.addData("Энкодер оси y2 (истинный)", m3.getCurrentPosition());
+//            op.telemetry.addData("Энкодер стрелы", m5.getCurrentPosition());
+//            op.telemetry.addData("Угол робота", angles.firstAngle);
+//            op.telemetry.update();
+//        }
+//
+//        m1.setPower(0);
+//        m2.setPower(0);
+//        m3.setPower(0);
+//        m4.setPower(0);
     }
 }

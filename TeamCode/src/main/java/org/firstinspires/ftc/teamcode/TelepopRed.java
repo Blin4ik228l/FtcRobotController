@@ -38,6 +38,7 @@ public class TelepopRed extends LinearOpMode implements Inter{
     //Железо
     private DcMotor leftRear, rightRear, rightFront, leftFront;
     private Servo s5;
+    private DigitalChannel touch;
 
     //Переменные моторов
 
@@ -76,7 +77,9 @@ public class TelepopRed extends LinearOpMode implements Inter{
         leftRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRear.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        touch.setMode(DigitalChannel.Mode.INPUT);
+        touch = hardwareMap.get(DigitalChannel.class, "touch");
+
+        touch.setMode(DigitalChannel.Mode.INPUT);
     }
 
     @Override
@@ -114,22 +117,22 @@ public class TelepopRed extends LinearOpMode implements Inter{
 
 
                             //Мощность моторов тележки
-                            zm1 = Range.clip((-gamepad1.left_stick_x - gamepad1.left_stick_y - turn) * a, -1, 1);
+                            zm1 = Range.clip((gamepad1.left_stick_x - gamepad1.left_stick_y - turn) * a, -1, 1);
                             if (zm1 > -0.05 && zm1 < 0.05) {
                                 zm1 = 0;
                             }
 
-                            zm2 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
+                            zm2 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
                             if (zm2 > -0.05 && zm2 < 0.05) {
                                 zm2 = 0;
                             }
 
-                            zm3 = Range.clip((gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
+                            zm3 = Range.clip((-gamepad1.left_stick_x + gamepad1.left_stick_y - turn) * a, -1, 1);
                             if (zm3 > -0.05 && zm3 < 0.05) {
                                 zm3 = 0;
                             }
 
-                            zm4 = Range.clip((gamepad1.left_stick_x - gamepad1.left_stick_y - turn) * a, -1, 1);
+                            zm4 = Range.clip((-gamepad1.left_stick_x - gamepad1.left_stick_y - turn) * a, -1, 1);
                             if (zm4 > -0.05 && zm4 < 0.05) {
                                 zm4 = 0;
                             }
@@ -139,6 +142,7 @@ public class TelepopRed extends LinearOpMode implements Inter{
                             moment_diff_serv = runtime.milliseconds() - last_moment_serv;
                             moment_diff_switch = runtime.milliseconds() - last_moment_switch;
 
+                          
                             //Ручной захват
 //                        if(touch.getState() == false){
 //                            zs5 = CLOSE;

@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 //Основная идея:
 //получить полный контроль над движениями робота
 @Autonomous
 public class AutoNewGen extends LinearOpMode {
-
 
     @Override
     public void runOpMode() throws InterruptedException {

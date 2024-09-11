@@ -14,8 +14,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous
 public class AutoNewGen extends LinearOpMode {
 
+
     @Override
     public void runOpMode() throws InterruptedException {
+        telemetry.addLine("initing");
+        waitForStart();
+        speedClass();
+    }
 
+    public void speedClass(){
+        while(opModeIsActive() && !isStopRequested()) {
+
+            telemetry.update();
+        }
     }
 }

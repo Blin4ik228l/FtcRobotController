@@ -2,7 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.openftc.easyopencv.PipelineRecordingParameters;
+
+import java.util.Base64;
 
 public class InitClass extends AutoNewGen {
     //Моторы на телеге
@@ -19,6 +25,7 @@ public class InitClass extends AutoNewGen {
 
 
 
+
     public void initDevices(){
         rightB = hardwareMap.get(DcMotorEx.class, "rightB");//<----Зелённым пишется так, как в телефоне
         rightF = hardwareMap.get(DcMotorEx.class, "rightF");
@@ -28,6 +35,8 @@ public class InitClass extends AutoNewGen {
         encB = hardwareMap.get(DcMotorEx.class, "encB");
         encL = hardwareMap.get(DcMotorEx.class, "encL");
         encR = hardwareMap.get(DcMotorEx.class, "encR");
+
+        brakeAllMotors();
     }
     public void resetAllEncoders(){
         rightB.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);

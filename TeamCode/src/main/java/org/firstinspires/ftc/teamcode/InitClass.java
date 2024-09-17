@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.openftc.easyopencv.PipelineRecordingParameters;
@@ -21,22 +23,24 @@ public class InitClass extends AutoNewGen {
     DcMotorEx encB, encL, encR;
 
     //Серваки
-    Servo sampleServo;
+    Servo sHook;
 
-
-
+    NormalizedColorSensor colorSensor;
 
     public void initDevices(){
-        rightB = hardwareMap.get(DcMotorEx.class, "rightB");//<----Зелённым пишется так, как в телефоне
-        rightF = hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = hardwareMap.get(DcMotorEx.class, "leftF");
+//        rightB = hardwareMap.get(DcMotorEx.class, "rightB");//<----Зелённым пишется так, как в телефоне
+//        rightF = hardwareMap.get(DcMotorEx.class, "rightF");
+//        leftB = hardwareMap.get(DcMotorEx.class, "leftB");
+//        leftF = hardwareMap.get(DcMotorEx.class, "leftF");
 
-        encB = hardwareMap.get(DcMotorEx.class, "encB");
-        encL = hardwareMap.get(DcMotorEx.class, "encL");
-        encR = hardwareMap.get(DcMotorEx.class, "encR");
 
-        brakeAllMotors();
+
+        sHook = hardwareMap.get(Servo.class, "sHook");
+//        encB = hardwareMap.get(DcMotorEx.class, "encB");
+//        encL = hardwareMap.get(DcMotorEx.class, "encL");
+//        encR = hardwareMap.get(DcMotorEx.class, "encR");
+
+
     }
     public void resetAllEncoders(){
         rightB.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);

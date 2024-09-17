@@ -21,7 +21,7 @@ public class Test {
                                                    double angleRadians) {
 
         double resultX = robotCoordinates.x * cos(angleRadians) - robotCoordinates.y * sin(angleRadians);
-        double resultY = robotCoordinates.x * sin(angleRadians) + robotCoordinates.y * сos(angleRadians);
+        double resultY = robotCoordinates.x * sin(angleRadians) + robotCoordinates.y * cos(angleRadians);
 
         return new Coordinates(resultX, resultY);
     }

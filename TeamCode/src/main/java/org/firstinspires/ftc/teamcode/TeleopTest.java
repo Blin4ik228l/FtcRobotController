@@ -73,6 +73,8 @@ public class TeleopTest extends OpMode {
         telemetry.addData("Правый энкодер см", -encR.getCurrentPosition()/(CONSTS.TICK_PER_CM));
         telemetry.addData("Серединный энкодер см", encM.getCurrentPosition()/(CONSTS.TICK_PER_CM));
 
+        telemetry.addData("Угол поворота робота", ((encL.getCurrentPosition()/(CONSTS.TICK_PER_CM))/(CONSTS.LENGHT_ROUND_SMALL)) * 360);
+
         telemetry.addData("Левый экодер тики/сек", encL.getVelocity());
         telemetry.addData("Правый энкодер тики/сек", -encR.getVelocity());
         telemetry.addData("Серединный энкодер/сек", encM.getVelocity());

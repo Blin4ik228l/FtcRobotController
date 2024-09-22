@@ -37,9 +37,9 @@ public class TeleopTest extends OpMode {
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        encM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        encR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        encL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
@@ -73,7 +73,13 @@ public class TeleopTest extends OpMode {
         telemetry.addData("Правый энкодер см", -encR.getCurrentPosition()/(CONSTS.TICK_PER_CM));
         telemetry.addData("Серединный энкодер см", encM.getCurrentPosition()/(CONSTS.TICK_PER_CM));
 
-        telemetry.addData("Угол поворота робота", ((encL.getCurrentPosition()/(CONSTS.TICK_PER_CM))/(CONSTS.LENGHT_ROUND_SMALL)) * 360);
+if (rightB.getPower() + leftF.getPower() == 0){
+    telemetry.addData("Угол поворота робота", (((encL.getCurrentPosition()-encR.getCurrentPosition()/(CONSTS.TICK_PER_CM))/2)
+        /(CONSTS.LENGHT_ROUND_SMALL)) * 360);}
+else{
+    telemetry.addData("Угол поворота робота", (((encL.getCurrentPosition()+encR.getCurrentPosition()/(CONSTS.TICK_PER_CM))/2)
+            /(CONSTS.LENGHT_ROUND_SMALL)) * 360);
+}
 
         telemetry.addData("Левый экодер тики/сек", encL.getVelocity());
         telemetry.addData("Правый энкодер тики/сек", -encR.getVelocity());

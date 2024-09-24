@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 
-public interface CONSTS {
+public interface CONSTS {//ВСЁ В СМ!!!!
     double RPM_MOTOR_WHEEL = 300;
     double TPR_WHEEL = 560;
     double TPR_ENCODER = 2000;
@@ -16,8 +16,10 @@ public interface CONSTS {
     double DIST_TO_ENC_R_FROM_ENC_M = 15.25;
     double DIST_TO_ENC_L_FROM_ENC_M = 15.25;
     double DIST_BETWEEN_ENC_X = 30.5;
-    double LENGHT_ROUND_BIG = 42.7 * 31;
-    double LENGHT_ROUND_SMALL = 30.5 * 3.14 ;
+    double LENGHT_ROUND_BIG = 42.7 * 3.14;
+    double LENGHT_ROUND_SMALL = 30.5 * 3.14;
+    double DIST_FIELD_Y = 302.26;
+    double DIST_FIELD_X = 302.26;
 
     double CLOSE = 0.0;
     double OPEN = 0.5;

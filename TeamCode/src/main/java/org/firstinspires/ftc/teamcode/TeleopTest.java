@@ -138,15 +138,34 @@ public class TeleopTest extends OpMode {
             }
         }
         double turn  =  gamepad1.right_stick_x;
-        double rightFP = Range.clip(-gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
-        double rightBP = Range.clip(-gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
-        double leftFP = Range.clip(gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
-        double leftBP = Range.clip(gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
+
         double Rx = 0;
+        double Razn = 0;
         double Ry = 0;
         double Rad = 0;
         double angle_robot = 0;
+        double velocityAngle = ((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_DEGR;
+        double velocityX = ((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_DEGR;
+        double velocityY = (encM.getVelocity()/CONSTS.TICK_PER_DEGR) - velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER;
+        double kF = 1/CONSTS.MAX_TPS_ENCODER;
+        double targetVelX = gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER ;
+        double targetVelY = gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER ;
+        double targetVelAngle = turn * CONSTS.MAX_TPS_ENCODER;
+        double kP = 0.000034;
 
+        double forward = (targetVelX - velocityX) * kP + (targetVelX * kF);
+        double side = (targetVelY - velocityY) * kP + (targetVelY * kF);
+        double angle = (targetVelAngle - velocityAngle) * kP + (targetVelAngle * kF);
+
+//        double rightFP = Range.clip(-gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
+//        double rightBP = Range.clip(-gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
+//        double leftFP = Range.clip(gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
+//        double leftBP = Range.clip(gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
+
+        double rightFP = Range.clip(-forward - side - angle, -1.0, 1.0);
+        double rightBP = Range.clip(-forward + side - angle, -1.0, 1.0);
+        double leftFP = Range.clip(forward - side - angle, -1.0, 1.0);
+        double leftBP = Range.clip(forward + side - angle, -1.0, 1.0);
         
         rightF.setPower(rightFP);
         rightB.setPower(rightBP);
@@ -154,39 +173,53 @@ public class TeleopTest extends OpMode {
         leftB.setPower(leftBP);
 
         if(turn == 0.0 && gamepad1.left_stick_x == 0.0 && gamepad1.left_stick_y == 0.0){
-            rightF.setPower(0);
-            rightB.setPower(0);
-            leftF.setPower(0);
-            leftB.setPower(0);
 
-            rightB.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-            rightF.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-            leftB.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-            leftF.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+//              rightF.setPower(-rightF.getPower());
+//              rightB.setPower(-rightB.getPower());
+//              leftF.setPower(-leftF.getPower());
+//              leftB.setPower(-leftB.getPower());
+            if(encR.getCurrentPosition() != 0 || encL.getCurrentPosition() != 0 || encM.getCurrentPosition() != 0) {
+                encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+
+              rightF.setPower(0);
+              rightB.setPower(0);
+              leftF.setPower(0);
+              leftB.setPower(0);
+
+              rightB.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+              rightF.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+              leftB.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+              leftF.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+
         }
 
         if (rightB.getPower() + leftF.getPower() != 0 ){
-            Rx = (((encL.getCurrentPosition() + encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
-            telemetry.addLine("Круговое");
+            //Круговое
             a = 1;
             x = 0;
         } else  if(rightB.getPower() < 0 && leftB.getPower() > 0 || rightB.getPower() > 0 && leftB.getPower() < 0 ){
-            Rx = (((encL.getCurrentPosition() - encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
-            telemetry.addLine("Прямое");
+            //Прямое
             x = 1;
             a = 0;
         }
         if(gamepad1.a || a == 1 ){
-            Rx = (((encL.getCurrentPosition() + encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
             telemetry.addLine("Круговое");
         } else if (gamepad1.x || x == 1) {
-            Rx = (((encL.getCurrentPosition() - encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
             telemetry.addLine("Прямое");
         }
-
+        Razn = (((encL.getCurrentPosition() + encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
+        Rx = (((encL.getCurrentPosition() - encR.getCurrentPosition())/2) / CONSTS.TICK_PER_CM);
         Ry = (encM.getCurrentPosition()/CONSTS.TICK_PER_CM);
-        angle_robot = (Rx/CONSTS.LENGHT_ROUND_SMALL) * 360;
-        Rad = Rx/(CONSTS.DIST_BETWEEN_ENC_X/2);
+        angle_robot = (Razn/CONSTS.LENGHT_ROUND_SMALL) * 360;
+        Rad = Razn/(CONSTS.DIST_BETWEEN_ENC_X/2);
 
 //        double znak = angle_robot/ Math.abs(angle_robot);
 //
@@ -194,11 +227,11 @@ public class TeleopTest extends OpMode {
 //            angle_robot = znak * (Math.abs(angle_robot) - 360);
 //        }
 
+
+
         if(rightB.getPower() != 0 && leftB.getPower() != 0) {
-            Gx += Rx * Math.cos(angle_robot) - Rx * Math.sin(angle_robot);
-            Gy += Rx * Math.sin(angle_robot) + Rx * Math.cos(angle_robot);
-//            Gx += Rx;
-//            Gy += Ry;
+            Gx = Rx * Math.cos(Rad) - Ry * Math.sin(Rad);
+            Gy = Rx * Math.sin(Rad) + Ry * Math.cos(Rad);
         }
 
         if(gamepad1.b){
@@ -206,25 +239,26 @@ public class TeleopTest extends OpMode {
             telemetry.addData("Напряга в rightF", rightF.getPower());
             telemetry.addData("Напряга в leftF", leftF.getPower());
             telemetry.addData("Напряга в leftB", leftB.getPower());
-            telemetry.addLine("\"");
+            telemetry.addLine("\\");
         }else {
             telemetry.addData("Левый экодер тики", encL.getCurrentPosition());
             telemetry.addData("Правый энкодер тики", encR.getCurrentPosition());
             telemetry.addData("Серединный энкодер", encM.getCurrentPosition());
-            telemetry.addLine("\"");
+            telemetry.addLine("\\");
 
             telemetry.addData("Левый экодер см", encL.getCurrentPosition() / (CONSTS.TICK_PER_CM));
             telemetry.addData("Правый энкодер см", encR.getCurrentPosition() / (CONSTS.TICK_PER_CM));
             telemetry.addData("Серединный энкодер см", encM.getCurrentPosition() / (CONSTS.TICK_PER_CM));
             telemetry.addLine("\"");
 
-            telemetry.addData("Левый экодер тики/сек", encL.getVelocity());
-            telemetry.addData("Правый энкодер тики/сек", encR.getVelocity());
-            telemetry.addData("Серединный энкодер/сек", encM.getVelocity());
+            telemetry.addData("Левый экодер градус/сек", encL.getVelocity()/CONSTS.TICK_PER_DEGR);
+            telemetry.addData("Правый энкодер градус/сек", encR.getVelocity()/CONSTS.TICK_PER_DEGR);
+            telemetry.addData("Серединный градус/сек", encM.getVelocity()/CONSTS.TICK_PER_DEGR);
             telemetry.addLine("\"");
 
             telemetry.addData("Угол робота", angle_robot);
-            telemetry.addData("Угол робота через рад", Math.sin(Rad));
+            telemetry.addData("Угол синус через рад", Math.sin(Rad));
+            telemetry.addData("Угол синус через град", Math.sin(angle_robot));
             telemetry.addData("Радиан", Rad);
             telemetry.addLine("\"");
 

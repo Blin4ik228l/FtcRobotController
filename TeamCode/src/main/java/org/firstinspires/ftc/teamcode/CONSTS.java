@@ -19,14 +19,17 @@ public interface CONSTS {//ВСЁ В СМ!!!!
     double LENGTH_ROUND_BIG = 42.7 * Math.PI;// длина большей окружности
     double LENGTH_ROUND_SMALL = 30.5 * Math.PI;// длина меньшей окружности
     double LENGTH_ENC_WHEEL = WIDTH_ENC_WHEEL * Math.PI; //длина окружности колеса энкодера
+    double LENGTH_ROUND_WHEEL = WIDTH_WHEEL * Math.PI;
 
     //ОТНОШЕНИЕ КОЛЁС К ШЕСТЕРЁНКАМ ИЛИ ЭНКОДЕРУ
     double RATIO_WHEEL_ENCODER = WIDTH_WHEEL / WIDTH_ENC_WHEEL;//отношение колеса к колесу энкодера
 
-    //СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА(обор/мин(сек))
+    //СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА(обор(см)/мин(сек))
     double RPM_MOTOR_WHEEL = 435; // обор/мин
     double RPS_MOTOR_WHEEL = 435.0 / 60.0;// обор/сек
     double RPS_ENC_WHEEL = RPS_MOTOR_WHEEL * RATIO_WHEEL_ENCODER;// обор/сек энкодера
+    double CMPS_MOTOR_WHEEL = RPS_MOTOR_WHEEL * LENGTH_ROUND_WHEEL;// см/сек колеса
+    double CMPS_ENC_WHEEL = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;// см/сек энкодер
 
     //СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА (тики/обор)
     double TPR_WHEEL = 385;// тик/обор

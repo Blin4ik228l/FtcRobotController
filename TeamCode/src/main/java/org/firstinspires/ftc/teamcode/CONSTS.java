@@ -32,14 +32,16 @@ public interface CONSTS {//ВСЁ В СМ!!!!
     double CMPS_ENC_WHEEL = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;// см/сек энкодер
 
     //СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА (тики/обор)
-    double TPR_WHEEL = 385;// тик/обор
+    double TPR_WHEEL = 384.5;// тик/обор
     double TPR_ENCODER = 2000;// тики/обор
 
     //СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА В ТИКАХ(тики/мин(сек)(см)(градус))
+    double TICK_PER_CM_WHEEL = TPR_WHEEL/LENGTH_ROUND_WHEEL;
     double TPS_WHEEL = (RPM_MOTOR_WHEEL/60) * TPR_WHEEL;// тики/сек колеса
     double TICK_PER_CM = TPR_ENCODER/ (LENGTH_ENC_WHEEL); // тик/см энкодера
     double TICK_PER_DEGREES = TPR_ENCODER/360;  // тик/градус энкодера
     double MAX_TPS_ENCODER = TPR_ENCODER * RPS_ENC_WHEEL;//максимальная скорость тик/сек энкодера
+    double MAX_RAD_PER_SEC = MAX_TPS_ENCODER/CMPS_MOTOR_WHEEL/DIST_BETWEEN_ENC_X/2;
 
     //ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;

@@ -21,6 +21,8 @@ public class TeleopTest extends OpMode {
     double Gx, Gy;
     double a = 0, x = 0;
     int rounds = 0;
+    double  targetVelAngle
+            , velocityAngle;
     @Override
     public void init() {
         rightB = hardwareMap.get(DcMotorEx.class, "rightB");
@@ -28,9 +30,9 @@ public class TeleopTest extends OpMode {
         leftB = hardwareMap.get(DcMotorEx.class, "leftB");
         leftF = hardwareMap.get(DcMotorEx.class, "leftF");
 
-        encM = hardwareMap.get(DcMotorEx.class, "rightF") ;
-        encL = hardwareMap.get(DcMotorEx.class, "leftF") ;
-        encR =  hardwareMap.get(DcMotorEx.class, "rightB");
+        encM = hardwareMap.get(DcMotorEx.class, "encM") ;
+        encL = hardwareMap.get(DcMotorEx.class, "encL") ;
+        encR =  hardwareMap.get(DcMotorEx.class, "encR");
 
         rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
@@ -40,7 +42,9 @@ public class TeleopTest extends OpMode {
         encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -49,6 +53,7 @@ public class TeleopTest extends OpMode {
     @Override
     public void loop() {
         runtime.milliseconds();
+
 
         if(gamepad1.back){
             encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -62,27 +67,39 @@ public class TeleopTest extends OpMode {
 
         double turn  =  gamepad1.right_stick_x;
 
+
         double Rx = 0;
         double Razn = 0;
         double Ry = 0;
 
         double Rad = 0;
         double angle_robot = 0;
-///(CONSTS.DIST_BETWEEN_ENC_X/2)
-        double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// /сек
+        ///(CONSTS.DIST_BETWEEN_ENC_X/2)
+         double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/CONSTS.DIST_BETWEEN_ENC_X/2;// /сек
         double velocityX = ((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_CM;// см/сек
         double velocityY = (encM.getVelocity()/CONSTS.TICK_PER_CM) - velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER;// см/сек
 
-        double targetVelX = (gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM;// см/сек
-        double targetVelY = (gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM;// см/сек
-        double targetVelAngle = (turn * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM);// /сек
+          double targetVelX = ((gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM) ;// см/сек
+          double targetVelY = ((gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM);// см/сек
+         targetVelAngle += ((turn * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/CONSTS.DIST_BETWEEN_ENC_X/2) - velocityAngle;// // сек
 
-        double kF = 140/CONSTS.MAX_TPS_ENCODER;
-        double kP = -0.0;
+        double kF = 110/CONSTS.MAX_TPS_ENCODER;
+        double kP = -0.00025;
+        double kFR = 0.46/CONSTS.MAX_RAD_PER_SEC;
+        double kV = 1;
 
-        double forward = (targetVelX - velocityX) * kP + targetVelX * kF;
+//        if (encL.getVelocity() != 0){
+//            kV = (encL.getVelocity()/rightB.getVelocity());
+//        }else{kV = 1;}
+
+
+//        double forward = (targetVelX - velocityX) * kP + targetVelX * kF;
+//        double side = (targetVelY - velocityY) * kP + targetVelY * kF;
+//        double angle = (targetVelAngle ) * kP + targetVelAngle * kFR;
+
+        double forward = (targetVelX- velocityX) * kP + targetVelX * kF;
         double side = (targetVelY - velocityY) * kP + targetVelY * kF;
-        double angle = (targetVelAngle - velocityAngle) * kP + targetVelAngle * kF;
+        double angle = (targetVelAngle ) * kP + targetVelAngle * kFR;
 
 //        double rightFP = Range.clip(-gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
 //        double rightBP = Range.clip(-gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
@@ -90,7 +107,7 @@ public class TeleopTest extends OpMode {
 //        double leftBP = Range.clip(gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
 
         double rightFP = Range.clip(-forward - side - angle, -1.0, 1.0);
-        double leftBP = Range.clip(forward + side - angle, -1.0, 1.0);
+        double leftBP = Range.clip((forward + side - angle) * kV, -1.0, 1.0);
         double leftFP = Range.clip(forward - side - angle, -1.0, 1.0);
         double rightBP = Range.clip(-forward + side - angle, -1.0, 1.0);
 
@@ -166,6 +183,7 @@ public class TeleopTest extends OpMode {
             telemetry.addData("Напряга в leftF", leftF.getPower());
             telemetry.addData("Напряга в leftB", leftB.getPower());
             telemetry.addLine("\\");
+            telemetry.addData("Скорость робота leftF см/сек", leftF.getVelocity()/CONSTS.TICK_PER_CM_WHEEL);
             telemetry.addData("Скорость робота по X см/сек", velocityX);
             telemetry.addData("Скорость робота по Y см/сек", velocityY);
             telemetry.addData("Угловая скорость робота рад/сек",velocityAngle);
@@ -181,6 +199,7 @@ public class TeleopTest extends OpMode {
             telemetry.addData("Время", runtime.milliseconds());
 
         }else {
+            telemetry.addData("leftF тики", leftB.getCurrentPosition());
             telemetry.addData("Левый экодер тики", encL.getCurrentPosition());
             telemetry.addData("Правый энкодер тики", encR.getCurrentPosition());
             telemetry.addData("Серединный энкодер", encM.getCurrentPosition());

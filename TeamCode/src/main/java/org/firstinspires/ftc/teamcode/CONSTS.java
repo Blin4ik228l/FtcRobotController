@@ -41,7 +41,7 @@ public interface CONSTS {//ВСЁ В СМ!!!!
     double TICK_PER_CM = TPR_ENCODER/ (LENGTH_ENC_WHEEL); // тик/см энкодера
     double TICK_PER_DEGREES = TPR_ENCODER/360;  // тик/градус энкодера
     double MAX_TPS_ENCODER = TPR_ENCODER * RPS_ENC_WHEEL;//максимальная скорость тик/сек энкодера
-    double MAX_RAD_PER_SEC = MAX_TPS_ENCODER/CMPS_MOTOR_WHEEL/DIST_BETWEEN_ENC_X/2;
+    double MAX_RAD_PER_SEC = CMPS_ENC_WHEEL/(DIST_BETWEEN_ENC_X/2);
 
     //ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;

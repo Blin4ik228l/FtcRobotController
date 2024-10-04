@@ -108,9 +108,9 @@ public class TeleopTest extends OpMode {
         double kFR = 0.46/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
         double kV = 1;
 
-        double forward = (targetVelAngleX - targetVelAngleXDelta) * kP + targetVelAngleXDelta * kFR;
-        double side = (targetVelAngleY - targetVelAngleYDelta) * kP + targetVelAngleYDelta * kFR;
-        double angle = (targetVelAngle  - targetVelAngleDelta) * kP + targetVelAngleDelta * kFR;
+        double forward = (targetVelAngleX - targetVelAngleXDelta) * kP + targetVelAngleX * kFR;
+        double side = (targetVelAngleY - targetVelAngleYDelta) * kP + targetVelAngleY * kFR;
+        double angle = (targetVelAngle  - targetVelAngleDelta) * kP + targetVelAngle * kFR;
 
         double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
         double leftBP = Range.clip((forward + side - angle), -1.0, 1.0);

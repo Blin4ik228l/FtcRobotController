@@ -23,7 +23,9 @@ public class TeleopTest extends OpMode {
     double a = 0, x = 0;
     int rounds = 0;
     double targetVelAngle, targetVelAngleY, targetVelAngleX, btimes = 0, timer,
-    targetVelAngleYDelta, targetVelAngleDelta, targetVelAngleXDelta;
+    velAngleDeltaY, velAngleDelta, velAngleDeltaX, velocityX,velocityY, velocityAngle;
+
+    double posXNow, posYNow, posXRotNow, deltaPosXNow, deltaPosYNow, deltaPosXRotNow, posXMin, posYMin, posXRotMin, posXMax, posYMax, posXRotMax;
 
     @Override
     public void init() {
@@ -91,26 +93,71 @@ public class TeleopTest extends OpMode {
 //        double leftFP = Range.clip(gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
 //        double leftBP = Range.clip(gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
 
-        double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);// рад/сек
-        double velocityX = (((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);// рад/сек
-        double velocityY = (encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
+         velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);// рад/сек
+         velocityX = (((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);// рад/сек
+         velocityY = (encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
 
-        targetVelAngleY = (gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);
-        targetVelAngleX = (gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);
+        targetVelAngleY = (-gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);
+        targetVelAngleX = (-gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);
         targetVelAngle = (gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);
 
-        targetVelAngleYDelta -= velocityY;// рад/сек
-        targetVelAngleXDelta -= velocityX;// рад/сек
-        targetVelAngleDelta -= velocityAngle;// рад/сек
 
         double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
-        double kP = -0.0009;
-        double kFR = 0.46/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
+        double kP = -0.0001;
+        double speed = 0.8;
+        double kFR = speed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
         double kV = 1;
+       double posXNow = gamepad1.left_stick_x;
+       double posXMax = 0, posXMin = 0;
+       double posYNow = gamepad1.left_stick_y;
+       double posYMax = 0, posYMin = 0;
 
-        double forward = (targetVelAngleX - targetVelAngleXDelta) * kP + targetVelAngleX * kFR;
-        double side = (targetVelAngleY - targetVelAngleYDelta) * kP + targetVelAngleY * kFR;
-        double angle = (targetVelAngle  - targetVelAngleDelta) * kP + targetVelAngle * kFR;
+
+        if(posYNow > posYMax){
+            posYMax = posYNow;
+        } else if (posYNow < posYMin) {
+            posYMin = posYNow;
+        }
+
+        if(posYNow > posYMin && posYNow < posYMax){
+            posYNow = 0;
+        }
+
+        if(posXNow > posXMax){
+            posXMax = posXNow;
+        } else if (posXNow < posXMin) {
+            posXMin = posXNow;
+        }
+
+        if(posXNow > posXMin && posXNow < posXMax){
+            posXNow = 0;
+        }
+
+        velAngleDeltaY -= (-posXNow * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2)- velocityY;// рад/сек
+        velAngleDeltaX -= (-posYNow * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2)- velocityX;// рад/сек
+        velAngleDelta += (gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2) - velocityAngle;// рад/сек
+
+//        if(velAngleDeltaY >= CONSTS.MAX_RAD_PER_SEC){
+//            velAngleDeltaY = CONSTS.MAX_RAD_PER_SEC;
+//        }else if(velAngleDeltaY <= -CONSTS.MAX_RAD_PER_SEC){
+//            velAngleDeltaY = -CONSTS.MAX_RAD_PER_SEC;
+//        }
+//
+//        if(velAngleDeltaX >= CONSTS.MAX_RAD_PER_SEC ){
+//            velAngleDeltaX = CONSTS.MAX_RAD_PER_SEC;
+//        }else if(velAngleDeltaX <= -CONSTS.MAX_RAD_PER_SEC){
+//            velAngleDeltaX = -CONSTS.MAX_RAD_PER_SEC;
+//        }
+//
+//        if(velAngleDelta >= CONSTS.MAX_RAD_PER_SEC){
+//            velAngleDelta = CONSTS.MAX_RAD_PER_SEC;
+//        }else if(velAngleDelta <= -CONSTS.MAX_RAD_PER_SEC){
+//            velAngleDelta = -CONSTS.MAX_RAD_PER_SEC;
+//        }
+
+        double forward = ( velAngleDeltaX ) * kP + velAngleDeltaX* kFR;
+        double side = (velAngleDeltaY ) * kP +  velAngleDeltaY* kFR;
+        double angle = (velAngleDelta) * kP +  velAngleDelta* kFR;
 
         double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
         double leftBP = Range.clip((forward + side - angle), -1.0, 1.0);

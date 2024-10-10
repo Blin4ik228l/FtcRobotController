@@ -14,9 +14,11 @@ public interface CONSTS {//ВСЁ В СМ!!!!
     double DIST_BETWEEN_ENC_X = 30.5;
     double DIST_FIELD_Y = 302.26;//длина поля
     double DIST_FIELD_X = 302.26;// ширина поля
+    double MAX_DIST = 302.26;
+    double MAX_RAD = CONSTS.LENGTH_ROUND_BIG/(CONSTS.DIAM_CIRCLE_ROBOT/2);
 
     //ДЛИНЫ ОКРУЖНОСТЕЙ(см)
-    double LENGTH_ROUND_BIG = 42.7 * Math.PI;// длина большей окружности
+    double LENGTH_ROUND_BIG = DIAM_CIRCLE_ROBOT * Math.PI;// длина большей окружности
     double LENGTH_ROUND_SMALL = 30.5 * Math.PI;// длина меньшей окружности
     double LENGTH_ENC_WHEEL = WIDTH_ENC_WHEEL * Math.PI; //длина окружности колеса энкодера
     double LENGTH_ROUND_WHEEL = WIDTH_WHEEL * Math.PI;

@@ -4,20 +4,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 public class ROBOT {
-    HardwareMap hardwareMap = null;
+    private HardwareMap hardwareMap = null;
+    private DcMotorEx rightB, rightF, leftB, leftF;
+    private DcMotorEx encM, encL, encR;
+    private Position deltaPosition, globalPosition;
+    private double encLOld, encROld, encMOld;
 
-    DcMotorEx rightB, rightF, leftB, leftF;
-
-    DcMotorEx encM, encL, encR;
-
-    ROBOT robot = new ROBOT();
-
-    Position deltaPosition, globalPosition;
-
-    double encLOld, encROld, encMOld, Rad = 0;
-
-    class Position{
+    private static class Position{
         double x;
         double y;
         double heading;
@@ -32,44 +27,6 @@ public class ROBOT {
             this.x = 0;
             this.y = 0;
             this.heading = 0;
-        }
-    }
-
-    double ticksToCm(double ticks){
-        return ticks/CONSTS.TICK_PER_CM;
-    }
-
-
-    void robotCordUpd (){
-        double leftEncoderXnow = ticksToCm(encL.getCurrentPosition());
-        double deltaLeftEncoderX = leftEncoderXnow - encLOld;
-        encLOld = leftEncoderXnow;
-
-        double rightEncoderXnow = ticksToCm(encR.getCurrentPosition());
-        double deltaRightEncoderX = rightEncoderXnow - encROld;
-        encROld = rightEncoderXnow;
-
-        double encoderYnow = ticksToCm(encM.getCurrentPosition());
-        double deltaEncoderY = encoderYnow - encMOld;
-        encMOld = encoderYnow;
-
-        if(leftEncoderXnow == 0 && rightEncoderXnow == 0 && encoderYnow == 0 ) {
-            return;}
-
-        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
-        double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
-        double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
-
-        deltaPosition.x = deltaX;
-        deltaPosition.y = deltaY;
-        deltaPosition.heading = deltaRad;
-
-        globalPosition.x += deltaX * Math.cos(Rad) - deltaY * Math.sin(Rad);
-        globalPosition.y += deltaX * Math.sin(Rad) + deltaY * Math.cos(Rad);
-        globalPosition.heading += deltaRad;
-
-        if (Math.abs(globalPosition.heading) >= 2 * Math.PI) {
-            globalPosition.heading %= 2 * Math.PI;
         }
     }
 
@@ -99,7 +56,62 @@ public class ROBOT {
         encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         deltaPosition = new Position();
-        globalPosition = new Position(x, y ,heading);
+        globalPosition = new Position(x, y, heading);
     }
 
+    // Этот метод должен вызываться в цикле основной программы, чтобы обновлять состояние робота
+    void update(){
+        updatePosition();
+    }
+
+    // Обновление положения робота на поле с помощью следящих колес
+    void updatePosition (){
+        double leftEncoderXnow = ticksToCm(encL.getCurrentPosition());
+        double deltaLeftEncoderX = leftEncoderXnow - encLOld;
+        encLOld = leftEncoderXnow;
+
+        double rightEncoderXnow = ticksToCm(encR.getCurrentPosition());
+        double deltaRightEncoderX = rightEncoderXnow - encROld;
+        encROld = rightEncoderXnow;
+
+        double encoderYnow = ticksToCm(encM.getCurrentPosition());
+        double deltaEncoderY = encoderYnow - encMOld;
+        encMOld = encoderYnow;
+
+        if(leftEncoderXnow == 0 && rightEncoderXnow == 0 && encoderYnow == 0 ) {
+            return;
+        }
+
+        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
+        double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
+
+        deltaPosition.x = deltaX;
+        deltaPosition.y = deltaY;
+        deltaPosition.heading = deltaRad;
+
+        globalPosition.x += deltaX * Math.cos(globalPosition.heading) - deltaY * Math.sin(globalPosition.heading);
+        globalPosition.y += deltaX * Math.sin(globalPosition.heading) + deltaY * Math.cos(globalPosition.heading);
+        globalPosition.heading += deltaRad;
+
+        if (Math.abs(globalPosition.heading) >= 2 * Math.PI) {
+            globalPosition.heading %= 2 * Math.PI;
+        }
+    }
+
+    void goToPosition(Position targetpos){
+
+    }
+
+    void setVelocity(){
+
+    }
+
+    void setTeleskopePos(){
+
+    }
+
+    double ticksToCm(double ticks){
+        return ticks / CONSTS.TICK_PER_CM;
+    }
 }

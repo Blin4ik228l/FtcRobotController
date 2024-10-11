@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.TimestampedI2cData;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -14,54 +17,32 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp
 public class TeleopTest extends OpMode {
-
     DcMotorEx rightB, rightF, leftB, leftF;
 
     DcMotorEx encM, encL, encR;
 
+    ROBOT robot = new ROBOT();
+
     ElapsedTime runtime = new ElapsedTime();
     ElapsedTime runtime2 = new ElapsedTime();
-
 
     double Gx, Gy, currAngle;
     double a = 0, x = 0;
     int rounds = 0;
     double targetVelAngle, targetVelAngleY, targetVelAngleX, btimes = 0, timer,
-    velAngleDeltaY, velAngleDelta, velAngleDeltaX, velocityX,velocityY, velocityAngle, targetAngle, targetX, targetY;
+            velAngleDeltaY, velAngleDelta, velAngleDeltaX, velocityX,velocityY, velocityAngle, targetAngle, targetX, targetY;
 
     double posXNow, posYNow, posXRotNow, deltaPosXNow, deltaPosYNow, deltaPosXRotNow, posXMin, posYMin, posXRotMin, posXMax, posYMax, posXRotMax;
 
     @Override
     public void init() {
-        rightB = hardwareMap.get(DcMotorEx.class, "rightB");
-        rightF = hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = hardwareMap.get(DcMotorEx.class, "leftF");
-
-        encM = hardwareMap.get(DcMotorEx.class, "encM") ;
-        encL = hardwareMap.get(DcMotorEx.class, "encL") ;
-        encR =  hardwareMap.get(DcMotorEx.class, "encR");
-
-        rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        leftF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        leftB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
-        encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.init(0,0, 0);
     }
 
     @Override
     public void loop() {
-        runtime.milliseconds();
 
+        runtime.milliseconds();
 
         if(gamepad1.back){
             encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -87,10 +68,10 @@ public class TeleopTest extends OpMode {
 //         double targetVelX = ((gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM) ;// см/сек
 //          double targetVelY = ((gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER)/CONSTS.TICK_PER_CM);// см/сек
 //         targetVelAngle += ((turn * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/CONSTS.DIST_BETWEEN_ENC_X/2) - velocityAngle;// // сек
-
+//
 //        double forward = (targetVelX - velocityX) * kP + targetVelX * kF;
 //        double side = (targetVelY - velocityY) * kP + targetVelY * kF;
-//        double angle = (targetVelAngle ) * kP + targetVelAngle * kFR;
+//        double angle = (targetVelAngle - velAngleDelta) * kP + targetVelAngle * kFR;
 //        double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
 //        double kP = -0.0001;
 //        double speed = 0.8;
@@ -104,13 +85,12 @@ public class TeleopTest extends OpMode {
 //        double rightBP = Range.clip(-gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
 //        double leftFP = Range.clip(gamepad1.left_stick_y - gamepad1.left_stick_x - turn, -1.0, 1.0);
 //        double leftBP = Range.clip(gamepad1.left_stick_y + gamepad1.left_stick_x - turn, -1.0, 1.0);
-
-        //        double posXNow = gamepad1.left_stick_x;
+//        double posXNow = gamepad1.left_stick_x;
 //       double posXMax = 0, posXMin = 0;
 //       double posYNow = gamepad1.left_stick_y;
 //       double posYMax = 0, posYMin = 0;
-//
-//
+
+
 //        if(posYNow > posYMax){
 //            posYMax = posYNow;
 //        } else if (posYNow < posYMin) {
@@ -148,22 +128,10 @@ public class TeleopTest extends OpMode {
 //            velAngleDelta = -CONSTS.MAX_RAD_PER_SEC;
 //        }
 
-        Razn = (((double) (encL.getCurrentPosition() + encR.getCurrentPosition()) /2) / CONSTS.TICK_PER_CM);
-        Rx = (((double) (encL.getCurrentPosition() - encR.getCurrentPosition()) /2) / CONSTS.TICK_PER_CM);
-        Ry = (encM.getCurrentPosition()/CONSTS.TICK_PER_CM);
 
-        angle_robot = (Razn/CONSTS.LENGTH_ROUND_SMALL) * 360 - (360 * rounds);
-        Rad = (Razn/(CONSTS.DIAM_CIRCLE_ROBOT/2)) - (CONSTS.MAX_RAD * rounds);
-
-        if(angle_robot >= 360 && Rad >= CONSTS.MAX_RAD){
-            rounds ++;
-        } else if (angle_robot <= -360 && Rad <= -CONSTS.MAX_RAD) {
-            rounds--;
-        }
 
         if(rightB.getPower() != 0 && leftB.getPower() != 0) {
-            Gx = Rx * Math.cos(Rad) - Ry * Math.sin(Rad);
-            Gy = Rx * Math.sin(Rad) + Ry * Math.cos(Rad);
+
         }
 
         currAngle = Math.acos(Gy/Math.sqrt(((Gx * Gx) + (Gy*Gy))));
@@ -178,7 +146,7 @@ public class TeleopTest extends OpMode {
 
         double speed = 1;
         double kF = speed/CONSTS.MAX_DIST;//макс см/сек
-        double kP = -1;
+        double kP = -0.004;
         double kFR = speed/CONSTS.MAX_RAD;//макс рад/сек
 
 //        velAngleDeltaY -= (-posXNow * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2)- velocityY;// рад/сек
@@ -188,10 +156,9 @@ public class TeleopTest extends OpMode {
 //        double forward = ( targetX - Rx ) * kP + targetX* kF;
 //        double side = (targetY - Ry) * kP + targetY * kF;
 //        double angle = (targetAngle - Rad ) * kP + targetAngle* kFR;
-
-        double forward =(targetX - Gx) * kP + targetX * kF;
-        double side =(targetY - Gy) * kP + targetY * kF;
-        double angle =(targetAngle - Rad) * kP + targetAngle * kFR;
+        double forward = (targetX - Gx) * kP + targetX * kF;
+        double side = (targetY - Gy) * kP + targetY * kF;
+        double angle = (targetAngle - Rad) * kP + targetAngle * kFR;
 
         double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
         double leftBP = Range.clip((forward + side - angle), -1.0, 1.0);
@@ -217,8 +184,6 @@ public class TeleopTest extends OpMode {
         } else if (gamepad1.x || x == 1) {
             telemetry.addLine("Прямое");
         }
-
-
 
         if (gamepad1.b && runtime2.milliseconds()<= 300){
             btimes ++;

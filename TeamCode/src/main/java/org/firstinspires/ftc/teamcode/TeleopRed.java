@@ -12,6 +12,7 @@ InitClass initClass;
 ElapsedTime runtime = new ElapsedTime();
 DcMotorEx rightB = null;
 
+ROBOT robot = new ROBOT();
 
     @Override
     public void init() {

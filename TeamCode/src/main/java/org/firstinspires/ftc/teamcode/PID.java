@@ -14,10 +14,10 @@ public class PID {
 
     private double error, olderror, oldtime;
 
-    PID(double kP, double kI, double kD){
-        this.kP = kP;
-        this.kI = kI;
-        this.kD = kD;
+    PID (double kP, double kI, double kD){
+        this.kP = kP; //Максимально приблизить к результату, но не больше результат(Борис Бритва)
+        this.kI = kI;//Добивает до нужного результата(Борис Бритва добить), будет скоростью мотора(при работе с положением)
+        this.kD = kD;//Сглаживает колебания
     }
 
     void setPID(double kP, double kI, double kD){
@@ -42,9 +42,9 @@ public class PID {
 
         error = target - current;
 
-        P = 1;
-        I += 1;
-        D = 1;
+        P = error * kP;
+        I += error * (runtime.milliseconds() - oldtime) * kI;
+        D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
 
         olderror = error;
         oldtime = runtime.milliseconds();

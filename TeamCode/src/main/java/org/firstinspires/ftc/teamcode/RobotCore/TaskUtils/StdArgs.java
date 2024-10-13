@@ -1,11 +1,7 @@
-package org.firstinspires.ftc.teamcode.Robot.TaskHandler;
-
-import com.qualcomm.robotcore.hardware.Gamepad;
+package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.Position;
-
-import java.util.Objects;
 
 /**
  * Класс, в котором описывается структура аргументов для методов-обработчиков задач
@@ -20,7 +16,7 @@ import java.util.Objects;
  * }
  * в методе уже можете пользоваться переменной args как хотите
  */
-public class Args {
+public class StdArgs {
 
     // Пример:
     // public static class мойКлассАргументов extends Args {
@@ -34,18 +30,18 @@ public class Args {
     //     тип_n переменная_m;
     // }
 
-    public static class driveArgs extends Args {
-        public driveArgs(Position position, double max_linear_speed, double max_angular_speed){
+    public static class driveStdArgs extends StdArgs {
+        public driveStdArgs(Position position, double max_linear_speed, double max_angular_speed){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
         }
-        public driveArgs(Position position, double max_linear_speed) {
+        public driveStdArgs(Position position, double max_linear_speed) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
         }
-        public driveArgs(Position position) {
+        public driveStdArgs(Position position) {
             this.position = position;
             this.max_linear_speed = CONSTS.MAX_CM_PER_SEC;
             this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
@@ -55,8 +51,8 @@ public class Args {
         public double max_angular_speed;
     }
 
-    public static class teleskopeArgs extends Args {
-        public teleskopeArgs(int goalPos, double max_speed){
+    public static class teleskopeStdArgs extends StdArgs {
+        public teleskopeStdArgs(int goalPos, double max_speed){
             this.goalPos = goalPos;
             this.max_speed = max_speed;
         }

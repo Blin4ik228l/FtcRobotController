@@ -1,32 +1,16 @@
-package org.firstinspires.ftc.teamcode.Robot.TaskHandler;
+package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-import org.firstinspires.ftc.teamcode.Robot.ROBOT;
-
-import java.util.Deque;
-import java.util.Iterator;
 //Класс, описывающий структуру задачи, передаваемой в робота
-public class Tasks {
-    public Tasks(taskType type, taskRunMode runMode, Args args){
-        this.type = type;
+public class Task {
+    public Task(TaskCallback taskCallback, StdArgs args, taskRunMode runMode){
+        this.taskCallback = taskCallback;
         this.runMode = runMode;
         this.args = args;
     }
 
-    public taskType type;
+    public TaskCallback taskCallback;
     public taskRunMode runMode;
-    public Args args;
-
-    // энам, перечисляющий возможные задачи робота, прописанные в программе
-   public  enum taskType {
-        // Ехать в указанную позицию
-        DRIVE_TO_POSITION,
-        // Выдвинуть телескоп на указанное значение
-        SET_TELESKOPE_POS,
-        STUCK_WHILE_DRIVING,
-        STUCK_WHILE_UPPING_TELE,
-        TELEOP_PL1,
-        TELEOP_PL2
-    }
+    public StdArgs args;
 
     // Энам, перечисляющий режим начала выполнения задачи
     public enum taskRunMode {

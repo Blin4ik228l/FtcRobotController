@@ -2,31 +2,29 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.apache.commons.math3.analysis.function.Abs;
-import org.firstinspires.ftc.teamcode.Robot.TaskHandler.Args;
-import org.firstinspires.ftc.teamcode.Robot.TaskHandler.Tasks;
-import org.firstinspires.ftc.teamcode.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskExecMode;
 import org.firstinspires.ftc.teamcode.Utils.Position;
-import org.firstinspires.ftc.teamcode.Robot.ROBOT;
 
 
 @TeleOp
 public class TeleopTest extends OpMode {
-    ElapsedTime runtime = new ElapsedTime();
-    ROBOT robot = new ROBOT();
+    RobotCore robot = new RobotCore(TaskExecMode.TELEOP);
 
     @Override
     public void init() {
-        robot.init(new Position(0,0,0));
+        robot.init();
+        robot.odometry.setGlobalPosition(new Position(0,0,0));
+
+        Task newtask = new Task(robot.example, new StdArgs(), Task.taskRunMode.START_WITH_PREVIOUS);
+        robot.taskManager.addTask(newtask);
     }
 
     @Override
     public void loop() {
-        runtime.milliseconds();
-        robot.addTask(new Tasks(Tasks.taskType.TELEOP_PL1, Tasks.taskRunMode.HOTCAKE, null));
-        robot.addTask(new Tasks(Tasks.taskType.TELEOP_PL2, Tasks.taskRunMode.HOTCAKE, null));
-    }
 
+    }
 }

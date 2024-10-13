@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Utils;
 
 
 public interface CONSTS { // ВСЁ В СМ!!!!
@@ -16,6 +16,8 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double DIST_FIELD_X = 302.26;                                           // ширина поля
     double MAX_DIST = 302.26;                                               //
     double MAX_RAD = CONSTS.LENGTH_ROUND_BIG/(CONSTS.DIAM_CIRCLE_ROBOT/2);  //
+    double MAX_TIME_DRIVE = MAX_DIST/CONSTS.MAX_CM_PER_SEC;
+    double MAX_TIME_ROUNDING = MAX_RAD/CONSTS.MAX_RAD_PER_SEC;
 
     // ДЛИНЫ ОКРУЖНОСТЕЙ(см)
     double LENGTH_ROUND_BIG = DIAM_CIRCLE_ROBOT * Math.PI;                  // длина большей окружности
@@ -44,6 +46,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double TICK_PER_DEGREES = TPR_ENCODER/360;                              // тик/градус энкодера
     double MAX_TPS_ENCODER = TPR_ENCODER * RPS_ENC_WHEEL;                   // максимальная скорость тик/сек энкодера
     double MAX_RAD_PER_SEC = CMPS_ENC_WHEEL/(DIST_BETWEEN_ENC_X/2);         //
+    double MAX_CM_PER_SEC = MAX_TPS_ENCODER/TICK_PER_CM;
 
     // ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;                                                     //

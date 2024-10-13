@@ -1,11 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Robot.RobotSubsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.Utils.Vector2;
+import org.firstinspires.ftc.teamcode.Utils.Position;
+
 // Отдельный класс, работающий с одометрией в отдельном потоке
-class Odometry extends Thread{
-    Odometry (Position startPosition, DcMotorEx encL, DcMotorEx encR, DcMotorEx encM){
+public class Odometry extends Thread{
+    public  Odometry (Position startPosition, DcMotorEx encL, DcMotorEx encR, DcMotorEx encM){
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
 
@@ -13,13 +17,9 @@ class Odometry extends Thread{
         this.encR = encR;
         this.encM = encM;
 
-        this.velocity = new Matrix(3,1);
-        this.oldVelocity = new Matrix(3,1);
-        this.acceleration = new Matrix(3,1);
-
-        this.velocity.Mat = new double[][]{{0,0,0}};
-        this.oldVelocity.Mat = new double[][]{{0,0,0}};
-        this.acceleration.Mat = new double[][]{{0,0,0}};
+        this.velocity = new Vector2(0,0);
+        this.oldVelocity = new Vector2(0,0);
+        this.acceleration = new Vector2(0,0);
 
         runtime = new ElapsedTime();
         oldTime = 0;
@@ -30,9 +30,10 @@ class Odometry extends Thread{
     private double oldTime;                                           // Предыдущее время
     private double dt;                                                // Разница во времени
     private double encLOld, encROld, encMOld;                         // Значения энкодера на предыдущем шаге
-    private final DcMotorEx encM, encL, encR;                         // Объекты энкодеров
-    private final Position deltaPosition, globalPosition;             // Относительное перемещение и глобальное положение
-    private final Matrix velocity, oldVelocity, acceleration;         // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
+    private double angularVelocity, angularAcceleration, oldAngularVelocity;
+    private  DcMotorEx encM, encL, encR;                         // Объекты энкодеров
+    private  Position deltaPosition, globalPosition;             // Относительное перемещение и глобальное положение
+    private  Vector2 velocity, oldVelocity, acceleration;         // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
 
     @Override
     // Запускаем методы для обновления данных, пока объект существует
@@ -42,6 +43,8 @@ class Odometry extends Thread{
             updateGlobalPosition();
             updateAcceleration();
             updateVelocity();
+            updateAngularAcceleration();
+            updateAngularVelocity();
             oldTime = runtime.milliseconds();
         }
     }
@@ -56,28 +59,48 @@ class Odometry extends Thread{
     }
 
     // Геттер вектора скорости
-    public synchronized Matrix getVelocity(){
-        return new Matrix(velocity);
+    public synchronized Vector2 getVelocity(){
+        return new Vector2(velocity);
     }
 
     // Геттер вектора ускорения
-    public synchronized Matrix getAcceleration(){
-        return new Matrix(acceleration);
+    public synchronized Vector2 getAcceleration(){
+        return new Vector2(acceleration);
     }
-
+    // Геттер углового вектора ускорения
+    public synchronized double getAngularAcceleration(){
+        return angularAcceleration;
+    }
+    // Геттер углового вектора ускорения
+    public synchronized double getAngularVelocity(){
+        return angularVelocity;
+    }
+    // Геттер углового вектора ускорения
+    public synchronized double getSpeed(){
+        return velocity.mag();
+    }
     // Обновление вектора скорости робота
-    private void updateVelocity(){
-        velocity.Mat = new double [][] {{   deltaPosition.getX() / dt,
-                                            deltaPosition.getY() / dt,
-                                            0   }};
-        oldVelocity.Mat = velocity.Mat;
-        oldTime = runtime.milliseconds();
+    private synchronized void updateVelocity(){
+        oldVelocity.x = velocity.x;
+        oldVelocity.y = velocity.y;
+        velocity = deltaPosition.toVector();
+        velocity.divide(dt);
     }
 
     // Обновление вектора ускорения робота
-    private void updateAcceleration(){
-        for (int i = 0; i < 3; i++)
-            acceleration.Mat[i][0] = (velocity.Mat[0][0] - oldVelocity.Mat[i][0]) / dt;
+    private synchronized void updateAcceleration() {
+        acceleration.x = (velocity.x - oldVelocity.x)/dt;
+        acceleration.y = (velocity.y - oldVelocity.y)/dt;
+    }
+
+    private synchronized void updateAngularVelocity(){
+        oldAngularVelocity = angularVelocity;
+        angularVelocity = deltaPosition.heading/dt;
+    }
+
+    // Обновление вектора ускорения робота
+    private synchronized void updateAngularAcceleration() {
+        angularAcceleration = (angularAcceleration - oldAngularVelocity)/dt;
     }
 
     // Обновление положения робота на поле с помощью следящих колес
@@ -110,7 +133,7 @@ class Odometry extends Thread{
         deltaPosition.setY(deltaY);
 
         // Матричный поворот и добавление глобального перемещения к глобальным координатам
-        globalPosition.increment(deltaPosition.turn(globalPosition.getHeading()));
+        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.heading), deltaPosition.heading );
 
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
         // к остатку от деления на 2pi (360)

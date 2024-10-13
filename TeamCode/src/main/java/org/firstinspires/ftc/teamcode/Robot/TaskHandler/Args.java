@@ -1,4 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Robot.TaskHandler;
+
+import com.qualcomm.robotcore.hardware.Gamepad;
+
+import org.firstinspires.ftc.teamcode.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.Utils.Position;
+
+import java.util.Objects;
 
 /**
  * Класс, в котором описывается структура аргументов для методов-обработчиков задач
@@ -28,28 +35,34 @@ public class Args {
     // }
 
     public static class driveArgs extends Args {
-        driveArgs(Position position, double max_linear_speed, double max_angular_speed){
+        public driveArgs(Position position, double max_linear_speed, double max_angular_speed){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
         }
-        driveArgs(Position position, double max_linear_speed) {
+        public driveArgs(Position position, double max_linear_speed) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
-            this.max_angular_speed = 100;
+            this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
         }
-        Position position;
-        double max_linear_speed;
-        double max_angular_speed;
+        public driveArgs(Position position) {
+            this.position = position;
+            this.max_linear_speed = CONSTS.MAX_CM_PER_SEC;
+            this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
+        }
+        public Position position;
+        public double max_linear_speed;
+        public double max_angular_speed;
     }
 
     public static class teleskopeArgs extends Args {
-        teleskopeArgs(int goalPos, double max_speed){
+        public teleskopeArgs(int goalPos, double max_speed){
             this.goalPos = goalPos;
             this.max_speed = max_speed;
         }
-        int goalPos;
-        double max_speed;
+        public int goalPos;
+        public double max_speed;
     }
+
 }
 

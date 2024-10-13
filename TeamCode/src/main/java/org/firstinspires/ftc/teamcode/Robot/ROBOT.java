@@ -1,9 +1,21 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Robot;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.Robot.TaskHandler.Args;
+import org.firstinspires.ftc.teamcode.Robot.TaskHandler.Tasks;
+import org.firstinspires.ftc.teamcode.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.Utils.PID;
+import org.firstinspires.ftc.teamcode.Utils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotSubsystems.Odometry;
+import org.firstinspires.ftc.teamcode.Utils.Vector2;
 
 import java.util.Deque;
 import java.util.Iterator;
@@ -16,56 +28,15 @@ public class ROBOT {
     private DcMotorEx encM, encL, encR;                 // Объекты энкодеров
     Odometry odometry;                                  // Объект, обрабатывающий одометрию
 
-    private Deque<Task> taskDeQueue;                    // Двусторонняя очередь, содержащая задачи для выполнения
-    private Stack<Task> completedTasks;                  // Стэк для хранения выполненных задач
+    private Deque<Tasks> taskDeQueue;                    // Двусторонняя очередь, содержащая задачи для выполнения
+    private Stack<Tasks> completedTasks;                  // Стэк для хранения выполненных задач
 
-    private PID pid;
-
-    // энам, перечисляющий возможные задачи робота, прописанные в программе
-    enum taskType {
-        // Ехать в указанную позицию
-        DRIVE_TO_POSITION,
-        // Выдвинуть телескоп на указанное значение
-        SET_TELESKOPE_POS,
-        STUCK_WHILE_DRIVING,
-        STUCK_WHILE_UPPING_TELE
-    }
-
-    // Энам, перечисляющий режим начала выполнения задачи
-    enum taskRunMode {
-        // Режим HOTCAKE предназначен для задач, которые необходимо выполнить
-        // немедленно, приостановив выполнение всех остальных задач.
-        // Такой режим может пригодиться, если робот поймет, что он застрял
-        // или выполнение задачи по каким то причинам стало невозможно.
-        // Для обработки таких проблем методы задач должны иметь в себе функционал,
-        // позволяющий обнаружить ошибку и добавить задачу
-        // с режимом HOTCAKE в НАЧАЛО очереди taskDeQueue
-        // Тип задачи-фиксика тоже должен быть прописан в предыдущем энаме
-        HOTCAKE,
-        // Задача с таким режимом запустится только после завершения всех предыдущих задач
-        START_AFTER_PREVIOUS,
-        // Задача с таким режимом начнет выполнение вместе с предыдущей
-        START_WITH_PREVIOUS
-    }
-
-
-    // Подкласс, описывающий структуру задачи, передаваемой в робота
-    public static class Task{
-        Task(taskType taskType, taskRunMode runMode, Args args){
-            this.taskType = taskType;
-            this.runMode = runMode;
-            this.args = args;
-        }
-
-        ROBOT.taskType taskType;
-        taskRunMode runMode;
-        Args args;
-    }
+    private PID pidDriveTrainLinear, pidDriveTrainAngular;
 
 //  МЕТОДЫ КЛАССА
 ////////////////////////////////////////////////////////////////////////////////////////////////////
     // Метод инициализации того, чего надо
-    void init(Position startPosition){
+    public void init(Position startPosition){
         rightB = hardwareMap.get(DcMotorEx.class, "rightB");
         rightF = hardwareMap.get(DcMotorEx.class, "rightF");
         leftB = hardwareMap.get(DcMotorEx.class, "leftB");
@@ -118,9 +89,10 @@ public class ROBOT {
      * Для начала выполнения задач в конце напишите
      *      my_robot.executeTasks();
      */
+
     public void executeTasks(){
         // Очередь для хранения обрабатываемых задач
-        Deque<Task> executingTasks = null;
+        Deque<Tasks> executingTasks = null;
         // Обработчик будет работать, пока есть задачи
         while(!taskDeQueue.isEmpty()){
 
@@ -129,16 +101,16 @@ public class ROBOT {
                 Если taskRunMode первой задачи в очереди taskDeQueue соответствует условиям,
                 то задача переходит в очередь обрабатываемых задач.
                 В этом ветвлении программист должен прописать логику обработки runMode'ов задач.
-                Задачи из taskDeGueue стоит добавлять в конец очереди executingTasks, разве что
+                Задачи из taskDeQueue стоит добавлять в конец очереди executingTasks, разве что
                 если вы полностью уверены в том, что делаете
             */
             switch (taskDeQueue.getFirst().runMode){
-            // Пример:
-            //  case ВАШ_ЭНАМ_ИЗ_taskRunMode
-            //      assert executingTasks != null;
-            //      какая-то логика, переносящая задачу из taskDeQueue в executingTasks
-            //      для начала обработки задачи.
-            //      break; <- обязательно
+                // Пример:
+                //  case ВАШ_ЭНАМ_ИЗ_taskRunMode
+                //      assert executingTasks != null;
+                //      какая-то логика, переносящая задачу из taskDeQueue в executingTasks
+                //      для начала обработки задачи.
+                //      break; <- обязательно
 
                 case START_AFTER_PREVIOUS:
                     assert executingTasks != null;
@@ -168,9 +140,9 @@ public class ROBOT {
                 раз за итерацию итератора task, это позволяет дергать методы-обработчики в цикле итератора
                 несколько раз в секунду и работать над несколькими задачами "одновременно".
             */
-            Iterator<Task> task = executingTasks.iterator();
+            Iterator<Tasks> task = executingTasks.iterator();
             while ( task.hasNext() ) {
-                Task currentTask = task.next();
+                Tasks currentTask = task.next();
                 int result;
 
                 /*
@@ -183,14 +155,14 @@ public class ROBOT {
                     Если result = 0, значит робот выполнил задачу и она переносится из очереди в стэк
                     completedTasks, в котором хранятся выполненные задачи.
                  */
-                switch (currentTask.taskType){
-                // Пример:
-                //  case ВАШ_ЭНАМ_ИЗ_taskType:
-                //      result = ваш метод, который предназначен для обработки задачи
-                //      ВАЖНО! метод должен возвращать -1, если задача не выполнена до конца
-                //      и 0, если задача выполнена.
-                //      ВАЖНО!!! прочитайте, как правильно писать методы в файле Args.java
-                //      break; <- обязательно!
+                switch (currentTask.type){
+                    // Пример:
+                    //  case ВАШ_ЭНАМ_ИЗ_taskType:
+                    //      result = ваш метод, который предназначен для обработки задачи
+                    //      ВАЖНО! метод должен возвращать -1, если задача не выполнена до конца
+                    //      и 0, если задача выполнена.
+                    //      ВАЖНО!!! прочитайте, как правильно писать методы в файле Args.java
+                    //      break; <- обязательно!
 
                     case SET_TELESKOPE_POS:
                         result = setTeleskopePos(currentTask.args);
@@ -199,7 +171,11 @@ public class ROBOT {
                     case DRIVE_TO_POSITION:
                         result = driveToPosition(currentTask.args);
                         break;
-
+                    case TELEOP_PL1:
+                        //метод дял телеопа
+                        result = teleopMethod();
+                        break;
+                    case
                     // Выполняется, если задача не нашла своего обработчика
                     default:
                         result = 0;
@@ -222,21 +198,42 @@ public class ROBOT {
                     а начинается с начала. Это позволяет выполнять обработчику только текущую HOTCAKE
                     задачу.
                  */
-                if (currentTask.runMode == taskRunMode.HOTCAKE) {
+                if (currentTask.runMode == Tasks.taskRunMode.HOTCAKE) {
                     break;
                 }
             }
         }
     }
 
+
+
     // Добавление задачи в конец очереди
-    public void addTask(Task newtask){
+    public void addTask(Tasks newtask){
         taskDeQueue.addLast(newtask);
     }
 
+
     // Распределение требуемой скорости и направления движения робота на скорость колес
-    private void setVelocity(){
+    private void setVelocity(Vector2 direct, double heading){
         // TODO
+        rightF.setPower(Range.clip((-direct.x - direct.y - heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((direct.x + direct.y - heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((direct.x - direct.y - heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((-direct.x + direct.y - heading), -1.0, 1.0));
+    }
+    private void brakeMotors(){
+        rightF.setPower(0);
+        leftB.setPower(0);
+        leftF.setPower(0);
+        rightB.setPower(0);
+
+        rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    void setVelocityTele(){
+
     }
 
 //  МЕТОДЫ, ОБРАБАТЫВАЮЩИЕ ЗАДАЧИ
@@ -254,9 +251,32 @@ public class ROBOT {
 
     private int driveToPosition(Args _args){
         Args.driveArgs args = (Args.driveArgs) _args;
-        //Найти угол между heading робота и направлением куда ехать
+        int result;
 
-        int result = -1;
+        Vector2 errorPos = args.position.toVector();
+        errorPos.sub(odometry.getGlobalPosition().toVector());
+
+        Vector2 direction = new Vector2(errorPos);
+        direction.normalize();
+
+        double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
+        double speedPID = pidDriveTrainLinear.calculate(args.max_linear_speed, odometry.getSpeed());
+
+        double angularPID = pidDriveTrainAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity());//Всегда положителен
+
+        direction.multyplie(speedPID);
+        errorHeading *= angularPID;
+
+        setVelocity(direction, errorHeading);
+
+        if(direction.x != odometry.getGlobalPosition().getX() && direction.y != odometry.getGlobalPosition().getY()
+                && errorHeading != odometry.getGlobalPosition().getHeading()){
+            result = -1;
+        }else{
+            brakeMotors();
+            result = 0;
+        }
+
         return result;
     }
 
@@ -269,6 +289,35 @@ public class ROBOT {
         //  если телескоп не поднялся на нужный уровень и стоит на месте долго
 
         return result;
+    }
+
+    public int teleOpMethod(){
+
+        double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
+        double velocityX = (((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
+        double velocityY = (encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
+
+        double xVel = gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
+        double yVel = gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
+        double headingVel = gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2);
+
+        double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
+        double kP = -0.0001;
+        double speed = 0.8;
+        double kFR = speed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
+
+        double forward = (xVel - velocityX) * kP + xVel* kFR;
+        double side = (yVel - velocityY) * kP +  yVel* kFR;
+        double angle = (headingVel - velocityAngle) * kP +  headingVel* kFR;
+
+        double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
+        double leftBP = Range.clip((forward + side - angle), -1.0, 1.0);
+        double leftFP = Range.clip((forward - side - angle), -1.0, 1.0);
+        double rightBP = Range.clip((-forward + side - angle), -1.0, 1.0);
+
+
+
+        return -1;
     }
 }
 

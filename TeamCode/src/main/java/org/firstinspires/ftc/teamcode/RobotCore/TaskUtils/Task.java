@@ -2,18 +2,29 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 //Класс, описывающий структуру задачи, передаваемой в робота
 public class Task {
-    public Task(TaskCallback taskCallback, StdArgs args, taskRunMode runMode){
-        this.taskCallback = taskCallback;
-        this.runMode = runMode;
+    public Task(TaskHandler taskHandler, StdArgs args, taskStartMode startMode){
+        this.taskHandler = taskHandler;
+        this.startMode = startMode;
         this.args = args;
+
+        this.state = States.TODO;
     }
 
-    public TaskCallback taskCallback;
-    public taskRunMode runMode;
+    public TaskHandler taskHandler;
+    public taskStartMode startMode;
     public StdArgs args;
 
+    public States state;
+    public double startTime; // Время начала выполнения задачи относительно runtime TaskManager'а
+
+    public enum States {
+        TODO,
+        DOING,
+        DONE
+    }
+
     // Энам, перечисляющий режим начала выполнения задачи
-    public enum taskRunMode {
+    public enum taskStartMode {
         // Режим HOTCAKE предназначен для задач, которые необходимо выполнить
         // немедленно, приостановив выполнение всех остальных задач.
         // Такой режим может пригодиться, если робот поймет, что он застрял

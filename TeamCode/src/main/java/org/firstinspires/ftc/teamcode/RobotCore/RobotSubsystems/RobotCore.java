@@ -5,18 +5,19 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gam
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskCallback;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskExecMode;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.PID;
-import org.firstinspires.ftc.teamcode.Utils.Position;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 
 public class RobotCore implements Subsystem{
 
 //  ПОЛЯ КЛАССА
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public RobotMode robotMode;
 
     // Менеджер задач робота
     public final TaskManager taskManager;
@@ -35,10 +36,11 @@ public class RobotCore implements Subsystem{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Конструктор класса
-    public RobotCore(TaskExecMode taskExecMode) {
+    public RobotCore(RobotMode robotMode) {
+        this.robotMode = robotMode;
         odometry = new Odometry();
         drivetrain = new MecanumDrivetrain();
-        taskManager = new TaskManager(taskExecMode, this);
+        taskManager = new TaskManager(this);
     }
 
     @Override
@@ -54,7 +56,12 @@ public class RobotCore implements Subsystem{
     /** Как написать свой метод-обработчик задачи?
      *
      */
-    public TaskCallback example = new TaskCallback() {
+    public TaskHandler example = new TaskHandler() {
+        // Переменные, которые должны хранить долгосрочные данные в процессе
+        // выполнения задачи нужно прописывать здесь.
+        double perem1;
+        int perem2;
+
         @Override
         public int execute(TaskManager thisTaskManager, StdArgs _args) {
             // Какое-то действие робота
@@ -63,7 +70,7 @@ public class RobotCore implements Subsystem{
     };
 
     // Метод, обрабатывающий задачу перемещения робота в точку
-    public TaskCallback driveToPosition = new TaskCallback() {
+    public TaskHandler driveToPosition = new TaskHandler() {
         @Override
         public int execute(TaskManager thisTaskManager, StdArgs _args) {
             StdArgs.driveStdArgs args = (StdArgs.driveStdArgs) _args;
@@ -98,7 +105,7 @@ public class RobotCore implements Subsystem{
     };
 
     // Метод, обрабатывающий задачу подъема телескопа
-    public TaskCallback setTeleskopePos = new TaskCallback() {
+    public TaskHandler setTeleskopePos = new TaskHandler() {
         @Override
         public int execute(TaskManager thisTaskManager, StdArgs _args) {
             StdArgs.teleskopeStdArgs args = (StdArgs.teleskopeStdArgs) _args;

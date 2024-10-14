@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.RobotCore;
 
 import java.util.ArrayDeque;
@@ -9,149 +11,200 @@ import java.util.Stack;
 
 public class TaskManager {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-    RobotCore robot;
 
+    private final RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
+
+    private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
     private final Deque<Task> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
+    private final Deque<Task> executingDeque; // Очередь для хранения обрабатываемых задач
     private final Stack<Task> completedTasks; // Стэк для хранения выполненных задач
-
-    TaskExecMode currentTaskExecMode = TaskExecMode.NONDEFINED;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public TaskManager(TaskExecMode taskExecMode, RobotCore robot) {
+    public TaskManager(RobotCore robot) {
         this.robot = robot;
+
+        this.managerRuntime = new ElapsedTime();
         this.taskDeque = new ArrayDeque<Task>();
+        this.executingDeque = new ArrayDeque<>();
         this.completedTasks = new Stack<Task>();
-        this.currentTaskExecMode = taskExecMode;
-    }
-
-    public boolean isTeleopMode() {
-        return currentTaskExecMode == TaskExecMode.TELEOP;
-    }
-
-    public boolean isAutoMode() {
-        return currentTaskExecMode == TaskExecMode.AUTO;
     }
 
     /** Обработчик задач
-     * Этот метод предназначен для обработки задач, содержащихся в taskDeQueue.
-     * Суть такого подхода заключается в том, что программист в классе Task добавляет в
-     * taskType задачи, которые робот должен выполнять, в taskRunMode добавляет режимы,
-     * в которых задачи могут выполняться и реализует методы, которые обеспечивают выполнение задачи.
+     * Этот метод предназначен для обработки задач, содержащихся в taskDeque.
+     * Суть такого подхода заключается в том, что программист создает класс робота,
+     * который наследуется от RobotCore, на основе интерфейса TaskHandler реализует методы,
+     * которые обеспечивают выполнение задачи.
      * Преимущество такой организации выполнения программы заключается в том, что задачи в очередь
      * можно добавлять из любого места программы, в любой момент, в начало и конец очереди,
      * а задача обработчика - выполнить задачи в нужной последовательности.
      * Как этим пользоваться?
-     * Создать объект класса ROBOT в нужной программе, инициализировать робота
-     * В программе с автономкой или телеопом, например, в методе runOpMode
-     * добавить роботу задачу:
-     *          Args.driveArgs args = new Args.driveArgs(new Position(12,16,0), 20);
-     *          ROBOT.Task new_task = new ROBOT.Task(   ROBOT.taskType.DRIVE_TO_POSITION,
-     *                                                  ROBOT.taskRunMode.START_AFTER_PREVIOUS,
-     *                                                  args);
-     *          my_robot.addTask(new_task);
-     * Задач можно добавлять сколько угодно и какие угодно.
-     * Для начала выполнения задач в конце напишите
-     *      my_robot.executeTasks();
+     * Создать класс Robot, наследующий RobotCore, расписать в нем функционал вашего робота,
+     * в файле с программой телеопа или автономки создать объект класса Robot.
+     * В методе runOpMode или init или т.п. добавить роботу задачу:
+
+     *   MyArgs.МойКлассАргумент _args = new MyArgs.МойКлассАргумент( Ваши параметры );
+     *   Task _task = new Task(my_robot.МойОбработчикЗадачи, _args, Task.taskStartMode.УСЛОВИЕ_НАЧАЛА_ВЫПОЛНЕНИЯ);
+     *   my_robot.taskManager.addTask(_task);
+
+     * Задач можно добавлять сколько угодно.
+     * Для начала выполнения задач в методе runOpMode напишите
+     *      my_robot.taskManager.start();
      */
-    public void start(){
-        // Очередь для хранения обрабатываемых задач
-        Deque<Task> executingTasks = new ArrayDeque<>();
-
-        // Обработчик будет работать, пока есть задачи
+    public void start() {
+        // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
         while(!taskDeque.isEmpty() || this.isTeleopMode()) {
-            /*
-                Стартер задач
-                Если taskRunMode первой задачи в очереди taskDeQueue соответствует условиям,
-                то задача переходит в очередь обрабатываемых задач.
-                В этом ветвлении программист должен прописать логику обработки runMode'ов задач.
-                Задачи из taskDeQueue стоит добавлять в конец очереди executingTasks, разве что
-                если вы полностью уверены в том, что делаете
-            */
-            switch (taskDeque.getFirst().runMode){
-                // Пример:
-                //  case ВАШ_ЭНАМ_ИЗ_taskRunMode
-                //      assert executingTasks != null;
-                //      какая-то логика, переносящая задачу из taskDeQueue в executingTasks
-                //      для начала обработки задачи.
-                //      break; <- обязательно
 
-                case START_AFTER_PREVIOUS:
-                    if(executingTasks.isEmpty()){
-                        executingTasks.addLast(taskDeque.getFirst());
-                        taskDeque.removeFirst();
-                    }
-                    break;
+            pickTaskToDo();
 
-                case START_WITH_PREVIOUS:
-                    executingTasks.addLast(taskDeque.getFirst());
-                    taskDeque.removeFirst();
-                    break;
+            taskHandler();
 
-                case HOTCAKE:
-                    executingTasks.addFirst(taskDeque.getFirst());
-                    taskDeque.removeFirst();
-                    break;
-            }
-
-            /*
-                Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
-                Проходим по каждой задаче и выполняем метод, который предназначен для выполнения задачи.
-                ВАЖНО! Внутри метода не должно быть циклов, ожидающих выполнения задачи, метод проходится один
-                раз за итерацию итератора task, это позволяет дергать методы-обработчики в цикле итератора
-                несколько раз в секунду и работать над несколькими задачами "одновременно".
-            */
-
-            Iterator<Task> task = executingTasks.iterator();
-            while ( task.hasNext() || this.isTeleopMode()) {
-                Task currentTask = task.next();
-
-                if (this.isTeleopMode()) {
-                    robot.teleop();
-                }
-
-                /*
-                    Выбор метода, который должен отработать.
-                    Здесь программист должен указать, какому методу должна соответствовать задача,
-                    имеющая определенный taskType.
-                    Обратите внимание, что ваш метод должен возвращать int, показывая результат своей работы,
-                    который нужно присвоить переменной result.
-                    Если result = -1, программа продолжает выполнение
-                    Если result = 0, значит робот выполнил задачу и она переносится из очереди в стэк
-                    completedTasks, в котором хранятся выполненные задачи.
-                 */
-
-                StdArgs _args = currentTask.args;
-                int result = currentTask.taskCallback.execute(this, _args);
-
-                // Условие завершения выполнения задачи
-                switch (result){
-                    case -1:
-                        break;
-                    case 0:
-                        completedTasks.push(currentTask);
-                        task.remove();
-                        break;
-                }
-                /*
-                    Если выполнился обработчик задачи с режимом HOTCAKE, то итерация не продолжается,
-                    а начинается с начала. Это позволяет выполнять обработчику только текущую HOTCAKE
-                    задачу.
-                 */
-                if (currentTask.runMode == Task.taskRunMode.HOTCAKE) {
-                    break;
-                }
+            // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
+            if (this.isTeleopMode()) {
+                robot.teleop();
             }
         }
     }
 
+    /**
+     * Стартер задач
+     * Если taskStartMode первой задачи в очереди taskDeque соответствует условиям,
+     * то задача переходит в очередь обрабатываемых задач,
+     * получает время начала выполнения и режим - DOING
+     */
+    private void pickTaskToDo()
+    {
+        boolean picked = true; // Тут храним результат выбора
+        if (!taskDeque.isEmpty()) {
+            /*
+                В этом ветвлении программист должен прописать логику обработки startMode'ов задач.
+                Задачи из taskDeque стоит добавлять в конец очереди executingDeque, разве что
+                если вы полностью уверены в том, что делаете
+             */
+            switch (taskDeque.getFirst().startMode) {
+                // Пример:
+                //  case ВАШ_ЭНАМ_ИЗ_taskStartMode
+                //      какое-то условие для переноса задачи из taskDeque в executingDeque
+                //      для начала обработки задачи.
+                //          pollToLast(); или pollToFirst();
+                //      break; <- обязательно
+
+                case START_AFTER_PREVIOUS:
+                    if (executingDeque.isEmpty()) {
+                        pollToLast();
+                    } else if (executingDeque.getLast().state == Task.States.DONE) {
+                        pollToLast();
+                    } else {
+                        picked = false; // Если не перенесли
+                    }
+                    break;
+
+                case START_WITH_PREVIOUS:
+                    pollToLast();
+                    break;
+
+                case HOTCAKE:
+                    pollToFirst();
+                    break;
+
+                default:
+                    picked = false; // Если не попали ни в один из кейсов
+                    break;
+            }
+        }
+
+        // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
+        if (picked) {
+            executingDeque.getLast().startTime = managerRuntime.milliseconds();
+            executingDeque.getLast().state = Task.States.DOING;
+        }
+    }
+
+    // Перенести задачу из очереди задач в начало очереди исполняемых задач
+    private void pollToFirst() {
+        executingDeque.offerFirst(taskDeque.pollFirst());
+    }
+
+    // Перенести задачу из очереди задач в конец очереди исполняемых задач
+    private void pollToLast() {
+        executingDeque.offerLast(taskDeque.pollFirst());
+    }
+
+    /**
+     * Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
+     * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
+     */
+    private void taskHandler() {
+        for (Iterator<Task> iterator = executingDeque.iterator(); iterator.hasNext() ; ) {
+            Task currentTask = iterator.next();
+
+            int result = updateTask(currentTask);
+
+            // Вернулся 0 - значит задача выполнилась
+            if (result == 0) {
+                // Проверяем, можно ли теперь взять новую задачу
+                pickTaskToDo();
+                // Выкидываем задачу в стэк выполненного
+                completedTasks.push(currentTask);
+                iterator.remove();
+            }
+        }
+    }
+
+    /**
+     * Выполняем метод, который предназначен для обработки задачи.
+     * ВАЖНО! Внутри обработчика не должно быть циклов, ожидающих выполнения задачи, метод
+     * проходится один раз за вызов, это позволяет дергать методы-обработчики в цикле Итератора
+     * несколько раз в секунду и работать над несколькими задачами "одновременно".
+     */
+    private int updateTask(Task currentTask) {
+        /*
+            Обратите внимание, что ваш метод должен возвращать int, показывая результат своей работы,
+            который нужно присвоить переменной result.
+            Если result = -1, программа продолжает выполнение
+            Если result = 0, задача отмечается как DONE
+        */
+        int result = -1;
+
+        // Обработчики HOTCAKE задач крутятся в цикле, пока не выполнят задачу,
+        // остальные обработчики вызываются один раз
+        if (currentTask.startMode == Task.taskStartMode.HOTCAKE) {
+            while (result != 0) {
+                result = currentTask.taskHandler.execute(this, currentTask.args);
+            }
+        } else {
+            result = currentTask.taskHandler.execute(this, currentTask.args);
+        }
+
+        // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
+        if (result == 0) {
+            currentTask.state = Task.States.DONE;
+        }
+
+        // Возвращаем 0, если задача перешла в режим DONE
+        return result;
+    }
+
     // Добавление задачи в конец очереди
     public void addTask(Task newtask) {
-        taskDeque.addLast(newtask);
+        taskDeque.offerLast(newtask);
     }
 
     // Добавление задачи в начало очереди
     public void addTaskFirst(Task newtask) {
-        taskDeque.addFirst(newtask);
+        taskDeque.offerFirst(newtask);
+    }
+
+    // Доделать последнюю выполненную задачу
+    public void redoLastTask() {
+        addTaskFirst(completedTasks.peek());
+    }
+
+    public boolean isTeleopMode() {
+        return robot.robotMode == RobotMode.TELEOP;
+    }
+
+    public boolean isAutoMode() {
+        return robot.robotMode == RobotMode.AUTO;
     }
 }

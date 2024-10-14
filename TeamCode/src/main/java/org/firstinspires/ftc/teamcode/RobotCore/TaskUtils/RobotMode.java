@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-public enum TaskExecMode {
+public enum RobotMode {
     NONDEFINED,
     TELEOP,
     AUTO

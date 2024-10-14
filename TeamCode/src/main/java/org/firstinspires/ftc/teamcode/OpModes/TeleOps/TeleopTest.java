@@ -18,7 +18,7 @@ public class TeleopTest extends OpMode {
     ROBOT robot = new ROBOT();
 
     @Override
-    public void init() {
+    public void init()   {
         robot.init(new Position(0,0,0));
     }
 

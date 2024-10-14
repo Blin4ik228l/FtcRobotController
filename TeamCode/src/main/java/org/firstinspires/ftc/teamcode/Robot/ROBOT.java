@@ -66,6 +66,9 @@ public class ROBOT {
 
         taskDeQueue = null;
         completedTasks = null;
+
+        pidDriveTrainLinear.setPID(1,1,1);
+        pidDriveTrainAngular.setPID(1,1,1);
     }
 
     /** Обработчик задач
@@ -173,9 +176,10 @@ public class ROBOT {
                         break;
                     case TELEOP_PL1:
                         //метод дял телеопа
-                        result = teleopMethod();
+                        result = driveTeleOp();
                         break;
-                    case
+                    case TELEOP_PL2:
+                        result = teleskopeTeleOp();
                     // Выполняется, если задача не нашла своего обработчика
                     default:
                         result = 0;
@@ -291,23 +295,29 @@ public class ROBOT {
         return result;
     }
 
-    public int teleOpMethod(){
+    public int teleskopeTeleOp(){
 
-        double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
+        return -1;
+    }
+
+    public int driveTeleOp(){
+
+        double velocityAngle = (((encL.getVelocity() + encR.getVelocity())/2)/CONSTS.TICK_PER_CM)/(CONSTS.DIST_BETWEEN_ENC_X/2);// см/сек
         double velocityX = (((encL.getVelocity() - encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
-        double velocityY = (encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
+        double velocityY = (encM.getVelocity() - velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER);
 
         double xVel = gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
         double yVel = gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
         double headingVel = gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2);
 
-        double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
-        double kP = -0.0001;
         double speed = 0.8;
+
+        double kF = speed/CONSTS.MAX_CM_PER_SEC;//макс см/сек
+        double kP = -0.0001;
         double kFR = speed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
 
-        double forward = (xVel - velocityX) * kP + xVel* kFR;
-        double side = (yVel - velocityY) * kP +  yVel* kFR;
+        double forward = (xVel - velocityX) * kP + xVel* kF;
+        double side = (yVel - velocityY) * kP +  yVel* kF;
         double angle = (headingVel - velocityAngle) * kP +  headingVel* kFR;
 
         double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
@@ -315,7 +325,10 @@ public class ROBOT {
         double leftFP = Range.clip((forward - side - angle), -1.0, 1.0);
         double rightBP = Range.clip((-forward + side - angle), -1.0, 1.0);
 
-
+        rightF.setPower(rightFP);
+        leftB.setPower(leftBP);
+        leftF.setPower(leftFP);
+        rightB.setPower(rightBP);
 
         return -1;
     }

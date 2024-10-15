@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gam
 
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.RobotMode;
@@ -18,6 +19,7 @@ public class RobotCore implements Subsystem{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public RobotMode robotMode;
+    public RobotAlliance robotAlliance;
 
     // Менеджер задач робота
     public final TaskManager taskManager;
@@ -36,8 +38,10 @@ public class RobotCore implements Subsystem{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Конструктор класса
-    public RobotCore(RobotMode robotMode) {
+    public RobotCore(RobotMode robotMode, RobotAlliance robotAlliance) {
         this.robotMode = robotMode;
+        this.robotAlliance = robotAlliance;
+
         odometry = new Odometry();
         drivetrain = new MecanumDrivetrain();
         taskManager = new TaskManager(this);

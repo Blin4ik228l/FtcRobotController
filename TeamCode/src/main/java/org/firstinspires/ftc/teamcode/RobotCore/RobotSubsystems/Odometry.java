@@ -1,41 +1,61 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotSubsystems;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.Utils.Position;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
-public class Odometry extends Thread{
-    public  Odometry (Position startPosition, DcMotorEx encL, DcMotorEx encR, DcMotorEx encM, Telemetry telemetry){
+public class Odometry extends Thread implements Subsystem{
+    private final ElapsedTime runtime;                                          // Пройденное время
+    private double oldTime;                                                     // Предыдущее время
+    private double dt;                                                          // Разница во времени
+    private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
+    private double angularVelocity, angularAcceleration, oldAngularVelocity;
+    public final DcMotorEx encM;                                                // Объекты энкодеров
+    public final DcMotorEx encL;
+    public final DcMotorEx encR;
+    private final Position deltaPosition;
+    private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
+    private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
+
+    public  Odometry (Position startPosition){
+        this.encM = hardwareMap.get(DcMotorEx.class, "encM") ;
+        this.encL = hardwareMap.get(DcMotorEx.class, "encL") ;
+        this.encR =  hardwareMap.get(DcMotorEx.class, "encR");
+
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
-
-        this.encL = encL;
-        this.encR = encR;
-        this.encM = encM;
 
         this.velocity = new Vector2(0,0);
         this.oldVelocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
 
-        this.telemetry = telemetry;
         runtime = new ElapsedTime();
         oldTime = 0;
         dt = 0;
     }
-    private final Telemetry telemetry;
-    private final ElapsedTime runtime;                                // Пройденное время
-    private double oldTime;                                           // Предыдущее время
-    private double dt;                                                // Разница во времени
-    private double encLOld, encROld, encMOld;                         // Значения энкодера на предыдущем шаге
-    private double angularVelocity, angularAcceleration, oldAngularVelocity;
-    private  DcMotorEx encM, encL, encR;                            // Объекты энкодеров
-    private  Position deltaPosition, globalPosition;                // Относительное перемещение и глобальное положение
-    private  Vector2 velocity, oldVelocity, acceleration;         // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
+    public  Odometry (){
+        this(new Position(0,0,0));
+    }
+
+    @Override
+    public void init() {
+        encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        this.run();
+    }
 
     @Override
     // Запускаем методы для обновления данных, пока объект существует
@@ -48,19 +68,17 @@ public class Odometry extends Thread{
             updateAngularAcceleration();
             updateAngularVelocity();
             oldTime = runtime.milliseconds();
-            telemetry.addData("Accelx", acceleration.x);
-            telemetry.addData("Accely", acceleration.y);
-            telemetry.addData("Velx", velocity.x);
-            telemetry.addData("Vely", velocity.y);
-            telemetry.addData("Gx", globalPosition.x);
-            telemetry.addData("Gy", globalPosition.y);
-
-            telemetry.update();
         }
     }
     // Тики энкодера в сантиметры
     private double ticksToCm(double ticks){
         return ticks / CONSTS.TICK_PER_CM;
+    }
+
+    public synchronized  void setGlobalPosition(Position position) {
+        globalPosition.x = position.x;
+        globalPosition.y = position.y;
+        globalPosition.heading = position.heading;
     }
 
     // Геттер глобального положения робота
@@ -93,7 +111,10 @@ public class Odometry extends Thread{
     private synchronized void updateVelocity(){
         oldVelocity.x = velocity.x;
         oldVelocity.y = velocity.y;
-        velocity = deltaPosition.toVector();
+
+        velocity.x = deltaPosition.toVector().x;
+        velocity.y = deltaPosition.toVector().y;
+
         velocity.divide(dt);
     }
 
@@ -134,7 +155,7 @@ public class Odometry extends Thread{
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (deltaRightEncoderX - deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
         double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
         double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

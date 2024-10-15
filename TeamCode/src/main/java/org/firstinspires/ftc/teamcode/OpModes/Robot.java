@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
@@ -32,11 +30,11 @@ public class Robot extends RobotCore {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode opMode) {
-        super(robotMode, robotAlliance, opMode);
+    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
+        super(robotMode, robotAlliance, op);
 
-        odometry = new Odometry();
-        drivetrain = new MecanumDrivetrain();
+        odometry = new Odometry(op);
+        drivetrain = new MecanumDrivetrain(op);
     }
 
     @Override
@@ -53,24 +51,21 @@ public class Robot extends RobotCore {
             StdArgs.driveStdArgs args = (StdArgs.driveStdArgs) _args;
             int result;
 
+            double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
             Vector2 errorPos = args.position.toVector();
             errorPos.sub(odometry.getGlobalPosition().toVector());
 
-            Vector2 direction = new Vector2(errorPos);
-            direction.normalize();
+            Vector2 velocity = new Vector2(errorPos);
+            velocity.normalize();
 
-            double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
             double speedPID = pidDriveTrainLinear.calculate(args.max_linear_speed, odometry.getSpeed());
+            double angularPID = pidDriveTrainAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
 
-            double angularPID = pidDriveTrainAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity());//Всегда положителен
+            velocity.multyplie(speedPID);
 
-            direction.multyplie(speedPID);
-            errorHeading *= angularPID;
+            drivetrain.setVelocity(velocity, angularPID);
 
-            drivetrain.setVelocity(direction, errorHeading);
-
-            if(direction.x != odometry.getGlobalPosition().getX() && direction.y != odometry.getGlobalPosition().getY()
-                    && errorHeading != odometry.getGlobalPosition().getHeading()){
+            if(odometry.getAcceleration().mag() == 0){
                 result = -1;
             }else{
                 drivetrain.brakeMotors();
@@ -103,9 +98,9 @@ public class Robot extends RobotCore {
         double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
         double velocityY = (odometry.encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
 
-        double xVel = gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
-        double yVel = gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
-        double headingVel = gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2);
+        double xVel = op.gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
+        double yVel = op.gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
+        double headingVel = op.gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2);
 
         double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
         double kP = -0.0001;
@@ -125,7 +120,5 @@ public class Robot extends RobotCore {
     // Gamepad 2
     @Override
     public void teleopPl2() {
-
     }
-
 }

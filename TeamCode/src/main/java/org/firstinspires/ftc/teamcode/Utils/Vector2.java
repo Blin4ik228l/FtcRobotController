@@ -16,6 +16,7 @@ public class Vector2 {
     public Vector2(Vector2 vector) {
         this.x = vector.x;
         this.y = vector.y;
+        this.magcache = vector.magcache;
     }
 
     public Vector2() {

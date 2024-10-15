@@ -2,7 +2,8 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

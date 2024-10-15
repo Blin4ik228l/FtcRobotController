@@ -3,13 +3,14 @@ package org.firstinspires.ftc.teamcode.Robot.RobotSubsystems;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.Utils.Position;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
 public class Odometry extends Thread{
-    public  Odometry (Position startPosition, DcMotorEx encL, DcMotorEx encR, DcMotorEx encM){
+    public  Odometry (Position startPosition, DcMotorEx encL, DcMotorEx encR, DcMotorEx encM, Telemetry telemetry){
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
 
@@ -21,18 +22,19 @@ public class Odometry extends Thread{
         this.oldVelocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
 
+        this.telemetry = telemetry;
         runtime = new ElapsedTime();
         oldTime = 0;
         dt = 0;
     }
-
+    private final Telemetry telemetry;
     private final ElapsedTime runtime;                                // Пройденное время
     private double oldTime;                                           // Предыдущее время
     private double dt;                                                // Разница во времени
     private double encLOld, encROld, encMOld;                         // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
-    private  DcMotorEx encM, encL, encR;                         // Объекты энкодеров
-    private  Position deltaPosition, globalPosition;             // Относительное перемещение и глобальное положение
+    private  DcMotorEx encM, encL, encR;                            // Объекты энкодеров
+    private  Position deltaPosition, globalPosition;                // Относительное перемещение и глобальное положение
     private  Vector2 velocity, oldVelocity, acceleration;         // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
 
     @Override
@@ -46,6 +48,14 @@ public class Odometry extends Thread{
             updateAngularAcceleration();
             updateAngularVelocity();
             oldTime = runtime.milliseconds();
+            telemetry.addData("Accelx", acceleration.x);
+            telemetry.addData("Accely", acceleration.y);
+            telemetry.addData("Velx", velocity.x);
+            telemetry.addData("Vely", velocity.y);
+            telemetry.addData("Gx", globalPosition.x);
+            telemetry.addData("Gy", globalPosition.y);
+
+            telemetry.update();
         }
     }
     // Тики энкодера в сантиметры
@@ -124,7 +134,7 @@ public class Odometry extends Thread{
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaRad = (deltaRightEncoderX - deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
         double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
         double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

@@ -14,8 +14,12 @@ public class AutoRedLeft extends LinearOpMode {
 ROBOT my_robot = new ROBOT();
     @Override
     public void runOpMode() throws InterruptedException {
-        Args.driveArgs args = new Args.driveArgs(new Position(new Vector2(1,1), 1), 1, 0);
+        Args.driveArgs args = new Args.driveArgs(new Position(new Vector2(50,50), 20), 20, 30);
         Tasks new_task = new Tasks(Tasks.taskType.DRIVE_TO_POSITION, Tasks.taskRunMode.START_AFTER_PREVIOUS, args);
+        waitForStart();
         my_robot.addTask(new_task);
+        while (!opModeIsActive()){
+            my_robot.executeTasks();
+        }
     }
 }

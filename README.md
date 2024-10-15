@@ -436,7 +436,7 @@ This is a bug fix only release to address the following four issues.
 
 
 ### Bug fixes
-* Fixes [issue #316](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/316) (MatrixF.inverted() returned an incorrectly-sized matrix for 1x1 and 2x2 matrixes).
+* Fixes [issue #316](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/316) (MatrixF.inverted() returned an incorrectly-sized vector2 for 1x1 and 2x2 matrixes).
 * Self inspect now allows for Driver Station and Robot Controller compatibility between point releases.
 * Fixes bug where if the same `RumbleEffect` object instance was queued for multiple gamepads, it
   could happen that both rumble commands would be sent to just one gamepad.
@@ -646,7 +646,7 @@ Version 5.5 requires Android Studio 4.0 or later.
 ### New features
 * Adds support for calling custom Java classes from Blocks OpModes (fixes [SkyStone issue #161](https://github.com/FIRST-Tech-Challenge/SkyStone/issues/161)).
     * Classes must be in the org.firstinspires.ftc.teamcode package.
-    * To have easy access to the opMode, hardwareMap, telemetry, gamepad1, and gamepad2, classes can
+    * To have easy access to the robotMode, hardwareMap, telemetry, gamepad1, and gamepad2, classes can
       extends org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.
     * Methods must be public static and have no more than 21 parameters.
     * Methods must be annotated with org.firstinspires.ftc.robotcore.external.ExportToBlocks.
@@ -1291,7 +1291,7 @@ Changes include:
      - Fixed a few blocks.
      - Added type checking to new blocks.
      - Updated to latest blockly.
-     - Added default variable blocks to navigation and matrix blocks.
+     - Added default variable blocks to navigation and vector2 blocks.
      - Fixed toolbox entry for openGLMatrix_rotation_withAxesArgs.
      - When user downloads Blocks-generated OpMode, only the .blk file is downloaded.
      - When user uploads Blocks-generated OpMode (.blk file), Javascript code is auto generated.

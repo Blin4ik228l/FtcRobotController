@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOps;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Utils.Position;
 @TeleOp
 public class TeleopTest extends OpMode {
 
-    RobotCore robot = new RobotCore(RobotMode.TELEOP, RobotAlliance.BLUE);
+    Robot robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
 
     @Override
     public void init() {

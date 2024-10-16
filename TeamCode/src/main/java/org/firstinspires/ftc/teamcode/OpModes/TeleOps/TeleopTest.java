@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
@@ -15,10 +14,15 @@ import org.firstinspires.ftc.teamcode.Utils.Position;
 @TeleOp
 public class TeleopTest extends OpMode {
 
-    Robot robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
+    Robot robot;
 
+    /**
+     *  Метод вызывается один раз при нажатии INIT
+     */
     @Override
     public void init() {
+        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
+
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
 
@@ -26,8 +30,27 @@ public class TeleopTest extends OpMode {
         robot.taskManager.addTask(newtask);
     }
 
+    /**
+     *  Метод крутится в цикле, ожидая нажатия START
+     */
+    @Override
+    public void init_loop() {
+        super.init_loop();
+    }
+
+    /**
+     *  Метод крутится в цикле после нажатия START
+     */
     @Override
     public void loop() {
 
+    }
+
+    /**
+     *  Метод вызывается один раз при нажатии STOP
+     */
+    @Override
+    public void stop() {
+        super.stop();
     }
 }

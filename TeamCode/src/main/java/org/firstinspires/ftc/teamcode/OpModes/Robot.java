@@ -31,11 +31,11 @@ public class Robot extends RobotCore {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, HardwareMap hardwareMap) {
-        super(robotMode, robotAlliance, hardwareMap);
+    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
+        super(robotMode, robotAlliance, op);
 
-        odometry = new Odometry(hardwareMap);
-        drivetrain = new MecanumDrivetrain(hardwareMap);
+        odometry = new Odometry(op);
+        drivetrain = new MecanumDrivetrain(op);
     }
 
     @Override

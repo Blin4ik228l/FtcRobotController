@@ -39,6 +39,14 @@ public class TeleopTest extends OpMode {
     }
 
     /**
+     *  Метод вызывается один раз при нажатии кнопки START
+     */
+    @Override
+    public void start() {
+        super.start();
+    }
+
+    /**
      *  Метод крутится в цикле после нажатия START
      */
     @Override

@@ -3,34 +3,30 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.Utils.Position;
-import org.w3c.dom.CharacterData;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
 public class Odometry extends Thread implements Subsystem{
+    private final OpMode op;
 
     private final ElapsedTime runtime;                                          // Пройденное время
     private double oldTime;                                                     // Предыдущее время
     private double dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
-    public final DcMotorEx encM;                                                // Объекты энкодеров
-    public final DcMotorEx encL;
-    public final DcMotorEx encR;
+    public DcMotorEx encM;                                                // Объекты энкодеров
+    public DcMotorEx encL;
+    public DcMotorEx encR;
     private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
 
-    public  Odometry (Position startPosition, HardwareMap hardwareMap){
-
-        this.encM = hardwareMap.get(DcMotorEx.class, "encM") ;
-        this.encL = hardwareMap.get(DcMotorEx.class, "encL") ;
-        this.encR =  hardwareMap.get(DcMotorEx.class, "encR");
+    public  Odometry (Position startPosition, OpMode op){
+        this.op = op;
 
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
@@ -44,12 +40,16 @@ public class Odometry extends Thread implements Subsystem{
         dt = 0;
     }
 
-    public  Odometry (HardwareMap hardwareMap){
-        this(new Position(0,0,0), hardwareMap);
+    public  Odometry (OpMode op){
+        this(new Position(0,0,0), op);
     }
 
     @Override
     public void init() {
+        this.encM = op.hardwareMap.get(DcMotorEx.class, "encM") ;
+        this.encL = op.hardwareMap.get(DcMotorEx.class, "encL") ;
+        this.encR =  op.hardwareMap.get(DcMotorEx.class, "encR");
+
         encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

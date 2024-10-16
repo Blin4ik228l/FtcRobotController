@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Utils.Position;
 @TeleOp
 public class TeleopTest extends OpMode {
 
-    Robot robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, hardwareMap);
+    Robot robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
 
     @Override
     public void init() {

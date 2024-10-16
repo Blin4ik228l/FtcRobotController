@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotUtils;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
@@ -14,7 +15,7 @@ public abstract class RobotCore implements Subsystem {
 
     public RobotAlliance robotAlliance;
     public RobotMode robotMode;
-    public OpMode op;
+    public HardwareMap hardwareMap;
 
     // Менеджер задач робота
     public final TaskManager taskManager;
@@ -23,10 +24,10 @@ public abstract class RobotCore implements Subsystem {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Конструктор класса
-    public RobotCore(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
+    public RobotCore(RobotMode robotMode, RobotAlliance robotAlliance, HardwareMap hardwareMap) {
         this.robotAlliance = robotAlliance;
         this.robotMode = robotMode;
-        this.op = op;
+        this.hardwareMap = hardwareMap;
 
         taskManager = new TaskManager(this);
     }

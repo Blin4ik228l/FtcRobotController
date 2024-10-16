@@ -9,20 +9,18 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 
 public class MecanumDrivetrain implements Subsystem{
-    public final OpMode opMode;
 
     public final DcMotorEx rightB;
     public final DcMotorEx rightF;
     public final DcMotorEx leftB;
     public final DcMotorEx leftF;
 
-    public MecanumDrivetrain(OpMode opMode){
-        this.opMode = opMode;
+    public MecanumDrivetrain(HardwareMap hardwareMap){
 
-        rightB = opMode.hardwareMap.get(DcMotorEx.class, "rightB");
-        rightF = opMode.hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = opMode.hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = opMode.hardwareMap.get(DcMotorEx.class, "leftF");
+        rightB = hardwareMap.get(DcMotorEx.class, "rightB");
+        rightF = hardwareMap.get(DcMotorEx.class, "rightF");
+        leftB = hardwareMap.get(DcMotorEx.class, "leftB");
+        leftF = hardwareMap.get(DcMotorEx.class, "leftF");
 
         rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);

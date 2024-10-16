@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.Utils.Position;
+import org.w3c.dom.CharacterData;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
 public class Odometry extends Thread implements Subsystem{
-    private final OpMode op;
 
     private final ElapsedTime runtime;                                          // Пройденное время
     private double oldTime;                                                     // Предыдущее время
@@ -27,12 +26,11 @@ public class Odometry extends Thread implements Subsystem{
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
 
-    public  Odometry (Position startPosition, OpMode op){
-        this.op = op;
+    public  Odometry (Position startPosition, HardwareMap hardwareMap){
 
-        this.encM = this.op.hardwareMap.get(DcMotorEx.class, "encM") ;
-        this.encL = this.op.hardwareMap.get(DcMotorEx.class, "encL") ;
-        this.encR =  this.op.hardwareMap.get(DcMotorEx.class, "encR");
+        this.encM = hardwareMap.get(DcMotorEx.class, "encM") ;
+        this.encL = hardwareMap.get(DcMotorEx.class, "encL") ;
+        this.encR =  hardwareMap.get(DcMotorEx.class, "encR");
 
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
@@ -46,8 +44,8 @@ public class Odometry extends Thread implements Subsystem{
         dt = 0;
     }
 
-    public  Odometry (OpMode op){
-        this(new Position(0,0,0), op);
+    public  Odometry (HardwareMap hardwareMap){
+        this(new Position(0,0,0), hardwareMap);
     }
 
     @Override

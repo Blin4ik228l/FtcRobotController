@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.MecanumDrivetrain;
@@ -30,11 +31,11 @@ public class Robot extends RobotCore {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
-        super(robotMode, robotAlliance, op);
+    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, HardwareMap hardwareMap) {
+        super(robotMode, robotAlliance, hardwareMap);
 
-        odometry = new Odometry(op);
-        drivetrain = new MecanumDrivetrain(op);
+        odometry = new Odometry(hardwareMap);
+        drivetrain = new MecanumDrivetrain(hardwareMap);
     }
 
     @Override

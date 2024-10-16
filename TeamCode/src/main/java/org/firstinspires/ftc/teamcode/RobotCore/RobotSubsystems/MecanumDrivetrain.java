@@ -1,24 +1,28 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Utils.Vector2;
 
 public class MecanumDrivetrain implements Subsystem{
-    public final DcMotorEx rightB;
-    public DcMotorEx rightF;
-    public DcMotorEx leftB;
-    public DcMotorEx leftF;
+    public final OpMode opMode;
 
-    public MecanumDrivetrain(){
-        rightB = hardwareMap.get(DcMotorEx.class, "rightB");
-        rightF = hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = hardwareMap.get(DcMotorEx.class, "leftF");
+    public final DcMotorEx rightB;
+    public final DcMotorEx rightF;
+    public final DcMotorEx leftB;
+    public final DcMotorEx leftF;
+
+    public MecanumDrivetrain(OpMode opMode){
+        this.opMode = opMode;
+
+        rightB = opMode.hardwareMap.get(DcMotorEx.class, "rightB");
+        rightF = opMode.hardwareMap.get(DcMotorEx.class, "rightF");
+        leftB = opMode.hardwareMap.get(DcMotorEx.class, "leftB");
+        leftF = opMode.hardwareMap.get(DcMotorEx.class, "leftF");
 
         rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);

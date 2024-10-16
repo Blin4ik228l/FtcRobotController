@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,6 +13,8 @@ import org.firstinspires.ftc.teamcode.Utils.Position;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
 public class Odometry extends Thread implements Subsystem{
+    private final OpMode op;
+
     private final ElapsedTime runtime;                                          // Пройденное время
     private double oldTime;                                                     // Предыдущее время
     private double dt;                                                          // Разница во времени
@@ -24,10 +27,12 @@ public class Odometry extends Thread implements Subsystem{
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
 
-    public  Odometry (Position startPosition){
-        this.encM = hardwareMap.get(DcMotorEx.class, "encM") ;
-        this.encL = hardwareMap.get(DcMotorEx.class, "encL") ;
-        this.encR =  hardwareMap.get(DcMotorEx.class, "encR");
+    public  Odometry (Position startPosition, OpMode op){
+        this.op = op;
+
+        this.encM = this.op.hardwareMap.get(DcMotorEx.class, "encM") ;
+        this.encL = this.op.hardwareMap.get(DcMotorEx.class, "encL") ;
+        this.encR =  this.op.hardwareMap.get(DcMotorEx.class, "encR");
 
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
@@ -40,8 +45,9 @@ public class Odometry extends Thread implements Subsystem{
         oldTime = 0;
         dt = 0;
     }
-    public  Odometry (){
-        this(new Position(0,0,0));
+
+    public  Odometry (OpMode op){
+        this(new Position(0,0,0), op);
     }
 
     @Override
@@ -54,7 +60,8 @@ public class Odometry extends Thread implements Subsystem{
         encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        this.run();
+        this.setDaemon(true);
+        this.start();
     }
 
     @Override
@@ -136,15 +143,15 @@ public class Odometry extends Thread implements Subsystem{
 
     // Обновление положения робота на поле с помощью следящих колес
     private void updateGlobalPosition(){
-        double leftEncoderXNow = ticksToCm(encL.getCurrentPosition());
+        double leftEncoderXNow = encL.getCurrentPosition();
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXnow = ticksToCm(encR.getCurrentPosition());
+        double rightEncoderXnow = encR.getCurrentPosition();
         double deltaRightEncoderX = rightEncoderXnow - encROld;
         encROld = rightEncoderXnow;
 
-        double encoderYnow = ticksToCm(encM.getCurrentPosition());
+        double encoderYnow = encM.getCurrentPosition();
         double deltaEncoderY = encoderYnow - encMOld;
         encMOld = encoderYnow;
 
@@ -155,7 +162,7 @@ public class Odometry extends Thread implements Subsystem{
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaRad = ticksToCm(deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
         double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
         double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

@@ -1,35 +1,32 @@
-package org.firstinspires.ftc.teamcode.Robot.TaskHandler;
+package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-import org.firstinspires.ftc.teamcode.Robot.ROBOT;
-
-import java.util.Deque;
-import java.util.Iterator;
 //Класс, описывающий структуру задачи, передаваемой в робота
-public class Tasks {
-    public Tasks(taskType type, taskRunMode runMode, Args args){
-        this.type = type;
-        this.runMode = runMode;
+public class Task {
+    public Task(TaskHandler taskHandler, StdArgs args, int reward, taskStartMode startMode){
+        this.taskHandler = taskHandler;
+        this.startMode = startMode;
+        this.reward = reward;
         this.args = args;
+
+        this.state = States.TODO;
     }
 
-    public taskType type;
-    public taskRunMode runMode;
-    public Args args;
+    public int reward;
+    public TaskHandler taskHandler;
+    public taskStartMode startMode;
+    public StdArgs args;
 
-    // энам, перечисляющий возможные задачи робота, прописанные в программе
-   public  enum taskType {
-        // Ехать в указанную позицию
-        DRIVE_TO_POSITION,
-        // Выдвинуть телескоп на указанное значение
-        SET_TELESKOPE_POS,
-        STUCK_WHILE_DRIVING,
-        STUCK_WHILE_UPPING_TELE,
-        TELEOP_PL1,
-        TELEOP_PL2
+    public States state;
+    public double startTime; // Время начала выполнения задачи относительно runtime TaskManager'а
+
+    public enum States {
+        TODO,
+        DOING,
+        DONE
     }
 
     // Энам, перечисляющий режим начала выполнения задачи
-    public enum taskRunMode {
+    public enum taskStartMode {
         // Режим HOTCAKE предназначен для задач, которые необходимо выполнить
         // немедленно, приостановив выполнение всех остальных задач.
         // Такой режим может пригодиться, если робот поймет, что он застрял

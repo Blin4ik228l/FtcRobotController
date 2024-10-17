@@ -5,9 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Utils.CONSTS;
-import org.firstinspires.ftc.teamcode.Utils.Vector2;
-import org.firstinspires.ftc.teamcode.Utils.Position;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
 public class Odometry extends Thread implements Subsystem{

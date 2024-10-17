@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Utils;
+package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,9 +15,9 @@ public class PID {
     private double error, olderror, oldtime;
 
     public PID (double kP, double kI, double kD){
-        this.kP = kP; //Максимально приблизить к результату, но не больше результат(Борис Бритва)
-        this.kI = kI;//Добивает до нужного результата(Борис Бритва добить), будет скоростью мотора(при работе с положением)
-        this.kD = kD;//Сглаживает колебания
+        this.kP = kP; // Максимально приблизить к результату, но не больше результат(Борис Бритва)
+        this.kI = kI; // Добивает до нужного результата(Борис Бритва добить)
+        this.kD = kD; // Сглаживает колебания
     }
 
     public void setPID(double kP, double kI, double kD){
@@ -37,9 +37,6 @@ public class PID {
     }
 
     public double calculate(double target, double current){
-        // TODO:
-        // Расписать алгоритм работы ПИД регулятора
-
         error = target - current;
 
         P = error * kP;

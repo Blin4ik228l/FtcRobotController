@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.Utils;
+package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 
 import androidx.annotation.NonNull;
 
-import org.jetbrains.annotations.Contract;
 
 public class Position {
 
@@ -61,11 +60,13 @@ public class Position {
     public double getHeading(){
         return this.heading;
     }
-    public void add(Vector2 vector2, double heading){
+
+    public void add(@NonNull Vector2 vector2, double heading){
         this.x += vector2.x;
         this.y += vector2.y;
         this.heading += heading;
     }
+
     @NonNull
     public Position clone(){
        return new Position(this);

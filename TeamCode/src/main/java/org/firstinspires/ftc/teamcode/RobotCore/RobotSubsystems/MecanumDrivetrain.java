@@ -3,26 +3,28 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Utils.Vector2;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
 public class MecanumDrivetrain implements Subsystem{
-    public final OpMode opMode;
+    public final OpMode op;
 
-    public final DcMotorEx rightB;
-    public final DcMotorEx rightF;
-    public final DcMotorEx leftB;
-    public final DcMotorEx leftF;
+    public DcMotorEx rightB;
+    public DcMotorEx rightF;
+    public DcMotorEx leftB;
+    public DcMotorEx leftF;
 
-    public MecanumDrivetrain(OpMode opMode){
-        this.opMode = opMode;
+    public MecanumDrivetrain(OpMode op){
+        this.op = op;
+    }
 
-        rightB = opMode.hardwareMap.get(DcMotorEx.class, "rightB");
-        rightF = opMode.hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = opMode.hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = opMode.hardwareMap.get(DcMotorEx.class, "leftF");
+    @Override
+    public void init() {
+        rightB = op.hardwareMap.get(DcMotorEx.class, "rightB");
+        rightF = op.hardwareMap.get(DcMotorEx.class, "rightF");
+        leftB = op.hardwareMap.get(DcMotorEx.class, "leftB");
+        leftF = op.hardwareMap.get(DcMotorEx.class, "leftF");
 
         rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
@@ -31,10 +33,7 @@ public class MecanumDrivetrain implements Subsystem{
 
         leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
 
-    @Override
-    public void init() {
         rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

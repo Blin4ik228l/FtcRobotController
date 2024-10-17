@@ -1,10 +1,8 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
-
-import com.qualcomm.robotcore.hardware.HardwareMap;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules;
 
 // Шаблон системы робота
 // Все системы должны наследоваться от этого класса
 // и реализоввивать абстрактные методы внутри себя.
-public interface Subsystem {
+public interface Module {
     void init();
 }

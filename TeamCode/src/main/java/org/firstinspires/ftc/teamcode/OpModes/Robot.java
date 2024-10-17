@@ -1,27 +1,28 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
-public class Robot extends RobotCore {
+public class Robot extends RobotCore implements CONSTS{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Системы робота.
     // Железо хранится уже в самой системе.
     public final Odometry odometry; // Система вычислений одометрии
     public final MecanumDrivetrain drivetrain; // Телега робота
+    public final TeleSkope teleSkope;
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
@@ -35,6 +36,7 @@ public class Robot extends RobotCore {
 
         odometry = new Odometry(op);
         drivetrain = new MecanumDrivetrain(op);
+        teleSkope = new TeleSkope(op);
     }
 
     @Override
@@ -47,8 +49,8 @@ public class Robot extends RobotCore {
     // Метод, обрабатывающий задачу перемещения робота в точку
     public TaskHandler driveToPosition = new TaskHandler() {
         @Override
-        public int execute(TaskManager thisTaskManager, StdArgs _args) {
-            StdArgs.driveStdArgs args = (StdArgs.driveStdArgs) _args;
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
             int result;
 
             double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
@@ -79,8 +81,8 @@ public class Robot extends RobotCore {
     // Метод, обрабатывающий задачу подъема телескопа
     public TaskHandler setTeleskopePos = new TaskHandler() {
         @Override
-        public int execute(TaskManager thisTaskManager, StdArgs _args) {
-            StdArgs.teleskopeStdArgs args = (StdArgs.teleskopeStdArgs) _args;
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
             int result = -1;
 
             // TODO: обработчик застреваний телескопа
@@ -94,31 +96,34 @@ public class Robot extends RobotCore {
     // Gamepad 1
     @Override
     public void teleopPl1() {
-        double velocityAngle = (((odometry.encL.getVelocity() + odometry.encR.getVelocity())/2)/ CONSTS.TICK_PER_CM);// см/сек
-        double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/CONSTS.TICK_PER_CM);// см/сек
-        double velocityY = (odometry.encM.getVelocity()/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2)) - ((velocityAngle * CONSTS.OFFSET_ENC_M_FROM_CENTER)/(CONSTS.DIST_BETWEEN_ENC_X/2));// рад/сек
+        double velocityAngle = (((odometry.encL.getVelocity() + odometry.encR.getVelocity())/2)/ TICK_PER_CM);//см/сек
+        double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
+        double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER))/(DIST_BETWEEN_ENC_X/2);// рад/сек
 
-        double xVel = op.gamepad1.left_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
-        double yVel = op.gamepad1.left_stick_y * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM;
-        double headingVel = op.gamepad1.right_stick_x * CONSTS.MAX_TPS_ENCODER/CONSTS.TICK_PER_CM/(CONSTS.DIST_BETWEEN_ENC_X/2);
+        double targetVelX = op.gamepad1.left_stick_x * MAX_TPS_ENCODER/TICK_PER_CM;
+        double targetVelY = op.gamepad1.left_stick_y * MAX_TPS_ENCODER/TICK_PER_CM;
+        double targetAngleVel = op.gamepad1.right_stick_x * MAX_TPS_ENCODER/TICK_PER_CM/(DIST_BETWEEN_ENC_X/2);
 
-        double kF = 110/CONSTS.MAX_TPS_ENCODER;//макс см/сек
-        double kP = -0.0001;
-        double speed = 0.8;
-        double kFR = speed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
+        double maxSpeed = 0.8;
 
-        double forward = (xVel - velocityX) * kP + xVel* kFR;
-        double side = (yVel - velocityY) * kP +  yVel* kFR;
-        double angle = (headingVel - velocityAngle) * kP +  headingVel* kFR;
+        double kF = maxSpeed/CONSTS.MAX_TPS_ENCODER;//макс см/сек
+        double kFR = maxSpeed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
+        double kP = -0.0001;//коеф торможения робота
 
-        double rightFP = Range.clip((-forward - side - angle), -1.0, 1.0);
-        double leftBP = Range.clip((forward + side - angle), -1.0, 1.0);
-        double leftFP = Range.clip((forward - side - angle), -1.0, 1.0);
-        double rightBP = Range.clip((-forward + side - angle), -1.0, 1.0);
+        double forwardVel = (targetVelX - velocityX) * kP + targetVelX* kFR;
+        double sideVel = (targetVelY - velocityY) * kP +  targetVelY* kFR;
+        double angleVel = (targetAngleVel - velocityAngle) * kP +  targetAngleVel* kFR;
+
+        drivetrain.setVelocityTeleOp(forwardVel, sideVel, angleVel);
     }
 
     // Gamepad 2
     @Override
     public void teleopPl2() {
+        double upStandingVel = op.gamepad2.right_stick_x;
+        double horizontalVel = op.gamepad2.left_stick_x;//Привести в правильное числовое значения для моторов
+
+        teleSkope.setVelHorizontalTeleOp(horizontalVel);//продумать логику о пропорциональном движении телескопов
+        teleSkope.setVelUpStandingTeleOp(upStandingVel);
     }
 }

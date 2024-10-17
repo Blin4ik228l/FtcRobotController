@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 //Основная идея:
 //получить полный контроль над движениями робота
 @Autonomous
-public class AutoNewGen extends LinearOpMode {
+public class ColorSensorTest extends LinearOpMode {
     NormalizedColorSensor colorSensor;
 
     /** The relativeLayout field is used to aid in providing interesting visual feedback

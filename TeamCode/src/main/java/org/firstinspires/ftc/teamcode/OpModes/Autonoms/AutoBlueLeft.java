@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "RedLeft", group = "Red", preselectTeleOp = "TeleOpRed")
-public class AutoRedLeft extends OpMode {
+@Autonomous(name = "Left", group = "Blue", preselectTeleOp = "TeleOpBlue")
+public class AutoBlueLeft extends OpMode {
     Robot robot;
 
     /**
@@ -19,7 +19,7 @@ public class AutoRedLeft extends OpMode {
      */
     @Override
     public void init() {
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.RED, this);
+        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
 
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));

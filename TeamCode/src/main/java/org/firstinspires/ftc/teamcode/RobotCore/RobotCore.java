@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.RobotCore;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 
-public abstract class RobotCore implements Subsystem {
+public abstract class RobotCore implements Module {
 
 //  ПОЛЯ КЛАССА
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ public abstract class RobotCore implements Subsystem {
         int var2;
 
         @Override
-        public int execute(TaskManager thisTaskManager, StdArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             // Какое-то действие робота
             return -1;
         }

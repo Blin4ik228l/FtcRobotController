@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 // Отдельный класс, работающий с одометрией в отдельном потоке
-public class Odometry extends Thread implements Subsystem{
+public class Odometry extends Thread implements Module {
     private final OpMode op;
 
     private final ElapsedTime runtime;                                          // Пройденное время

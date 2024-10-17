@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StdArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 
-@TeleOp
-public class TeleopTest extends OpMode {
+@TeleOp(name = "BlueMeow", group = "Blue")
+public class TeleOpBlue extends OpMode {
 
     Robot robot;
 
@@ -23,10 +23,10 @@ public class TeleopTest extends OpMode {
     public void init() {
         robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
 
+        robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().x,robot.odometry.getGlobalPosition().y,robot.odometry.getGlobalPosition().heading));
         robot.init();
-        robot.odometry.setGlobalPosition(new Position(0,0,0));
 
-        Task newtask = new Task(robot.example, new StdArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
+        Task newtask = new Task(robot.example, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
         robot.taskManager.addTask(newtask);
     }
 
@@ -51,7 +51,8 @@ public class TeleopTest extends OpMode {
      */
     @Override
     public void loop() {
-
+        robot.teleopPl1();
+        robot.teleopPl2();
     }
 
     /**

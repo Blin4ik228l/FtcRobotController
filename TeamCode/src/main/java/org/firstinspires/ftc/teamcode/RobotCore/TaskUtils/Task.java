@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 //Класс, описывающий структуру задачи, передаваемой в робота
 public class Task {
-    public Task(TaskHandler taskHandler, StdArgs args, int reward, taskStartMode startMode){
+    public Task(TaskHandler taskHandler, StandartArgs args, int reward, taskStartMode startMode){
         this.taskHandler = taskHandler;
         this.startMode = startMode;
         this.reward = reward;
@@ -14,7 +14,7 @@ public class Task {
     public int reward;
     public TaskHandler taskHandler;
     public taskStartMode startMode;
-    public StdArgs args;
+    public StandartArgs args;
 
     public States state;
     public double startTime; // Время начала выполнения задачи относительно runtime TaskManager'а

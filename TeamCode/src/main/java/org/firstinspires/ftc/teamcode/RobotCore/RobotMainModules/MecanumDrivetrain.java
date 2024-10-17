@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotSubsystems;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
-public class MecanumDrivetrain implements Subsystem{
+public class MecanumDrivetrain implements Module {
     public final OpMode op;
 
     public DcMotorEx rightB;
@@ -38,6 +38,9 @@ public class MecanumDrivetrain implements Subsystem{
         leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        offMotors();
+        brakeMotors();
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behabior) {
@@ -57,9 +60,24 @@ public class MecanumDrivetrain implements Subsystem{
     }
 
     public void brakeMotors(){
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void floatMotors(){
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void offMotors(){
         rightF.setPower(0);
         leftB.setPower(0);
         leftF.setPower(0);
         rightB.setPower(0);
+    }
+
+    public void setVelocityTeleOp(double forward, double side, double angle){
+        rightF.setPower(Range.clip((-forward - side - angle), -1.0, 1.0));
+        leftB.setPower(Range.clip((forward + side - angle), -1.0, 1.0));
+        leftF.setPower(Range.clip((forward - side - angle), -1.0, 1.0));
+        rightB.setPower(Range.clip((-forward + side - angle), -1.0, 1.0));
     }
 }

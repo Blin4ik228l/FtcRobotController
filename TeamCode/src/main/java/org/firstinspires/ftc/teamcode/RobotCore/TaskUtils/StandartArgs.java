@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
  * }
  * в методе уже можете пользоваться переменной args как хотите
  */
-public class StdArgs {
+public class StandartArgs {
 
     // Пример:
     // public static class мойКлассАргументов extends Args {
@@ -30,18 +30,18 @@ public class StdArgs {
     //     тип_n переменная_m;
     // }
 
-    public static class driveStdArgs extends StdArgs {
-        public driveStdArgs(Position position, double max_linear_speed, double max_angular_speed){
+    public static class driveStandartArgs extends StandartArgs {
+        public driveStandartArgs(Position position, double max_linear_speed, double max_angular_speed){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
         }
-        public driveStdArgs(Position position, double max_linear_speed) {
+        public driveStandartArgs(Position position, double max_linear_speed) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
         }
-        public driveStdArgs(Position position) {
+        public driveStandartArgs(Position position) {
             this.position = position;
             this.max_linear_speed = CONSTS.MAX_CM_PER_SEC;
             this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
@@ -51,8 +51,8 @@ public class StdArgs {
         public double max_angular_speed;
     }
 
-    public static class teleskopeStdArgs extends StdArgs {
-        public teleskopeStdArgs(int goalPos, double max_speed){
+    public static class teleskopeStandartArgs extends StandartArgs {
+        public teleskopeStandartArgs(int goalPos, double max_speed){
             this.goalPos = goalPos;
             this.max_speed = max_speed;
         }

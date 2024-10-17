@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Utils.Vector2;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
 public class MecanumDrivetrain implements Subsystem{
     public final OpMode op;

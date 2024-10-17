@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-import org.firstinspires.ftc.teamcode.Utils.CONSTS;
-import org.firstinspires.ftc.teamcode.Utils.Position;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 /**
  * Класс, в котором описывается структура аргументов для методов-обработчиков задач

@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.Utils;
-
-import androidx.annotation.NonNull;
+package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 
 // Класс для работы с матрицами
 public class Vector2 {

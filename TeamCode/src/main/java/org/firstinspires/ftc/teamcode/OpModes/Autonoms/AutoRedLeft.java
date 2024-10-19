@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes.Autonoms;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
@@ -10,15 +11,18 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "RedLeft", group = "Red", preselectTeleOp = "TeleOpRed")
-public class AutoRedLeft extends OpMode {
+@Autonomous(name = "LeftRed", group = "Red", preselectTeleOp = "TeleOpRed")
+public class AutoRedLeft extends LinearOpMode {
     Robot robot;
 
-    /**
-     *  Метод вызывается один раз при нажатии INIT
-     */
     @Override
-    public void init() {
+    public void runOpMode() throws InterruptedException {
+
+    }
+
+    @Override
+    public void waitForStart() {
+        super.waitForStart();
         robot = new Robot(RobotMode.TELEOP, RobotAlliance.RED, this);
 
         robot.init();
@@ -28,35 +32,5 @@ public class AutoRedLeft extends OpMode {
         robot.taskManager.addTask(newtask);
     }
 
-    /**
-     *  Метод крутится в цикле, ожидая нажатия START
-     */
-    @Override
-    public void init_loop() {
-        super.init_loop();
-    }
 
-    /**
-     *  Метод вызывается один раз при нажатии кнопки START
-     */
-    @Override
-    public void start() {
-        super.start();
-    }
-
-    /**
-     *  Метод крутится в цикле после нажатия START
-     */
-    @Override
-    public void loop() {
-
-    }
-
-    /**
-     *  Метод вызывается один раз при нажатии STOP
-     */
-    @Override
-    public void stop() {
-        super.stop();
-    }
 }

@@ -47,8 +47,8 @@ public class Odometry extends Thread implements Module {
     @Override
     public void init() {
         this.encM = op.hardwareMap.get(DcMotorEx.class, "encM") ;
-        this.encL = op.hardwareMap.get(DcMotorEx.class, "encL") ;
-        this.encR =  op.hardwareMap.get(DcMotorEx.class, "encR");
+        this.encL = op.hardwareMap.get(DcMotorEx.class, "leftB") ;
+        this.encR =  op.hardwareMap.get(DcMotorEx.class, "rightB");
 
         encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

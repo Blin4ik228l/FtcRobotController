@@ -21,9 +21,9 @@ public class TeleSkope implements Module{
         horizontal = op.hardwareMap.get(DcMotorEx.class, "horizontal");
     }
 
-    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behabior) {
-        upStanding.setZeroPowerBehavior(behabior);
-        horizontal.setZeroPowerBehavior(behabior);
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+        upStanding.setZeroPowerBehavior(behavior);
+        horizontal.setZeroPowerBehavior(behavior);
     }
 
     public void brakeMotors(){

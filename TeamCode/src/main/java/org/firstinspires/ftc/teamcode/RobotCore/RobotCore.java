@@ -48,6 +48,7 @@ public abstract class RobotCore implements Module {
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             // Какое-то действие робота
+
             return -1;
         }
     };

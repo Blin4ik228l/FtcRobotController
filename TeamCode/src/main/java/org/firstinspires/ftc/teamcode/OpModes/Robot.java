@@ -100,20 +100,19 @@ public class Robot extends RobotCore implements CONSTS{
         double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
         double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER))/(DIST_BETWEEN_ENC_X/2);// рад/сек
 
-        double targetVelX = op.gamepad1.left_stick_x * MAX_TPS_ENCODER/TICK_PER_CM;
-        double targetVelY = op.gamepad1.left_stick_y * MAX_TPS_ENCODER/TICK_PER_CM;
-        double targetAngleVel = op.gamepad1.right_stick_x * MAX_TPS_ENCODER/TICK_PER_CM/(DIST_BETWEEN_ENC_X/2);
+        double targetVelX = op.gamepad1.left_stick_y * MAX_TPS_ENCODER/TICK_PER_CM;
+        double targetVelY = op.gamepad1.left_stick_x * MAX_TPS_ENCODER/TICK_PER_CM;
+        double targetAngleVel = op.gamepad1.right_stick_x * MAX_CM_PER_SEC/(DIST_BETWEEN_ENC_X/2);
 
         double maxSpeed = 0.8;
 
-        double kF = maxSpeed/CONSTS.MAX_TPS_ENCODER;//макс см/сек
-        double kFR = maxSpeed/CONSTS.MAX_RAD_PER_SEC;//макс рад/сек
+        double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
+        double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
         double kP = -0.0001;//коеф торможения робота
 
-        double forwardVel = (targetVelX - velocityX) * kP + targetVelX* kFR;
-        double sideVel = (targetVelY - velocityY) * kP +  targetVelY* kFR;
+        double forwardVel = (targetVelX - velocityX) * kP + targetVelX* kF;
+        double sideVel = (targetVelY - velocityY) * kP +  targetVelY* kF;
         double angleVel = (targetAngleVel - velocityAngle) * kP +  targetAngleVel* kFR;
-
         drivetrain.setVelocityTeleOp(forwardVel, sideVel, angleVel);
     }
 
@@ -123,7 +122,7 @@ public class Robot extends RobotCore implements CONSTS{
         double upStandingVel = op.gamepad2.right_stick_x;
         double horizontalVel = op.gamepad2.left_stick_x;//Привести в правильное числовое значения для моторов
 
-        teleSkope.setVelHorizontalTeleOp(horizontalVel);//продумать логику о пропорциональном движении телескопов
-        teleSkope.setVelUpStandingTeleOp(upStandingVel);
+//        teleSkope.setVelHorizontalTeleOp(horizontalVel);//продумать логику о пропорциональном движении телескопов
+//        teleSkope.setVelUpStandingTeleOp(upStandingVel);
     }
 }

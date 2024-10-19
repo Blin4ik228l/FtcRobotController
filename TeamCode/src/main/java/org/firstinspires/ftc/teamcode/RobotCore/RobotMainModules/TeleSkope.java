@@ -42,9 +42,13 @@ public class TeleSkope implements Module{
         horizontal.setPower(0);
     }
 
+    public void offMotor(DcMotor motor){
+        motor.setPower(0);
+    }
+
     public void setVelUpStandingTeleOp(double Vel){
         if(Vel == 0 ){
-            setBehaviorMotor(upStanding, DcMotor.ZeroPowerBehavior.BRAKE);
+            offMotor(upStanding);
             return;
         }
         upStanding.setPower(Range.clip((Vel), -1.0, 1.0));
@@ -52,7 +56,7 @@ public class TeleSkope implements Module{
 
     public void setVelHorizontalTeleOp(double Vel){
         if(Vel == 0 ){
-            setBehaviorMotor(horizontal, DcMotor.ZeroPowerBehavior.BRAKE);
+            offMotor(horizontal);
             return;
         }
         horizontal.setPower(Range.clip((Vel), -1.0, 1.0));

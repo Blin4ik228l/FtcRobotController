@@ -28,7 +28,7 @@ public class AutoRedLeft extends LinearOpMode {
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
 
-        Task newtask = new Task(robot.example, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
+        Task newtask = new Task(robot.driveToPosition, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
         robot.taskManager.addTask(newtask);
     }
 

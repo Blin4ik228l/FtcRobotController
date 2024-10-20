@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Odometry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.TeleSkope;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MessageTelemetry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
@@ -23,11 +24,13 @@ public class Robot extends RobotCore implements CONSTS{
     public final Odometry odometry; // Система вычислений одометрии
     public final MecanumDrivetrain drivetrain; // Телега робота
     public final TeleSkope teleSkope;
+    public final MessageTelemetry messageTelemetry;
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidDriveTrainLinear = new PID(0,0,0);
     public final PID pidDriveTrainAngular = new PID(0,0,0);
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +40,9 @@ public class Robot extends RobotCore implements CONSTS{
         odometry = new Odometry(op);
         drivetrain = new MecanumDrivetrain(op);
         teleSkope = new TeleSkope(op);
+
+        messageTelemetry = new MessageTelemetry(op, odometry, drivetrain, teleSkope);
+
     }
 
     @Override
@@ -44,6 +50,7 @@ public class Robot extends RobotCore implements CONSTS{
     public void init() {
         odometry.init();
         drivetrain.init();
+        messageTelemetry.init();
     }
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -110,10 +117,16 @@ public class Robot extends RobotCore implements CONSTS{
         double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
         double kP = -0.0001;//коеф торможения робота
 
-        double forwardVel = (targetVelX - velocityX) * kP + targetVelX* kF;
-        double sideVel = (targetVelY - velocityY) * kP +  targetVelY* kF;
-        double angleVel = (targetAngleVel - velocityAngle) * kP +  targetAngleVel* kFR;
-        drivetrain.setVelocityTeleOp(forwardVel, sideVel, angleVel);
+        double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX* kF;
+        double sideVoltage = (targetVelY - velocityY) * kP +  targetVelY* kF;
+        double angleVoltage = (targetAngleVel - velocityAngle) * kP +  targetAngleVel* kFR;
+
+        drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+
+        //ТЕЛЕМЕТРИЯ
+        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");
+        messageTelemetry.setKoefForDrives(kF, kFR);
+        messageTelemetry.setTargetVoltage(forwardVoltage, sideVoltage, angleVoltage);
     }
 
     // Gamepad 2

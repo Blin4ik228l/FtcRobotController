@@ -76,7 +76,7 @@ public class Odometry extends Thread implements Module {
         }
     }
     // Тики энкодера в сантиметры
-    private double ticksToCm(double ticks){
+    public double ticksToCm(double ticks){
         return ticks / CONSTS.TICK_PER_CM;
     }
 

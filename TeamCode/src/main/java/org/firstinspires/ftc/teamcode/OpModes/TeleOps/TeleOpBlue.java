@@ -61,5 +61,6 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void stop() {
         super.stop();
+        robot.messageTelemetry.killTelemetry();
     }
 }

@@ -124,9 +124,9 @@ public class Robot extends RobotCore implements CONSTS{
         drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
         //ТЕЛЕМЕТРИЯ
-        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");
-        messageTelemetry.setKoefForDrives(kF, kFR);
-        messageTelemetry.setTargetVoltage(forwardVoltage, sideVoltage, angleVoltage);
+//        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");
+//        messageTelemetry.setKoefForDrives(kF, kFR);
+//        messageTelemetry.setTargetVoltage(forwardVoltage, sideVoltage, angleVoltage);
     }
 
     // Gamepad 2

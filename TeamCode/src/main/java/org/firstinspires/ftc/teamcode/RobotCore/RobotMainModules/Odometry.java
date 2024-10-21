@@ -65,7 +65,7 @@ public class Odometry extends Thread implements Module {
     @Override
     // Запускаем методы для обновления данных, пока объект существует
     public void run() {
-        while (this.isAlive()){
+        while (this.isInterrupted()){
             dt = (runtime.milliseconds() - oldTime) / 1000;
             updateGlobalPosition();
             updateAcceleration();
@@ -76,7 +76,7 @@ public class Odometry extends Thread implements Module {
         }
     }
     // Тики энкодера в сантиметры
-    public double ticksToCm(double ticks){
+    public synchronized double ticksToCm(double ticks){
         return ticks / CONSTS.TICK_PER_CM;
     }
 

@@ -8,11 +8,11 @@ public class PID {
     private ElapsedTime runtime = new ElapsedTime();
     private double kP, kI, kD; // Пропорциональный, интегральный, дифференциальный коэффициент
 
-    private double P = 0;
-    private double I = 0;
-    private double D = 0;
+    public double P = 0;
+    public double I = 0;
+    public double D = 0;
 
-    private double error, olderror, oldtime;
+    public double error, olderror, oldtime;
 
     public PID (double kP, double kI, double kD){
         this.kP = kP; // Максимально приблизить к результату, но не больше результат(Борис Бритва)
@@ -40,8 +40,8 @@ public class PID {
         error = target - current;
 
         P = error * kP;
-        I += error * (runtime.milliseconds() - oldtime) * kI;
-        D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
+//        I += error * (runtime.milliseconds() - oldtime) * kI;
+//        D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
 
         olderror = error;
         oldtime = runtime.milliseconds();

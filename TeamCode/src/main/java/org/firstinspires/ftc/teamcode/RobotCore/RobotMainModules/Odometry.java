@@ -18,9 +18,9 @@ public class Odometry extends Thread implements Module {
     private double dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
-    public DcMotorEx encM;                                                // Объекты энкодеров
-    public DcMotorEx encL;
-    public DcMotorEx encR;
+    public  DcMotorEx encM;                                                // Объекты энкодеров
+    public  DcMotorEx encL;
+    public  DcMotorEx encR;
     private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
@@ -48,7 +48,7 @@ public class Odometry extends Thread implements Module {
     public void init() {
         this.encM = op.hardwareMap.get(DcMotorEx.class, "encM") ;
         this.encL = op.hardwareMap.get(DcMotorEx.class, "leftB") ;
-        this.encR =  op.hardwareMap.get(DcMotorEx.class, "rightB");
+        this.encR = op.hardwareMap.get(DcMotorEx.class, "rightB");
 
         encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -65,7 +65,7 @@ public class Odometry extends Thread implements Module {
     @Override
     // Запускаем методы для обновления данных, пока объект существует
     public void run() {
-        while (this.isInterrupted()){
+        while (this.isAlive()){
             dt = (runtime.milliseconds() - oldTime) / 1000;
             updateGlobalPosition();
             updateAcceleration();
@@ -76,99 +76,98 @@ public class Odometry extends Thread implements Module {
         }
     }
     // Тики энкодера в сантиметры
-    public synchronized double ticksToCm(double ticks){
+    public  double ticksToCm(double ticks){
         return ticks / CONSTS.TICK_PER_CM;
     }
 
-    public synchronized  void setGlobalPosition(Position position) {
+    public  void setGlobalPosition(Position position) {
         globalPosition.x = position.x;
         globalPosition.y = position.y;
         globalPosition.heading = position.heading;
     }
 
     // Геттер глобального положения робота
-    public synchronized Position getGlobalPosition(){
+    public  Position getGlobalPosition(){
         return globalPosition;
     }
 
     // Геттер вектора скорости
-    public synchronized Vector2 getVelocity(){
+    public  Vector2 getVelocity(){
         return new Vector2(velocity);
     }
 
     // Геттер вектора ускорения
-    public synchronized Vector2 getAcceleration(){
+    public  Vector2 getAcceleration(){
         return new Vector2(acceleration);
     }
     // Геттер углового вектора ускорения
-    public synchronized double getAngularAcceleration(){
+    public  double getAngularAcceleration(){
         return angularAcceleration;
     }
     // Геттер углового вектора ускорения
-    public synchronized double getAngularVelocity(){
+    public  double getAngularVelocity(){
         return angularVelocity;
     }
     // Геттер углового вектора ускорения
-    public synchronized double getSpeed(){
+    public  double getSpeed(){
         return velocity.mag();
     }
     // Обновление вектора скорости робота
-    private synchronized void updateVelocity(){
+    private  void updateVelocity(){
         oldVelocity.x = velocity.x;
         oldVelocity.y = velocity.y;
 
-        velocity.x = deltaPosition.toVector().x;
-        velocity.y = deltaPosition.toVector().y;
+        velocity.x = (deltaPosition.toVector().x)/dt;
+        velocity.y = (deltaPosition.toVector().y)/dt;
 
-        velocity.divide(dt);
     }
 
     // Обновление вектора ускорения робота
-    private synchronized void updateAcceleration() {
+    private  void updateAcceleration() {
         acceleration.x = (velocity.x - oldVelocity.x)/dt;
         acceleration.y = (velocity.y - oldVelocity.y)/dt;
     }
 
-    private synchronized void updateAngularVelocity(){
+    private  void updateAngularVelocity(){
         oldAngularVelocity = angularVelocity;
         angularVelocity = deltaPosition.heading/dt;
     }
 
     // Обновление вектора ускорения робота
-    private synchronized void updateAngularAcceleration() {
+    private  void updateAngularAcceleration() {
         angularAcceleration = (angularAcceleration - oldAngularVelocity)/dt;
     }
 
     // Обновление положения робота на поле с помощью следящих колес
-    private void updateGlobalPosition(){
-        double leftEncoderXNow = encL.getCurrentPosition();
+    private  void updateGlobalPosition(){
+        double leftEncoderXNow = ticksToCm(encL.getCurrentPosition());
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXnow = encR.getCurrentPosition();
-        double deltaRightEncoderX = rightEncoderXnow - encROld;
-        encROld = rightEncoderXnow;
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition());
+        double deltaRightEncoderX = rightEncoderXNow - encROld;
+        encROld = rightEncoderXNow;
 
-        double encoderYnow = encM.getCurrentPosition();
-        double deltaEncoderY = encoderYnow - encMOld;
-        encMOld = encoderYnow;
+        double encoderYNow = ticksToCm(encM.getCurrentPosition());
+        double deltaEncoderY = encoderYNow - encMOld;
+        encMOld = encoderYNow;
 
         // Если перемещения не было - выходим из метода
-        if(leftEncoderXNow == 0 && rightEncoderXnow == 0 && encoderYnow == 0 ) {
+        if(deltaLeftEncoderX == 0 && deltaRightEncoderX == 0 && deltaEncoderY == 0 ) {
             return;
         }
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = ticksToCm(deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
-        double deltaX = ticksToCm(deltaLeftEncoderX + deltaRightEncoderX) / 2.0;
-        double deltaY = ticksToCm(deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
+        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaX = (deltaLeftEncoderX - deltaRightEncoderX )/ 2.0;
+        double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 
         deltaPosition.setHeading(deltaRad);
         deltaPosition.setX(deltaX);
         deltaPosition.setY(deltaY);
 
-        // Матричный поворот и добавление глобального перемещения к глобальным координатам
+        // Векторный поворот и добавление глобального перемещения к глобальным координатам
         globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.heading), deltaPosition.heading );
 
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется

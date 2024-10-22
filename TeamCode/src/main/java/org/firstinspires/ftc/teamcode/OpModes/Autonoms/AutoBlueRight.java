@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 @Autonomous(name = "RightBlue", group = "Blue", preselectTeleOp = "TeleOpBlue")
 public class AutoBlueRight extends OpMode {
     Robot robot;
-    Position position1 = new Position(50,50,30);
+    Position position1 = new Position(50,50,0);
     Position position2 = new Position(100,212,0);
     Position position3 = new Position(0,0,0);
     /**
@@ -22,19 +22,13 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void init() {
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
+        robot = new Robot(RobotMode.AUTO, RobotAlliance.BLUE, this);
 
-        robot.odometry.setGlobalPosition(new Position(0,0,0));
         robot.init();
+        robot.odometry.setGlobalPosition(new Position(0,0,0));
 
-        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_WITH_PREVIOUS);
+        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
         robot.taskManager.addTask(driveTask1);
-
-        Task driveTask2 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position2), 5, Task.taskStartMode.START_WITH_PREVIOUS);
-        robot.taskManager.addTask(driveTask2);
-
-        Task driveTask3 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position3), 5, Task.taskStartMode.START_WITH_PREVIOUS);
-        robot.taskManager.addTask(driveTask3);
     }
 
     /**
@@ -50,8 +44,7 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void start() {
-        super.start();
-        robot.taskManager.start();
+
     }
 
     /**
@@ -59,7 +52,7 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void loop() {
-
+        robot.taskManager.start();
     }
 
     /**
@@ -67,7 +60,6 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void stop() {
-        super.stop();
         robot.messageTelemetry.killTelemetry();
     }
 

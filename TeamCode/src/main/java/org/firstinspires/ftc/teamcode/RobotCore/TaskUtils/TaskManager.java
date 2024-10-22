@@ -31,6 +31,18 @@ public class TaskManager {
         this.completedTasks = new Stack<Task>();
     }
 
+    public Deque<Task> getTaskDeque() {
+        return taskDeque;
+    }
+
+    public Deque<Task> getExecutingDeque() {
+        return executingDeque;
+    }
+
+    public Stack<Task> getCompletedTasks() {
+        return completedTasks;
+    }
+
     /** Обработчик задач
      * Этот метод предназначен для обработки задач, содержащихся в taskDeque.
      * Суть такого подхода заключается в том, что программист создает класс робота,
@@ -54,7 +66,7 @@ public class TaskManager {
      */
     public void start() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!taskDeque.isEmpty() || this.isTeleopMode()) {
+        while(!executingDeque.isEmpty() || this.isTeleopMode()|| !taskDeque.isEmpty()) {
 
             pickTaskToDo();
 

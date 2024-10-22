@@ -57,6 +57,7 @@ public class MecanumDrivetrain implements Module {
         leftB.setPower(Range.clip((direct.x + direct.y - heading), -1.0, 1.0));
         leftF.setPower(Range.clip((direct.x - direct.y - heading), -1.0, 1.0));
         rightB.setPower(Range.clip((-direct.x + direct.y - heading), -1.0, 1.0));
+
     }
 
     public void brakeMotors(){

@@ -28,8 +28,8 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidDriveTrainLinear = new PID(0,0,0);
-    public final PID pidDriveTrainAngular = new PID(0,0,0);
+    public final PID pidDriveTrainLinear = new PID(0.1,0.001,0);
+    public final PID pidDriveTrainAngular = new PID(0.1,0,0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ public class Robot extends RobotCore implements CONSTS{
         drivetrain = new MecanumDrivetrain(op);
         teleSkope = new TeleSkope(op);
 
-        messageTelemetry = new MessageTelemetry(op, odometry, drivetrain, teleSkope);
+        messageTelemetry = new MessageTelemetry(op, odometry, drivetrain, teleSkope, taskManager);
 
     }
 
@@ -50,8 +50,18 @@ public class Robot extends RobotCore implements CONSTS{
     public void init() {
         odometry.init();
         drivetrain.init();
-        messageTelemetry.init();
+//        messageTelemetry.init();
     }
+
+    public TaskHandler driveForward = new TaskHandler(){
+        @Override
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            int result;
+            drivetrain.setVelocityTeleOp(30, 0,0);
+            return 0;
+        }
+
+    };
 
     // Метод, обрабатывающий задачу перемещения робота в точку
     public TaskHandler driveToPosition = new TaskHandler() {
@@ -74,13 +84,17 @@ public class Robot extends RobotCore implements CONSTS{
 
             drivetrain.setVelocity(velocity, angularPID);
 
-            if(odometry.getAcceleration().mag() == 0){
+            if(errorPos.mag() > 2){
                 result = -1;
             }else{
-                drivetrain.brakeMotors();
+                drivetrain.offMotors();
                 result = 0;
             }
-
+            messageTelemetry.telemetry.addData("Скорость по одометрии",odometry.getSpeed());
+            messageTelemetry.telemetry.addData("Ошибка",pidDriveTrainLinear.error);
+            messageTelemetry.telemetry.addData("Линейный",speedPID);
+            messageTelemetry.telemetry.addData("Угловой",angularPID);
+            messageTelemetry.telemetry.update();
             return result;
         }
     };

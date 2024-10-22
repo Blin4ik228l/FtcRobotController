@@ -23,9 +23,6 @@ public class TeleOpRed extends OpMode {
 
         robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().x,robot.odometry.getGlobalPosition().y,robot.odometry.getGlobalPosition().heading));
         robot.init();
-
-        Task newtask = new Task(robot.example, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
-        robot.taskManager.addTask(newtask);
     }
 
     /**
@@ -59,6 +56,6 @@ public class TeleOpRed extends OpMode {
     @Override
     public void stop() {
         super.stop();
-        robot.messageTelemetry.killTelemetry();
+//        robot.messageTelemetry.killTelemetry();
     }
 }

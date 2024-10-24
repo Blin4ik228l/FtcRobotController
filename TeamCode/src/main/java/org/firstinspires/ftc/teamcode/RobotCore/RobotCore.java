@@ -52,13 +52,16 @@ public abstract class RobotCore implements Module {
             return -1;
         }
     };
-
+    public void autoMode(){
+        telemetry();
+    }
     // Метод, обрабатывающий задачу телеопа
     public void teleop() {
+        telemetry();
         teleopPl1();
         teleopPl2();
     }
-
+    public abstract void telemetry();
     public abstract void teleopPl1();
     public abstract void teleopPl2();
 

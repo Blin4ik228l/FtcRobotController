@@ -22,8 +22,8 @@ public class AutoRedRight extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         waitForStart();
+        robot.telemetry();
         robot.taskManager.start();
-        robot.messageTelemetry.killTelemetry();
     }
 
     @Override

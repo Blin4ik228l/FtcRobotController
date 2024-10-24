@@ -36,7 +36,6 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void init_loop() {
-        super.init_loop();
     }
 
     /**
@@ -53,6 +52,7 @@ public class AutoBlueRight extends OpMode {
     @Override
     public void loop() {
         robot.taskManager.start();
+        robot.telemetry();
     }
 
     /**
@@ -60,7 +60,7 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void stop() {
-        robot.messageTelemetry.killTelemetry();
+
     }
 
 }

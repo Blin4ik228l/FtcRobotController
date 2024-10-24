@@ -75,6 +75,8 @@ public class TaskManager {
             // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
             if (this.isTeleopMode()) {
                 robot.teleop();
+            }else if(this.isAutoMode()){
+                robot.autoMode();
             }
         }
     }

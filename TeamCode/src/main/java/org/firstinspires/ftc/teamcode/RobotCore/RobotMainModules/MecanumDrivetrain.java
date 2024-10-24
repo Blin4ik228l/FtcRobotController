@@ -10,10 +10,10 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 public class MecanumDrivetrain implements Module {
     public final OpMode op;
 
-    public DcMotorEx rightB;
-    public DcMotorEx rightF;
-    public DcMotorEx leftB;
-    public DcMotorEx leftF;
+    public volatile DcMotorEx rightB;
+    public volatile DcMotorEx rightF;
+    public volatile DcMotorEx leftB;
+    public volatile DcMotorEx leftF;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;

@@ -19,8 +19,8 @@ public class Odometry extends Thread implements Module {
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
     public  DcMotorEx encM;                                                // Объекты энкодеров
-    public  DcMotorEx encL;
-    public  DcMotorEx encR;
+    public volatile DcMotorEx encL;
+    public volatile DcMotorEx encR;
     private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
@@ -76,44 +76,44 @@ public class Odometry extends Thread implements Module {
         }
     }
     // Тики энкодера в сантиметры
-    public  double ticksToCm(double ticks){
+    public synchronized double ticksToCm(double ticks){
         return ticks / CONSTS.TICK_PER_CM;
     }
 
-    public  void setGlobalPosition(Position position) {
+    public synchronized void setGlobalPosition(Position position) {
         globalPosition.x = position.x;
         globalPosition.y = position.y;
         globalPosition.heading = position.heading;
     }
 
     // Геттер глобального положения робота
-    public  Position getGlobalPosition(){
+    public synchronized Position getGlobalPosition(){
         return globalPosition;
     }
 
     // Геттер вектора скорости
-    public  Vector2 getVelocity(){
+    public synchronized Vector2 getVelocity(){
         return new Vector2(velocity);
     }
 
     // Геттер вектора ускорения
-    public  Vector2 getAcceleration(){
+    public synchronized Vector2 getAcceleration(){
         return new Vector2(acceleration);
     }
     // Геттер углового вектора ускорения
-    public  double getAngularAcceleration(){
+    public synchronized double getAngularAcceleration(){
         return angularAcceleration;
     }
     // Геттер углового вектора ускорения
-    public  double getAngularVelocity(){
+    public synchronized double getAngularVelocity(){
         return angularVelocity;
     }
     // Геттер углового вектора ускорения
-    public  double getSpeed(){
+    public synchronized double getSpeed(){
         return velocity.mag();
     }
     // Обновление вектора скорости робота
-    private  void updateVelocity(){
+    private synchronized void updateVelocity(){
         oldVelocity.x = velocity.x;
         oldVelocity.y = velocity.y;
 
@@ -123,23 +123,23 @@ public class Odometry extends Thread implements Module {
     }
 
     // Обновление вектора ускорения робота
-    private  void updateAcceleration() {
+    private synchronized void updateAcceleration() {
         acceleration.x = (velocity.x - oldVelocity.x)/dt;
         acceleration.y = (velocity.y - oldVelocity.y)/dt;
     }
 
-    private  void updateAngularVelocity(){
+    private synchronized void updateAngularVelocity(){
         oldAngularVelocity = angularVelocity;
         angularVelocity = deltaPosition.heading/dt;
     }
 
     // Обновление вектора ускорения робота
-    private  void updateAngularAcceleration() {
+    private synchronized void updateAngularAcceleration() {
         angularAcceleration = (angularAcceleration - oldAngularVelocity)/dt;
     }
 
     // Обновление положения робота на поле с помощью следящих колес
-    private  void updateGlobalPosition(){
+    private synchronized void updateGlobalPosition(){
         double leftEncoderXNow = ticksToCm(encL.getCurrentPosition());
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;

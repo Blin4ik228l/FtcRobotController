@@ -35,7 +35,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void init_loop() {
-        super.init_loop();
+
     }
 
     /**
@@ -43,7 +43,6 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void start() {
-        super.start();
     }
 
     /**
@@ -53,6 +52,7 @@ public class TeleOpBlue extends OpMode {
     public void loop() {
         robot.teleopPl1();
         robot.teleopPl2();
+        robot.telemetry();
     }
 
     /**
@@ -60,7 +60,6 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void stop() {
-        super.stop();
-//        robot.messageTelemetry.killTelemetry();
+
     }
 }

@@ -41,7 +41,7 @@ public class Robot extends RobotCore implements CONSTS{
         drivetrain = new MecanumDrivetrain(op);
         teleSkope = new TeleSkope(op);
 
-        messageTelemetry = new MessageTelemetry(op, odometry, drivetrain, teleSkope, taskManager);
+        messageTelemetry = new MessageTelemetry(op,this);
 
     }
 
@@ -50,18 +50,8 @@ public class Robot extends RobotCore implements CONSTS{
     public void init() {
         odometry.init();
         drivetrain.init();
-//        messageTelemetry.init();
+        messageTelemetry.init();
     }
-
-    public TaskHandler driveForward = new TaskHandler(){
-        @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
-            int result;
-            drivetrain.setVelocityTeleOp(30, 0,0);
-            return 0;
-        }
-
-    };
 
     // Метод, обрабатывающий задачу перемещения робота в точку
     public TaskHandler driveToPosition = new TaskHandler() {
@@ -90,11 +80,6 @@ public class Robot extends RobotCore implements CONSTS{
                 drivetrain.offMotors();
                 result = 0;
             }
-            messageTelemetry.telemetry.addData("Скорость по одометрии",odometry.getSpeed());
-            messageTelemetry.telemetry.addData("Ошибка",pidDriveTrainLinear.error);
-            messageTelemetry.telemetry.addData("Линейный",speedPID);
-            messageTelemetry.telemetry.addData("Угловой",angularPID);
-            messageTelemetry.telemetry.update();
             return result;
         }
     };
@@ -113,6 +98,11 @@ public class Robot extends RobotCore implements CONSTS{
             return result;
         }
     };
+
+    @Override
+    public void telemetry(){
+        messageTelemetry.showDataTelemetry();
+    }
 
     // Gamepad 1
     @Override

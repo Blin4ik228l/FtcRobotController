@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "LeftBlue", group = "Blue", preselectTeleOp = "TeleOpBlue")
+@Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "TeleOpBlue")
 public class AutoBlueLeft extends LinearOpMode {
     Robot robot;
 

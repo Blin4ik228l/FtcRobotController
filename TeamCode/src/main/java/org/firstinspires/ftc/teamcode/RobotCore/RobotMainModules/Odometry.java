@@ -67,12 +67,12 @@ public class Odometry extends Thread implements Module {
     public void run() {
         while (this.isAlive()){
             dt = (runtime.milliseconds() - oldTime) / 1000;
+            oldTime = runtime.milliseconds();
             updateGlobalPosition();
             updateAcceleration();
             updateVelocity();
             updateAngularAcceleration();
             updateAngularVelocity();
-            oldTime = runtime.milliseconds();
         }
     }
     // Тики энкодера в сантиметры

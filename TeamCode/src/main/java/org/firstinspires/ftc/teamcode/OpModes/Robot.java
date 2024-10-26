@@ -72,9 +72,10 @@ public class Robot extends RobotCore implements CONSTS{
 
             velocity.multyplie(speedPID);
 
-            drivetrain.setVelocity(velocity, angularPID);
+            drivetrain.setVelocity(velocity, 0);
 
-            if(errorPos.mag() > 2){
+            messageTelemetry.showDataTelemetry();
+            if(errorPos.mag() > 2 ){
                 result = -1;
             }else{
                 drivetrain.offMotors();

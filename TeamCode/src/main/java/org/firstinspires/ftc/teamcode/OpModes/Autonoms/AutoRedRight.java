@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "RightRed", group = "Red", preselectTeleOp = "TeleOpRed")
+@Autonomous(name = "RedRight", group = "Red", preselectTeleOp = "TeleOpRed")
 public class AutoRedRight extends LinearOpMode {
     Robot robot;
     Position posForDrive1 = new Position(50, 50 , 0);
@@ -21,21 +21,16 @@ public class AutoRedRight extends LinearOpMode {
     Position posForDrive3 = new Position( 100, 0, 0);
     @Override
     public void runOpMode() throws InterruptedException {
-        waitForStart();
-        robot.telemetry();
-        robot.taskManager.start();
-    }
-
-    @Override
-    public void waitForStart() {
-
         robot = new Robot(RobotMode.AUTO, RobotAlliance.RED, this);
         robot.init();
-
         robot.odometry.setGlobalPosition(new Position(0,0,0));
-
         Task taskDrive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(posForDrive1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-        robot.taskManager.addTask(taskDrive1);
+        waitForStart();
+        if(!isStopRequested()) {
+            robot.taskManager.addTask(taskDrive1);
+            robot.taskManager.start();
+        }
     }
+
 
 }

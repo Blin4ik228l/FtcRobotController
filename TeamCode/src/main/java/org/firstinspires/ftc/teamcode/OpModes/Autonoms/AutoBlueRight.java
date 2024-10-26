@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "RightBlue", group = "Blue", preselectTeleOp = "TeleOpBlue")
+@Autonomous(name = "BlueRight", group = "Blue", preselectTeleOp = "TeleOpBlue")
 public class AutoBlueRight extends OpMode {
     Robot robot;
     Position position1 = new Position(50,50,0);
@@ -52,7 +52,6 @@ public class AutoBlueRight extends OpMode {
     @Override
     public void loop() {
         robot.taskManager.start();
-        robot.telemetry();
     }
 
     /**

@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 public class Vector2 {
     public double x;
     public double y;
-    private double magcache;
+    private double vectorLength;
 
     public Vector2(double x, double y) {
         this.x = x;
@@ -14,7 +14,7 @@ public class Vector2 {
     public Vector2(Vector2 vector) {
         this.x = vector.x;
         this.y = vector.y;
-        this.magcache = vector.magcache;
+        this.vectorLength = vector.vectorLength;
     }
 
     public Vector2() {
@@ -25,24 +25,24 @@ public class Vector2 {
         return new Vector2(a.x + b.x, a.y + b.y);
     }
 
-    public double mag() {
-        if (magcache == 0 && (x != 0 || y != 0)) {
-            magcache = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+    public double length() {
+        if (vectorLength == 0 && (x != 0 || y != 0)) {
+            vectorLength = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
         }
 
-        return magcache;
+        return vectorLength;
     }
 
     public void multyplie(double a) {
         x *= a;
         y *= a;
-        magcache *= a;
+        vectorLength *= a;
     }
 
     public void divide(double a) {
         x /= a;
         y /= a;
-        magcache /= a;
+        vectorLength /= a;
     }
 
 
@@ -51,7 +51,7 @@ public class Vector2 {
     }
 
     public void normalize() {
-        double mag = mag();//длимна вектора
+        double mag = length();//длимна вектора
 
         if (mag == 0) {
             return;
@@ -59,20 +59,20 @@ public class Vector2 {
 
         x /= mag;
         y /= mag;
-        magcache = 1;
+        vectorLength = 1;
     }
 
 
     public void add(Vector2 a) {
         x += a.x;
         y += a.y;
-        magcache = 0;
+        vectorLength = 0;
     }
 
     public void sub(Vector2 a) {
         x -= a.x;
         y -= a.y;
-        magcache = 0;
+        vectorLength = 0;
     }
 
     public void rotate(double Rad) {

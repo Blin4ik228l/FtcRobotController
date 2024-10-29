@@ -28,7 +28,7 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidDriveTrainLinear = new PID(0.1,0.001,0);
+    public final PID pidDriveTrainLinear = new PID(0.03,0.001,0.05);
     public final PID pidDriveTrainAngular = new PID(0.1,0,0);
 
 
@@ -58,24 +58,29 @@ public class Robot extends RobotCore implements CONSTS{
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+
             int result;
 
             double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
-            Vector2 errorPos = args.position.toVector();
-            errorPos.sub(odometry.getGlobalPosition().toVector());
+            Vector2 target = args.position.toVector();
 
-            Vector2 velocity = new Vector2(errorPos);
-            velocity.normalize();
+            target.sub(odometry.getGlobalPosition().toVector());
+
+            Vector2 targetVel = new Vector2(target);
 
             double speedPID = pidDriveTrainLinear.calculate(args.max_linear_speed, odometry.getSpeed());
             double angularPID = pidDriveTrainAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
 
-            velocity.multyplie(speedPID);
+            double headingVel =  errorHeading * angularPID;
 
-            drivetrain.setVelocity(velocity, 0);
+            targetVel.multyplie(speedPID);
+            targetVel.normalize();
 
-            messageTelemetry.showDataTelemetry();
-            if(errorPos.mag() > 2 ){
+            messageTelemetry.telemetry.update();
+
+            drivetrain.setVelocity(target, headingVel);
+
+            if(target.length() > 2 ){
                 result = -1;
             }else{
                 drivetrain.offMotors();

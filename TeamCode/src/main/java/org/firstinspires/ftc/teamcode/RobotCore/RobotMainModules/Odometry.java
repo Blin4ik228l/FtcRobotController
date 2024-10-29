@@ -110,7 +110,7 @@ public class Odometry extends Thread implements Module {
     }
     // Геттер углового вектора ускорения
     public synchronized double getSpeed(){
-        return velocity.mag();
+        return velocity.length();
     }
     // Обновление вектора скорости робота
     private synchronized void updateVelocity(){

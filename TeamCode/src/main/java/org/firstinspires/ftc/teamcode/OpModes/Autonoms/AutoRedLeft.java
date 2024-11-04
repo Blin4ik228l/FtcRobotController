@@ -19,18 +19,4 @@ public class AutoRedLeft extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
     }
-
-    @Override
-    public void waitForStart() {
-        super.waitForStart();
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.RED, this);
-
-        robot.init();
-        robot.odometry.setGlobalPosition(new Position(0,0,0));
-
-        Task newtask = new Task(robot.driveToPosition, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
-        robot.taskManager.addTask(newtask);
-    }
-
-
 }

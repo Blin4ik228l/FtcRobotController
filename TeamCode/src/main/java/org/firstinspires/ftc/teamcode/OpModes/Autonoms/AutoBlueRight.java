@@ -59,7 +59,7 @@ public class AutoBlueRight extends OpMode {
      */
     @Override
     public void stop() {
-
+        robot.robotMode = RobotMode.STOP;
     }
 
 }

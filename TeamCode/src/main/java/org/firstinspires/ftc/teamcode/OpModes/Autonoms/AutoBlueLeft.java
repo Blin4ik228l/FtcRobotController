@@ -21,15 +21,4 @@ public class AutoBlueLeft extends LinearOpMode {
     }
 
 
-    @Override
-    public void waitForStart() {
-        super.waitForStart();
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
-
-        robot.init();
-        robot.odometry.setGlobalPosition(new Position(0,0,0));
-
-        Task newtask = new Task(robot.driveToPosition, new StandartArgs(), 5, Task.taskStartMode.START_WITH_PREVIOUS);
-        robot.taskManager.addTask(newtask);
-    }
 }

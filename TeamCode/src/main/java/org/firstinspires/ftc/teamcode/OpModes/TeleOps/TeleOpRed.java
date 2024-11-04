@@ -30,7 +30,6 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void init_loop() {
-        super.init_loop();
     }
 
     /**

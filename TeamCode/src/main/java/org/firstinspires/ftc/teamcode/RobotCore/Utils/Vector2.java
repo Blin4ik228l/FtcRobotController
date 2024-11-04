@@ -39,12 +39,19 @@ public class Vector2 {
         vectorLength *= a;
     }
 
+    public Vector2 multyplie2(double a) {
+        return new Vector2(x * a, y * a);
+    }
+
     public void divide(double a) {
         x /= a;
         y /= a;
         vectorLength /= a;
     }
 
+    public Vector2 divideReturnable(double a) {
+       return new Vector2(x/a, y/a);
+    }
 
     public static double scalarMultyplie(Vector2 a,Vector2 b) {
         return (a.x*b.x + a.y*b.y);
@@ -62,6 +69,13 @@ public class Vector2 {
         vectorLength = 1;
     }
 
+    public Vector2 minus (Vector2 b){
+        return new Vector2(x - b.x, y - b.y);
+    }
+
+    public Vector2 minusArgs (Vector2 b, double multiplie){
+        return new Vector2(multiplie * (x - b.x), multiplie * (y - b.y));
+    }
 
     public void add(Vector2 a) {
         x += a.x;

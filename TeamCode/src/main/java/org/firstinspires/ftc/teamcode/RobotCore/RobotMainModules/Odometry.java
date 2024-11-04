@@ -24,6 +24,7 @@ public class Odometry extends Thread implements Module {
     private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
+    private Vector2 maxAcceleration;
 
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
@@ -34,6 +35,7 @@ public class Odometry extends Thread implements Module {
         this.velocity = new Vector2(0,0);
         this.oldVelocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
+        this.maxAcceleration = new Vector2(0,0);
 
         runtime = new ElapsedTime();
         oldTime = 0;
@@ -73,6 +75,7 @@ public class Odometry extends Thread implements Module {
             updateVelocity();
             updateAngularAcceleration();
             updateAngularVelocity();
+            updateMaxAcceleration();
         }
     }
     // Тики энкодера в сантиметры
@@ -84,6 +87,24 @@ public class Odometry extends Thread implements Module {
         globalPosition.x = position.x;
         globalPosition.y = position.y;
         globalPosition.heading = position.heading;
+    }
+
+    private void updateMaxAcceleration(){
+        if(Math.abs(acceleration.length()) > Math.abs(maxAcceleration.length())){
+            maxAcceleration = new Vector2(acceleration);
+        }
+    }
+
+    public Vector2 getMaxAcceleration(){
+        return maxAcceleration;
+    }
+
+    public double returnDistance(double VelMax, double assel ){
+        return Math.pow(VelMax, 2)/ (2* assel);
+    }
+
+    public double returnSpeed(Position position, double assel){
+        return Math.sqrt(2 * position.toVector().length() * assel);
     }
 
     // Геттер глобального положения робота

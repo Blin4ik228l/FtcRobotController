@@ -21,17 +21,18 @@ public class AutoRedRight extends LinearOpMode {
     Position posForDrive3 = new Position( 100, 0, 0);
     @Override
     public void runOpMode() throws InterruptedException {
+
         robot = new Robot(RobotMode.AUTO, RobotAlliance.RED, this);
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
         Task taskDrive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(posForDrive1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        robot.taskManager.addTask(taskDrive1);
         waitForStart();
 
         if(!isStopRequested()) {
-            robot.taskManager.addTask(taskDrive1);
             robot.taskManager.start();
+        }else{
+            robot.robotMode = RobotMode.STOP;
         }
     }
-
-
 }

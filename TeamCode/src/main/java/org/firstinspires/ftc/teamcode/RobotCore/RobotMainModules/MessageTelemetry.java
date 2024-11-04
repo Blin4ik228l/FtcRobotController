@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,18 +35,24 @@ public class MessageTelemetry implements Module {
 
     @Override
     public void init() {
-
+        if(telemetry != null){
+        telemetry.addLine("Telemetry is Ready!");
+        }
     }
 
-    public void showDataTelemetry(){
+    public void dataForAuto(){
+        showGlobalPos();
+        showGlobalVel();
+    }
+
+    public void dataForTeleOp(){
             if (isRobotDrive) {
                 showGlobalVel();
                 showEncodersVel();
 //                showTargetVelGamepads();
 //                showTargetVoltageGamepads();
             }
-
-            showMotorsDriveTrainVoltage();
+            showMaxAccel();
 
             if (isTicksToCm) {
                 showEncodersCM();
@@ -67,6 +74,13 @@ public class MessageTelemetry implements Module {
 //        this.nameOfValueForNonAngular = nameOfValueForNonAngular;
 //        this.nameOfValueForAngular = nameOfValueForAngular;
 //    }
+
+    public void showMaxAccel(){
+        telemetry.addLine("Max accel");
+        telemetry.addData("Accelx:", robot.odometry.getMaxAcceleration().x);
+        telemetry.addData("Accely:", robot.odometry.getMaxAcceleration().y);
+        telemetry.addLine();
+    }
 
     public void setTargetVoltage(double forwardVol, double sideVol, double angleVol){
         this.forwardVol = forwardVol;

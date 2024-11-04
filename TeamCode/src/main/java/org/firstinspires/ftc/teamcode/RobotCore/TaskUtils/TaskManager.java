@@ -64,6 +64,8 @@ public class TaskManager {
      * Для начала выполнения задач в методе runOpMode напишите
      *      my_robot.taskManager.start();
      */
+
+
     public void start() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
         while(!executingDeque.isEmpty() || this.isTeleopMode()|| !taskDeque.isEmpty()) {
@@ -77,6 +79,8 @@ public class TaskManager {
                 robot.teleop();
             }else if(this.isAutoMode()){
                 robot.autoMode();
+            } else if (this.isStopMode()) {
+                break;
             }
         }
     }
@@ -222,4 +226,8 @@ public class TaskManager {
     public boolean isAutoMode() {
         return robot.robotMode == RobotMode.AUTO;
     }
+    public boolean isStopMode(){
+        return robot.robotMode == RobotMode.STOP;
+    }
+
 }

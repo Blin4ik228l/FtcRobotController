@@ -28,8 +28,8 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidDriveTrainLinear = new PID(0.03,0.001,0.05);
-    public final PID pidDriveTrainAngular = new PID(0.1,0,0);
+    public final PID pidLinear = new PID(0.03,0.001,0.05);
+    public final PID pidAngular = new PID(0.1,0,0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,31 +61,53 @@ public class Robot extends RobotCore implements CONSTS{
 
             int result;
 
+            double assel;
+
+            if(args.position.x > 0 || args.position.x < 0 && args.position.y == 0){
+                assel = MAX_ACCEL_FRONT;
+            } else if (args.position.x == 0 && args.position.y > 0 || args.position.y < 0) {
+                assel = MAX_ACCEL_SIDE;
+            }else {
+                assel = Math.sqrt(Math.pow(MAX_ACCEL_FRONT, 2) + Math.pow(MAX_ACCEL_SIDE, 2));
+            }
+
+            double Vel;
+
+            double VelMax = args.max_linear_speed;
+            double Vel0 = odometry.returnSpeed(args.position, assel);
+
+            if(args.position.toVector().length() > odometry.returnDistance(VelMax, assel)){
+                Vel = VelMax;
+            }else{
+                Vel = Vel0;
+            }
+
             double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
             Vector2 target = args.position.toVector();
 
             target.sub(odometry.getGlobalPosition().toVector());
 
             Vector2 targetVel = new Vector2(target);
+            targetVel.normalize();
 
-            double speedPID = pidDriveTrainLinear.calculate(args.max_linear_speed, odometry.getSpeed());
-            double angularPID = pidDriveTrainAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
+            double speedPID = pidLinear.calculate(Vel, odometry.getSpeed());
+            double angularPID = pidAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
 
             double headingVel =  errorHeading * angularPID;
 
             targetVel.multyplie(speedPID);
-            targetVel.normalize();
+
+            drivetrain.setVelocity(targetVel, headingVel);
 
             messageTelemetry.telemetry.update();
 
-            drivetrain.setVelocity(target, headingVel);
-
-            if(target.length() > 2 ){
-                result = -1;
-            }else{
+            if(odometry.getAcceleration().length() == 0 && targetVel.length() == 0){
                 drivetrain.offMotors();
                 result = 0;
+            }else{
+                result = -1;
             }
+
             return result;
         }
     };
@@ -107,7 +129,11 @@ public class Robot extends RobotCore implements CONSTS{
 
     @Override
     public void telemetry(){
-        messageTelemetry.showDataTelemetry();
+        if(robotMode == RobotMode.TELEOP){
+            messageTelemetry.dataForTeleOp();
+        }else if(robotMode == RobotMode.AUTO){
+            messageTelemetry.dataForAuto();
+        }
     }
 
     // Gamepad 1
@@ -121,7 +147,7 @@ public class Robot extends RobotCore implements CONSTS{
         double targetVelY = op.gamepad1.left_stick_x * MAX_TPS_ENCODER/TICK_PER_CM;
         double targetAngleVel = op.gamepad1.right_stick_x * MAX_CM_PER_SEC/(DIST_BETWEEN_ENC_X/2);
 
-        double maxSpeed = 0.8;
+        double maxSpeed = 1;
 
         double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
         double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек

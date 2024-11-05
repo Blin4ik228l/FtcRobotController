@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MessageTelemetry implements Module {
-    AtomicInteger integer = new AtomicInteger();
+public class MessageTelemetry  implements Module {
+
     public final Telemetry telemetry;
 
     public final Robot robot;
@@ -38,6 +38,7 @@ public class MessageTelemetry implements Module {
         if(telemetry != null){
         telemetry.addLine("Telemetry is Ready!");
         }
+
     }
 
     public void dataForAuto(){
@@ -52,7 +53,9 @@ public class MessageTelemetry implements Module {
 //                showTargetVelGamepads();
 //                showTargetVoltageGamepads();
             }
-            showMaxAccel();
+            telemetry.addData("time", robot.odometry.dt);
+            showMaxVelLength();
+            showMaxAccelLength();
 
             if (isTicksToCm) {
                 showEncodersCM();
@@ -79,6 +82,18 @@ public class MessageTelemetry implements Module {
         telemetry.addLine("Max accel");
         telemetry.addData("Accelx:", robot.odometry.getMaxAcceleration().x);
         telemetry.addData("Accely:", robot.odometry.getMaxAcceleration().y);
+        telemetry.addLine();
+    }
+
+    public void showMaxAccelLength(){
+        telemetry.addLine("Max accel");
+        telemetry.addData("AccelLength:", robot.odometry.getMaxAcceleration().length());
+        telemetry.addLine();
+    }
+
+    public void showMaxVelLength(){
+        telemetry.addLine("Max vel");
+        telemetry.addData("VelLength:", robot.odometry.getMaxVel().length());
         telemetry.addLine();
     }
 

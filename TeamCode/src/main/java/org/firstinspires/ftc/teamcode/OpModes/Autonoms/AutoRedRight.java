@@ -29,7 +29,7 @@ public class AutoRedRight extends LinearOpMode {
         robot.taskManager.addTask(taskDrive1);
         waitForStart();
 
-        if(!isStopRequested()) {
+        if(opModeIsActive()) {
             robot.taskManager.start();
         }else{
             robot.robotMode = RobotMode.STOP;

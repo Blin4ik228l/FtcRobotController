@@ -52,7 +52,6 @@ public class TeleOpBlue extends OpMode {
     public void loop() {
         robot.teleopPl1();
         robot.teleopPl2();
-        robot.telemetry();
     }
 
     /**
@@ -60,6 +59,6 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void stop() {
-
+        robot.robotMode = RobotMode.STOP;
     }
 }

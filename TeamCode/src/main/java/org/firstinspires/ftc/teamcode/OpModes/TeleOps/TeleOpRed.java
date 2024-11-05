@@ -37,7 +37,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void start() {
-        super.start();
+
     }
 
     /**
@@ -47,7 +47,6 @@ public class TeleOpRed extends OpMode {
     public void loop() {
         robot.teleopPl1();
         robot.teleopPl2();
-        robot.telemetry();
     }
 
     /**
@@ -55,6 +54,6 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void stop() {
-
+        robot.robotMode = RobotMode.STOP;
     }
 }

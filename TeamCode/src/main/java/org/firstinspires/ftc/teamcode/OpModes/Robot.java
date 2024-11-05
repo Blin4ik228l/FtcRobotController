@@ -28,7 +28,7 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinear = new PID(0.03,0.001,0.05);
+    public final PID pidLinear = new PID(0.05,0.0002,0.001);
     public final PID pidAngular = new PID(0.1,0,0);
 
 
@@ -44,7 +44,6 @@ public class Robot extends RobotCore implements CONSTS{
         messageTelemetry = new MessageTelemetry(op,this);
 
     }
-
     @Override
     // Метод инициализации того, чего надо
     public void init() {
@@ -87,15 +86,16 @@ public class Robot extends RobotCore implements CONSTS{
 
             target.sub(odometry.getGlobalPosition().toVector());
 
-            Vector2 targetVel = new Vector2(target);
-            targetVel.normalize();
-
             double speedPID = pidLinear.calculate(Vel, odometry.getSpeed());
             double angularPID = pidAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
 
             double headingVel =  errorHeading * angularPID;
 
+            Vector2 targetVel = new Vector2(target);
+
             targetVel.multyplie(speedPID);
+
+            targetVel.normalize();
 
             drivetrain.setVelocity(targetVel, headingVel);
 
@@ -107,6 +107,8 @@ public class Robot extends RobotCore implements CONSTS{
             }else{
                 result = -1;
             }
+
+            telemetry();
 
             return result;
         }
@@ -127,7 +129,7 @@ public class Robot extends RobotCore implements CONSTS{
         }
     };
 
-    @Override
+
     public void telemetry(){
         if(robotMode == RobotMode.TELEOP){
             messageTelemetry.dataForTeleOp();
@@ -143,21 +145,25 @@ public class Robot extends RobotCore implements CONSTS{
         double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
         double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER))/(DIST_BETWEEN_ENC_X/2);// рад/сек
 
-        double targetVelX = op.gamepad1.left_stick_y * MAX_TPS_ENCODER/TICK_PER_CM;
-        double targetVelY = op.gamepad1.left_stick_x * MAX_TPS_ENCODER/TICK_PER_CM;
+        double targetVelX = op.gamepad1.left_stick_y * MAX_CM_PER_SEC;
+        double targetVelY = op.gamepad1.left_stick_x * MAX_CM_PER_SEC;
         double targetAngleVel = op.gamepad1.right_stick_x * MAX_CM_PER_SEC/(DIST_BETWEEN_ENC_X/2);
 
         double maxSpeed = 1;
 
         double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
         double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
-        double kP = -0.0001;//коеф торможения робота
+        double kP = -0.001;//коеф торможения робота
 
         double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX* kF;
         double sideVoltage = (targetVelY - velocityY) * kP +  targetVelY* kF;
         double angleVoltage = (targetAngleVel - velocityAngle) * kP +  targetAngleVel* kFR;
 
         drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+
+
+        telemetry();
+
 
         //ТЕЛЕМЕТРИЯ
 //        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");

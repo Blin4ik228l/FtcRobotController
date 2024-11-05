@@ -15,7 +15,7 @@ public class Odometry extends Thread implements Module {
 
     private final ElapsedTime runtime;                                          // Пройденное время
     private double oldTime;                                                     // Предыдущее время
-    private double dt;                                                          // Разница во времени
+     double dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
     public  DcMotorEx encM;                                                // Объекты энкодеров
@@ -24,7 +24,7 @@ public class Odometry extends Thread implements Module {
     private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
-    private Vector2 maxAcceleration;
+    private final Vector2 maxAcceleration, maxVel;
 
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
@@ -36,6 +36,7 @@ public class Odometry extends Thread implements Module {
         this.oldVelocity = new Vector2(0,0);
         this.acceleration = new Vector2(0,0);
         this.maxAcceleration = new Vector2(0,0);
+        this.maxVel = new Vector2(0,0);
 
         runtime = new ElapsedTime();
         oldTime = 0;
@@ -68,14 +69,15 @@ public class Odometry extends Thread implements Module {
     // Запускаем методы для обновления данных, пока объект существует
     public void run() {
         while (this.isAlive()){
-            dt = (runtime.milliseconds() - oldTime) / 1000;
+            dt = (runtime.milliseconds() - oldTime)/1000.0;
             oldTime = runtime.milliseconds();
             updateGlobalPosition();
-            updateAcceleration();
             updateVelocity();
+            updateMaxVel();
+            updateAcceleration();
+            updateMaxAcceleration();
             updateAngularAcceleration();
             updateAngularVelocity();
-            updateMaxAcceleration();
         }
     }
     // Тики энкодера в сантиметры
@@ -89,14 +91,26 @@ public class Odometry extends Thread implements Module {
         globalPosition.heading = position.heading;
     }
 
-    private void updateMaxAcceleration(){
+    private synchronized void updateMaxAcceleration(){
         if(Math.abs(acceleration.length()) > Math.abs(maxAcceleration.length())){
-            maxAcceleration = new Vector2(acceleration);
+            maxAcceleration.x = acceleration.x;
+            maxAcceleration.y = acceleration.y;
         }
     }
 
-    public Vector2 getMaxAcceleration(){
-        return maxAcceleration;
+    private synchronized void updateMaxVel(){
+        if(Math.abs(velocity.length()) > Math.abs(maxVel.length())){
+            maxVel.x = velocity.x;
+            maxVel.y = velocity.y;
+        }
+    }
+
+    public synchronized Vector2 getMaxVel(){
+        return new Vector2(maxVel);
+    }
+
+    public synchronized Vector2 getMaxAcceleration(){
+        return new Vector2(maxAcceleration);
     }
 
     public double returnDistance(double VelMax, double assel ){
@@ -114,12 +128,12 @@ public class Odometry extends Thread implements Module {
 
     // Геттер вектора скорости
     public synchronized Vector2 getVelocity(){
-        return new Vector2(velocity);
+        return velocity;
     }
 
     // Геттер вектора ускорения
     public synchronized Vector2 getAcceleration(){
-        return new Vector2(acceleration);
+        return acceleration;
     }
     // Геттер углового вектора ускорения
     public synchronized double getAngularAcceleration(){

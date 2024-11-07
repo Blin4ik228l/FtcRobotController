@@ -43,30 +43,33 @@ public class MessageTelemetry  implements Module {
 
     public void dataForAuto(){
         showGlobalPos();
-        showGlobalVel();
+        showGlobalVelLength();
+        showMotorsDriveTrainVoltage();
     }
 
     public void dataForTeleOp(){
-            if (isRobotDrive) {
-                showGlobalVel();
-                showEncodersVel();
-//                showTargetVelGamepads();
-//                showTargetVoltageGamepads();
-            }
-            telemetry.addData("time", robot.odometry.dt);
-            showMaxVelLength();
-            showMaxAccelLength();
-
-            if (isTicksToCm) {
-                showEncodersCM();
-            } else {
-                showEncodersTicks();
-            }
-
-            showGlobalPos();
-
-            switchTicksToCmState();
-            updateRobotMovingState();
+//            if (isRobotDrive) {
+//
+//                showEncodersVel();
+////                showTargetVelGamepads();
+////                showTargetVoltageGamepads();
+//            }
+            showGlobalVelLength();
+            showMotorsDriveTrainVoltage();
+//            telemetry.addData("time", robot.odometry.dt);
+//            showMaxVelLength();
+//            showMaxAccelLength();
+//
+//            if (isTicksToCm) {
+//                showEncodersCM();
+//            } else {
+//                showEncodersTicks();
+//            }
+//
+//            showGlobalPos();
+//
+//            switchTicksToCmState();
+//            updateRobotMovingState();
     }
 
 //    public void setTargetVel(double targetVelX, double targetVelY,
@@ -184,6 +187,13 @@ public class MessageTelemetry  implements Module {
         telemetry.addData("GlobalX:", robot.odometry.getGlobalPosition().x);
         telemetry.addData("GlobalY:", robot.odometry.getGlobalPosition().y);
         telemetry.addData("GlobalHeading:", robot.odometry.getGlobalPosition().heading);
+        telemetry.addLine();
+    }
+
+    private void showGlobalVelLength(){
+        telemetry.addLine("Robot velocityLength");
+        telemetry.addData("VelocityLength:", robot.odometry.getVelocity().length());
+        telemetry.addData("AngularVel:", robot.odometry.getAngularVelocity());
         telemetry.addLine();
     }
 

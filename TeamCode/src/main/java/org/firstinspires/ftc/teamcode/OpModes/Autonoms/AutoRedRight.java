@@ -25,7 +25,7 @@ public class AutoRedRight extends LinearOpMode {
         robot = new Robot(RobotMode.AUTO, RobotAlliance.RED, this);
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
-        Task taskDrive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(posForDrive1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task taskDrive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(posForDrive1,20), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
         robot.taskManager.addTask(taskDrive1);
         waitForStart();
 

@@ -46,7 +46,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double TICK_PER_DEGREES = TPR_ENCODER/360;                              // тик/градус энкодера
     double MAX_TPS_ENCODER = TPR_ENCODER * RPS_ENC_WHEEL;                   // максимальная скорость тик/сек энкодера
     double MAX_RAD_PER_SEC = CMPS_ENC_WHEEL/(DIST_BETWEEN_ENC_X/2);         //
-    double MAX_CM_PER_SEC = MAX_TPS_ENCODER/TICK_PER_CM;
+    double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
 
     //Максимально возможное ускорение для робота
     double MAX_ACCEL_FRONT = 157.23;

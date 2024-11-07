@@ -33,6 +33,14 @@ public class Vector2 {
         return vectorLength;
     }
 
+    public void setVectorLength(double newLength){
+        double sin = x/vectorLength;
+        double cos = y/vectorLength;
+
+        x = sin * newLength;
+        y = cos * newLength;
+
+    }
     public void multyplie(double a) {
         x *= a;
         y *= a;

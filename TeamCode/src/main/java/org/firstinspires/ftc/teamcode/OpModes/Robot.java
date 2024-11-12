@@ -28,7 +28,7 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinear = new PID(0.1,0,0);
+    public final PID pidLinear = new PID(0.0087,0.000000,0);
     public final PID pidAngular = new PID(0.0,0,0);
 
 

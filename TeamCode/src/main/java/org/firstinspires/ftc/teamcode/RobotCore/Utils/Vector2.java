@@ -66,7 +66,7 @@ public class Vector2 {
     }
 
     public void normalize() {
-        double mag = length();//длимна вектора
+        double mag = length();//длина вектора
 
         if (mag == 0) {
             return;

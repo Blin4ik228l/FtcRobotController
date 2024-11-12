@@ -43,7 +43,6 @@ public class MessageTelemetry  implements Module {
 
     public void dataForAuto(){
         showGlobalPos();
-        showGlobalVelLength();
         showMotorsDriveTrainVoltage();
     }
 

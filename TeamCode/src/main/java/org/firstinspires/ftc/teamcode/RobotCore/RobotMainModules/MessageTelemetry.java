@@ -53,8 +53,10 @@ public class MessageTelemetry  implements Module {
 ////                showTargetVelGamepads();
 ////                showTargetVoltageGamepads();
 //            }
-            showGlobalVelLength();
-            showMotorsDriveTrainVoltage();
+            showAccelLength();
+            showMaxAccelLength();
+            showMaxVelLength();
+            showGlobalVel();
 //            telemetry.addData("time", robot.odometry.dt);
 //            showMaxVelLength();
 //            showMaxAccelLength();
@@ -80,22 +82,22 @@ public class MessageTelemetry  implements Module {
 //        this.nameOfValueForAngular = nameOfValueForAngular;
 //    }
 
-    public void showMaxAccel(){
-        telemetry.addLine("Max accel");
-        telemetry.addData("Accelx:", robot.odometry.getMaxAcceleration().x);
-        telemetry.addData("Accely:", robot.odometry.getMaxAcceleration().y);
+
+    public void showAccelLength(){
+        telemetry.addLine("Accel");
+        telemetry.addData("AccelLength:", robot.odometry.getAcceleration().length());
         telemetry.addLine();
     }
 
     public void showMaxAccelLength(){
         telemetry.addLine("Max accel");
-        telemetry.addData("AccelLength:", robot.odometry.getMaxAcceleration().length());
+        telemetry.addData("AccelLength:", robot.odometry.getMaxAcceleration());
         telemetry.addLine();
     }
 
     public void showMaxVelLength(){
         telemetry.addLine("Max vel");
-        telemetry.addData("VelLength:", robot.odometry.getMaxVel().length());
+        telemetry.addData("VelLength:", robot.odometry.getMaxVel());
         telemetry.addLine();
     }
 
@@ -198,8 +200,7 @@ public class MessageTelemetry  implements Module {
 
     private void showGlobalVel(){
         telemetry.addLine("Robot velocity");
-        telemetry.addData("VelocityX:", robot.odometry.getVelocity().x);
-        telemetry.addData("VelocityY:", robot.odometry.getVelocity().y);
+        telemetry.addData("Speed:", robot.odometry.getSpeed());
         telemetry.addData("AngularVel:", robot.odometry.getAngularVelocity());
         telemetry.addLine();
     }

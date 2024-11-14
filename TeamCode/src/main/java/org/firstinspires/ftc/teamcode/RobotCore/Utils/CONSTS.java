@@ -49,8 +49,9 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
 
     //Максимально возможное ускорение для робота
-    double MAX_ACCEL_FRONT = 157.23;
-    double MAX_ACCEL_SIDE = 157.23;
+    double MAX_ACCEL_FRONT = 236;
+    double MAX_ACCEL_SIDE = 236;
+    double MAX_ACCEL_ROUND = 89;
 
     // ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;                                                     //

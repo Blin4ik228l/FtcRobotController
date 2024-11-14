@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
 public class Robot extends RobotCore implements CONSTS{
@@ -28,8 +29,8 @@ public class Robot extends RobotCore implements CONSTS{
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinear = new PID(0.0087,0.000000,0);
-    public final PID pidAngular = new PID(0.0,0,0);
+    public final PID pidLinear = new PID(0.005,0.00000022,0.0000);
+    public final PID pidAngular = new PID(0.008,0,0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +51,15 @@ public class Robot extends RobotCore implements CONSTS{
         odometry.init();
         drivetrain.init();
         messageTelemetry.init();
+    }
+
+
+    public double returnDistance(double VelMax, double assel ){
+        return Math.pow(VelMax, 2)/ (2* assel);
+    }
+
+    public double returnSpeed(Position position, double assel){
+        return Math.sqrt(2 * position.toVector().length() * assel);
     }
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -73,9 +83,9 @@ public class Robot extends RobotCore implements CONSTS{
             double Vel;
 
             double VelMax = args.max_linear_speed;
-            double Vel0 = odometry.returnSpeed(args.position, assel);
+            double Vel0 = returnSpeed(args.position, assel);
 
-            if(args.position.toVector().length() > odometry.returnDistance(VelMax, assel)){
+            if(args.position.toVector().length() > returnDistance(VelMax, assel)){
                 Vel = VelMax;
             }else{
                 Vel = Vel0;

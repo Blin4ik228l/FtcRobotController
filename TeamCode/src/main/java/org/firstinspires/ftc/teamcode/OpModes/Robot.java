@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Odometry;
@@ -26,11 +27,13 @@ public class Robot extends RobotCore implements CONSTS{
     public final MecanumDrivetrain drivetrain; // Телега робота
     public final TeleSkope teleSkope;
     public final MessageTelemetry messageTelemetry;
-
+    public final ElapsedTime time = new ElapsedTime();
+    public double oldTime;
+    double maxTime = 0;
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinear = new PID(0.005,0.00000022,0.0000);
-    public final PID pidAngular = new PID(0.008,0,0);
+    public final PID pidAngular = new PID(0.08,0,0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +160,8 @@ public class Robot extends RobotCore implements CONSTS{
     // Gamepad 1
     @Override
     public void teleopPl1() {
+        time.milliseconds();
+
         double velocityAngle = (((odometry.encL.getVelocity() + odometry.encR.getVelocity())/2)/ TICK_PER_CM)/(DIST_BETWEEN_ENC_X/2);//рад/сек
         double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
         double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER));// см/сек
@@ -164,6 +169,16 @@ public class Robot extends RobotCore implements CONSTS{
         double targetVelX = op.gamepad1.left_stick_y * MAX_CM_PER_SEC;
         double targetVelY = op.gamepad1.left_stick_x * MAX_CM_PER_SEC;
         double targetAngleVel = op.gamepad1.right_stick_x * MAX_RAD_PER_SEC;
+
+        if(targetAngleVel != 0){
+            oldTime = (time.milliseconds()/1000) - oldTime;
+            if(maxTime < oldTime){
+                maxTime = oldTime;
+            }
+        }else {
+            oldTime = 0;
+            time.reset();
+        }
 
         double maxSpeed = 1;
 
@@ -177,9 +192,9 @@ public class Robot extends RobotCore implements CONSTS{
 
         drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
-
-        telemetry();
-
+        messageTelemetry.addData("maxTime", maxTime);
+        messageTelemetry.addData("X", odometry.getGlobalPosition().x);
+        messageTelemetry.addData("Y", odometry.getGlobalPosition().y);
 
         //ТЕЛЕМЕТРИЯ
 //        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");

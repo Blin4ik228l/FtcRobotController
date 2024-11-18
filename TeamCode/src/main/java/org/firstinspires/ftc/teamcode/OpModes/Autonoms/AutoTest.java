@@ -14,9 +14,9 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 @Autonomous(name = "Test", group = "Test")
 public class AutoTest extends LinearOpMode {
         Robot robot;
-        Position posForDrive1 = new Position(200, 0 , 0);
+        Position posForDrive1 = new Position(300, 0 , 0);
         Position posForDrive2 = new Position( 0, 0, Math.toRadians(90));
-        Position posForDrive3 = new Position( 50, 50, 0);
+        Position posForDrive3 = new Position( 0, 100, 0);
 
     double maxCurrentSpeed = 0;
     double currentSpeed = 0;
@@ -32,8 +32,6 @@ public class AutoTest extends LinearOpMode {
     }
 
         public void driveMethod(StandartArgs.driveStandartArgs args){
-        off = false;
-        while(!off || !isStopRequested()) {
             double assel;
             double asselRound = robot.MAX_ACCEL_ROUND;
 
@@ -62,16 +60,23 @@ public class AutoTest extends LinearOpMode {
                 Vel = returnSpeed(target.length(), assel);
             }
 
-            if (errorHeading > returnDistance(args.max_angular_speed, asselRound)/robot.LENGTH_ROUND_BIG) {
+            if(errorHeading > Math.toRadians(20)){
                 VelRound = args.max_angular_speed;
-            } else {
-                VelRound = args.max_angular_speed/2;
             }
+            else if(errorHeading < Math.toRadians(20) && errorHeading > Math.toRadians(5)){
+                VelRound = args.max_angular_speed/2;
+            }else{
+                VelRound = 0;
+            }
+
+//            }else {
+//                VelRound = returnSpeed(errorHeading, robot.MAX_ACCEL_ROUND);
+//            }
 
             double speedPID = robot.pidLinear.calculate(Vel, robot.odometry.getSpeed());
             double angularPID = robot.pidAngular.calculate(VelRound, robot.odometry.getAngularVelocity()); //Всегда положителен
 
-            double headingVel = angularPID;
+            double headingVel = 0;
 
             Vector2 targetVel = new Vector2(target);
 
@@ -89,13 +94,11 @@ public class AutoTest extends LinearOpMode {
 //            }
 
 
-            if (target.length() < 2 && errorHeading < Math.toRadians(3)) {
+            if (target.length() < 2 ) {
                 robot.drivetrain.offMotors();
-                off = true;
-                break;
             }
 
-            robot.drivetrain.setVelocity(targetVel, headingVel);
+            robot.drivetrain.setVelocity(targetVel, angularPID);
 
             if (maxCurrentSpeed < robot.odometry.getSpeed()) {
                 maxCurrentSpeed = robot.odometry.getSpeed();
@@ -105,22 +108,22 @@ public class AutoTest extends LinearOpMode {
                 pastSpeed = robot.odometry.getSpeed();
             }
 
-            robot.messageTelemetry.addData("P", robot.pidLinear.P);
-            robot.messageTelemetry.addData("I", robot.pidLinear.I);
-            robot.messageTelemetry.addData("D", robot.pidLinear.D);
-            robot.messageTelemetry.addData("PID", -speedPID);
-            robot.messageTelemetry.addData("PIDANGULAR", -angularPID);
+//            robot.messageTelemetry.addData("P", robot.pidLinear.P);
+//            robot.messageTelemetry.addData("I", robot.pidLinear.I);
+//            robot.messageTelemetry.addData("D", robot.pidLinear.D);
+//            robot.messageTelemetry.addData("PID", -speedPID);
+            robot.messageTelemetry.addData("PIDANGULAR", angularPID);
             robot.messageTelemetry.addData("Выбранная угловая скорость", VelRound);
-            robot.messageTelemetry.addData("Нынешняя скорость", robot.odometry.getSpeed());
             robot.messageTelemetry.addData("Угловая скорость", robot.odometry.getAngularVelocity());
-            robot.messageTelemetry.addData("Последняя скорость", pastSpeed);
-            robot.messageTelemetry.addData("Выбранная скорость", Vel);
-            robot.messageTelemetry.addData("Максмимальная из нынешней скорости", maxCurrentSpeed);
-            robot.messageTelemetry.addData("Оставшееся растояние", target.length());
+            robot.messageTelemetry.addData("Оставшейся угол", errorHeading);
+//            robot.messageTelemetry.addData("Последняя скорость", pastSpeed);
+//            robot.messageTelemetry.addData("Выбранная скорость", Vel);
+//            robot.messageTelemetry.addData("Максмимальная из нынешней скорости", maxCurrentSpeed);
+//            robot.messageTelemetry.addData("Нынешняя скорость", robot.odometry.getSpeed());
+//            robot.messageTelemetry.showMotorsDriveTrainVoltage();
+//            robot.messageTelemetry.addData("Оставшееся растояние", target.length());
             robot.messageTelemetry.telemetry.addLine();
             robot.messageTelemetry.telemetry.update();
-        }
-
         }
 
         @Override
@@ -130,7 +133,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2, 0, 130));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2, 0, 4));
 
             }
         }

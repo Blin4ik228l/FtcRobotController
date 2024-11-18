@@ -15,7 +15,7 @@ public class Odometry extends Thread implements Module {
 
     private final ElapsedTime runtime;                                          // Пройденное время
     private double oldTime;                                                     // Предыдущее время
-     double dt;                                                          // Разница во времени
+     public double dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
     public  DcMotorEx encM;                                                // Объекты энкодеров
@@ -146,7 +146,9 @@ public class Odometry extends Thread implements Module {
         velocity.y = (deltaPosition.toVector().y)/dt;
 
     }
-
+    public synchronized double getDeltaVel(){
+        return velocity.x - velocity.y;
+    }
     // Обновление вектора ускорения робота
     private synchronized void updateAcceleration() {
         acceleration.x = (velocity.x - oldVelocity.x)/dt;

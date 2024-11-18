@@ -205,7 +205,7 @@ public class MessageTelemetry  implements Module {
         telemetry.addLine();
     }
 
-    private void showMotorsDriveTrainVoltage(){
+    public void showMotorsDriveTrainVoltage(){
         telemetry.addLine("Voltage drivetrain");
         telemetry.addData("leftF voltage:", robot.drivetrain.leftF.getPower());
         telemetry.addData("rightF voltage:", robot.drivetrain.rightF.getPower());

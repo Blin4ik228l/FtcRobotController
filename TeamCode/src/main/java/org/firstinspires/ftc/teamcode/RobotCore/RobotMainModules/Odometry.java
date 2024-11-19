@@ -162,7 +162,7 @@ public class Odometry extends Thread implements Module {
 
     // Обновление вектора ускорения робота
     private synchronized void updateAngularAcceleration() {
-        angularAcceleration = (angularAcceleration - oldAngularVelocity)/dt;
+        angularAcceleration = (angularVelocity - oldAngularVelocity)/dt;
     }
 
     // Обновление положения робота на поле с помощью следящих колес
@@ -186,7 +186,7 @@ public class Odometry extends Thread implements Module {
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_WHEEL_X;
+        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_ENC_X;
         double deltaX = (deltaLeftEncoderX - deltaRightEncoderX )/ 2.0;
         double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 
@@ -200,7 +200,7 @@ public class Odometry extends Thread implements Module {
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
         // к остатку от деления на 2pi (360)
         if (Math.abs(globalPosition.getHeading()) >= 2 * Math.PI) {
-            globalPosition.setHeading(globalPosition.getHeading() % 2 * Math.PI);
+            globalPosition.setHeading(globalPosition.getHeading() % (2 * Math.PI));
         }
     }
 

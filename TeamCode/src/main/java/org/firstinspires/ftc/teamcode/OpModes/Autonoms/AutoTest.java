@@ -18,7 +18,7 @@ public class AutoTest extends LinearOpMode {
         Position posForDrive2 = new Position( 0, 0, Math.toRadians(90));
         Position posForDrive3 = new Position( 0, 100, 0);
 
-    double maxCurrentSpeed = 0;
+    double maxCurrentSpeed = 0, maxAngleSpeed = 0;
     double currentSpeed = 0;
     double pastSpeed = 0;
     boolean off;
@@ -46,7 +46,7 @@ public class AutoTest extends LinearOpMode {
             double Vel;
             double VelRound;
 
-            double errorHeading = args.position.heading - robot.odometry.getGlobalPosition().getHeading();
+            double errorHeading = Math.abs(args.position.heading) - Math.abs(robot.odometry.getGlobalPosition().getHeading());
 
             Vector2 target = args.position.toVector();
 
@@ -60,23 +60,17 @@ public class AutoTest extends LinearOpMode {
                 Vel = returnSpeed(target.length(), assel);
             }
 
-            if(errorHeading > Math.toRadians(20)){
+            if(errorHeading > returnDistance(args.max_angular_speed, asselRound)){
                 VelRound = args.max_angular_speed;
             }
-            else if(errorHeading < Math.toRadians(20) && errorHeading > Math.toRadians(5)){
-                VelRound = args.max_angular_speed/2;
-            }else{
-                VelRound = 0;
+            else {
+                VelRound = args.max_angular_speed/1.5;
             }
 
-//            }else {
-//                VelRound = returnSpeed(errorHeading, robot.MAX_ACCEL_ROUND);
-//            }
-
             double speedPID = robot.pidLinear.calculate(Vel, robot.odometry.getSpeed());
-            double angularPID = robot.pidAngular.calculate(VelRound, robot.odometry.getAngularVelocity()); //Всегда положителен
+            double angularPID = robot.pidAngular.calculate(VelRound, Math.abs(robot.odometry.getAngularVelocity()));
 
-            double headingVel = 0;
+            double headingVel = -angularPID * errorHeading/Math.abs(errorHeading);
 
             Vector2 targetVel = new Vector2(target);
 
@@ -92,16 +86,19 @@ public class AutoTest extends LinearOpMode {
 //            if (Math.abs(headingVel) < 0.11) {
 //                headingVel = (headingVel/Math.abs(headingVel)) * 0.11;
 //            }
-
-
-            if (target.length() < 2 ) {
+            if (target.length() < 2 && errorHeading < Math.toRadians(5)) {
                 robot.drivetrain.offMotors();
+                return;
             }
 
-            robot.drivetrain.setVelocity(targetVel, angularPID);
+            robot.drivetrain.setVelocity(targetVel, headingVel);
 
             if (maxCurrentSpeed < robot.odometry.getSpeed()) {
                 maxCurrentSpeed = robot.odometry.getSpeed();
+            }
+
+            if(maxAngleSpeed < Math.abs(robot.odometry.getAngularVelocity())){
+                maxAngleSpeed = Math.abs(robot.odometry.getAngularVelocity());
             }
 
             if (targetVel.length() != 0) {
@@ -114,8 +111,10 @@ public class AutoTest extends LinearOpMode {
 //            robot.messageTelemetry.addData("PID", -speedPID);
             robot.messageTelemetry.addData("PIDANGULAR", angularPID);
             robot.messageTelemetry.addData("Выбранная угловая скорость", VelRound);
+            robot.messageTelemetry.addData("Максимальная угловая скорость", maxAngleSpeed);
             robot.messageTelemetry.addData("Угловая скорость", robot.odometry.getAngularVelocity());
             robot.messageTelemetry.addData("Оставшейся угол", errorHeading);
+            robot.messageTelemetry.addData("Угол", robot.odometry.getGlobalPosition().heading);
 //            robot.messageTelemetry.addData("Последняя скорость", pastSpeed);
 //            robot.messageTelemetry.addData("Выбранная скорость", Vel);
 //            robot.messageTelemetry.addData("Максмимальная из нынешней скорости", maxCurrentSpeed);
@@ -133,7 +132,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2, 0, 4));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2, 0, Math.toRadians(360)));
 
             }
         }

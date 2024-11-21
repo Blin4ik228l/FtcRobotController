@@ -48,11 +48,11 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_RAD_PER_SEC = CMPS_ENC_WHEEL/(DIST_BETWEEN_ENC_X/2);         //
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
     double MAX_SPEED = 345;
-    double MAX_RAD_SPEED = 12.56;
+    double MAX_RAD_SPEED = 6.28;
     //Максимально возможное ускорение для робота
     double MAX_ACCEL_FRONT = 345;
     double MAX_ACCEL_SIDE = 345;
-    double MAX_ACCEL_ROUND = 25.12;
+    double MAX_ACCEL_ROUND = 60;
 
     // ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;                                                     //

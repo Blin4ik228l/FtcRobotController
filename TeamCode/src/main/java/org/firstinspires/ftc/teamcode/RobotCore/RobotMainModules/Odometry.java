@@ -17,7 +17,7 @@ public class Odometry extends Thread implements Module {
     private double oldTime;                                                     // Предыдущее время
      public double dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
-    private double angularVelocity, angularAcceleration, oldAngularVelocity;
+    private volatile double angularVelocity, angularAcceleration, oldAngularVelocity;
     public  DcMotorEx encM;                                                // Объекты энкодеров
     public volatile DcMotorEx encL;
     public volatile DcMotorEx encR;
@@ -71,9 +71,7 @@ public class Odometry extends Thread implements Module {
             oldTime = runtime.milliseconds();
             updateGlobalPosition();
             updateVelocity();
-            updateMaxVel();
             updateAcceleration();
-            updateMaxAcceleration();
             updateAngularAcceleration();
             updateAngularVelocity();
         }
@@ -108,8 +106,6 @@ public class Odometry extends Thread implements Module {
     public synchronized double getMaxAcceleration(){
        return maxAcceleration;
     }
-
-
 
     // Геттер глобального положения робота
     public synchronized Position getGlobalPosition(){

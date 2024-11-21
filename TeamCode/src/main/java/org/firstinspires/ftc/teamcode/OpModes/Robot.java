@@ -171,24 +171,13 @@ public class Robot extends RobotCore implements CONSTS{
         double targetVelY = op.gamepad1.left_stick_x * MAX_CM_PER_SEC;
         double targetAngleVel = op.gamepad1.right_stick_x * MAX_RAD_PER_SEC;
 
-        if(targetAngleVel != 0){
-            oldTime = (time.milliseconds()/1000) - oldTime;
-            if(maxTime < oldTime){
-                maxTime = oldTime;
-            }
-            if(maxVelAAngle < odometry.getAngularVelocity()){
-                maxVelAAngle = odometry.getAngularVelocity();
-                timeVel = oldTime;
-                headingWhenReachMaxVel = odometry.getGlobalPosition().heading;
-            }
-            if(maxAngleAccel < odometry.getAngularAcceleration()){
-                maxAngleAccel = odometry.getAngularAcceleration();
-                timeAngle = oldTime;
-                headingWhenReachMaxAngle = odometry.getGlobalPosition().heading;
-            }
-        }else {
-            oldTime = 0;
-            time.reset();
+
+        if(maxVelAAngle < odometry.getAngularVelocity()){
+            maxVelAAngle = odometry.getAngularVelocity();
+        }
+
+       else if(maxAngleAccel < odometry.getAngularAcceleration()){
+            maxAngleAccel = odometry.getAngularAcceleration();
         }
 
         double maxSpeed = 1;
@@ -204,20 +193,15 @@ public class Robot extends RobotCore implements CONSTS{
         drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
         messageTelemetry.addData("maxVelAAngle", maxVelAAngle);
-        messageTelemetry.addData("timeVel", timeVel);
-        messageTelemetry.addData("headingWhenReachMaxVel", headingWhenReachMaxVel);
         messageTelemetry.telemetry.addLine();
         messageTelemetry.addData("maxAngleAccel", maxAngleAccel);
-        messageTelemetry.addData("timeAngle", timeAngle);
-        messageTelemetry.addData("headingWhenReachMaxAngle", headingWhenReachMaxAngle);
         messageTelemetry.telemetry.addLine();
-        messageTelemetry.addData("maxTime", maxTime);
         messageTelemetry.addData("AngleAccel", odometry.getAngularAcceleration());
+        messageTelemetry.addData("AngleVel", odometry.getAngularVelocity());
         messageTelemetry.addData("Heading", odometry.getGlobalPosition().heading);
         messageTelemetry.addData("ticks encoder left", odometry.encL.getCurrentPosition());
         messageTelemetry.addData("ticks encoder right", odometry.encR.getCurrentPosition());
-        messageTelemetry.addData("X", odometry.getGlobalPosition().x);
-        messageTelemetry.addData("Y", odometry.getGlobalPosition().y);
+        messageTelemetry.showMotorsDriveTrainVoltage();
 
         //ТЕЛЕМЕТРИЯ
 //        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");

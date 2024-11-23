@@ -49,10 +49,17 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
     double MAX_SPEED = 345;
     double MAX_RAD_SPEED = 6.28;
-    //Максимально возможное ускорение для робота
-    double MAX_ACCEL_FRONT = 345;
-    double MAX_ACCEL_SIDE = 345;
-    double MAX_ACCEL_ROUND = 60;
+
+    // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
+    double MAX_LINEAR_SPEED = 345;
+    double MAX_ANGULAR_SPEED = 6;
+    double MAX_LINEAR_ACCEL = 345;
+    double MAX_ANGULAR_ACCEL = 60;
+    double MIN_LINEAR_SPEED = 25;
+    double MIN_ANGULAR_SPEED = 2;
+    double MIN_LINEAR_ACCEL = 1;
+    double MIN_ANGULAR_ACCEL = 1;
+
 
     // ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
     double CLOSE = 0.0;                                                     //

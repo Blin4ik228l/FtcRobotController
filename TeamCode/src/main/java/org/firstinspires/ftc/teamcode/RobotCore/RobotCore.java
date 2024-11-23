@@ -46,6 +46,11 @@ public abstract class RobotCore implements Module {
         int var2;
 
         @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+
+        @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             // Какое-то действие робота
 

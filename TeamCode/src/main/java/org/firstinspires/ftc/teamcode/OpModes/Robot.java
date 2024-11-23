@@ -58,85 +58,39 @@ public class Robot extends RobotCore implements CONSTS{
         messageTelemetry.init();
     }
 
-
-    public double returnDistance(double VelMax, double assel ){
-        return Math.pow(VelMax, 2)/ (2* assel);
-    }
-
-    public double returnSpeed(Position position, double assel){
-        return Math.sqrt(2 * position.toVector().length() * assel);
-    }
-
     // Метод, обрабатывающий задачу перемещения робота в точку
     public TaskHandler driveToPosition = new TaskHandler() {
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
 
-            int result;
 
-            double assel;
-
-            if(args.position.x > 0 || args.position.x < 0 && args.position.y == 0){
-                assel = MAX_ACCEL_FRONT;
-            } else if (args.position.x == 0 && args.position.y > 0 || args.position.y < 0) {
-                assel = MAX_ACCEL_SIDE;
-            }else {
-                assel = Math.sqrt(Math.pow(MAX_ACCEL_FRONT, 2) + Math.pow(MAX_ACCEL_SIDE, 2));
-            }
-
-            double Vel;
-
-            double VelMax = args.max_linear_speed;
-            double Vel0 = returnSpeed(args.position, assel);
-
-            if(args.position.toVector().length() > returnDistance(VelMax, assel)){
-                Vel = VelMax;
-            }else{
-                Vel = Vel0;
-            }
-
-            double errorHeading = args.position.heading - odometry.getGlobalPosition().getHeading();
-            Vector2 target = args.position.toVector();
-
-            target.sub(odometry.getGlobalPosition().toVector());
-
-            double speedPID = pidLinear.calculate(Vel, odometry.getSpeed());
-            double angularPID = pidAngular.calculate(args.max_angular_speed, odometry.getAngularVelocity()); //Всегда положителен
-
-            double headingVel =  errorHeading * angularPID;
-
-            Vector2 targetVel = new Vector2(target);
-
-            targetVel.multyplie(speedPID);
-
-            targetVel.normalize();
-
-//            if(Math.abs(targetVel.length()) < 0.10){
-//                targetVel.setVectorLength((targetVel.length()/Math.abs(targetVel.length()) * 0.1));
-//            } else if (Math.abs(headingVel) < 0.11) {
-//                headingVel = (headingVel/Math.abs(headingVel)) * 0.11;
-//            }
-
-            drivetrain.setVelocity(targetVel, headingVel);
-
-            messageTelemetry.telemetry.update();
-
-            if(Math.abs(target.length()) < 3){
-                drivetrain.offMotors();
-                result = 0;
-            }else {
-                result = -1;
-            }
 
             telemetry();
 
-            return result;
+            return 0;
+        }
+
+        private double returnDistance(double VelMax, double assel ){
+            return Math.pow(VelMax, 2) / (2 * assel);
+        }
+
+        private double returnSpeed(Position position, double assel){
+            return Math.sqrt(2 * position.toVector().length() * assel);
         }
     };
 
     // Метод, обрабатывающий задачу подъема телескопа
     public TaskHandler setTeleskopePos = new TaskHandler() {
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;

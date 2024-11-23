@@ -27,7 +27,7 @@ public class TaskManager {
 
         this.managerRuntime = new ElapsedTime();
         this.taskDeque = new ArrayDeque<Task>();
-        this.executingDeque = new ArrayDeque<>();
+        this.executingDeque = new ArrayDeque<Task>();
         this.completedTasks = new Stack<Task>();
     }
 
@@ -68,7 +68,7 @@ public class TaskManager {
 
     public void start() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!executingDeque.isEmpty() || this.isTeleopMode()|| !taskDeque.isEmpty()) {
+        while(!executingDeque.isEmpty() || !taskDeque.isEmpty() || this.isTeleopMode()) {
 
             pickTaskToDo();
 
@@ -86,10 +86,10 @@ public class TaskManager {
     }
 
     /**
-     * Стартер задач
+     * Стартер задач.
      * Если taskStartMode первой задачи в очереди taskDeque соответствует условиям,
      * то задача переходит в очередь обрабатываемых задач,
-     * получает время начала выполнения и режим - DOING
+     * получает время начала выполнения и режим - DOING.
      */
     private void pickTaskToDo()
     {
@@ -134,8 +134,10 @@ public class TaskManager {
 
         // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
         if (picked) {
-            executingDeque.getLast().startTime = managerRuntime.milliseconds();
-            executingDeque.getLast().state = Task.States.DOING;
+            Task t = executingDeque.getLast();
+            t.startTime = managerRuntime.milliseconds();
+            t.state = Task.States.DOING;
+            t.taskHandler.init(this, t.args);
         }
     }
 
@@ -222,12 +224,10 @@ public class TaskManager {
     public boolean isTeleopMode() {
         return robot.robotMode == RobotMode.TELEOP;
     }
-
     public boolean isAutoMode() {
         return robot.robotMode == RobotMode.AUTO;
     }
     public boolean isStopMode(){
         return robot.robotMode == RobotMode.STOP;
     }
-
 }

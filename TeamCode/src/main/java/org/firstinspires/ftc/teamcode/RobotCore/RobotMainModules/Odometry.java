@@ -14,8 +14,8 @@ public class Odometry extends Thread implements Module {
     private final OpMode op;
 
     private final ElapsedTime runtime;                                          // Пройденное время
-    private double oldTime;                                                     // Предыдущее время
-     public double dt;                                                          // Разница во времени
+    private double[] oldTime;                                                     // Предыдущее время
+    public double[] dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
     private volatile double angularVelocity, angularAcceleration, oldAngularVelocity;
     public  DcMotorEx encM;                                                // Объекты энкодеров
@@ -37,8 +37,14 @@ public class Odometry extends Thread implements Module {
         this.acceleration = new Vector2(0,0);
 
         runtime = new ElapsedTime();
-        oldTime = 0;
-        dt = 0;
+        dt = new double[4];
+        oldTime = new double[4];
+
+        for (int i = 0; i < 4; i++)
+        {
+            dt[i] = 0;
+            oldTime[i] = 0;
+        }
     }
 
     public  Odometry (OpMode op){
@@ -67,9 +73,8 @@ public class Odometry extends Thread implements Module {
     // Запускаем методы для обновления данных, пока объект существует
     public void run() {
         while (this.isAlive()){
-            dt = (runtime.milliseconds() - oldTime)/1000.0;
-            oldTime = runtime.milliseconds();
             updateGlobalPosition();
+
             updateVelocity();
             updateAcceleration();
             updateAngularAcceleration();
@@ -135,11 +140,14 @@ public class Odometry extends Thread implements Module {
     }
     // Обновление вектора скорости робота
     private synchronized void updateVelocity(){
+        dt[0] = (runtime.milliseconds() - oldTime[0])/1000.0;
+        oldTime[0] = runtime.milliseconds();
+
         oldVelocity.x = velocity.x;
         oldVelocity.y = velocity.y;
 
-        velocity.x = (deltaPosition.toVector().x)/dt;
-        velocity.y = (deltaPosition.toVector().y)/dt;
+        velocity.x = (deltaPosition.toVector().x)/dt[0];
+        velocity.y = (deltaPosition.toVector().y)/dt[0];
 
     }
     public synchronized double getDeltaVel(){
@@ -147,18 +155,27 @@ public class Odometry extends Thread implements Module {
     }
     // Обновление вектора ускорения робота
     private synchronized void updateAcceleration() {
-        acceleration.x = (velocity.x - oldVelocity.x)/dt;
-        acceleration.y = (velocity.y - oldVelocity.y)/dt;
+        dt[1] = (runtime.milliseconds() - oldTime[1])/1000.0;
+        oldTime[1] = runtime.milliseconds();
+
+        acceleration.x = (velocity.x - oldVelocity.x)/dt[1];
+        acceleration.y = (velocity.y - oldVelocity.y)/dt[1];
     }
 
     private synchronized void updateAngularVelocity(){
+        dt[3] = (runtime.milliseconds() - oldTime[3])/1000.0;
+        oldTime[3] = runtime.milliseconds();
+
         oldAngularVelocity = angularVelocity;
-        angularVelocity = deltaPosition.heading/dt;
+        angularVelocity = deltaPosition.heading/dt[3];
     }
 
     // Обновление вектора ускорения робота
     private synchronized void updateAngularAcceleration() {
-        angularAcceleration = (angularVelocity - oldAngularVelocity)/dt;
+        dt[2] = (runtime.milliseconds() - oldTime[2])/1000.0;
+        oldTime[2] = runtime.milliseconds();
+
+        angularAcceleration = (angularVelocity - oldAngularVelocity)/dt[2];
     }
 
     // Обновление положения робота на поле с помощью следящих колес
@@ -182,7 +199,7 @@ public class Odometry extends Thread implements Module {
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_ENC_X;
+        double deltaRad = -(deltaRightEncoderX + deltaLeftEncoderX)/CONSTS.DIST_BETWEEN_ENC_X;
         double deltaX = (deltaLeftEncoderX - deltaRightEncoderX )/ 2.0;
         double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

@@ -44,7 +44,7 @@ public class Vector2 {
     public void multyplie(double a) {
         x *= a;
         y *= a;
-        vectorLength *= a;
+        vectorLength *= Math.abs(a);
     }
 
     public Vector2 multyplie2(double a) {
@@ -74,7 +74,7 @@ public class Vector2 {
 
         x /= mag;
         y /= mag;
-        vectorLength = 1;
+        vectorLength = length();
     }
 
     public Vector2 minus (Vector2 b){
@@ -94,7 +94,7 @@ public class Vector2 {
     public void sub(Vector2 a) {
         x -= a.x;
         y -= a.y;
-        vectorLength = 0;
+        vectorLength = length();
     }
 
     public void rotate(double Rad) {

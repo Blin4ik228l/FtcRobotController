@@ -30,7 +30,8 @@ public class Robot extends RobotCore implements CONSTS{
     public final MessageTelemetry messageTelemetry;
     public final ElapsedTime time = new ElapsedTime();
     public double timeAngle, timeVel, oldTime;
-    double maxTime = 0, maxAngleAccel = 0, maxVelAAngle = 0, headingWhenReachMaxVel = 0, headingWhenReachMaxAngle = 0;
+    boolean switchable,isHeadless;
+    double released;
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinear = new PID(0.005,0.00000022,0.0000);
@@ -171,42 +172,55 @@ public class Robot extends RobotCore implements CONSTS{
         double targetVelY = op.gamepad1.left_stick_x * MAX_CM_PER_SEC;
         double targetAngleVel = op.gamepad1.right_stick_x * MAX_RAD_PER_SEC;
 
-
-        if(maxVelAAngle < odometry.getAngularVelocity()){
-            maxVelAAngle = odometry.getAngularVelocity();
-        }
-
-       else if(maxAngleAccel < odometry.getAngularAcceleration()){
-            maxAngleAccel = odometry.getAngularAcceleration();
-        }
-
         double maxSpeed = 1;
 
         double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
         double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
         double kP = -0.00;//коеф торможения робота
 
+        if(op.gamepad1.a && op.gamepad1.y && released == 0) {
+            switchable = !switchable;
+            released = 1;}
+
+        if(!op.gamepad1.a && !op.gamepad1.y && released != 0){
+            released = 0;
+        }
+
+        isHeadless = switchable;
+
         double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX * kF;
         double sideVoltage = (targetVelY - velocityY) * kP + targetVelY * kF;
         double angleVoltage = (targetAngleVel - velocityAngle) * kP + targetAngleVel * kFR;
 
-        drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+        if(isHeadless){
+            double k = odometry.getGlobalPosition().heading/Math.toRadians(90);
 
-        messageTelemetry.addData("maxVelAAngle", maxVelAAngle);
-        messageTelemetry.telemetry.addLine();
-        messageTelemetry.addData("maxAngleAccel", maxAngleAccel);
-        messageTelemetry.telemetry.addLine();
-        messageTelemetry.addData("AngleAccel", odometry.getAngularAcceleration());
-        messageTelemetry.addData("AngleVel", odometry.getAngularVelocity());
-        messageTelemetry.addData("Heading", odometry.getGlobalPosition().heading);
-        messageTelemetry.addData("ticks encoder left", odometry.encL.getCurrentPosition());
-        messageTelemetry.addData("ticks encoder right", odometry.encR.getCurrentPosition());
-        messageTelemetry.showMotorsDriveTrainVoltage();
+            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
+            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+            messageTelemetry.addData("k", k);
+            if(k > 0){
+                if(ifForward) {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                } else if (ifSide) {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                }else {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+                }
+            }else if (k < 0){
+                if(ifForward) {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                } else if (ifSide) {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                }else {
+                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+                }
+            }else{
+                drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+            }
+        }else{
+            drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+        }
 
-        //ТЕЛЕМЕТРИЯ
-//        messageTelemetry.setTargetVel(targetVelX, targetVelY, targetAngleVel, "см/сек", "рад/сек");
-//        messageTelemetry.setKoefForDrives(kF, kFR);
-//        messageTelemetry.setTargetVoltage(forwardVoltage, sideVoltage, angleVoltage);
     }
 
     // Gamepad 2

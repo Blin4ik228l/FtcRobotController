@@ -81,4 +81,11 @@ public class MecanumDrivetrain implements Module {
         leftF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
         rightB.setPower(Range.clip((-forward + side - angle ), -1.0, 1.0));
     }
+
+    public void setVelocityTeleOpHeadless(double forward, double side, double angle, double k, double u){
+        rightF.setPower(Range.clip((-forward - side - angle ) * k, -1.0, 1.0));
+        leftB.setPower(Range.clip((forward + side - angle ) * k, -1.0, 1.0));
+        leftF.setPower(Range.clip((forward - side - angle ) * u, -1.0, 1.0));
+        rightB.setPower(Range.clip((-forward + side - angle) * u, -1.0, 1.0));
+    }
 }

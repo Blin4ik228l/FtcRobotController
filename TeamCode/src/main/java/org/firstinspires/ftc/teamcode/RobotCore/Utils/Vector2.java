@@ -98,15 +98,15 @@ public class Vector2 {
     }
 
     public void rotate(double Rad) {
-        x = x*Math.cos(Rad) + y*Math.sin(Rad);
-        y = x*-Math.sin(Rad) + y*Math.cos(Rad);
+        x = x*Math.cos(Rad) - y*Math.sin(Rad);
+        y = x*Math.sin(Rad) + y*Math.cos(Rad);
     }
 
     public static Vector2 rotate(Vector2 vector, double Rad) {
         double x = vector.x;
         double y = vector.y;
-        x = x*Math.cos(Rad) + y*Math.sin(Rad);
-        y = x*-Math.sin(Rad) + y*Math.cos(Rad);
+        x = x * Math.cos(Rad) - y * Math.sin(Rad);
+        y = x * Math.sin(Rad) + y * Math.cos(Rad);
         return new Vector2(x, y);
     }
 

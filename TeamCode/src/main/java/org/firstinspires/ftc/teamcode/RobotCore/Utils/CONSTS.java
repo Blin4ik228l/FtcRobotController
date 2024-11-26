@@ -9,7 +9,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double DIST_BETWEEN_WHEEL_X = 30.16;                                    // расстояние между колесами
     double DIST_TO_ENC_R_FROM_ENC_M = 15.25;                                //
     double DIST_TO_ENC_L_FROM_ENC_M = 15.25;                                //
-    double OFFSET_ENC_M_FROM_CENTER = 1.53;                                 // сдвиг линий энкодеров от середины робота
+    double OFFSET_ENC_M_FROM_CENTER = 0.54;                                 // сдвиг линий энкодеров от середины робота
     double DIAM_CIRCLE_ROBOT = 42.7;                                        // диаметр большей окружности робота(колёс)
     double DIST_BETWEEN_ENC_X = 30.51;                                       // расстояние между энкодерами R и L
     double DIST_FIELD_Y = 302.26;                                           // длина поля

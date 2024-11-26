@@ -21,7 +21,7 @@ public class Odometry extends Thread implements Module {
     public  DcMotorEx encM;                                                // Объекты энкодеров
     public volatile DcMotorEx encL;
     public volatile DcMotorEx encR;
-    private final Position deltaPosition;
+    public final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;
@@ -208,7 +208,7 @@ public class Odometry extends Thread implements Module {
         deltaPosition.setY(deltaY);
 
         // Векторный поворот и добавление глобального перемещения к глобальным координатам
-        globalPosition.add( Vector2.rotate(deltaPosition.toVector(), globalPosition.heading) , deltaPosition.heading );
+        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.heading) , deltaPosition.heading );
 
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
         // к остатку от деления на 2pi (360)

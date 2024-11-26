@@ -16,7 +16,7 @@ public class AutoTest extends LinearOpMode {
     Robot robot;
     Position posForDrive1 = new Position(100, 0 , 0);
     Position posForDrive2 = new Position( 0, 0, Math.toRadians(90));
-    Position posForDrive3 = new Position( 0, 100, Math.toRadians(50));
+    Position posForDrive3 = new Position( 0, 100, 0);
     Position posForDrive4 = new Position( 0, -100, Math.toRadians(70));
 
     public double returnDistance(double VelMax, double assel ){
@@ -85,7 +85,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive3, 150, 3));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 150, 3));
 
             }
         }

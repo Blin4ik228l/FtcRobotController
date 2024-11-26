@@ -118,7 +118,7 @@ public class Robot extends RobotCore implements CONSTS{
     public void teleopPl1() {
         time.milliseconds();
 
-        double velocityAngle = (((odometry.encL.getVelocity() + odometry.encR.getVelocity())/2)/ TICK_PER_CM)/(DIST_BETWEEN_ENC_X/2);//рад/сек
+        double velocityAngle = -(((odometry.encL.getVelocity() + odometry.encR.getVelocity()))/ TICK_PER_CM)/DIST_BETWEEN_ENC_X;//рад/сек
         double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
         double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER));// см/сек
 
@@ -174,7 +174,15 @@ public class Robot extends RobotCore implements CONSTS{
         }else{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
+        messageTelemetry.addData("X", odometry.getGlobalPosition().x);
+        messageTelemetry.addData("Y", odometry.getGlobalPosition().y);
+        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
+        messageTelemetry.addData("encM", odometry.encM.getCurrentPosition());
+        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
+        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
 
+        messageTelemetry.addData("deltaRad", odometry.deltaPosition.heading);
+        messageTelemetry.addData("deltaY", odometry.deltaPosition.y);
     }
 
     // Gamepad 2

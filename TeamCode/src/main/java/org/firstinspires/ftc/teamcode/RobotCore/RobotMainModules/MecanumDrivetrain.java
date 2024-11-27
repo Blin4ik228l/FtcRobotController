@@ -61,6 +61,16 @@ public class MecanumDrivetrain implements Module {
 
     }
 
+    public void setXYHeadVel(double velX, double velY, double heading){
+        // TODO
+        rightF.setPower(Range.clip((velX + velY + heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((velX - velY + heading), -1.0, 1.0));
+
+        leftF.setPower(Range.clip((-velX + velY + heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((-velX - velY + heading), -1.0, 1.0));
+
+    }
+
     public void brakeMotors(){
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }

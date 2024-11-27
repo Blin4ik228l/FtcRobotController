@@ -53,11 +53,12 @@ public class MecanumDrivetrain implements Module {
     // Распределение требуемой скорости и направления движения робота на скорость колес
     public void setVelocity(Vector2 direct, double heading){
         // TODO
-        rightF.setPower(Range.clip((-direct.x - direct.y - heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((-direct.x + direct.y - heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((direct.x - direct.y - heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((direct.x + direct.y - heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((direct.x - direct.y - heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((direct.x + direct.y - heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((-direct.x - direct.y - heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((-direct.x + direct.y - heading), -1.0, 1.0));
+
     }
 
     public void brakeMotors(){

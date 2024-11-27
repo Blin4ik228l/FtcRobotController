@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes.Autonoms;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
@@ -54,28 +55,41 @@ public class AutoTest extends LinearOpMode {
 
         if (linearVel < robot.MIN_LINEAR_SPEED) linearVel = robot.MIN_LINEAR_SPEED; // Ограничиваем скорость снизу
 
+        if(linearVel > args.max_linear_speed) linearVel = args.max_linear_speed;
+
         if(errorHeading > 0.6) { // 0.6 рад = 35 град
             angularVel = args.max_angular_speed;
         } else {
             angularVel = robot.MIN_ANGULAR_SPEED;
+            if(angularVel > args.max_angular_speed) angularVel = args.max_angular_speed;
         }
 
         // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
         double speedPID = robot.pidLinear.calculate(linearVel, robot.odometry.getSpeed());
         double angularPID = robot.pidAngular.calculate(angularVel, robot.odometry.getAngularVelocity());
 
+        robot.messageTelemetry.addData("targetVelX",targetVel.x );
+        robot.messageTelemetry.addData("targetVelY",targetVel.y );
+        robot.messageTelemetry.telemetry.addLine();
+        robot.messageTelemetry.addData("errorPosX",errorPos.x);
+        robot.messageTelemetry.addData("errorPosY",errorPos.y);
+        robot.messageTelemetry.telemetry.addLine();
+        robot.messageTelemetry.showMotorsDriveTrainVoltage();
+//        robot.messageTelemetry.addData("Расстояние до цели", errorPos.length());
+//        robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
+
+        robot.messageTelemetry.telemetry.update();
+
         targetVel.multyplie(speedPID);
 
         if(errorPos.length() < 2 && Math.abs(errorHeading)< Math.toRadians(3) ){
             robot.drivetrain.offMotors();
         }else{
-            robot.drivetrain.setVelocity(targetVel, angularPID);
+//            robot.drivetrain.setVelocity(targetVel, angularPID);
         }
 
-        robot.messageTelemetry.addData("Расстояние до цели", errorPos.length());
-        robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
-        robot.messageTelemetry.telemetry.addLine();
-        robot.messageTelemetry.telemetry.update();
+
+
     }
 
         @Override
@@ -85,7 +99,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 150, 3));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 0, 0));
 
             }
         }

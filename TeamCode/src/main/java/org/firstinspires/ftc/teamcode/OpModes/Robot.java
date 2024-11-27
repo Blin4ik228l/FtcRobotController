@@ -174,6 +174,7 @@ public class Robot extends RobotCore implements CONSTS{
         }else{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
+        messageTelemetry.addData("gamepadY", op.gamepad1.left_stick_y);
         messageTelemetry.addData("X", odometry.getGlobalPosition().x);
         messageTelemetry.addData("Y", odometry.getGlobalPosition().y);
         messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);

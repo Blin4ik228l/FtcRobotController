@@ -35,7 +35,7 @@ public class Robot extends RobotCore implements CONSTS{
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinear = new PID(0.005,0.00000022,0.0000);
-    public final PID pidAngular = new PID(0.08,0,0);
+    public final PID pidAngular = new PID(0.14,0,0);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,16 +174,15 @@ public class Robot extends RobotCore implements CONSTS{
         }else{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
-        messageTelemetry.addData("gamepadY", op.gamepad1.left_stick_y);
-        messageTelemetry.addData("X", odometry.getGlobalPosition().x);
-        messageTelemetry.addData("Y", odometry.getGlobalPosition().y);
-        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
-        messageTelemetry.addData("encM", odometry.encM.getCurrentPosition());
-        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
-        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
 
-        messageTelemetry.addData("deltaRad", odometry.deltaPosition.heading);
-        messageTelemetry.addData("deltaY", odometry.deltaPosition.y);
+        messageTelemetry.addData("vel_linear", odometry.getSpeed());
+        messageTelemetry.addData("vel_accel", odometry.getAcceleration().length());
+        messageTelemetry.telemetry.addLine();
+        messageTelemetry.addData("angle_vel", odometry.getAngularVelocity());
+        messageTelemetry.addData("angle_accel", odometry.getAngularAcceleration());
+        messageTelemetry.telemetry.addLine();
+        messageTelemetry.showMotorsDriveTrainVoltage();
+        messageTelemetry.telemetry.update();
     }
 
     // Gamepad 2

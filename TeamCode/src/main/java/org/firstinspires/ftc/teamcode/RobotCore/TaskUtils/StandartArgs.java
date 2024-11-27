@@ -39,12 +39,12 @@ public class StandartArgs {
         public driveStandartArgs(Position position, double max_linear_speed) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
-            this.max_angular_speed = CONSTS.MAX_RAD_PER_SEC;
+            this.max_angular_speed = CONSTS.MAX_ANGULAR_SPEED;
         }
         public driveStandartArgs(Position position) {
             this.position = position;
-            this.max_linear_speed = CONSTS.MAX_SPEED;
-            this.max_angular_speed = CONSTS.MAX_RAD_SPEED - 2;
+            this.max_linear_speed = CONSTS.MAX_LINEAR_SPEED;
+            this.max_angular_speed = CONSTS.MAX_ANGULAR_SPEED;
         }
         public Position position;
         public double max_linear_speed;

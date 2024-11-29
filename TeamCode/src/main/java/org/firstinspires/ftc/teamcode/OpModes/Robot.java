@@ -35,8 +35,8 @@ public class Robot extends RobotCore implements CONSTS{
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.005,0.00000022,0.0000, -1,1);
-    public final PID pidLinearY = new PID(0.005,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.14,0,0, -1,1);
+    public final PID pidLinearY = new PID(0.0052,0.00000022,0.0000, -1,1);
+    public final PID pidAngular = new PID(0.24,0,0, -1,1);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,14 +176,11 @@ public class Robot extends RobotCore implements CONSTS{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
-        messageTelemetry.addData("vel_linear", odometry.getSpeed());
-        messageTelemetry.addData("vel_accel", odometry.getAcceleration().length());
-        messageTelemetry.telemetry.addLine();
-        messageTelemetry.addData("angle_vel", odometry.getAngularVelocity());
-        messageTelemetry.addData("angle_accel", odometry.getAngularAcceleration());
-        messageTelemetry.telemetry.addLine();
-        messageTelemetry.showMotorsDriveTrainVoltage();
+
+        messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
+        messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
         messageTelemetry.telemetry.update();
+
     }
 
     // Gamepad 2

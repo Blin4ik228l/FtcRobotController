@@ -53,7 +53,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
     double MAX_LINEAR_SPEED = 220;
     double MAX_ANGULAR_SPEED = 6.28;
-    double MAX_LINEAR_ACCEL = 320;
+    double MAX_LINEAR_ACCEL = 500;
     double MAX_ANGULAR_ACCEL = 60;
     double MIN_LINEAR_SPEED = 20;
     double MIN_ANGULAR_SPEED = 2;

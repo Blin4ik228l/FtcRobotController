@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 @Autonomous(name = "Test", group = "Test")
 public class AutoTest extends LinearOpMode {
     Robot robot;
-    Position posForDrive1 = new Position(200, 0 , 0);
+    Position posForDrive1 = new Position(100, 0 , Math.toRadians(75));
     Position posForDrive2 = new Position( 200, 100, Math.toRadians(90));
     Position posForDrive3 = new Position( 0, 100, Math.toRadians(70));
     Position posForDrive4 = new Position( 0, 0,0 );
@@ -50,19 +50,22 @@ public class AutoTest extends LinearOpMode {
             // Направление движения
             Vector2 targetVel = new Vector2(errorPos);
             targetVel.normalize();
-            targetVel.rotate(-robot.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+            targetVel.rotate(robot.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
             // Выбираем скорости в зависимости от величины ошибки
-            if (errorX > returnDistance(args.max_linear_speed, accel)) {
+            if (Math.abs(errorPos.x) > returnDistance(args.max_linear_speed, accel)) {
                 linearVelX = args.max_linear_speed; //Максимально допустимая скорость с args
             } else {
-                linearVelX = returnSpeed(errorX, accel);
+//                linearVelX = returnSpeed(Math.abs(errorPos.x), accel);
+                linearVelX = robot.MIN_LINEAR_SPEED;
             }
 
-            if (errorY > returnDistance(args.max_linear_speed, accel)) {
+
+            if (Math.abs(errorPos.y) > returnDistance(args.max_linear_speed, accel)) {
                 linearVelY = args.max_linear_speed; //Максимально допустимая скорость с args
             } else {
-                linearVelY = returnSpeed(errorY, accel);
+//                linearVelY = returnSpeed(Math.abs(errorPos.y), accel);
+                linearVelY = robot.MIN_LINEAR_SPEED;
             }
 
             if (linearVelX < robot.MIN_LINEAR_SPEED) linearVelX = robot.MIN_LINEAR_SPEED;;// Ограничиваем скорость снизу
@@ -75,7 +78,7 @@ public class AutoTest extends LinearOpMode {
                 linearVelX = 0;
             }
 
-            if(Math.abs(errorHeading)< Math.toRadians(3)){
+            if(Math.abs(errorHeading)< Math.toRadians(1)){
                 errorHeadingDone = true;
                 args.position.heading = 0;
             }
@@ -95,10 +98,11 @@ public class AutoTest extends LinearOpMode {
                 robot.drivetrain.setXYHeadVel(targetVelX, targetVelY, angularPID);
             }
 
+            robot.messageTelemetry.addData("targetVel",targetVel.length());
+            robot.messageTelemetry.addData("targetVelX",targetVel.x);
+            robot.messageTelemetry.addData("targetVelY",targetVel.y);
             robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.addData("returnDistance",returnDistance(args.max_linear_speed, accel));
-            robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.showMotorsDriveTrainVoltage();
+            robot.messageTelemetry.addData("Угол", robot.odometry.getGlobalPosition().getHeading());
             robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
             robot.messageTelemetry.telemetry.update();
         }
@@ -111,10 +115,10 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive3));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive4));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 100, 6));
+//                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2));
+//                driveMethod(new StandartArgs.driveStandartArgs(posForDrive3));
+//                driveMethod(new StandartArgs.driveStandartArgs(posForDrive4));
 
             }
         }

@@ -37,8 +37,7 @@ public class AutoTest extends LinearOpMode {
 
             double accel = robot.MAX_LINEAR_ACCEL;
 
-            double linearVelX; // Линейная скорость робота X
-            double linearVelY;// Линейная скорость робота Y
+            double linearVel; // Линейная скорость робота X
             double angularVel; // Угловая скорость робота
 
             // Находим ошибку положения
@@ -47,55 +46,43 @@ public class AutoTest extends LinearOpMode {
             double errorHeading = args.position.heading - robot.odometry.getGlobalPosition().getHeading();
 
             Vector2 errorPos = new Vector2(errorX,errorY);
+
             // Направление движения
             Vector2 targetVel = new Vector2(errorPos);
             targetVel.normalize();
-            targetVel.rotate(robot.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+            targetVel.rotate(-robot.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
             // Выбираем скорости в зависимости от величины ошибки
-            if (Math.abs(errorPos.x) > returnDistance(args.max_linear_speed, accel)) {
-                linearVelX = args.max_linear_speed; //Максимально допустимая скорость с args
+            if (Math.abs(errorPos.length()) > returnDistance(args.max_linear_speed, accel)) {
+                linearVel = args.max_linear_speed; //Максимально допустимая скорость с args
             } else {
-//                linearVelX = returnSpeed(Math.abs(errorPos.x), accel);
-                linearVelX = robot.MIN_LINEAR_SPEED;
+                linearVel = robot.MIN_LINEAR_SPEED;
             }
 
+            if (linearVel < robot.MIN_LINEAR_SPEED) linearVel = robot.MIN_LINEAR_SPEED;;// Ограничиваем скорость снизу
 
-            if (Math.abs(errorPos.y) > returnDistance(args.max_linear_speed, accel)) {
-                linearVelY = args.max_linear_speed; //Максимально допустимая скорость с args
-            } else {
-//                linearVelY = returnSpeed(Math.abs(errorPos.y), accel);
-                linearVelY = robot.MIN_LINEAR_SPEED;
-            }
-
-            if (linearVelX < robot.MIN_LINEAR_SPEED) linearVelX = robot.MIN_LINEAR_SPEED;;// Ограничиваем скорость снизу
-
-            if (linearVelY < robot.MIN_LINEAR_SPEED) linearVelY = robot.MIN_LINEAR_SPEED; // Ограничиваем скорость снизу
-
-           if(errorPos.length() < 2){
+            if(errorPos.length() < 2){
                 errorPosDone = true;
-                linearVelY = 0;
-                linearVelX = 0;
+                linearVel = 0;
             }
 
-            if(Math.abs(errorHeading)< Math.toRadians(1)){
+            if(Math.abs(errorHeading) < Math.toRadians(1)){
                 errorHeadingDone = true;
                 args.position.heading = 0;
             }
 
-            // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
-            double speedPIDX = robot.pidLinearX.calculate(linearVelX, robot.odometry.getVelocity().x);
-            double speedPIDY = robot.pidLinearY.calculate(linearVelY, robot.odometry.getVelocity().y);
-            double angularPID = robot.pidAngular.calculate(args.position.heading,robot.odometry.getGlobalPosition().getHeading() );
+            targetVel.multyplie(linearVel);
 
-            double targetVelX = targetVel.x * speedPIDX;
-            double targetVelY = targetVel.y * speedPIDY;
+            // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
+            double speedPIDX = robot.pidLinearX.calculate(targetVel.x, robot.odometry.getVelocity().x);
+            double speedPIDY = robot.pidLinearY.calculate(targetVel.y, robot.odometry.getVelocity().y);
+            double angularPID = robot.pidAngular.calculate(args.position.heading,robot.odometry.getGlobalPosition().getHeading() );
 
             if(errorPosDone && errorHeadingDone){
                 robot.drivetrain.offMotors();
                 return;
             }else{
-                robot.drivetrain.setXYHeadVel(targetVelX, targetVelY, angularPID);
+                robot.drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
             robot.messageTelemetry.addData("targetVel",targetVel.length());

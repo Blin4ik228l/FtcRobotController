@@ -53,13 +53,13 @@ public class AutoTest extends LinearOpMode {
             targetVel.rotate(-robot.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
             // Выбираем скорости в зависимости от величины ошибки
-            if (Math.abs(errorPos.length()) > returnDistance(args.max_linear_speed, accel)) {
+            if (errorPos.length() > returnDistance(args.max_linear_speed, accel)) {
                 linearVel = args.max_linear_speed; //Максимально допустимая скорость с args
             } else {
                 linearVel = robot.MIN_LINEAR_SPEED;
             }
 
-            if (linearVel < robot.MIN_LINEAR_SPEED) linearVel = robot.MIN_LINEAR_SPEED;;// Ограничиваем скорость снизу
+            if (linearVel < robot.MIN_LINEAR_SPEED) linearVel = robot.MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
             if(errorPos.length() < 2){
                 errorPosDone = true;
@@ -68,7 +68,6 @@ public class AutoTest extends LinearOpMode {
 
             if(Math.abs(errorHeading) < Math.toRadians(1)){
                 errorHeadingDone = true;
-                args.position.heading = 0;
             }
 
             targetVel.multyplie(linearVel);
@@ -91,6 +90,9 @@ public class AutoTest extends LinearOpMode {
             robot.messageTelemetry.telemetry.addLine();
             robot.messageTelemetry.addData("Угол", robot.odometry.getGlobalPosition().getHeading());
             robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
+            robot.messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
+            robot.messageTelemetry.addData("Оставшийся X", errorX);
+            robot.messageTelemetry.addData("Оставшийся Y", errorY);
             robot.messageTelemetry.telemetry.update();
         }
     }

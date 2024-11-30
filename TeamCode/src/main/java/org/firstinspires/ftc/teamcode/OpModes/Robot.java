@@ -179,6 +179,8 @@ public class Robot extends RobotCore implements CONSTS{
 
         messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
         messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
+        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
+        messageTelemetry.addData("X", op.gamepad1.left_stick_x);
         messageTelemetry.telemetry.update();
 
     }

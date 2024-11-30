@@ -26,7 +26,13 @@ public class Vector2 {
     }
 
     public double length() {
-        if ( (x != 0 || y != 0)) {
+        if (x == 0 & y == 0) {
+            vectorLength = 0;
+        } else if (x == 0) {
+            vectorLength = x;
+        } else if (y == 0) {
+            vectorLength = y;
+        } else {
             vectorLength = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
         }
 
@@ -66,7 +72,7 @@ public class Vector2 {
     }
 
     public void normalize() {
-        double mag = length();//длина вектора
+        double mag = length();
 
         if (mag == 0) {
             return;
@@ -74,7 +80,7 @@ public class Vector2 {
 
         x /= mag;
         y /= mag;
-        vectorLength = length();
+        vectorLength = 1;
     }
 
     public Vector2 minus (Vector2 b){

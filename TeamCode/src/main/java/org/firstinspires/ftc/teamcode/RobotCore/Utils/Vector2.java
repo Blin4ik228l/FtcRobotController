@@ -111,8 +111,8 @@ public class Vector2 {
     }
 
     public static Vector2 rotate(Vector2 vector, double Rad) {
-        double x = vector.x * Math.cos(Rad) - vector.x * Math.sin(Rad);
-        double y = vector.y * Math.sin(Rad) + vector.y * Math.cos(Rad);
+        double x = vector.x * Math.cos(Rad) - vector.y * Math.sin(Rad);
+        double y = vector.x * Math.sin(Rad) + vector.y * Math.cos(Rad);
         return new Vector2(x, y);
     }
 

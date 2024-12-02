@@ -34,11 +34,11 @@ public class Robot extends RobotCore implements CONSTS{
     double released;
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinearX = new PID(0.005,0.00000022,0.0000, -1,1);
-    public final PID pidLinearY = new PID(0.0052,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.24,0,0, -1,1);
+    public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
+    public final PID pidLinearY = new PID(0.025,0.00000022,0.0000, -1,1);
+    public final PID pidAngular = new PID(0.67,0,0, -1,1);
 
-
+double maxSpeedidy = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -69,12 +69,64 @@ public class Robot extends RobotCore implements CONSTS{
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+            int result;
 
+                boolean errorPosDone = false;
+                boolean errorHeadingDone = false;
 
+                double linearVel; // Линейная скорость робота
 
-            telemetry();
+                Vector2 errorPos = new Vector2();
 
-            return 0;
+                // Находим ошибку положения
+                errorPos.x = args.position.getX() - odometry.getGlobalPosition().getX();
+                errorPos.y = args.position.getY() - odometry.getGlobalPosition().getY();
+                double errorHeading = args.position.getHeading() - odometry.getGlobalPosition().getHeading();
+
+                // Направление движения
+                Vector2 targetVel = new Vector2(errorPos);
+                targetVel.normalize();
+                targetVel.rotate(-odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+
+                // Выбираем скорости в зависимости от величины ошибки
+                if (errorPos.length() > returnDistance(args.max_linear_speed, MAX_LINEAR_ACCEL)) {
+                    linearVel = args.max_linear_speed; //Максимально допустимая скорость с args
+                } else {
+                    linearVel = MIN_LINEAR_SPEED;
+                }
+
+                if (linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
+
+                if (errorPos.length() < 2){
+                    errorPosDone = true;
+                    linearVel = 0;
+                }
+
+                if(Math.abs(errorHeading) < Math.toRadians(2)){
+                    errorHeadingDone = true;
+                }
+
+                targetVel.multyplie(linearVel);
+
+                // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
+                double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
+                double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
+                double angularPID = pidAngular.calculate(args.position.heading, odometry.getGlobalPosition().getHeading());
+
+                if(errorPosDone && errorHeadingDone){
+                    result = 0;
+                    drivetrain.offMotors();
+                }else{
+                    result = -1;
+                    drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
+                }
+
+                messageTelemetry.addData("Оставшийся угол", errorHeading);
+                messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
+
+                messageTelemetry.telemetry.update();
+
+            return result;
         }
 
         private double returnDistance(double VelMax, double assel ){
@@ -176,7 +228,11 @@ public class Robot extends RobotCore implements CONSTS{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
+        if(maxSpeedidy < odometry.getSpeed()){
+            maxSpeedidy = odometry.getSpeed();
+        }
 
+        messageTelemetry.addData("Скорость максимальная", maxSpeedidy);
         messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
         messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
         messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);

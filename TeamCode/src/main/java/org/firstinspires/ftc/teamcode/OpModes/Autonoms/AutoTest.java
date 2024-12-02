@@ -20,6 +20,7 @@ public class AutoTest extends LinearOpMode {
     Position posForDrive3 = new Position( 0, 100, Math.toRadians(70));
     Position posForDrive4 = new Position( 0, 0,0 );
 
+
     boolean off;
 
     public double returnDistance(double VelMax, double assel){
@@ -64,7 +65,7 @@ public class AutoTest extends LinearOpMode {
                 linearVel = 0;
             }
 
-            if(Math.abs(errorHeading) < Math.toRadians(1)){
+            if(Math.abs(errorHeading) < Math.toRadians(2)){
                 errorHeadingDone = true;
             }
 
@@ -82,18 +83,11 @@ public class AutoTest extends LinearOpMode {
                 robot.drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
-            robot.messageTelemetry.addData("X", robot.odometry.getGlobalPosition().getX());
-            robot.messageTelemetry.addData("Y", robot.odometry.getGlobalPosition().getY());
-            robot.messageTelemetry.addData("Head", robot.odometry.getGlobalPosition().getHeading());
-            robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.addData("errorX", errorPos.x);
-            robot.messageTelemetry.addData("errorY", errorPos.y);
-            robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.addData("targetVelX",targetVel.x);
-            robot.messageTelemetry.addData("targetVelY",targetVel.y);
             robot.messageTelemetry.telemetry.addLine();
             robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
             robot.messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
+            robot.messageTelemetry.telemetry.addLine();
+            robot.messageTelemetry.showMotorsDriveTrainVoltage();
 
             robot.messageTelemetry.telemetry.update();
         }
@@ -106,7 +100,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 100, 6));
+                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive3));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive4));

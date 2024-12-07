@@ -35,8 +35,8 @@ public class Robot extends RobotCore implements CONSTS{
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidLinearY = new PID(0.025,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.67,0,0, -1,1);
+    public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
+    public final PID pidAngular = new PID(0.93,0.000018,0, -1,1);
 
 double maxSpeedidy = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +95,10 @@ double maxSpeedidy = 0;
                     linearVel = MIN_LINEAR_SPEED;
                 }
 
+                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
+                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
+                }
+
                 if (linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
                 if (errorPos.length() < 2){
@@ -102,7 +106,7 @@ double maxSpeedidy = 0;
                     linearVel = 0;
                 }
 
-                if(Math.abs(errorHeading) < Math.toRadians(2)){
+                if(Math.abs(errorHeading) < Math.toRadians(1.5)){
                     errorHeadingDone = true;
                 }
 
@@ -123,6 +127,8 @@ double maxSpeedidy = 0;
 
                 messageTelemetry.addData("Оставшийся угол", errorHeading);
                 messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
+                messageTelemetry.addData("Оставшийся X", errorPos.x);
+                messageTelemetry.addData("Оставшийся Y", errorPos.y);
 
                 messageTelemetry.telemetry.update();
 
@@ -237,6 +243,8 @@ double maxSpeedidy = 0;
         messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
         messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
         messageTelemetry.addData("X", op.gamepad1.left_stick_x);
+        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
+        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
         messageTelemetry.telemetry.update();
 
     }

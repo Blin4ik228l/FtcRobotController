@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 
 
 public interface CONSTS { // ВСЁ В СМ!!!!
+    double RAZN_ENCODERS = 263254.0/250005.0;
+
     // просто значения(см)
     double DIAM_ENC_WHEEL = 4.8;                                            // диаметр колеса энкодера
     double DIAM_WHEEL = 9.6;                                                // диаметр колеса
@@ -11,10 +13,8 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double DIST_TO_ENC_L_FROM_ENC_M = 15.25;                                //
     double OFFSET_ENC_M_FROM_CENTER = 0.54;                                 // сдвиг линий энкодеров от середины робота
     double DIAM_CIRCLE_ROBOT = 42.7;                                        // диаметр большей окружности робота(колёс)
-    double DIST_BETWEEN_ENC_X = 30.51;                                       // расстояние между энкодерами R и L
-    double DIST_FIELD_Y = 302.26;                                           // длина поля
-    double DIST_FIELD_X = 302.26;                                           // ширина поля
-    double MAX_DIST = 302.26;                                               //
+    double DIST_BETWEEN_ENC_X = 31.59048;                                       // расстояние между энкодерами R и L     // ширина поля
+    double MAX_DIST = 366;                                               //
     double MAX_RAD = CONSTS.LENGTH_ROUND_BIG/(CONSTS.DIAM_CIRCLE_ROBOT/2);  //
     double MAX_TIME_DRIVE = MAX_DIST/CONSTS.MAX_CM_PER_SEC;
     double MAX_TIME_ROUNDING = MAX_RAD/CONSTS.MAX_RAD_PER_SEC;
@@ -24,6 +24,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double LENGTH_ROUND_SMALL = 30.5 * Math.PI;                             // длина меньшей окружности
     double LENGTH_ENC_WHEEL = DIAM_ENC_WHEEL * Math.PI;                     // длина окружности колеса энкодера
     double LENGTH_ROUND_WHEEL = DIAM_WHEEL * Math.PI;                       // длина окружности колеса
+    double ROUND_BARABAN = 119.38;
 
     // ОТНОШЕНИЕ КОЛЁС К ШЕСТЕРЁНКАМ ИЛИ ЭНКОДЕРУ
     double RATIO_WHEEL_ENCODER = DIAM_WHEEL / DIAM_ENC_WHEEL;               // отношение колеса к колесу энкодера
@@ -49,6 +50,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
     double MAX_SPEED = 345;
     double MAX_RAD_SPEED = 6.28;
+    double CM_PER_TICK_BARABAN = TPR_WHEEL/ROUND_BARABAN;
 
     // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
     double MAX_LINEAR_SPEED = 220;

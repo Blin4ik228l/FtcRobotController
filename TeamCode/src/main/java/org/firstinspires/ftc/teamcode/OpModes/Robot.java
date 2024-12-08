@@ -38,7 +38,6 @@ public class Robot extends RobotCore implements CONSTS{
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidAngular = new PID(0.93,0.000018,0, -1,1);
 
-double maxSpeedidy = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -234,11 +233,6 @@ double maxSpeedidy = 0;
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
-        if(maxSpeedidy < odometry.getSpeed()){
-            maxSpeedidy = odometry.getSpeed();
-        }
-
-        messageTelemetry.addData("Скорость максимальная", maxSpeedidy);
         messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
         messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
         messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
@@ -252,10 +246,9 @@ double maxSpeedidy = 0;
     // Gamepad 2
     @Override
     public void teleopPl2() {
-        double upStandingVel = op.gamepad2.right_stick_x;
-        double horizontalVel = op.gamepad2.left_stick_x;//Привести в правильное числовое значения для моторов
+        double upStandingVel = op.gamepad2.right_stick_y;
+        double horizontalPos = op.gamepad2.left_stick_y;
 
-//        teleSkope.setVelHorizontalTeleOp(horizontalVel);//продумать логику о пропорциональном движении телескопов
-//        teleSkope.setVelUpStandingTeleOp(upStandingVel);
+        teleSkope.setTeleskope(upStandingVel, horizontalPos);
     }
 }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Odometry;
@@ -32,6 +33,7 @@ public class Robot extends RobotCore implements CONSTS{
     public double timeAngle, timeVel, oldTime;
     boolean switchable,isHeadless;
     double released;
+    double horizontalPos;
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
@@ -56,6 +58,7 @@ public class Robot extends RobotCore implements CONSTS{
         odometry.init();
         drivetrain.init();
         messageTelemetry.init();
+        teleSkope.init();
     }
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -233,13 +236,13 @@ public class Robot extends RobotCore implements CONSTS{
             drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
-        messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
-        messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
-        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
-        messageTelemetry.addData("X", op.gamepad1.left_stick_x);
-        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
-        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
-        messageTelemetry.telemetry.update();
+//        messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
+//        messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
+//        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
+//        messageTelemetry.addData("X", op.gamepad1.left_stick_x);
+//        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
+//        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
+
 
     }
 
@@ -247,8 +250,26 @@ public class Robot extends RobotCore implements CONSTS{
     @Override
     public void teleopPl2() {
         double upStandingVel = op.gamepad2.right_stick_y;
-        double horizontalPos = op.gamepad2.left_stick_y;
+
+        if(-op.gamepad2.left_stick_y > 0) {
+            horizontalPos = Range.clip(horizontalPos + 0.02,0,1);
+        }
+        else if(-op.gamepad2.left_stick_y < 0){
+            horizontalPos = Range.clip(horizontalPos - 0.02,0,1);
+        }else{
+            horizontalPos += 0;
+        }
+
+
 
         teleSkope.setTeleskope(upStandingVel, horizontalPos);
+
+        messageTelemetry.addData("RIght", teleSkope.getUpStandingRight().getCurrentPosition());
+        messageTelemetry.addData("Left", teleSkope.getUpStandingLeft().getCurrentPosition());
+        messageTelemetry.addData("height", teleSkope.getHeight());
+        messageTelemetry.addData("horizontal", teleSkope.getHorizontal().getPosition());
+        messageTelemetry.addData("horizontalPos", horizontalPos);
+        messageTelemetry.addData("-op.gamepad2.left_stick_y", -op.gamepad2.left_stick_y);
+        messageTelemetry.telemetry.update();
     }
 }

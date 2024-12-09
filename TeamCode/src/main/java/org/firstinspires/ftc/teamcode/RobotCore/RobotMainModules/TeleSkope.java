@@ -22,8 +22,11 @@ public class TeleSkope implements Module{
     }
     @Override
     public void init() {
-        upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStanding");
-        upStandingRight = op.hardwareMap.get(DcMotorEx.class, "horizontal");
+        upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStandingLeft");
+        upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
+        horizontal = op.hardwareMap.get(Servo.class, "horizontal");
+
+        horizontal.setPosition(0.05);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
@@ -47,8 +50,20 @@ public class TeleSkope implements Module{
         upStandingRight.setPower(0);
     }
 
+    public DcMotor getUpStandingLeft() {
+        return upStandingLeft;
+    }
+
+    public DcMotor getUpStandingRight() {
+        return upStandingRight;
+    }
+
     public double getHeight(){
         return height;
+    }
+
+    public Servo getHorizontal() {
+        return horizontal;
     }
 
     public void calculateHeight(){
@@ -56,17 +71,15 @@ public class TeleSkope implements Module{
     }
 
     public void setTeleskope(double vel, double Pos){
-        double DEAD_ZONE_HEIGHT = 123;
+        double DEAD_ZONE_HEIGHT = 121;
         double DEAD_ZONE_LENGHT = 75;
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
         double DEGREES_TO_LENGHT = 90;//Градусов до полного разложения
 
-        double toDeadZone = DEAD_ZONE_HEIGHT - (DEAD_ZONE_HEIGHT - height);
+        double toDeadZone =  (DEAD_ZONE_HEIGHT - height);
         double P = DEGREES_TO_LENGHT/DEAD_ZONE_HEIGHT;
 
-//        if(vel == 0 && Pos == 0){
-//            return;
-//        }
+
 
         double oldHEIGHT = height;
         calculateHeight();
@@ -75,7 +88,7 @@ public class TeleSkope implements Module{
 
         if(height > PROPRTIONAL_HEIGHT){
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp((toDeadZone * P)/360.0);
+            setVelHorizontalTeleOp((toDeadZone * P)/270.0);
         }else{
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp(Pos);
@@ -93,9 +106,6 @@ public class TeleSkope implements Module{
     }
 
     public void setVelHorizontalTeleOp(double Pos){
-        if(Pos == 0 ){
-            return;
-        }
         horizontal.setPosition(Pos);
     }
 

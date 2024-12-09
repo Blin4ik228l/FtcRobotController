@@ -24,7 +24,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double LENGTH_ROUND_SMALL = 30.5 * Math.PI;                             // длина меньшей окружности
     double LENGTH_ENC_WHEEL = DIAM_ENC_WHEEL * Math.PI;                     // длина окружности колеса энкодера
     double LENGTH_ROUND_WHEEL = DIAM_WHEEL * Math.PI;                       // длина окружности колеса
-    double ROUND_BARABAN = 119.38;
+    double ROUND_BARABAN = 11.6;
 
     // ОТНОШЕНИЕ КОЛЁС К ШЕСТЕРЁНКАМ ИЛИ ЭНКОДЕРУ
     double RATIO_WHEEL_ENCODER = DIAM_WHEEL / DIAM_ENC_WHEEL;               // отношение колеса к колесу энкодера

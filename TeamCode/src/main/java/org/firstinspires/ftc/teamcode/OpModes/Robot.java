@@ -1,15 +1,21 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Odometry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.TeleSkope;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.MessageTelemetry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDisplayer;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataObject;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.JoystickStatement;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
@@ -27,13 +33,14 @@ public class Robot extends RobotCore implements CONSTS{
     public final Odometry odometry; // Система вычислений одометрии
     public final MecanumDrivetrain drivetrain; // Телега робота
     public final TeleSkope teleSkope;
+    public final Metry metry;
+    public final Joysticks joysticks;
+    public final DataDisplayer dataDisplayer;
 
-    public final MessageTelemetry messageTelemetry;
-    public final ElapsedTime time = new ElapsedTime();
-    public double timeAngle, timeVel, oldTime;
-    boolean switchable,isHeadless;
-    double released;
-    double horizontalPos;
+    boolean switchableH,isHeadless, isCruise, switchableC;
+    double releasedH, releasedC;
+    double horizontalPos, forwardC, sideC;
+
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
@@ -45,19 +52,20 @@ public class Robot extends RobotCore implements CONSTS{
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
         super(robotMode, robotAlliance, op);
 
+        metry = new Metry(op);
+        joysticks = new Joysticks(op);
         odometry = new Odometry(op);
         drivetrain = new MecanumDrivetrain(op);
         teleSkope = new TeleSkope(op);
 
-        messageTelemetry = new MessageTelemetry(op,this);
-
+        dataDisplayer = new DataDisplayer(this);
     }
     @Override
     // Метод инициализации того, чего надо
     public void init() {
         odometry.init();
         drivetrain.init();
-        messageTelemetry.init();
+        dataDisplayer.init();
         teleSkope.init();
     }
 
@@ -117,7 +125,7 @@ public class Robot extends RobotCore implements CONSTS{
                 // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
                 double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
                 double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
-                double angularPID = pidAngular.calculate(args.position.heading, odometry.getGlobalPosition().getHeading());
+                double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
 
                 if(errorPosDone && errorHeadingDone){
                     result = 0;
@@ -127,12 +135,12 @@ public class Robot extends RobotCore implements CONSTS{
                     drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
                 }
 
-                messageTelemetry.addData("Оставшийся угол", errorHeading);
-                messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
-                messageTelemetry.addData("Оставшийся X", errorPos.x);
-                messageTelemetry.addData("Оставшийся Y", errorPos.y);
+                dataDisplayer.addData("Оставшийся угол", errorHeading);
+                dataDisplayer.addData("Оставшийся расстояние", errorPos.length());
+                dataDisplayer.addData("Оставшийся X", errorPos.x);
+                dataDisplayer.addData("Оставшийся Y", errorPos.y);
 
-                messageTelemetry.telemetry.update();
+                dataDisplayer.update();
 
             return result;
         }
@@ -168,24 +176,24 @@ public class Robot extends RobotCore implements CONSTS{
 
     public void telemetry(){
         if(robotMode == RobotMode.TELEOP){
-            messageTelemetry.dataForTeleOp();
+            dataDisplayer.dataForTeleOp();
         }else if(robotMode == RobotMode.AUTO){
-            messageTelemetry.dataForAuto();
+            dataDisplayer.dataForAuto();
         }
     }
 
     // Gamepad 1
     @Override
     public void teleopPl1() {
-        time.milliseconds();
+        Gamepad g1 = joysticks.getGamepad1();
 
-        double velocityAngle = -(((odometry.encL.getVelocity() + odometry.encR.getVelocity()))/ TICK_PER_CM)/DIST_BETWEEN_ENC_X;//рад/сек
-        double velocityX = (((odometry.encL.getVelocity() - odometry.encR.getVelocity())/2)/TICK_PER_CM);// см/сек
-        double velocityY = (odometry.encM.getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER));// см/сек
+        double velocityAngle = -(((odometry.getEncL().getVelocity() + odometry.getEncR().getVelocity()))/ TICK_PER_CM)/DIST_BETWEEN_ENC_X;//рад/сек
+        double velocityX = (((odometry.getEncL().getVelocity() - odometry.getEncR().getVelocity())/2)/TICK_PER_CM);// см/сек
+        double velocityY = (odometry.getEncM().getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER));// см/сек
 
-        double targetVelX = op.gamepad1.left_stick_y * MAX_CM_PER_SEC;
-        double targetVelY = op.gamepad1.left_stick_x * MAX_CM_PER_SEC;
-        double targetAngleVel = op.gamepad1.right_stick_x * MAX_RAD_PER_SEC;
+        double targetVelX = -g1.left_stick_y * MAX_CM_PER_SEC;
+        double targetVelY = g1.left_stick_x * MAX_CM_PER_SEC;
+        double targetAngleVel = g1.right_stick_x * MAX_RAD_PER_SEC;
 
         double maxSpeed = 1;
 
@@ -193,83 +201,87 @@ public class Robot extends RobotCore implements CONSTS{
         double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
         double kP = -0.00;//коеф торможения робота
 
-        if(op.gamepad1.a && op.gamepad1.y && released == 0) {
-            switchable = !switchable;
-            released = 1;}
+        if(g1.a && g1.y && releasedH == 0) {
+            switchableH = !switchableH;
+            releasedH = 1;}
 
-        if(!op.gamepad1.a && !op.gamepad1.y && released != 0){
-            released = 0;
+        if(!g1.a && !g1.y && releasedH != 0){
+            releasedH = 0;
         }
 
-        isHeadless = switchable;
+        if(g1.x && g1.y && releasedC == 0) {
+            switchableC = !switchableC;
+            releasedC = 1;}
+
+        if(!g1.x && !g1.y && releasedC != 0){
+            releasedC = 0;
+        }
+
+        isHeadless = switchableH;
+
+        isCruise = switchableC;
 
         double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX * kF;
         double sideVoltage = (targetVelY - velocityY) * kP + targetVelY * kF;
         double angleVoltage = (targetAngleVel - velocityAngle) * kP + targetAngleVel * kFR;
 
         if(isHeadless){
-            double k = odometry.getGlobalPosition().heading/Math.toRadians(90);
+            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
 
             boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
             boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
-            messageTelemetry.addData("k", k);
+
+            dataDisplayer.addData("k", k);
+
             if(k > 0){
                 if(ifForward) {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
                 } else if (ifSide) {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
                 }else {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
                 }
             }else if (k < 0){
                 if(ifForward) {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
                 } else if (ifSide) {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
                 }else {
-                    drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
                 }
             }else{
-                drivetrain.setVelocityTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
             }
-        }else{
-            drivetrain.setVelocityTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
-//        messageTelemetry.addData("GY", odometry.getGlobalPosition().y);
-//        messageTelemetry.addData("GX", odometry.getGlobalPosition().x);
-//        messageTelemetry.addData("heading", odometry.getGlobalPosition().heading);
-//        messageTelemetry.addData("X", op.gamepad1.left_stick_x);
-//        messageTelemetry.addData("encL", odometry.encL.getCurrentPosition());
-//        messageTelemetry.addData("encR", odometry.encR.getCurrentPosition());
+        if(isCruise){
+            forwardC = Range.clip(forwardC + (-g1.left_stick_y/4.0), -0.4, 0.4);
+            sideC = Range.clip(sideC + (g1.right_stick_y/4.0), -0.4, 0.4);
 
+            drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
+        }else {
+            drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+        }
 
     }
 
     // Gamepad 2
     @Override
     public void teleopPl2() {
-        double upStandingVel = op.gamepad2.right_stick_y;
+        Gamepad g2 = joysticks.getGamepad2();
 
-        if(-op.gamepad2.left_stick_y > 0) {
-            horizontalPos = Range.clip(horizontalPos + 0.02,0,1);
-        }
-        else if(-op.gamepad2.left_stick_y < 0){
-            horizontalPos = Range.clip(horizontalPos - 0.02,0,1);
-        }else{
-            horizontalPos += 0;
-        }
+        double upStandingVel = -g2.right_stick_y;
 
-
+        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/4.5),0,1);
 
         teleSkope.setTeleskope(upStandingVel, horizontalPos);
 
-        messageTelemetry.addData("RIght", teleSkope.getUpStandingRight().getCurrentPosition());
-        messageTelemetry.addData("Left", teleSkope.getUpStandingLeft().getCurrentPosition());
-        messageTelemetry.addData("height", teleSkope.getHeight());
-        messageTelemetry.addData("horizontal", teleSkope.getHorizontal().getPosition());
-        messageTelemetry.addData("horizontalPos", horizontalPos);
-        messageTelemetry.addData("-op.gamepad2.left_stick_y", -op.gamepad2.left_stick_y);
-        messageTelemetry.telemetry.update();
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+
+        dataDisplayer.addData("horizontalPos", horizontalPos);
+        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
     }
 }

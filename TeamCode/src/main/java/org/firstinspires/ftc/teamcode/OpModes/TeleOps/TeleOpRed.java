@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @TeleOp(name = "RedMeow", group = "Red")
@@ -21,7 +19,7 @@ public class TeleOpRed extends OpMode {
     public void init() {
         robot = new Robot(RobotMode.TELEOP, RobotAlliance.RED, this);
 
-        robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().x,robot.odometry.getGlobalPosition().y,robot.odometry.getGlobalPosition().heading));
+        robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().getX(),robot.odometry.getGlobalPosition().getY(),robot.odometry.getGlobalPosition().getHeading()));
         robot.init();
     }
 
@@ -47,6 +45,9 @@ public class TeleOpRed extends OpMode {
     public void loop() {
         robot.teleopPl1();
         robot.teleopPl2();
+
+        robot.telemetry();
+        robot.dataDisplayer.update();
     }
 
     /**

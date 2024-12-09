@@ -5,10 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
@@ -74,7 +76,7 @@ public class AutoTest extends LinearOpMode {
             // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
             double speedPIDX = robot.pidLinearX.calculate(targetVel.x, robot.odometry.getVelocity().x);
             double speedPIDY = robot.pidLinearY.calculate(targetVel.y, robot.odometry.getVelocity().y);
-            double angularPID = robot.pidAngular.calculate(args.position.heading, robot.odometry.getGlobalPosition().getHeading());
+            double angularPID = robot.pidAngular.calculate(args.position.getHeading(), robot.odometry.getGlobalPosition().getHeading());
 
             if(errorPosDone && errorHeadingDone){
                 robot.drivetrain.offMotors();
@@ -83,13 +85,13 @@ public class AutoTest extends LinearOpMode {
                 robot.drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
-            robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.addData("Оставшийся угол", errorHeading);
-            robot.messageTelemetry.addData("Оставшийся расстояние", errorPos.length());
-            robot.messageTelemetry.telemetry.addLine();
-            robot.messageTelemetry.showMotorsDriveTrainVoltage();
+            robot.dataDisplayer.addLine();
+            robot.dataDisplayer.addData("Оставшийся угол", errorHeading);
+            robot.dataDisplayer.addData("Оставшийся расстояние", errorPos.length());
+            robot.dataDisplayer.addLine();
+            robot.dataDisplayer.showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
 
-            robot.messageTelemetry.telemetry.update();
+            robot.dataDisplayer.update();
         }
     }
 

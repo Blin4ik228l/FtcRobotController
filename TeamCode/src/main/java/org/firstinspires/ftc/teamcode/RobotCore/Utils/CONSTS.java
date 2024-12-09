@@ -50,7 +50,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
     double MAX_SPEED = 345;
     double MAX_RAD_SPEED = 6.28;
-    double CM_PER_TICK_BARABAN = TPR_WHEEL/ROUND_BARABAN;
+    double TICK_PER_CM_BARABAN = TPR_WHEEL/ROUND_BARABAN;
 
     // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
     double MAX_LINEAR_SPEED = 220;

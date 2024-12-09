@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.RobotCore.Utils;
 
-// Класс для работы с матрицами
 public class Vector2 {
     public double x;
     public double y;

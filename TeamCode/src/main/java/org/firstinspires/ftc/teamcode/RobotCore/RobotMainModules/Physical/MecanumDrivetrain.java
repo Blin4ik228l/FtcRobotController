@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
 public class MecanumDrivetrain implements Module {
@@ -51,23 +52,23 @@ public class MecanumDrivetrain implements Module {
     }
 
     // Распределение требуемой скорости и направления движения робота на скорость колес
-    public void setVelocity(Vector2 direct, double heading){
+    public void setPower(Vector2 power, double heading){
         // TODO
-        rightF.setPower(Range.clip((direct.x + direct.y + heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((direct.x - direct.y + heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((power.x + power.y + heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((power.x - power.y + heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((-direct.x + direct.y + heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((-direct.x - direct.y + heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((-power.x + power.y + heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((-power.x - power.y + heading), -1.0, 1.0));
 
     }
 
-    public void setXYHeadVel(double velX, double velY, double heading){
+    public void setXYHeadVel(double powerX, double PowerY, double heading){
         // TODO
-        rightF.setPower(Range.clip((velX + velY + heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((velX - velY + heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((-velX + velY + heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((-velX - velY + heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((-powerX + PowerY + heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((-powerX - PowerY + heading), -1.0, 1.0));
 
     }
 
@@ -86,17 +87,17 @@ public class MecanumDrivetrain implements Module {
         rightB.setPower(0);
     }
 
-    public void setVelocityTeleOp(double forward, double side, double angle){
-        rightF.setPower(Range.clip((-forward - side - angle ), -1.0, 1.0));
-        leftB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
-        leftF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
-        rightB.setPower(Range.clip((-forward + side - angle ), -1.0, 1.0));
+    public void setPowerTeleOp(double forward, double side, double angle){
+        rightF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
+        leftB.setPower(Range.clip((-forward + side - angle ), -1.0, 1.0));
+        leftF.setPower(Range.clip((-forward - side - angle ), -1.0, 1.0));
+        rightB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
     }
 
-    public void setVelocityTeleOpHeadless(double forward, double side, double angle, double k, double u){
-        rightF.setPower(Range.clip((-forward - side - angle ) * k, -1.0, 1.0));
-        leftB.setPower(Range.clip((forward + side - angle ) * k, -1.0, 1.0));
-        leftF.setPower(Range.clip((forward - side - angle ) * u, -1.0, 1.0));
-        rightB.setPower(Range.clip((-forward + side - angle) * u, -1.0, 1.0));
+    public void setPowerTeleOpHeadless(double forward, double side, double angle, double k, double u){
+        rightF.setPower(Range.clip((forward - side - angle ) * k, -1.0, 1.0));
+        leftB.setPower(Range.clip((-forward + side - angle ) * k, -1.0, 1.0));
+        leftF.setPower(Range.clip((-forward - side - angle ) * u, -1.0, 1.0));
+        rightB.setPower(Range.clip((forward + side - angle) * u, -1.0, 1.0));
     }
 }

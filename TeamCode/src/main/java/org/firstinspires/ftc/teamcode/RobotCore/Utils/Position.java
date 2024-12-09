@@ -5,9 +5,9 @@ import androidx.annotation.NonNull;
 
 public class Position {
 
-    public double x;
-    public double y;
-    public double heading;
+    private double x;
+    private double y;
+    private double heading;
 
     public Position(double x ,double y, double heading){
         this.x = x;

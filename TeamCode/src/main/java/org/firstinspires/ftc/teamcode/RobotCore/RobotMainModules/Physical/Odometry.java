@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
@@ -14,14 +15,14 @@ public class Odometry extends Thread implements Module {
     private final OpMode op;
 
     private final ElapsedTime runtime;                                          // Пройденное время
-    private double[] oldTime;                                                     // Предыдущее время
-    public double[] dt;                                                          // Разница во времени
+    private final double[] oldTime;                                                     // Предыдущее время
+    private final double[] dt;                                                          // Разница во времени
     private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
-    private volatile double angularVelocity, angularAcceleration, oldAngularVelocity;
-    public  DcMotorEx encM;                                                // Объекты энкодеров
-    public volatile DcMotorEx encL;
-    public volatile DcMotorEx encR;
-    public final Position deltaPosition;
+    private double angularVelocity, angularAcceleration, oldAngularVelocity;
+    private DcMotorEx encM;                                                // Объекты энкодеров
+    private DcMotorEx encL;
+    private DcMotorEx encR;
+    private final Position deltaPosition;
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;
@@ -81,27 +82,21 @@ public class Odometry extends Thread implements Module {
             updateAngularVelocity();
         }
     }
-    // Тики энкодера в сантиметры
-    public synchronized double ticksToCm(double ticks){
-        return ticks / CONSTS.TICK_PER_CM;
+
+    public synchronized DcMotorEx getEncL() {
+        return encL;
     }
 
-    public synchronized void setGlobalPosition(Position position) {
-        globalPosition.x = position.x;
-        globalPosition.y = position.y;
-        globalPosition.heading = position.heading;
+    public synchronized DcMotorEx getEncM() {
+        return encM;
     }
 
-    private synchronized void updateMaxAcceleration(){
-        if(Math.abs(acceleration.length()) > Math.abs(maxAcceleration)){
-            maxAcceleration = acceleration.length();
-        }
+    public synchronized DcMotorEx getEncR() {
+        return encR;
     }
 
-    private synchronized void updateMaxVel(){
-        if(Math.abs(velocity.length()) > Math.abs(maxVel)){
-            maxVel = velocity.length();
-        }
+    public synchronized double[] getDt() {
+        return dt;
     }
 
     public synchronized double getMaxVel(){
@@ -109,7 +104,7 @@ public class Odometry extends Thread implements Module {
     }
 
     public synchronized double getMaxAcceleration(){
-       return maxAcceleration;
+        return maxAcceleration;
     }
 
     // Геттер глобального положения робота
@@ -138,6 +133,34 @@ public class Odometry extends Thread implements Module {
     public synchronized double getSpeed(){
         return velocity.length();
     }
+
+    // Тики энкодера в сантиметры
+    public synchronized double ticksToCm(double ticks){
+        return ticks / CONSTS.TICK_PER_CM;
+    }
+
+    public synchronized double cmToTicks(double cm){
+        return cm * CONSTS.TICK_PER_CM;
+    }
+
+    public synchronized void setGlobalPosition(Position position) {
+        globalPosition.setX(position.getX());
+        globalPosition.setY(position.getY());
+        globalPosition.setY(position.getHeading());
+    }
+
+    private synchronized void updateMaxAcceleration(){
+        if(Math.abs(acceleration.length()) > Math.abs(maxAcceleration)){
+            maxAcceleration = acceleration.length();
+        }
+    }
+
+    private synchronized void updateMaxVel(){
+        if(Math.abs(velocity.length()) > Math.abs(maxVel)){
+            maxVel = velocity.length();
+        }
+    }
+
     // Обновление вектора скорости робота
     private synchronized void updateVelocity(){
         dt[0] = (runtime.milliseconds() - oldTime[0])/1000.0;
@@ -167,7 +190,7 @@ public class Odometry extends Thread implements Module {
         oldTime[3] = runtime.milliseconds();
 
         oldAngularVelocity = angularVelocity;
-        angularVelocity = deltaPosition.heading/dt[3];
+        angularVelocity = deltaPosition.getHeading()/dt[3];
     }
 
     // Обновление вектора ускорения робота
@@ -208,7 +231,7 @@ public class Odometry extends Thread implements Module {
         deltaPosition.setY(deltaY);
 
         // Векторный поворот и добавление глобального перемещения к глобальным координатам
-        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.heading) , deltaPosition.heading );
+        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.getHeading()) , deltaPosition.getHeading() );
 
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
         // к остатку от деления на 2pi (360)

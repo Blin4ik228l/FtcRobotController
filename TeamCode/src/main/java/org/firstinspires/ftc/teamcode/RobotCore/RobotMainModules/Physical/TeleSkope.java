@@ -28,7 +28,13 @@ public class TeleSkope implements Module {
         upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
         horizontal = op.hardwareMap.get(Servo.class, "horizontal");
 
-        horizontal.setPosition(0.05);
+        upStandingLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        upStandingRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        upStandingLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        upStandingRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        horizontal.setPosition(0.475);
         brakeMotors();
     }
 
@@ -81,11 +87,11 @@ public class TeleSkope implements Module {
         height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition())/2.0);
     }
 
-    public void setTeleskope(double vel, double Pos){
+    public void setTeleskope(double vel, double Pos, boolean isProp){
         double DEAD_ZONE_HEIGHT = 121;
         double DEAD_ZONE_LENGHT = 75;
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
-        double DEGREES_TO_LENGHT = 76.5;//Градусов до полного разложения
+        double DEGREES_TO_LENGHT = 1633.5;//Градусов до полного разложения
 
         double toDeadZone =  (DEAD_ZONE_HEIGHT - height);
         double P = DEGREES_TO_LENGHT/DEAD_ZONE_HEIGHT;
@@ -95,7 +101,7 @@ public class TeleSkope implements Module {
 
         double deltaHEIGHT = oldHEIGHT - height;
 
-        if(height > PROPRTIONAL_HEIGHT){
+        if((height > PROPRTIONAL_HEIGHT && isProp) ){
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp((toDeadZone * P)/270.0);
         }else{

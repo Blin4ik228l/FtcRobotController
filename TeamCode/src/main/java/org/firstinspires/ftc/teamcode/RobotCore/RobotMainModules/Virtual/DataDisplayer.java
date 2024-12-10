@@ -64,26 +64,30 @@ public class DataDisplayer implements Module {
             case displayCurPosition:
                 switch (filter) {
                     case CM:
+                        addLine();
                         switch (object) {
                             case ENCL:
-                                addData(object.name(), odometry.ticksToCm(odometry.getEncL().getCurrentPosition()));
+                                addData(DataObject.ENCL.name(), odometry.ticksToCm(odometry.getEncL().getCurrentPosition()));
                                 break;
                             case ENCR:
-                                addData(object.name(), odometry.ticksToCm(odometry.getEncR().getCurrentPosition()));
+                                addData(DataObject.ENCR.name(), odometry.ticksToCm(odometry.getEncR().getCurrentPosition()));
                                 break;
                             case ENCM:
-                                addData(object.name(), odometry.ticksToCm(odometry.getEncM().getCurrentPosition()));
+                                addData(object.toString(), odometry.ticksToCm(odometry.getEncM().getCurrentPosition()));
                                 break;
                             case UPSTANDINGLEFT:
-                                addData(object.name() + filter.name(), teleSkope.ticksToCM(teleSkope.getUpStandingLeft().getCurrentPosition()));
+                                addData(object.toString() + filter.toString(), teleSkope.ticksToCM(teleSkope.getUpStandingLeft().getCurrentPosition()));
                                 break;
                             case UPSTANDINGRIGHT:
-                                addData(object.name() + filter.name(), teleSkope.ticksToCM(teleSkope.getUpStandingRight().getCurrentPosition()));
+                                addData(object.toString() + filter.toString(), teleSkope.ticksToCM(teleSkope.getUpStandingRight().getCurrentPosition()));
+                                break;
                             default:
-                                addData(object.name(), "Not exist");
+                                addData(object.toString(), "Not exist");
                                 break;
                         }
+                        break;
                     case TICKS:
+                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.getEncL().getCurrentPosition());
@@ -99,14 +103,21 @@ public class DataDisplayer implements Module {
                                 break;
                             case UPSTANDINGRIGHT:
                                 addData(object.name() + filter.name(), teleSkope.getUpStandingRight().getCurrentPosition());
+                                break;
                             default:
                                 addData(object.name(), "Not exist");
                                 break;
                         }
+                        break;
+                    default:
+                        addData(filter.name(), "No such filter exist");
+                        break;
                 }
+                break;
             case displayCurVelocity:
                 switch (filter) {
                     case CM:
+                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.ticksToCm(odometry.getEncL().getVelocity()));
@@ -118,10 +129,12 @@ public class DataDisplayer implements Module {
                                 addData(object.name(), odometry.ticksToCm(odometry.getEncM().getVelocity()));
                                 break;
                             default:
-                                addData(object.name(), "Not exist");
+                                addData(object.name(), "This object not exist");
                                 break;
                         }
+                        break;
                     case TICKS:
+                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.getEncL().getVelocity());
@@ -133,13 +146,19 @@ public class DataDisplayer implements Module {
                                 addData(object.name(), odometry.getEncM().getVelocity());
                                 break;
                             default:
-                                addData(object.name(), "Not exist");
+                                addData(object.name(), "This object not exist");
                                 break;
                         }
+                        break;
+                    default:
+                        addData( filter.name(), "No such filter exist");
+                        break;
                 }
+                break;
             case displayCurPower:
                 switch (filter) {
                     case POWER:
+                        addLine();
                         switch (object) {
                             case LEFTB:
                                 addData(object.name(), mecanumDrivetrain.leftB.getPower());
@@ -160,26 +179,35 @@ public class DataDisplayer implements Module {
                                 addData(object.name(), teleSkope.getUpStandingRight().getPower());
                                 break;
                             default:
-                                addData(object.name(), "Not exist");
+                                addData(object.name(), "This object not exist");
                                 break;
                         }
+                        break;
+                    default:
+                        addData(filter.name(), "Filter not exist");
                 }
+                break;
             case displayOtherPosition:
                 switch (filter) {
                     case POSITION:
+                        addLine();
                         switch (object) {
                             case HORIZONTAL:
                                 addData(object.name(), teleSkope.getHorizontal().getPosition());
                                 break;
                             default:
-                                addData(object.name(), "Not exist");
+                                addData(object.name(), "Object not exist");
                                 break;
                         }
+                        break;
+                    default:
+                        addData(filter.name(), "Filter not exist");
+                        break;
                 }
-            default:
-                addData(object.name(), "No such target data exist");
                 break;
-
+            default:
+                addData(target.name(), "No such target data exist");
+                break;
         }
     }
 
@@ -192,25 +220,29 @@ public class DataDisplayer implements Module {
                         showValue(target, DataObject.LEFTF,  filter);
                         showValue(target, DataObject.RIGHTB, filter);
                         showValue(target, DataObject.RIGHTF, filter);
+                        break;
                     default:
-                        addData(target.name(), "No such target exist");
+                        addData(group.name() + target.name(), "No such target exist");
                         break;
                 }
-
+                break;
             case ODOMETRY:
                 switch (target){
-                    case displayCurPosition:
+                    case displayCurHeightTeleskope:
                         showValue(target, DataObject.ENCL, filter);
                         showValue(target, DataObject.ENCR, filter);
                         showValue(target, DataObject.ENCM, filter);
+                        break;
                     case displayCurVelocity:
                         showValue(target, DataObject.ENCL, filter);
                         showValue(target, DataObject.ENCR, filter);
                         showValue(target, DataObject.ENCM, filter);
+                        break;
                     default:
-                        addData(target.name(), "No such target exist");
+                        addData(group.name() + target.name(), "No such target exist");
                         break;
                 }
+                break;
 
             case TELESKOPE:
                 switch (target){
@@ -220,19 +252,21 @@ public class DataDisplayer implements Module {
                                 addLine("Height Teleskope (cm)");
                                 addData("Height in CM", teleSkope.getHeight());
                                 addLine();
+                                break;
                             case TICKS:
                                 addLine("Height Teleskope (ticks)");
                                 addData("Height in Ticks", teleSkope.cmToTicks(teleSkope.getHeight()));
                                 addLine();
+                                break;
                             default:
-                                addData(filter.toString(), "No such filter exist");
+                                addData(group.name() + " " + filter.name(), "No such filter exist");
                                 break;
                         }
-                    default:
-                        addData(target.name(), "No such target exist");
                         break;
+                    default:
+                        addData(group.name() + " " + target.name(), "Not such target in this group");
                 }
-
+                break;
             case ROBOT:
                 switch (target){
                     case displayCurPosOnField:
@@ -243,17 +277,19 @@ public class DataDisplayer implements Module {
                                 addData("GY:", odometry.getGlobalPosition().getY());
                                 addData("GHeading:", odometry.getGlobalPosition().getHeading());
                                 addLine();
+                                break;
                             case TICKS:
                                 addLine("Robot Global Position (ticks)");
                                 addData("GX:", odometry.cmToTicks(odometry.getGlobalPosition().getX()));
                                 addData("GY:", odometry.cmToTicks(odometry.getGlobalPosition().getY()));
                                 addData("GHeading:", odometry.getGlobalPosition().getHeading());
                                 addLine();
+                                break;
                             default:
                                 addData(filter.toString(), "No such filter exist");
                                 break;
                         }
-
+                        break;
                     case displayCurVelocity:
                         switch (filter) {
                             case TICKS:
@@ -262,39 +298,45 @@ public class DataDisplayer implements Module {
                                 addData("VelY:", odometry.cmToTicks(odometry.getVelocity().y));
                                 addData("VelX:", odometry.cmToTicks(odometry.getVelocity().x));
                                 addLine();
+                                break;
                             case CM:
                                 addLine("Robot Velocity (cm)");
                                 addData("Velocity:", odometry.getSpeed());
                                 addData("VelY:", odometry.getVelocity().y);
                                 addData("VelX:", odometry.getVelocity().x);
                                 addLine();
+                                break;
                             default:
                                 addData(filter.toString(), "No such filter exist");
                                 break;
                         }
+                        break;
                     case displayCurAcceleration:
                         switch (filter) {
                             case TICKS:
                                 addLine("Robot Acceleration (ticks)");
-                                addData("Velocity:", odometry.cmToTicks(odometry.getAcceleration().length()));
-                                addData("VelY:", odometry.cmToTicks(odometry.getAcceleration().y));
-                                addData("VelX:", odometry.cmToTicks(odometry.getAcceleration().x));
+                                addData("Acceleration:", odometry.cmToTicks(odometry.getAcceleration().length()));
+                                addData("AccelerationY:", odometry.cmToTicks(odometry.getAcceleration().y));
+                                addData("AccelerationY:", odometry.cmToTicks(odometry.getAcceleration().x));
                                 addLine();
+                                break;
                             case CM:
                                 addLine("Robot Acceleration (cm)");
-                                addData("Velocity:", odometry.getAcceleration().length());
-                                addData("VelY:", odometry.getAcceleration().y);
-                                addData("VelX:", odometry.getAcceleration().x);
+                                addData("Acceleration:", odometry.getAcceleration().length());
+                                addData("AccelerationY:", odometry.getAcceleration().y);
+                                addData("AccelerationX:", odometry.getAcceleration().x);
                                 addLine();
+                                break;
                             default:
                                 addData(filter.toString(), "No such filter exist");
                                 break;
-
                         }
-                    default:
-                        addData(target.name(), "No such target exist");
                         break;
                 }
+                break;
+            default:
+                addData(group.name(), "No such group exist");
+                break;
         }
     }
 
@@ -307,44 +349,58 @@ public class DataDisplayer implements Module {
                             addData(area.name(), joysticks.getGamepad1().left_stick_x);
                             addData(area.name(), -joysticks.getGamepad1().left_stick_y);
                             addLine();
+                            break;
                         case RIGHT_STICK:
                             addData(area.name(), joysticks.getGamepad1().right_stick_x);
                             addData(area.name(), -joysticks.getGamepad1().right_stick_y);
                             addLine();
+                            break;
                         case A:
                             addData(area.name(), joysticks.getGamepad1().a);
+                            break;
                         case B:
                             addData(area.name(), joysticks.getGamepad1().b);
+                            break;
                         case X:
                             addData(area.name(), joysticks.getGamepad1().x);
+                            break;
                         case Y:
                             addData(area.name(), joysticks.getGamepad1().y);
+                            break;
                         default:
                             addData(area.name(), "Not such area");
                             break;
                     }
+                    break;
                 case GAMEPAD2:
                     switch (area) {
                         case LEFT_STICK:
                             addData(area.name() + "X", joysticks.getGamepad2().left_stick_x);
                             addData(area.name() + "Y", joysticks.getGamepad2().left_stick_y);
                             addLine();
+                            break;
                         case RIGHT_STICK:
                             addData(area.name() + "X", joysticks.getGamepad2().right_stick_x);
                             addData(area.name() + "Y", joysticks.getGamepad2().right_stick_y);
                             addLine();
+                            break;
                         case A:
                             addData(area.name(), joysticks.getGamepad2().a);
+                            break;
                         case B:
                             addData(area.name(), joysticks.getGamepad2().b);
+                            break;
                         case X:
                             addData(area.name(), joysticks.getGamepad2().x);
+                            break;
                         case Y:
                             addData(area.name(), joysticks.getGamepad2().y);
+                            break;
                         default:
                             addData(area.name(), "Not such area");
                             break;
                     }
+                    break;
                 default:
                     addData(object.name(), "Not such object");
                     break;
@@ -376,7 +432,7 @@ public class DataDisplayer implements Module {
     public void dataForAuto() {
         showGroupData(DataGroup.ROBOT, DataTarget.displayCurPosOnField, DataFilter.CM);
         showGroupData(DataGroup.TELESKOPE ,DataTarget.displayCurHeightTeleskope, DataFilter.CM);
-        showValue(DataTarget.displayCurPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+        showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
     }
 
     public void dataForTeleOp() {
@@ -389,7 +445,7 @@ public class DataDisplayer implements Module {
 
         showGroupData(DataGroup.ROBOT, DataTarget.displayCurPosOnField, DataFilter.CM);
         showGroupData(DataGroup.TELESKOPE ,DataTarget.displayCurHeightTeleskope, DataFilter.CM);
-        showValue(DataTarget.displayCurPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+        showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
 
         showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
         showGroupData(DataGroup.ROBOT, DataTarget.displayCurVelocity, DataFilter.CM);

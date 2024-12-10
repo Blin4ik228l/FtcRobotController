@@ -37,9 +37,9 @@ public class Robot extends RobotCore implements CONSTS{
     public final Joysticks joysticks;
     public final DataDisplayer dataDisplayer;
 
-    boolean switchableH,isHeadless, isCruise, switchableC;
-    double releasedH, releasedC;
-    double horizontalPos, forwardC, sideC;
+    boolean switchableH,isHeadless, isCruise, switchableC, switchableP, isProp = true;
+    double releasedH, releasedC, releasedP;
+    double horizontalPos = 0.43, forwardC, sideC;
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
@@ -65,8 +65,10 @@ public class Robot extends RobotCore implements CONSTS{
     public void init() {
         odometry.init();
         drivetrain.init();
-        dataDisplayer.init();
         teleSkope.init();
+        joysticks.init();
+        metry.init();
+        dataDisplayer.init();
     }
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -209,11 +211,11 @@ public class Robot extends RobotCore implements CONSTS{
             releasedH = 0;
         }
 
-        if(g1.x && g1.y && releasedC == 0) {
+        if(g1.x && releasedC == 0) {
             switchableC = !switchableC;
             releasedC = 1;}
 
-        if(!g1.x && !g1.y && releasedC != 0){
+        if(!g1.x && releasedC != 0){
             releasedC = 0;
         }
 
@@ -235,17 +237,17 @@ public class Robot extends RobotCore implements CONSTS{
 
             if(k > 0){
                 if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
                 } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
                 }else {
                     drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
                 }
             }else if (k < 0){
                 if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
                 } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, k, 1/k);
+                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
                 }else {
                     drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
                 }
@@ -255,8 +257,8 @@ public class Robot extends RobotCore implements CONSTS{
         }
 
         if(isCruise){
-            forwardC = Range.clip(forwardC + (-g1.left_stick_y/4.0), -0.4, 0.4);
-            sideC = Range.clip(sideC + (g1.right_stick_y/4.0), -0.4, 0.4);
+            forwardC = Range.clip(forwardC + (-g1.left_stick_y/18), -0.4, 0.4);
+            sideC = Range.clip(sideC + (g1.left_stick_x/18), -0.4, 0.4);
 
             drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
         }else {
@@ -272,14 +274,24 @@ public class Robot extends RobotCore implements CONSTS{
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/4.5),0,1);
+        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/18),0.05,0.43);
 
-        teleSkope.setTeleskope(upStandingVel, horizontalPos);
+        if(g2.x && releasedP == 0) {
+            switchableP = !switchableP;
+            releasedP = 1;}
+
+        if(!g2.x && releasedP != 0){
+            releasedP = 0;
+        }
+
+        isProp = switchableP;
+
+        teleSkope.setTeleskope(upStandingVel, horizontalPos, isProp);
 
         dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
         dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
         dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
 
         dataDisplayer.addData("horizontalPos", horizontalPos);
         dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);

@@ -5,28 +5,28 @@ import androidx.annotation.NonNull;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 
-public class TeleSkope implements Module {
+public class TeleSkope implements Module, CONSTSTELESKOPE {
     public final OpMode op;
+    public final ServosService servosService;
 
     private DcMotor upStandingLeft;
     private DcMotor upStandingRight;
-    private Servo horizontal;
     private double height;
 
-    public TeleSkope(OpMode op){
+    public TeleSkope(OpMode op, ServosService servosService){
         this.op = op;
+        this.servosService = servosService;
     }
     @Override
     public void init() {
         upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStandingLeft");
         upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
-        horizontal = op.hardwareMap.get(Servo.class, "horizontal");
 
         upStandingLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         upStandingRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -34,7 +34,6 @@ public class TeleSkope implements Module {
         upStandingLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         upStandingRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        horizontal.setPosition(0.475);
         brakeMotors();
     }
 
@@ -71,10 +70,6 @@ public class TeleSkope implements Module {
         return height;
     }
 
-    public Servo getHorizontal() {
-        return horizontal;
-    }
-
     public double ticksToCM(double ticks){
         return ticks / CONSTS.TICK_PER_CM_BARABAN;
     }
@@ -87,7 +82,26 @@ public class TeleSkope implements Module {
         height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition())/2.0);
     }
 
-    public void setTeleskope(double vel, double Pos, boolean isProp){
+    public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
+        calculateHeight();
+
+        double DEGREES_TO_LENGHT = posServo * 270 * reachableHeight;//Градусов до полного разложения
+
+        double toDeadZone =  (reachableHeight - height);
+        double P = DEGREES_TO_LENGHT/reachableHeight;
+
+        double targetVel = speed * Math.signum(toDeadZone);
+
+        setVelUpStandingTeleOp(targetVel);
+        setVelHorizontalTeleOp((toDeadZone * P) / 270.0);
+    }
+
+    public synchronized void setTeleskope(double vel, double Pos){
+            setVelUpStandingTeleOp(vel);
+            setVelHorizontalTeleOp(Pos);
+        }
+
+    public synchronized void setTeleskopeProp(double vel, double Pos){
         double DEAD_ZONE_HEIGHT = 121;
         double DEAD_ZONE_LENGHT = 75;
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
@@ -99,11 +113,9 @@ public class TeleSkope implements Module {
         double oldHEIGHT = height;
         calculateHeight();
 
-        double deltaHEIGHT = oldHEIGHT - height;
-
-        if((height > PROPRTIONAL_HEIGHT && isProp) ){
+        if((height > PROPRTIONAL_HEIGHT) ) {
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp((toDeadZone * P)/270.0);
+            setVelHorizontalTeleOp((toDeadZone * P) / 270.0);
         }else{
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp(Pos);
@@ -121,7 +133,7 @@ public class TeleSkope implements Module {
     }
 
     public void setVelHorizontalTeleOp(double Pos){
-        horizontal.setPosition(Pos);
+        servosService.getHorizontal().setPosition(Range.clip(Pos, OPEN_POS_HORIZONTAL, CLOSE_POS_HORIZONTAL));
     }
 
 }

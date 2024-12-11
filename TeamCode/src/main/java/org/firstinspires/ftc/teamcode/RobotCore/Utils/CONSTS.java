@@ -48,8 +48,6 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_TPS_ENCODER = TPR_ENCODER * RPS_ENC_WHEEL;                   // максимальная скорость тик/сек энкодера
     double MAX_RAD_PER_SEC = CMPS_ENC_WHEEL/(DIST_BETWEEN_ENC_X/2);         //
     double MAX_CM_PER_SEC = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;
-    double MAX_SPEED = 345;
-    double MAX_RAD_SPEED = 6.28;
     double TICK_PER_CM_BARABAN = TPR_WHEEL/ROUND_BARABAN;
 
     // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
@@ -63,10 +61,5 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MIN_ANGULAR_SPEED = 2;
     double MIN_LINEAR_ACCEL = 1;
     double MIN_ANGULAR_ACCEL = 1;
-
-
-    // ЗНАЧЕНИЕ ДЛЯ СЕРВАКОВ
-    double CLOSE = 0.0;                                                     //
-    double OPEN = 0.5;                                                      //
 }
 

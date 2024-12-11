@@ -52,11 +52,13 @@ public class StandartArgs {
     }
 
     public static class teleskopeStandartArgs extends StandartArgs {
-        public teleskopeStandartArgs(int goalPos, double max_speed){
-            this.goalPos = goalPos;
+        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed){
+            this.teleskope_height = teleskope_height;
+            this.servo_pos = servo_pos;
             this.max_speed = max_speed;
         }
-        public int goalPos;
+        public double teleskope_height;
+        public double servo_pos;
         public double max_speed;
     }
 

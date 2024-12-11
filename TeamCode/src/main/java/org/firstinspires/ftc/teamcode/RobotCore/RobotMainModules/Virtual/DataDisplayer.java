@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ServosService;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
@@ -21,6 +22,7 @@ public class DataDisplayer implements Module {
     private TeleSkope teleSkope;
     private Telemetry telemetry;
     private Joysticks joysticks;
+    private ServosService servosService;
 
     boolean isTelemetryKilled = false;
     boolean isRobotDrive = false;
@@ -35,8 +37,8 @@ public class DataDisplayer implements Module {
 
     @Override
     public void init() {
-
         this.joysticks = robot.joysticks;
+        this.servosService = robot.servosService;
         this.teleSkope = robot.teleSkope;
         this.mecanumDrivetrain = robot.drivetrain;
         this.odometry = robot.odometry;
@@ -47,7 +49,7 @@ public class DataDisplayer implements Module {
         }
     }
 
-    public void showValue(DataTarget target, DataObject object, DataFilter filter) {
+    public synchronized void showValue(DataTarget target, DataObject object, DataFilter filter) {
         if(target == null){
             addLine("target - null");
             return;
@@ -64,7 +66,6 @@ public class DataDisplayer implements Module {
             case displayCurPosition:
                 switch (filter) {
                     case CM:
-                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(DataObject.ENCL.name(), odometry.ticksToCm(odometry.getEncL().getCurrentPosition()));
@@ -87,7 +88,6 @@ public class DataDisplayer implements Module {
                         }
                         break;
                     case TICKS:
-                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.getEncL().getCurrentPosition());
@@ -117,7 +117,6 @@ public class DataDisplayer implements Module {
             case displayCurVelocity:
                 switch (filter) {
                     case CM:
-                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.ticksToCm(odometry.getEncL().getVelocity()));
@@ -134,7 +133,6 @@ public class DataDisplayer implements Module {
                         }
                         break;
                     case TICKS:
-                        addLine();
                         switch (object) {
                             case ENCL:
                                 addData(object.name(), odometry.getEncL().getVelocity());
@@ -158,7 +156,6 @@ public class DataDisplayer implements Module {
             case displayCurPower:
                 switch (filter) {
                     case POWER:
-                        addLine();
                         switch (object) {
                             case LEFTB:
                                 addData(object.name(), mecanumDrivetrain.leftB.getPower());
@@ -190,10 +187,9 @@ public class DataDisplayer implements Module {
             case displayOtherPosition:
                 switch (filter) {
                     case POSITION:
-                        addLine();
                         switch (object) {
                             case HORIZONTAL:
-                                addData(object.name(), teleSkope.getHorizontal().getPosition());
+                                addData(object.name(), servosService.getHorizontal().getPosition());
                                 break;
                             default:
                                 addData(object.name(), "Object not exist");
@@ -211,7 +207,7 @@ public class DataDisplayer implements Module {
         }
     }
 
-    public void showGroupData(DataGroup group, DataTarget target, DataFilter filter){
+    public synchronized void showGroupData(DataGroup group, DataTarget target, DataFilter filter){
         switch(group){
             case DRIVETRAIN:
                 switch (target){
@@ -220,6 +216,7 @@ public class DataDisplayer implements Module {
                         showValue(target, DataObject.LEFTF,  filter);
                         showValue(target, DataObject.RIGHTB, filter);
                         showValue(target, DataObject.RIGHTF, filter);
+                        addLine();
                         break;
                     default:
                         addData(group.name() + target.name(), "No such target exist");
@@ -232,11 +229,13 @@ public class DataDisplayer implements Module {
                         showValue(target, DataObject.ENCL, filter);
                         showValue(target, DataObject.ENCR, filter);
                         showValue(target, DataObject.ENCM, filter);
+                        addLine();
                         break;
                     case displayCurVelocity:
                         showValue(target, DataObject.ENCL, filter);
                         showValue(target, DataObject.ENCR, filter);
                         showValue(target, DataObject.ENCM, filter);
+                        addLine();
                         break;
                     default:
                         addData(group.name() + target.name(), "No such target exist");
@@ -340,7 +339,7 @@ public class DataDisplayer implements Module {
         }
     }
 
-    public void showValueJoystick(DataTarget target, DataObject object, JoystickStatement area) {
+    public synchronized void showValueJoystick(DataTarget target, DataObject object, JoystickStatement area) {
         if (target == DataTarget.displayJoystickStateMent) {
             switch (object) {
                 case GAMEPAD1:
@@ -429,13 +428,13 @@ public class DataDisplayer implements Module {
         telemetry.addData(nameofValue, s);
     }
 
-    public void dataForAuto() {
+    public synchronized void dataForAuto() {
         showGroupData(DataGroup.ROBOT, DataTarget.displayCurPosOnField, DataFilter.CM);
         showGroupData(DataGroup.TELESKOPE ,DataTarget.displayCurHeightTeleskope, DataFilter.CM);
         showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
     }
 
-    public void dataForTeleOp() {
+    public synchronized void dataForTeleOp() {
         if(isRobotDrive){
             showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD1, JoystickStatement.LEFT_STICK);
             showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD1, JoystickStatement.RIGHT_STICK);

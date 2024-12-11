@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ServosService;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDisplayer;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
@@ -21,11 +22,12 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
-public class Robot extends RobotCore implements CONSTS{
+public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // Системы робота.
@@ -36,9 +38,8 @@ public class Robot extends RobotCore implements CONSTS{
     public final Metry metry;
     public final Joysticks joysticks;
     public final DataDisplayer dataDisplayer;
+    public final ServosService servosService;
 
-    boolean switchableH,isHeadless, isCruise, switchableC, switchableP, isProp = true;
-    double releasedH, releasedC, releasedP;
     double horizontalPos = 0.43, forwardC, sideC;
 
     // ПИД объекты должны быть final, инициализироваться здесь,
@@ -56,7 +57,8 @@ public class Robot extends RobotCore implements CONSTS{
         joysticks = new Joysticks(op);
         odometry = new Odometry(op);
         drivetrain = new MecanumDrivetrain(op);
-        teleSkope = new TeleSkope(op);
+        servosService = new ServosService(op);
+        teleSkope = new TeleSkope(op, servosService);
 
         dataDisplayer = new DataDisplayer(this);
     }
@@ -65,9 +67,11 @@ public class Robot extends RobotCore implements CONSTS{
     public void init() {
         odometry.init();
         drivetrain.init();
+        servosService.init();
         teleSkope.init();
         joysticks.init();
         metry.init();
+
         dataDisplayer.init();
     }
 
@@ -160,12 +164,27 @@ public class Robot extends RobotCore implements CONSTS{
     public TaskHandler setTeleskopePos = new TaskHandler() {
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
+            if(args.teleskope_height > 120){
+                ((StandartArgs.teleskopeStandartArgs) _args).teleskope_height = 120;
+            }
             return 0;
         }
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
-            int result = -1;
+            int result;
+
+            double target = args.teleskope_height - teleSkope.getHeight();
+
+            if(target < 1){
+                teleSkope.offMotors();
+                result = 0;
+            }else {
+                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height);
+                result = -1;
+            }
+
 
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
@@ -175,8 +194,11 @@ public class Robot extends RobotCore implements CONSTS{
         }
     };
 
+    public synchronized void checkJoysticks(){
+        joysticks.checkJoysticksCombo();
+    }
 
-    public void telemetry(){
+    public synchronized void telemetry(){
         if(robotMode == RobotMode.TELEOP){
             dataDisplayer.dataForTeleOp();
         }else if(robotMode == RobotMode.AUTO){
@@ -186,7 +208,7 @@ public class Robot extends RobotCore implements CONSTS{
 
     // Gamepad 1
     @Override
-    public void teleopPl1() {
+    public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
 
         double velocityAngle = -(((odometry.getEncL().getVelocity() + odometry.getEncR().getVelocity()))/ TICK_PER_CM)/DIST_BETWEEN_ENC_X;//рад/сек
@@ -195,39 +217,19 @@ public class Robot extends RobotCore implements CONSTS{
 
         double targetVelX = -g1.left_stick_y * MAX_CM_PER_SEC;
         double targetVelY = g1.left_stick_x * MAX_CM_PER_SEC;
-        double targetAngleVel = g1.right_stick_x * MAX_RAD_PER_SEC;
+        double targetAngleVel = g1.right_stick_x * MAX_ANGULAR_SPEED;
 
         double maxSpeed = 1;
 
         double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
-        double kFR = maxSpeed/MAX_RAD_PER_SEC;//макс рад/сек
-        double kP = -0.00;//коеф торможения робота
-
-        if(g1.a && g1.y && releasedH == 0) {
-            switchableH = !switchableH;
-            releasedH = 1;}
-
-        if(!g1.a && !g1.y && releasedH != 0){
-            releasedH = 0;
-        }
-
-        if(g1.x && releasedC == 0) {
-            switchableC = !switchableC;
-            releasedC = 1;}
-
-        if(!g1.x && releasedC != 0){
-            releasedC = 0;
-        }
-
-        isHeadless = switchableH;
-
-        isCruise = switchableC;
+        double kFR = maxSpeed/MAX_ANGULAR_SPEED;//макс рад/сек
+        double kP = -0.01;//коеф торможения робота
 
         double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX * kF;
         double sideVoltage = (targetVelY - velocityY) * kP + targetVelY * kF;
         double angleVoltage = (targetAngleVel - velocityAngle) * kP + targetAngleVel * kFR;
 
-        if(isHeadless){
+        if(joysticks.isHeadlessDrive()){
             double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
 
             boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
@@ -256,9 +258,9 @@ public class Robot extends RobotCore implements CONSTS{
             }
         }
 
-        if(isCruise){
-            forwardC = Range.clip(forwardC + (-g1.left_stick_y/18), -0.4, 0.4);
-            sideC = Range.clip(sideC + (g1.left_stick_x/18), -0.4, 0.4);
+        if(joysticks.isCruiseDrive()){
+            forwardC = Range.clip(forwardC + (-g1.left_stick_y/15), -0.4, 0.4);
+            sideC = Range.clip(sideC + (g1.left_stick_x/15), -0.4, 0.4);
 
             drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
         }else {
@@ -269,24 +271,17 @@ public class Robot extends RobotCore implements CONSTS{
 
     // Gamepad 2
     @Override
-    public void teleopPl2() {
+    public synchronized void teleopPl2() {
         Gamepad g2 = joysticks.getGamepad2();
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/18),0.05,0.43);
+        horizontalPos = Range.clip(horizontalPos - (-g2.left_stick_y/18), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
-        if(g2.x && releasedP == 0) {
-            switchableP = !switchableP;
-            releasedP = 1;}
-
-        if(!g2.x && releasedP != 0){
-            releasedP = 0;
-        }
-
-        isProp = switchableP;
-
-        teleSkope.setTeleskope(upStandingVel, horizontalPos, isProp);
+        if (joysticks.isProportionalTeleskope()){
+            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
+        }else{
+            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
         dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
         dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);

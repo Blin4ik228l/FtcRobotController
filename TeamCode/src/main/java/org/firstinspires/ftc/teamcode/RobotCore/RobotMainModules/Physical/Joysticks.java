@@ -12,9 +12,9 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private boolean isHeadless = false, isCruise = false, isProp = true;
+    private boolean isHeadless = false, isCruise = false, isProp = true, hookOpen = false;
 
-    private boolean switchH, switchC, switchP;
+    private boolean switchH = false, switchC = false, switchP = false, switchHook = false ;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -44,6 +44,9 @@ public class Joysticks implements Module {
 
     public boolean isProportionalTeleskope() {
         return isProp;
+    }
+    public boolean isHookOpen(){
+        return hookOpen;
     }
 
     private void checkHeadless(){
@@ -75,9 +78,19 @@ public class Joysticks implements Module {
         }
     }
 
+    private void checkHook(){
+        if(gamepad2.a && !switchHook) {
+            hookOpen = !hookOpen;
+            switchHook = true;}
+
+        if(!gamepad2.a && switchHook){
+            switchHook = false;
+        }
+    }
     public synchronized void checkJoysticksCombo(){
         checkCruise();
         checkHeadless();
         checkProport();
+        checkHook();
     }
 }

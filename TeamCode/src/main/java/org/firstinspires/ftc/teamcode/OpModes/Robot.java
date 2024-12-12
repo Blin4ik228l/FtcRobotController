@@ -1,10 +1,20 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
+import android.app.Activity;
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorColor;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ColorSensor;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
@@ -39,8 +49,14 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final Joysticks joysticks;
     public final DataDisplayer dataDisplayer;
     public final ServosService servosService;
+    public final ColorSensor colorSensor;
 
-    double horizontalPos = 0.43, forwardC, sideC;
+    double horizontalPos = CLOSE_POS_HORIZONTAL, forwardC, sideC;
+
+    float gain = 2;
+    boolean xButtonPreviouslyPressed = false;
+    boolean xButtonCurrentlyPressed = false;
+    final float[] hsvValues = new float[3];
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
@@ -59,6 +75,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         drivetrain = new MecanumDrivetrain(op);
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
+        colorSensor = new ColorSensor(op);
 
         dataDisplayer = new DataDisplayer(this);
     }
@@ -71,6 +88,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         teleSkope.init();
         joysticks.init();
         metry.init();
+        colorSensor.init();
 
         dataDisplayer.init();
     }
@@ -211,62 +229,164 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
 
-        double velocityAngle = -(((odometry.getEncL().getVelocity() + odometry.getEncR().getVelocity()))/ TICK_PER_CM)/DIST_BETWEEN_ENC_X;//рад/сек
-        double velocityX = (((odometry.getEncL().getVelocity() - odometry.getEncR().getVelocity())/2)/TICK_PER_CM);// см/сек
-        double velocityY = (odometry.getEncM().getVelocity()/TICK_PER_CM - (velocityAngle * OFFSET_ENC_M_FROM_CENTER));// см/сек
 
-        double targetVelX = -g1.left_stick_y * MAX_CM_PER_SEC;
-        double targetVelY = g1.left_stick_x * MAX_CM_PER_SEC;
-        double targetAngleVel = g1.right_stick_x * MAX_ANGULAR_SPEED;
 
-        double maxSpeed = 1;
+        // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
+        // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
+        // can give very low values (depending on the lighting conditions), which only use a small part
+        // of the 0-1 range that is available for the red, green, and blue values. In brighter conditions,
+        // you should use a smaller gain than in dark conditions. If your gain is too high, all of the
+        // colors will report at or near 1, and you won't be able to determine what color you are
+        // actually looking at. For this reason, it's better to err on the side of a lower gain
+        // (but always greater than  or equal to 1).
 
-        double kF = maxSpeed/MAX_CM_PER_SEC;//макс см/сек
-        double kFR = maxSpeed/MAX_ANGULAR_SPEED;//макс рад/сек
-        double kP = -0.01;//коеф торможения робота
 
-        double forwardVoltage = (targetVelX - velocityX) * kP + targetVelX * kF;
-        double sideVoltage = (targetVelY - velocityY) * kP + targetVelY * kF;
-        double angleVoltage = (targetAngleVel - velocityAngle) * kP + targetAngleVel * kFR;
+        // Once per loop, we will update this hsvValues array. The first element (0) will contain the
+        // hue, the second element (1) will contain the saturation, and the third element (2) will
+        // contain the value. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
+        // for an explanation of HSV color.
 
-        if(joysticks.isHeadlessDrive()){
-            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
 
-            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
-            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+        // xButtonPreviouslyPressed and xButtonCurrentlyPressed keep track of the previous and current
+        // state of the X button on the gamepad
 
-            dataDisplayer.addData("k", k);
 
-            if(k > 0){
-                if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
-                } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
-                }else {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
-                }
-            }else if (k < 0){
-                if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
-                } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
-                }else {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
-                }
-            }else{
-                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+        // Get a reference to our sensor object. It's recommended to use NormalizedColorSensor over
+        // ColorSensor, because NormalizedColorSensor consistently gives values between 0 and 1, while
+        // the values you get from ColorSensor are dependent on the specific sensor you're using.
+
+        // If possible, turn the light on in the beginning (it might already be on anyway,
+        // we just make sure it is if we can).
+        if (colorSensor instanceof SwitchableLight) {
+            ((SwitchableLight)colorSensor).enableLight(true);
+        }
+
+
+            // Explain basic gain information via telemetry
+        metry.getTelemetry().addLine("Hold the A button on gamepad 1 to increase gain, or B to decrease it.\n");
+        metry.getTelemetry().addLine("Higher gain values mean that the sensor will report larger numbers for Red, Green, and Blue, and Value\n");
+
+            // Update the gain value if either of the A or B gamepad buttons is being held
+            if (g1.a) {
+                // Only increase the gain by a small amount, since this loop will occur multiple times per second.
+                gain += 0.005;
+            } else if (g1.b && gain > 1) { // A gain of less than 1 will make the values smaller, which is not helpful.
+                gain -= 0.005;
             }
-        }
 
-        if(joysticks.isCruiseDrive()){
-            forwardC = Range.clip(forwardC + (-g1.left_stick_y/15), -0.4, 0.4);
-            sideC = Range.clip(sideC + (g1.left_stick_x/15), -0.4, 0.4);
+            // Show the gain value via telemetry
+        dataDisplayer.addData("Gain", gain);
 
-            drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
-        }else {
-            drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
-        }
+            // Tell the sensor our desired gain value (normally you would do this during initialization,
+            // not during the loop)
+            colorSensor.getSensorColor().setGain(gain);
 
+            // Check the status of the X button on the gamepad
+            xButtonCurrentlyPressed = g1.x;
+
+            // If the button state is different than what it was, then act
+            if (xButtonCurrentlyPressed != xButtonPreviouslyPressed) {
+                // If the button is (now) down, then toggle the light
+                if (xButtonCurrentlyPressed) {
+                    if (colorSensor instanceof SwitchableLight) {
+                        SwitchableLight light = (SwitchableLight)colorSensor;
+                        light.enableLight(!light.isLightOn());
+                    }
+                }
+            }
+            xButtonPreviouslyPressed = xButtonCurrentlyPressed;
+
+            // Get the normalized colors from the sensor
+            NormalizedRGBA colors = colorSensor.getSensorColor().getNormalizedColors();
+
+            /* Use telemetry to display feedback on the driver station. We show the red, green, and blue
+             * normalized values from the sensor (in the range of 0 to 1), as well as the equivalent
+             * HSV (hue, saturation and value) values. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
+             * for an explanation of HSV color. */
+
+            // Update the hsvValues array by passing it to Color.colorToHSV()
+            Color.colorToHSV(colors.toColor(), hsvValues);
+
+        metry.getTelemetry().addLine()
+                    .addData("Red", "%.3f", colors.red)
+                    .addData("Green", "%.3f", colors.green)
+                    .addData("Blue", "%.3f", colors.blue);
+        metry.getTelemetry().addLine()
+                    .addData("Hue", "%.3f", hsvValues[0])
+                    .addData("Saturation", "%.3f", hsvValues[1])
+                    .addData("Value", "%.3f", hsvValues[2]);
+        metry.getTelemetry().addData("Alpha", "%.3f", colors.alpha);
+
+            /* If this color sensor also has a distance sensor, display the measured distance.
+             * Note that the reported distance is only useful at very close range, and is impacted by
+             * ambient light and surface reflectivity. */
+            if (colorSensor instanceof DistanceSensor) {
+                metry.getTelemetry().addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
+            }
+
+
+
+
+
+//        double max_speed = 0.6;
+//        double accelLinear, accelAngle;
+//
+//        if(g1.left_trigger > 0.05){
+//            accelLinear = 1.5;
+//        }else {accelLinear = 1;}
+//
+//        if(g1.right_trigger > 0.05){
+//            accelAngle = 1.5;
+//        }else{
+//            accelAngle = 1;
+//        }
+//
+//        double forwardVoltage = Range.clip(-g1.left_stick_y , -max_speed* accelLinear, max_speed* accelLinear);
+//        double sideVoltage = Range.clip(g1.left_stick_x ,  -max_speed* accelLinear, max_speed* accelLinear);
+//        double angleVoltage = Range.clip(g1.right_stick_x , -max_speed* accelAngle, max_speed* accelAngle);
+//
+//        if(joysticks.isHeadlessDrive()){
+//            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
+//
+//            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
+//            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+//
+//            dataDisplayer.addData("k", k);
+//
+//            if(k > 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else if (k < 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else{
+//                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//            }
+//        }
+//
+//        if(joysticks.isCruiseDrive()){
+//            forwardC = Range.clip(forwardC + (-g1.left_stick_y/15), -0.4, 0.4);
+//            sideC = Range.clip(sideC + (g1.left_stick_x/15), -0.4, 0.4);
+//
+//            drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
+//        }else {
+//            drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
+//        }
+//        dataDisplayer.addData("forwardVoltage", forwardVoltage);
+//        dataDisplayer.addData("sideVoltage", sideVoltage);
+//        dataDisplayer.addData("angleVoltage", angleVoltage);
+//
+//        dataDisplayer.addData("isCruise", joysticks.isCruiseDrive());
     }
 
     // Gamepad 2
@@ -276,19 +396,24 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos - (-g2.left_stick_y/18), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/18), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+
+        teleSkope.setHook(joysticks.isHookOpen());
 
         if (joysticks.isProportionalTeleskope()){
             teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
-
-        dataDisplayer.addData("horizontalPos", horizontalPos);
-        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
+//        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
+//        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
+//        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+//
+//        dataDisplayer.addData("horizontalPos", horizontalPos);
+//        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
     }
 }

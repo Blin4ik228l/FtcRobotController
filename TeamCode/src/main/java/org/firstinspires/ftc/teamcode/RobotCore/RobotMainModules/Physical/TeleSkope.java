@@ -81,6 +81,13 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     public void calculateHeight(){
         height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition())/2.0);
     }
+    public synchronized void setHook(boolean openHook){
+        if(openHook){
+            servosService.getHook().setPosition(OPEN_POS_HOOK);
+        }else {
+            servosService.getHook().setPosition(CLOSE_POS_HOOK);
+        }
+    }
 
     public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
         calculateHeight();
@@ -128,8 +135,8 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
             offMotors();
             return;
         }
-        upStandingLeft.setPower(Range.clip((-Vel), -1.0, 1.0));
-        upStandingRight.setPower(Range.clip((Vel), -1.0, 1.0));
+        upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
+        upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
     }
 
     public void setVelHorizontalTeleOp(double Pos){

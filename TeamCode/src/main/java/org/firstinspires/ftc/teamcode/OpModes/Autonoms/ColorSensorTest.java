@@ -47,7 +47,7 @@ public class ColorSensorTest extends LinearOpMode {
 
     protected void runSample() {
         // You can give the sensor a gain value, will be multiplied by the sensor's raw value before the
-        // normalized color values are calculated. Color sensors (especially the REV Color Sensor V3)
+        // normalized color values are calculated. RGBColorSensor sensors (especially the REV RGBColorSensor Sensor V3)
         // can give very low values (depending on the lighting conditions), which only use a small part
         // of the 0-1 range that is available for the red, green, and blue values. In brighter conditions,
         // you should use a smaller gain than in dark conditions. If your gain is too high, all of the
@@ -125,7 +125,7 @@ public class ColorSensorTest extends LinearOpMode {
              * HSV (hue, saturation and value) values. See http://web.archive.org/web/20190311170843/https://infohost.nmt.edu/tcc/help/pubs/colortheory/web/hsv.html
              * for an explanation of HSV color. */
 
-            // Update the hsvValues array by passing it to Color.colorToHSV()
+            // Update the hsvValues array by passing it to RGBColorSensor.colorToHSV()
             Color.colorToHSV(colors.toColor(), hsvValues);
 
             telemetry.addLine()

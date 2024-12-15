@@ -1,9 +1,40 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0" version="24.8.3">
   <diagram name="Страница — 1" id="5xnco5y9vOy3uYo9B9zN">
-    <mxGraphModel>
+    <mxGraphModel dx="2022" dy="637" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-1" value="Autonomus" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="299" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-2" value="Sequence" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="354" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-5" value="take sample" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="60" width="100" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.632;entryY=-0.05;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="kKXGz_cy70KrF1PQ7vdc-6" target="kKXGz_cy70KrF1PQ7vdc-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="269.9999999999999" as="targetPoint" />
+            <Array as="points">
+              <mxPoint y="200" />
+              <mxPoint y="270" />
+              <mxPoint x="32" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-6" value="selector" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="160" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-7" value="" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="354" y="200" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-9" value="IS_SAMPLE_TAKEN" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-50" y="280" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kKXGz_cy70KrF1PQ7vdc-10" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="280" width="80" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>

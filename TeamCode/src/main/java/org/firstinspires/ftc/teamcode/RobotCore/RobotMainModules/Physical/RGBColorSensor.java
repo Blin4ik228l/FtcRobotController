@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
-import android.app.Activity;
-import android.view.View;
-
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
+
 //SensorColor.java
 public class RGBColorSensor implements Module {
     private final OpMode op;
@@ -48,19 +45,22 @@ public class RGBColorSensor implements Module {
     public double getRed() {
         return red;
     }
-    public String getMainColor() {
-        if ((red + blue) >= 0.007) {
-            return "White";
-        } else {
-            if (red > green && red > blue) {
-                return "Red";
-            } else if (green > red && green > blue) {
-                return "Green";
-            } else if (blue > green && blue > red) {
-                return "Blue";
-            } else  {
-                return "Yellow";}
-            }
+
+    public Colors getMainColor() {
+        if (red == blue && red == green) {
+            return Colors.WHITE;
+        } else if (red + blue + green == 0) {
+            return Colors.BLACK;
+        } else if (red > green && red > blue) {
+                return Colors.RED;
+        } else if (green > red && green > blue) {
+                return Colors.GREEN;
+        } else if (blue > green && blue > red) {
+                return Colors.BLUE;
+        } else  {
+            return Colors.YELLOW;
+        }
+
     }
 
     public double getDistance() {

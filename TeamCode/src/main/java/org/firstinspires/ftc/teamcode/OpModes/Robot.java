@@ -1,14 +1,7 @@
 package org.firstinspires.ftc.teamcode.OpModes;
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.view.View;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -21,6 +14,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Servos
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDisplayer;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -44,7 +38,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final Joysticks joysticks;
     public final DataDisplayer dataDisplayer;
     public final ServosService servosService;
-    public final RGBColorSensor cSensor;
+    public final RGBColorSensor colorSensor;
 
     double horizontalPos = CLOSE_POS_HORIZONTAL, forwardC, sideC;
 
@@ -69,7 +63,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         drivetrain = new MecanumDrivetrain(op);
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
-        cSensor = new RGBColorSensor(op);
+        colorSensor = new RGBColorSensor(op);
 
         dataDisplayer = new DataDisplayer(this);
     }
@@ -82,7 +76,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         teleSkope.init();
         joysticks.init();
         metry.init();
-        cSensor.init();
+        colorSensor.init();
 
         dataDisplayer.init();
     }
@@ -300,13 +294,23 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
+        if(robotAlliance.equals(RobotAlliance.RED) && servosService.getHook().getPosition() != CLOSE_POS_HOOK){
+            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 1.5){
+                servosService.getHook().setPosition(CLOSE_POS_HOOK);
+            }
+        }
+        if(robotAlliance.equals(RobotAlliance.BLUE) && servosService.getHook().getPosition() != CLOSE_POS_HOOK){
+            if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 1.5){
+                servosService.getHook().setPosition(CLOSE_POS_HOOK);
+            }
+        }
 
         metry.getTelemetry().addLine()
-                .addData("Red", cSensor.getRed())
-                .addData("Green", cSensor.getGreen())
-                .addData("Blue", cSensor.getBlue());
+                .addData("Red", colorSensor.getRed())
+                .addData("Green", colorSensor.getGreen())
+                .addData("Blue", colorSensor.getBlue());
         metry.getTelemetry().addLine()
-                .addData("Distance", cSensor.getSensorColor().getDistance(DistanceUnit.CM));
+                .addData("Distance", colorSensor.getSensorColor().getDistance(DistanceUnit.CM));
 
 
 //        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());

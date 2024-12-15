@@ -45,6 +45,7 @@ public class Joysticks implements Module {
     public boolean isProportionalTeleskope() {
         return isProp;
     }
+
     public boolean isHookOpen(){
         return hookOpen;
     }

@@ -109,16 +109,15 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         }
 
     public synchronized void setTeleskopeProp(double vel, double Pos){
+        calculateHeight();
+
         double DEAD_ZONE_HEIGHT = 121;
-        double DEAD_ZONE_LENGHT = 75;
+
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
-        double DEGREES_TO_LENGHT = 1633.5;//Градусов до полного разложения
+        double DEGREES_TO_LENGHT = OPEN_POS_HORIZONTAL * 270 * DEAD_ZONE_HEIGHT;//Градусов до полного разложения
 
         double toDeadZone =  (DEAD_ZONE_HEIGHT - height);
         double P = DEGREES_TO_LENGHT/DEAD_ZONE_HEIGHT;
-
-        double oldHEIGHT = height;
-        calculateHeight();
 
         if((height > PROPRTIONAL_HEIGHT) ) {
             setVelUpStandingTeleOp(vel);

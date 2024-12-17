@@ -48,6 +48,7 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void loop() {
         robot.checkJoysticks();
+        robot.updateColors();
         robot.teleopPl1();
         robot.teleopPl2();
 

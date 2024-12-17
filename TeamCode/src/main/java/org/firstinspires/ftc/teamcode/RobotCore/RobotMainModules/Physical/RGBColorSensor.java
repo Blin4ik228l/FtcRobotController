@@ -66,4 +66,11 @@ public class RGBColorSensor implements Module {
     public double getDistance() {
         return distance;
     }
+
+    public void update(){
+        distance = colorSensor.getDistance(DistanceUnit.CM);
+        red = colorSensor.getNormalizedColors().red;
+        green = colorSensor.getNormalizedColors().green;
+        blue = colorSensor.getNormalizedColors().blue;
+    }
 }

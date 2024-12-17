@@ -50,6 +50,10 @@ public class Joysticks implements Module {
         return hookOpen;
     }
 
+    public void setHookOpen(boolean hookOpen) {
+        this.hookOpen = hookOpen;
+    }
+
     private void checkHeadless(){
         if(gamepad1.a && gamepad1.y && !switchH) {
             isHeadless = !isHeadless;

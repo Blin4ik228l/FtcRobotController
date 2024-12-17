@@ -81,26 +81,21 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     public void calculateHeight(){
         height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition())/2.0);
     }
-    public synchronized void setHook(boolean openHook){
-        if(openHook){
-            servosService.getHook().setPosition(OPEN_POS_HOOK);
-        }else {
-            servosService.getHook().setPosition(CLOSE_POS_HOOK);
-        }
+    public synchronized void setHook(double Pos){
+        servosService.getHook().setPosition(Range.clip(Pos, CLOSE_POS_HOOK, OPEN_POS_HOOK));
     }
 
     public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
         calculateHeight();
 
-        double DEGREES_TO_LENGHT = posServo * 270 * reachableHeight;//Градусов до полного разложения
+        double P = (CLOSE_POS_HORIZONTAL - posServo)/(reachableHeight);
 
-        double toDeadZone =  (reachableHeight - height);
-        double P = DEGREES_TO_LENGHT/reachableHeight;
+        double propLen = CLOSE_POS_HORIZONTAL - (height) * P;
 
-        double targetVel = speed * Math.signum(toDeadZone);
+        double targetVel = speed * Math.signum(reachableHeight - height);
 
         setVelUpStandingTeleOp(targetVel);
-        setVelHorizontalTeleOp((toDeadZone * P) / 270.0);
+        setVelHorizontalTeleOp(propLen);
     }
 
     public synchronized void setTeleskope(double vel, double Pos){
@@ -111,17 +106,17 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     public synchronized void setTeleskopeProp(double vel, double Pos){
         calculateHeight();
 
-        double DEAD_ZONE_HEIGHT = 121;
+        double DEAD_ZONE_HEIGHT = 165;
 
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
-        double DEGREES_TO_LENGHT = OPEN_POS_HORIZONTAL * 270 * DEAD_ZONE_HEIGHT;//Градусов до полного разложения
 
-        double toDeadZone =  (DEAD_ZONE_HEIGHT - height);
-        double P = DEGREES_TO_LENGHT/DEAD_ZONE_HEIGHT;
+        double P = (CLOSE_POS_HORIZONTAL - OPEN_POS_HORIZONTAL)/(DEAD_ZONE_HEIGHT - PROPRTIONAL_HEIGHT);
+
+        double propLen = CLOSE_POS_HORIZONTAL - (height - PROPRTIONAL_HEIGHT) * P;
 
         if((height > PROPRTIONAL_HEIGHT) ) {
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp((toDeadZone * P) / 270.0);
+            setVelHorizontalTeleOp(propLen);
         }else{
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp(Pos);

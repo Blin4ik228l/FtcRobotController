@@ -15,6 +15,10 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSk
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDisplayer;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataObject;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.JoystickStatement;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -203,6 +207,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public synchronized void checkJoysticks(){
         joysticks.checkJoysticksCombo();
     }
+    public synchronized void updateColors(){colorSensor.update();}
 
     public synchronized void telemetry(){
         if(robotMode == RobotMode.TELEOP){
@@ -271,57 +276,66 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else {
             drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
-        dataDisplayer.addData("forwardVoltage", forwardVoltage);
-        dataDisplayer.addData("sideVoltage", sideVoltage);
-        dataDisplayer.addData("angleVoltage", angleVoltage);
-
-        dataDisplayer.addData("isCruise", joysticks.isCruiseDrive());
+//        dataDisplayer.addData("forwardVoltage", forwardVoltage);
+//        dataDisplayer.addData("sideVoltage", sideVoltage);
+//        dataDisplayer.addData("angleVoltage", angleVoltage);
+//
+//        dataDisplayer.addData("isCruise", joysticks.isCruiseDrive());
     }
 
     // Gamepad 2
     @Override
     public synchronized void teleopPl2() {
         Gamepad g2 = joysticks.getGamepad2();
+        boolean closeAuto = false;
 
         double upStandingVel = -g2.right_stick_y;
 
         horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/18), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
-        teleSkope.setHook(joysticks.isHookOpen());
+        if(robotAlliance.equals(RobotAlliance.RED) ){
+            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
+                closeAuto = true;
+            }
+        }
+
+        if(robotAlliance.equals(RobotAlliance.BLUE)){
+            if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 3){
+                closeAuto = true;
+            }
+        }
+
+    if(closeAuto && !joysticks.isHookOpen()){
+        teleSkope.setHook(CLOSE_POS_HOOK);
+
+    }else {
+        teleSkope.setHook(OPEN_POS_HOOK);
+        }
+
 
         if (joysticks.isProportionalTeleskope()){
             teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        if(robotAlliance.equals(RobotAlliance.RED) && servosService.getHook().getPosition() != CLOSE_POS_HOOK){
-            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 1.5){
-                servosService.getHook().setPosition(CLOSE_POS_HOOK);
-            }
-        }
-        if(robotAlliance.equals(RobotAlliance.BLUE) && servosService.getHook().getPosition() != CLOSE_POS_HOOK){
-            if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 1.5){
-                servosService.getHook().setPosition(CLOSE_POS_HOOK);
-            }
-        }
-
-        metry.getTelemetry().addLine()
-                .addData("Red", colorSensor.getRed())
-                .addData("Green", colorSensor.getGreen())
-                .addData("Blue", colorSensor.getBlue());
-        metry.getTelemetry().addLine()
-                .addData("Distance", colorSensor.getSensorColor().getDistance(DistanceUnit.CM));
+//        metry.getTelemetry().addLine()
+//                .addData("Red", colorSensor.getRed())
+//                .addData("Green", colorSensor.getGreen())
+//                .addData("Blue", colorSensor.getBlue());
+//        metry.getTelemetry().addLine()
+//                .addData("Distance", colorSensor.getDistance())
+//                .addData("MainColor", colorSensor.getMainColor().toString());
 
 
-//        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
-//        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
-//        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
-//
-//        dataDisplayer.addData("horizontalPos", horizontalPos);
-//        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
+        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
+        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
+        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+
+        dataDisplayer.addData("horizontalPos", horizontalPos);
+        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
     }
 }

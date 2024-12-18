@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
@@ -273,8 +272,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         if(joysticks.isCruiseDrive()){
-            forwardC = Range.clip(forwardC + (-g1.left_stick_y/15), -0.4, 0.4);
-            sideC = Range.clip(sideC + (g1.left_stick_x/15), -0.4, 0.4);
+            forwardC = Range.clip(forwardC + (-Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
+            sideC = Range.clip(sideC + (Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
 
             drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
         }else {
@@ -299,7 +298,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (-g2.left_stick_y/18), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos + (-Range.clip(g2.left_stick_y,-0.02, 0.02)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
         if(robotAlliance.equals(RobotAlliance.RED) ){
             if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){

@@ -79,7 +79,13 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     }
 
     public void calculateHeight(){
-        height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition())/2.0);
+        if(upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition()){
+            height = ticksToCM((upStandingLeft.getCurrentPosition()));
+        } else if (upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition()) {
+            height = ticksToCM((upStandingLeft.getCurrentPosition()));
+        }else {
+            height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition()) / 2.0);
+        }
     }
     public synchronized void setHook(double Pos){
         servosService.getHook().setPosition(Range.clip(Pos, CLOSE_POS_HOOK, OPEN_POS_HOOK));
@@ -129,8 +135,23 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
             offMotors();
             return;
         }
-        upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
-        upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
+        if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition() && Vel > 0){
+            upStandingLeft.setPower(0);
+            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
+        } else if (Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition() && Vel < 0) {
+            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
+            upStandingRight.setPower(0);
+        } else if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition() && Vel > 0){
+            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
+            upStandingRight.setPower(0);
+        }else if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition() && Vel < 0){
+            upStandingLeft.setPower(0);
+            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
+        }else {
+            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
+            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
+        }
+
     }
 
     public void setVelHorizontalTeleOp(double Pos){

@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDis
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataObject;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.JoystickStatement;
@@ -54,7 +55,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.93,0.000018,0, -1,1);
+    public final PID pidAngular = new PID(0.95,0.000018,0, -1,1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -155,6 +156,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 dataDisplayer.addData("Оставшийся расстояние", errorPos.length());
                 dataDisplayer.addData("Оставшийся X", errorPos.x);
                 dataDisplayer.addData("Оставшийся Y", errorPos.y);
+            dataDisplayer.addData("result", result);
 
                 dataDisplayer.update();
 
@@ -175,8 +177,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
-            if(args.teleskope_height > 120){
-                ((StandartArgs.teleskopeStandartArgs) _args).teleskope_height = 120;
+            if(args.teleskope_height > 126){
+                ((StandartArgs.teleskopeStandartArgs) _args).teleskope_height = 126;
             }
             return 0;
         }
@@ -187,7 +189,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             double target = args.teleskope_height - teleSkope.getHeight();
 
-            if(target < 1){
+            if(Math.abs(target) < 1){
                 teleSkope.offMotors();
                 result = 0;
             }else {
@@ -195,7 +197,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 result = -1;
             }
 
-
+            dataDisplayer.addData("resultTele", result);
+            dataDisplayer.showGroupData(DataGroup.TELESKOPE, DataTarget.displayCurHeightTeleskope,DataFilter.CM);
+            dataDisplayer.update();
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
@@ -276,6 +280,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else {
             drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCR, DataFilter.CM);
+        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCM, DataFilter.CM);
+
 //        dataDisplayer.addData("forwardVoltage", forwardVoltage);
 //        dataDisplayer.addData("sideVoltage", sideVoltage);
 //        dataDisplayer.addData("angleVoltage", angleVoltage);
@@ -318,13 +326,13 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-//        metry.getTelemetry().addLine()
-//                .addData("Red", colorSensor.getRed())
-//                .addData("Green", colorSensor.getGreen())
-//                .addData("Blue", colorSensor.getBlue());
-//        metry.getTelemetry().addLine()
-//                .addData("Distance", colorSensor.getDistance())
-//                .addData("MainColor", colorSensor.getMainColor().toString());
+        metry.getTelemetry().addLine()
+                .addData("Red", colorSensor.getRed())
+                .addData("Green", colorSensor.getGreen())
+                .addData("Blue", colorSensor.getBlue());
+        metry.getTelemetry().addLine()
+                .addData("Distance", colorSensor.getDistance())
+                .addData("MainColor", colorSensor.getMainColor().toString());
 
 
         dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());

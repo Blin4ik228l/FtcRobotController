@@ -68,7 +68,7 @@ public class TaskManager {
 
     public void start() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while((!executingDeque.isEmpty() || !taskDeque.isEmpty() || isTeleopMode()) && !isStopMode()) {
+        while(!executingDeque.isEmpty() || !taskDeque.isEmpty()) {
 
             pickTaskToDo();
 

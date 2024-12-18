@@ -106,7 +106,7 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     public synchronized void setTeleskopeProp(double vel, double Pos){
         calculateHeight();
 
-        double DEAD_ZONE_HEIGHT = 165;
+        double DEAD_ZONE_HEIGHT = 126;
 
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
 

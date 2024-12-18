@@ -9,5 +9,5 @@ public interface CONSTSTELESKOPE {
 
     double TAKING_HEIGHT = 0;
     double BUSKET_HEIGHT = 119;
-    double UP_TUBE_HEIGHT = 95;
+    double UP_TUBE_HEIGHT = 60;
 }

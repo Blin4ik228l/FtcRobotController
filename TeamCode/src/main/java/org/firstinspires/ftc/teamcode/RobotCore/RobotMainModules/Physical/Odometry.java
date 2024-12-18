@@ -203,7 +203,7 @@ public class Odometry extends Thread implements Module {
 
     // Обновление положения робота на поле с помощью следящих колес
     private synchronized void updateGlobalPosition(){
-        double leftEncoderXNow = ticksToCm(encL.getCurrentPosition() * CONSTS.RAZN_ENCODERS);
+        double leftEncoderXNow = ticksToCm(encL.getCurrentPosition() );
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 

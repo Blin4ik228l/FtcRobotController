@@ -25,12 +25,12 @@ public class Vector2 {
     }
 
     public double length() {
-        if (x == 0 & y == 0) {
+        if (x == 0 && y == 0) {
             vectorLength = 0;
         } else if (x == 0) {
-            vectorLength = x;
-        } else if (y == 0) {
             vectorLength = y;
+        } else if (y == 0) {
+            vectorLength = x;
         } else {
             vectorLength = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
         }

@@ -26,11 +26,11 @@ public class Joysticks implements Module {
         this.gamepad2 = op.gamepad2;
     }
 
-    public Gamepad getGamepad1() {
+    public synchronized Gamepad getGamepad1() {
         return gamepad1;
     }
 
-    public Gamepad getGamepad2() {
+    public synchronized Gamepad getGamepad2() {
         return gamepad2;
     }
 
@@ -46,15 +46,15 @@ public class Joysticks implements Module {
         return isProp;
     }
 
-    public boolean isHookOpen(){
+    public synchronized boolean isHookOpen(){
         return hookOpen;
     }
 
-    public void setHookOpen(boolean hookOpen) {
+    public synchronized void setHookOpen(boolean hookOpen) {
         this.hookOpen = hookOpen;
     }
 
-    private void checkHeadless(){
+    private synchronized void checkHeadless(){
         if(gamepad1.a && gamepad1.y && !switchH) {
             isHeadless = !isHeadless;
             switchH = true;}
@@ -64,7 +64,7 @@ public class Joysticks implements Module {
         }
     }
 
-    private void checkCruise() {
+    private synchronized void checkCruise() {
         if(gamepad1.x && !switchC) {
             isCruise = !isCruise;
             switchC = true;}
@@ -73,7 +73,7 @@ public class Joysticks implements Module {
         }
     }
 
-    private void checkProport(){
+    private synchronized void checkProport(){
         if(gamepad2.x && !switchP) {
             isProp = !isProp;
             switchP = true;}
@@ -83,7 +83,7 @@ public class Joysticks implements Module {
         }
     }
 
-    private void checkHook(){
+    private synchronized void checkHook(){
         if(gamepad2.a && !switchHook) {
             hookOpen = !hookOpen;
             switchHook = true;}

@@ -155,7 +155,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 dataDisplayer.addData("Оставшийся расстояние", errorPos.length());
                 dataDisplayer.addData("Оставшийся X", errorPos.x);
                 dataDisplayer.addData("Оставшийся Y", errorPos.y);
-            dataDisplayer.addData("result", result);
+                dataDisplayer.addData("result", result);
 
                 dataDisplayer.update();
 
@@ -176,8 +176,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
-            if(args.teleskope_height > 126){
-                ((StandartArgs.teleskopeStandartArgs) _args).teleskope_height = 126;
+            if(args.teleskope_height > 106){
+                ((StandartArgs.teleskopeStandartArgs) _args).teleskope_height = 106;
             }
             return 0;
         }
@@ -279,9 +279,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else {
             drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCR, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCM, DataFilter.CM);
+
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCR, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCM, DataFilter.CM);
 
 //        dataDisplayer.addData("forwardVoltage", forwardVoltage);
 //        dataDisplayer.addData("sideVoltage", sideVoltage);
@@ -298,7 +299,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (-Range.clip(g2.left_stick_y,-0.02, 0.02)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos + (-Range.clip(g2.left_stick_y,-0.4, 0.4)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
         if(robotAlliance.equals(RobotAlliance.RED) ){
             if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
@@ -325,24 +326,24 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        metry.getTelemetry().addLine()
-                .addData("Red", colorSensor.getRed())
-                .addData("Green", colorSensor.getGreen())
-                .addData("Blue", colorSensor.getBlue());
-        metry.getTelemetry().addLine()
-                .addData("Distance", colorSensor.getDistance())
-                .addData("MainColor", colorSensor.getMainColor().toString());
+//        metry.getTelemetry().addLine()
+//                .addData("Red", colorSensor.getRed())
+//                .addData("Green", colorSensor.getGreen())
+//                .addData("Blue", colorSensor.getBlue());
+//        metry.getTelemetry().addLine()
+//                .addData("Distance", colorSensor.getDistance())
+//                .addData("MainColor", colorSensor.getMainColor().toString());
 
 
-        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
-        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
-        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
-        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
-
-        dataDisplayer.addData("horizontalPos", horizontalPos);
-        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
+//        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
+//        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
+//        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
+//        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
+//
+//        dataDisplayer.addData("horizontalPos", horizontalPos);
+//        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
     }
 }

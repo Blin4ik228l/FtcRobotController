@@ -68,17 +68,15 @@ public class TaskManager {
 
     public void start() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!executingDeque.isEmpty() || !taskDeque.isEmpty()) {
-
-            pickTaskToDo();
-
-            taskHandler();
+        while(!executingDeque.isEmpty() || !taskDeque.isEmpty() || isTeleopMode()) {
 
             // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
-            if (this.isTeleopMode()) {
+            if (isTeleopMode()) {
                 robot.teleop();
-            }else if(this.isAutoMode()){
-                robot.autoMode();
+            }else {
+                pickTaskToDo();
+
+                taskHandler();
             }
         }
     }

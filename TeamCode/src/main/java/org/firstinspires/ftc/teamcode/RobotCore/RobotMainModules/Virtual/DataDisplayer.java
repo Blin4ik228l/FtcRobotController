@@ -408,23 +408,23 @@ public class DataDisplayer implements Module {
 
     }
 
-    public void addLine(String s) {
+    public synchronized void addLine(String s) {
         telemetry.addLine(s);
     }
 
-    public void addLine() {
+    public synchronized void addLine() {
         telemetry.addLine();
     }
 
-    public void addData(String nameofValue, double number) {
+    public synchronized void addData(String nameofValue, double number) {
         telemetry.addData(nameofValue, number);
     }
 
-    public void addData(String nameofValue, boolean bool) {
+    public synchronized void addData(String nameofValue, boolean bool) {
         telemetry.addData(nameofValue, bool);
     }
 
-    public void addData(String nameofValue, String s) {
+    public synchronized void addData(String nameofValue, String s) {
         telemetry.addData(nameofValue, s);
     }
 
@@ -452,7 +452,7 @@ public class DataDisplayer implements Module {
         updateRobotMovingState();
     }
 
-    private void updateRobotMovingState(){
+    private synchronized void updateRobotMovingState(){
         isRobotDrive = joysticks.getGamepad1().left_stick_y != 0 || joysticks.getGamepad1().right_stick_y != 0 || joysticks.getGamepad1().right_stick_x != 0;
     }
 
@@ -469,7 +469,7 @@ public class DataDisplayer implements Module {
         isTicksToCm = switchable;
     }
 
-    public void update(){
+    public synchronized void update(){
         telemetry.update();
     }
 

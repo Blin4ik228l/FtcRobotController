@@ -37,7 +37,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double CMPS_ENC_WHEEL = RPS_ENC_WHEEL * LENGTH_ENC_WHEEL;               // см/сек энкодер
 
     // СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА (тики/обор)
-    double TPR_WHEEL = 384.5;                                               // тик/обор
+    double TPR_WHEEL = 577.7;                                               // тик/обор
     double TPR_ENCODER = 2000;                                              // тики/обор
 
     // СКОРОСТЬ МОТОРОВ ИЛИ КОЛЕСА ЭНКОДЕРА В ТИКАХ(тики/мин(сек)(см)(градус))

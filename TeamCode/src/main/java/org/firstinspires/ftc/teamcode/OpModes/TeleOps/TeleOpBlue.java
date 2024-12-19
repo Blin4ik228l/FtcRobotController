@@ -25,6 +25,7 @@ public class TeleOpBlue extends OpMode {
 
         robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().getX(),robot.odometry.getGlobalPosition().getY(),robot.odometry.getGlobalPosition().getHeading()));
         robot.init();
+
     }
 
     /**
@@ -47,8 +48,12 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void loop() {
+//        robot.taskManager.start();
+
         robot.checkJoysticks();
-        robot.updateColors();
+//        robot.updateColors();
+
+
         robot.teleopPl1();
         robot.teleopPl2();
 

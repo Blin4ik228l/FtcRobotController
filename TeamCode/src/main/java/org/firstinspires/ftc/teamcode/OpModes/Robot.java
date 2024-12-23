@@ -16,9 +16,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataObject;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.JoystickStatement;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -219,6 +217,64 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             dataDisplayer.dataForAuto();
         }
     }
+    public synchronized void runTeleopMethods(){
+
+        class runTele1 implements Runnable{
+            private Thread c1;
+
+            @Override
+            public void run() {
+                try {
+                teleopPl1();
+                } catch (Exception e) {
+                    dataDisplayer.addLine("Calc thread interrupted tele1");
+                    dataDisplayer.update();
+                }
+            }
+            public  void start_c(){
+                if(c1 == null){
+                    c1 = new Thread(this, "Calc Tele1");
+                    c1.start();
+                }
+            }
+            public void setDaemon(boolean bol){
+                c1.setDaemon(bol);
+            }
+        }
+
+        class runTele2 implements Runnable{
+            private Thread c2;
+
+            @Override
+            public void run() {
+                try {
+                    teleopPl2();
+                } catch (Exception e) {
+                    dataDisplayer.addLine("Calc thread interrupted tele2");
+                    dataDisplayer.update();
+                }
+            }
+
+            public  void start_c(){
+                if(c2 == null){
+                    c2 = new Thread(this, "Calc Tele2");
+                    c2.start();
+                }
+            }
+            public void setDaemon(boolean bol){
+                c2.setDaemon(bol);
+            }
+        }
+
+        runTele2 Tele2 = new runTele2();
+        runTele1 Tele1 = new runTele1();
+
+        Tele1.setDaemon(true);
+        Tele1.start_c();
+
+        Tele2.setDaemon(true);
+        Tele2.start_c();
+    }
 
     // Gamepad 1
     @Override
@@ -311,6 +367,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 3){
                 closeAuto = true;
             }
+        }
+        if(colorSensor.getMainColor() == Colors.YELLOW && colorSensor.getDistance() < 3){
+            closeAuto = true;
         }
 
     if(closeAuto && !joysticks.isHookOpen()){

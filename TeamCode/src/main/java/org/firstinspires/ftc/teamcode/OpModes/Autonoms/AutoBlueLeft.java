@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-@Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "TeleOpBlue")
+@Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "BlueMeow")
 public class AutoBlueLeft extends LinearOpMode {
     Robot robot;
     Position pos1 = new Position(40, -80 , Math.toRadians(0));

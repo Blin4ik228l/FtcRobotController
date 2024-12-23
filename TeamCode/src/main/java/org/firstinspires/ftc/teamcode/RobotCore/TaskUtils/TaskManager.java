@@ -71,13 +71,9 @@ public class TaskManager {
         while(!executingDeque.isEmpty() || !taskDeque.isEmpty() || isTeleopMode()) {
 
             // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
-            if (isTeleopMode()) {
-                robot.teleop();
-            }else {
                 pickTaskToDo();
 
                 taskHandler();
-            }
         }
     }
 

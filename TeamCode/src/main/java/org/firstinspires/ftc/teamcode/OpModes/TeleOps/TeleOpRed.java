@@ -43,10 +43,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void loop() {
-        robot.checkJoysticks();
-        robot.updateColors();
-        robot.telemetry();
-        robot.dataDisplayer.update();
+        robot.updateTeleops();
     }
 
     /**

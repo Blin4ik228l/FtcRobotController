@@ -32,8 +32,8 @@ public class AutoBlueLeft extends LinearOpMode {
 
 //        robot.taskManager.addTask(task3);
         robot.taskManager.addTask(task1);
-        robot.taskManager.addTask(task4);
         robot.taskManager.addTask(task2);
+        robot.taskManager.addTask(task4);
 //        robot.taskManager.addTask(task5);
         waitForStart();
         while (opModeIsActive() && !isStopRequested()) {

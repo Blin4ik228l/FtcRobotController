@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
@@ -11,10 +12,10 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 public class MecanumDrivetrain implements Module {
     public final OpMode op;
 
-    public volatile DcMotorEx rightB;
-    public volatile DcMotorEx rightF;
-    public volatile DcMotorEx leftB;
-    public volatile DcMotorEx leftF;
+    public volatile DcMotor rightB;
+    public volatile DcMotor rightF;
+    public volatile DcMotor leftB;
+    public volatile DcMotor leftF;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;
@@ -22,18 +23,23 @@ public class MecanumDrivetrain implements Module {
 
     @Override
     public void init() {
-        rightB = op.hardwareMap.get(DcMotorEx.class, "rightB");
-        rightF = op.hardwareMap.get(DcMotorEx.class, "rightF");
-        leftB = op.hardwareMap.get(DcMotorEx.class, "leftB");
-        leftF = op.hardwareMap.get(DcMotorEx.class, "leftF");
+        rightB = op.hardwareMap.get(DcMotor.class, "rightB");
+        rightF = op.hardwareMap.get(DcMotor.class, "rightF");
+        leftB = op.hardwareMap.get(DcMotor.class, "leftB");
+        leftF = op.hardwareMap.get(DcMotor.class, "leftF");
 
-        rightB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rightF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        leftF.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        leftB.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
-        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightB.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightF.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftB.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftF.setDirection(DcMotorSimple.Direction.REVERSE);
+
+//        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -54,21 +60,21 @@ public class MecanumDrivetrain implements Module {
     // Распределение требуемой скорости и направления движения робота на скорость колес
     public void setPower(Vector2 power, double heading){
         // TODO
-        rightF.setPower(Range.clip((power.x + power.y + heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((power.x - power.y + heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((power.x + power.y - heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((power.x - power.y - heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((-power.x + power.y + heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((-power.x - power.y + heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((power.x - power.y + heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((power.x + power.y + heading), -1.0, 1.0));
 
     }
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
         // TODO
-        rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((powerX + PowerY - heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((powerX - PowerY - heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((-powerX + PowerY + heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((-powerX - PowerY + heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
 
     }
 
@@ -89,15 +95,15 @@ public class MecanumDrivetrain implements Module {
 
     public synchronized void setPowerTeleOp(double forward, double side, double angle){
         rightF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
-        leftB.setPower(Range.clip((-forward + side - angle ), -1.0, 1.0));
-        leftF.setPower(Range.clip((-forward - side - angle ), -1.0, 1.0));
+        leftB.setPower(Range.clip((forward - side + angle ), -1.0, 1.0));
+        leftF.setPower(Range.clip((forward + side + angle ), -1.0, 1.0));
         rightB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
     }
 
     public synchronized void setPowerTeleOpHeadless(double forward, double side, double angle, double k, double u){
         rightF.setPower(Range.clip((forward - side - angle ) * k, -1.0, 1.0));
-        leftB.setPower(Range.clip((-forward + side - angle ) * k, -1.0, 1.0));
-        leftF.setPower(Range.clip((-forward - side - angle ) * u, -1.0, 1.0));
+        leftB.setPower(Range.clip((forward - side + angle ) * k, -1.0, 1.0));
+        leftF.setPower(Range.clip((forward + side + angle ) * u, -1.0, 1.0));
         rightB.setPower(Range.clip((forward + side - angle) * u, -1.0, 1.0));
     }
 }

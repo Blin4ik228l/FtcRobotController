@@ -57,7 +57,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double MAX_ANGULAR_SPEED = 6.28;
     double MAX_LINEAR_ACCEL = 800;
     double MAX_ANGULAR_ACCEL = 60;
-    double MIN_LINEAR_SPEED = 25;
+    double MIN_LINEAR_SPEED = 20;    //25
     double MIN_ANGULAR_SPEED = 2;
     double MIN_LINEAR_ACCEL = 1;
     double MIN_ANGULAR_ACCEL = 1;

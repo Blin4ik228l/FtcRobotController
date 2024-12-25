@@ -303,7 +303,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
 
-
         double max_speed = 0.6;
         double accelLinear, accelAngle;
 
@@ -323,15 +322,15 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             forward += 0.13 * Math.signum(forward);
         }
 
-        double forwardVoltage =  Range.clip(forward * accelLinear , -max_speed, max_speed);
-        double sideVoltage = Range.clip(side * accelLinear ,  -max_speed, max_speed);
-        double angleVoltage = Range.clip(turn * accelAngle, -max_speed, max_speed);
+        double forwardVoltage = Range.clip(forward * accelLinear, -max_speed, max_speed);
+        double sideVoltage =    Range.clip(side * accelLinear   , -max_speed, max_speed);
+        double angleVoltage =   Range.clip(turn * accelAngle    , -max_speed, max_speed);
 
-        if(joysticks.isHeadlessDrive()){
+        if(joysticks.isAandY_G1()){
             double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
 
             boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
-            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+            boolean ifSide =    Math.abs(sideVoltage) > Math.abs(forwardVoltage);
 
             dataDisplayer.addData("k", k);
 
@@ -356,9 +355,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
         }
 
-        if(joysticks.isCruiseDrive()){
-            forwardC = Range.clip(forwardC + (-Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
-            sideC = Range.clip(sideC + (Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
+        if(joysticks.isX_G1()){
+            forwardC = Range.clip(forwardC + (-Range.clip(forward,-0.02, 0.02)), -0.4, 0.4);
+            sideC = Range.clip(sideC + (Range.clip(side,-0.02, 0.02)), -0.4, 0.4);
 
             drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
         }else {
@@ -367,16 +366,12 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         dataDisplayer.addData("Tele1 working", Math.random());
 
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCR, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCM, DataFilter.CM);
-
         dataDisplayer.addData("forwardVoltage", forwardVoltage);
         dataDisplayer.addData("sideVoltage", sideVoltage);
         dataDisplayer.addData("angleVoltage", angleVoltage);
-//
+
         dataDisplayer.showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
-        dataDisplayer.addData("isCruise", joysticks.isCruiseDrive());
+        dataDisplayer.addData("isCruise", joysticks.isX_G1());
     }
 
     // Gamepad 2
@@ -384,6 +379,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public synchronized void teleopPl2() {
         updateColors();
         Gamepad g2 = joysticks.getGamepad2();
+
         boolean closeAuto = false;
 
         double upStandingVel = -g2.right_stick_y;
@@ -395,7 +391,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 closeAuto = true;
             }
         }
-
         if(robotAlliance.equals(RobotAlliance.BLUE)){
             if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 3){
                 closeAuto = true;
@@ -405,20 +400,18 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             closeAuto = true;
         }
 
-    if(closeAuto && !joysticks.isHookOpen()){
+    if(closeAuto && !joysticks.isA_G2()){
         teleSkope.setHook(CLOSE_POS_HOOK);
-
     }else {
         teleSkope.setHook(OPEN_POS_HOOK);
-        }
+    }
 
+    if (joysticks.isX_G2()){
+        teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
+    }else{
+        teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        if (joysticks.isProportionalTeleskope()){
-            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
-        }else{
-            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
-
-        dataDisplayer.addData("Tele2 working", Math.random());
+    dataDisplayer.addData("Tele2 working", Math.random());
 
 //                .addData("Distance", colorSensor.getDistance())
 //                .addData("MainColor", colorSensor.getMainColor().toString());

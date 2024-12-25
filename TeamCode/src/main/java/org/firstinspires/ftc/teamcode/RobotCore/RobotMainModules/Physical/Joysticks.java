@@ -12,9 +12,9 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private boolean isHeadless = false, isCruise = false, isProp = true, hookOpen = false;
+    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false;
 
-    private boolean switchH = false, switchC = false, switchP = false, switchHook = false ;
+    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false ;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -34,68 +34,63 @@ public class Joysticks implements Module {
         return gamepad2;
     }
 
-    public boolean isCruiseDrive() {
-        return isCruise;
-    }
 
-    public boolean isHeadlessDrive() {
-        return isHeadless;
-    }
+    public synchronized boolean isAandY_G1(){
 
-    public boolean isProportionalTeleskope() {
-        return isProp;
-    }
+        if(gamepad1.a && gamepad1.y && !switchAY_g1) {
+            isAY_g1 = !isAY_g1;
+            switchAY_g1 = true;}
 
-    public synchronized boolean isHookOpen(){
-        return hookOpen;
-    }
-
-    public synchronized void setHookOpen(boolean hookOpen) {
-        this.hookOpen = hookOpen;
-    }
-
-    private synchronized void checkHeadless(){
-        if(gamepad1.a && gamepad1.y && !switchH) {
-            isHeadless = !isHeadless;
-            switchH = true;}
-
-        if(!gamepad1.a && !gamepad1.y && switchH){
-            switchH = false;
+        if(!gamepad1.a && !gamepad1.y && switchAY_g1){
+            switchAY_g1 = false;
         }
+
+        return isAY_g1;
     }
 
-    private synchronized void checkCruise() {
-        if(gamepad1.x && !switchC) {
-            isCruise = !isCruise;
-            switchC = true;}
-        if(!gamepad1.x && switchC){
-            switchC = false;
+    public synchronized boolean isX_G1() {
+
+        if(gamepad1.x && !switchX_g1) {
+            isX_g1 = !isX_g1;
+            switchX_g1 = true;}
+        if(!gamepad1.x && switchX_g1){
+            switchX_g1 = false;
         }
+
+        return isX_g1;
     }
 
-    private synchronized void checkProport(){
-        if(gamepad2.x && !switchP) {
-            isProp = !isProp;
-            switchP = true;}
+    public synchronized boolean isX_G2(){
 
-        if(!gamepad2.x && switchP){
-            switchP = false;
+        if(gamepad2.x && !switchX_g2) {
+            isX_g2 = !isX_g2;
+            switchX_g2 = true;}
+
+        if(!gamepad2.x && switchX_g2){
+            switchX_g2 = false;
         }
+
+        return isX_g2;
     }
 
-    private synchronized void checkHook(){
-        if(gamepad2.a && !switchHook) {
-            hookOpen = !hookOpen;
-            switchHook = true;}
+    public synchronized boolean isA_G2(){
 
-        if(!gamepad2.a && switchHook){
-            switchHook = false;
+        if(gamepad2.a && !switchA_g2) {
+            isA_g2 = !isA_g2;
+            switchA_g2 = true;}
+
+        if(!gamepad2.a && switchA_g2){
+            switchA_g2 = false;
         }
+
+        return isA_g2;
     }
+
     public synchronized void checkJoysticksCombo(){
-        checkCruise();
-        checkHeadless();
-        checkProport();
-        checkHook();
+        isA_G2();
+        isX_G2();
+        isX_G1();
+        isAandY_G1();
     }
+
 }

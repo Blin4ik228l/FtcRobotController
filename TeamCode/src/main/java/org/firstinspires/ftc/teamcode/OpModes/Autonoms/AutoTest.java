@@ -85,13 +85,13 @@ public class AutoTest extends LinearOpMode {
                 robot.drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
-            robot.dataDisplayer.addLine();
-            robot.dataDisplayer.addData("Оставшийся угол", errorHeading);
-            robot.dataDisplayer.addData("Оставшийся расстояние", errorPos.length());
-            robot.dataDisplayer.addLine();
-            robot.dataDisplayer.showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
+            robot.metry.getTelemetry().addLine();
+            robot.metry.getTelemetry().addData("Оставшийся угол", errorHeading);
+            robot.metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
+            robot.metry.getTelemetry().addLine();
+//            robot.metry.getTelemetry().showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
 
-            robot.dataDisplayer.update();
+            robot.metry.getTelemetry().update();
         }
     }
 

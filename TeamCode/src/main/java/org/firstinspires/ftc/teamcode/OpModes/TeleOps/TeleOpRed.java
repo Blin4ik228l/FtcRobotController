@@ -35,7 +35,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void start() {
-        robot.runTeleopMethods();
+
     }
 
     /**
@@ -43,7 +43,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void loop() {
-        robot.updateTeleops();
+        robot.taskManager.start();
     }
 
     /**

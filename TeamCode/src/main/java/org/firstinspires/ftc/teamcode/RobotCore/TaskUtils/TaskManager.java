@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 
@@ -13,7 +14,7 @@ import java.util.Stack;
 public class TaskManager {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private final RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
+    private RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
 
     private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
     private final Deque<Task> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
@@ -67,9 +68,16 @@ public class TaskManager {
 
 
     public void start() {
+        robot.op.telemetry.addData("toWhile2", isTeleopMode());
+        robot.op.telemetry.update();
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
         while(!executingDeque.isEmpty() || !taskDeque.isEmpty() || isTeleopMode()) {
 
+            robot.op.telemetry.addData("isTe", isTeleopMode());
+            if(isTeleopMode()){
+                robot.op.telemetry.addData("TaskMage", Math.random());
+                robot.teleop();
+            }
             // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
                 pickTaskToDo();
 
@@ -122,6 +130,8 @@ public class TaskManager {
                     picked = false; // Если не попали ни в один из кейсов
                     break;
             }
+        } else {
+            picked = false;
         }
 
         // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
@@ -221,5 +231,11 @@ public class TaskManager {
     }
     public boolean isStopMode(){
         return robot.robotMode == RobotMode.STOP;
+    }
+
+
+    public void setRobot(RobotCore robot) {
+
+        this.robot = robot;
     }
 }

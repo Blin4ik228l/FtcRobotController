@@ -70,11 +70,11 @@ public class MecanumDrivetrain implements Module {
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
         // TODO
-        rightF.setPower(Range.clip((powerX + PowerY - heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((powerX - PowerY - heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
+        rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
 
-        leftF.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((powerX - PowerY - heading), -1.0, 1.0));
+        leftB.setPower(Range.clip((powerX + PowerY - heading), -1.0, 1.0));
 
     }
 
@@ -95,9 +95,10 @@ public class MecanumDrivetrain implements Module {
 
     public synchronized void setPowerTeleOp(double forward, double side, double angle){
         rightF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
+        rightB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
+
         leftB.setPower(Range.clip((forward - side + angle ), -1.0, 1.0));
         leftF.setPower(Range.clip((forward + side + angle ), -1.0, 1.0));
-        rightB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
     }
 
     public synchronized void setPowerTeleOpHeadless(double forward, double side, double angle, double k, double u){

@@ -45,7 +45,7 @@ public class DataDisplayer implements Module {
         this.telemetry = robot.metry.getTelemetry();
 
         if (telemetry != null) {
-            telemetry.addLine("Telemetry is Ready!");
+            telemetry.addLine("DataDisplayer is Ready!");
         }
     }
 
@@ -205,6 +205,7 @@ public class DataDisplayer implements Module {
                 addData(target.name(), "No such target data exist");
                 break;
         }
+
     }
 
     public synchronized void showGroupData(DataGroup group, DataTarget target, DataFilter filter){
@@ -225,7 +226,7 @@ public class DataDisplayer implements Module {
                 break;
             case ODOMETRY:
                 switch (target){
-                    case displayCurHeightTeleskope:
+                    case displayCurPosition:
                         showValue(target, DataObject.ENCL, filter);
                         showValue(target, DataObject.ENCR, filter);
                         showValue(target, DataObject.ENCM, filter);

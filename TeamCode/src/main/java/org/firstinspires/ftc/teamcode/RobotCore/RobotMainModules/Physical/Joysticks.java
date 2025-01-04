@@ -24,6 +24,8 @@ public class Joysticks implements Module {
     public void init() {
         this.gamepad1 = op.gamepad1;
         this.gamepad2 = op.gamepad2;
+
+        op.telemetry.addLine("Gamepads Inited");
     }
 
     public synchronized Gamepad getGamepad1() {

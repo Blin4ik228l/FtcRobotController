@@ -23,6 +23,8 @@ public class ServosService implements Module, CONSTSTELESKOPE {
 
         setHookStartPos();
         setHorizontalStartPos();
+
+        op.telemetry.addLine("Servos Inited");
     }
 
     public Servo getHook() {

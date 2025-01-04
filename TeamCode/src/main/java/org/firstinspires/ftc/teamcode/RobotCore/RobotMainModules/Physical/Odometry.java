@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
@@ -26,6 +27,8 @@ public class Odometry extends Thread implements Module {
     private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;
+
+    TelemetryMessage telemetryMessage2 = new TelemetryMessage();
 
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
@@ -68,6 +71,10 @@ public class Odometry extends Thread implements Module {
 
         this.setDaemon(true);
         this.start();
+
+        op.telemetry.addLine("Odometry Inited");
+
+        telemetryMessage2.addData("Random nums in odometry", Math.random());
     }
 
     @Override
@@ -80,6 +87,8 @@ public class Odometry extends Thread implements Module {
             updateAcceleration();
             updateAngularAcceleration();
             updateAngularVelocity();
+
+            op.internalUpdateTelemetryNow(telemetryMessage2);
         }
     }
 
@@ -207,7 +216,7 @@ public class Odometry extends Thread implements Module {
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition());
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() / 1.06);
         double deltaRightEncoderX = rightEncoderXNow - encROld;
         encROld = rightEncoderXNow;
 
@@ -222,7 +231,7 @@ public class Odometry extends Thread implements Module {
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = -(deltaRightEncoderX + deltaLeftEncoderX) / CONSTS.DIST_BETWEEN_ENC_X;
+        double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / CONSTS.DIST_BETWEEN_ENC_X );
         double deltaX = (deltaLeftEncoderX - deltaRightEncoderX ) / 2.0;
         double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

@@ -25,7 +25,7 @@ public class TeleOpBlue extends OpMode {
         robot.init();
 
         robot.metry.getTelemetry().addData("init end", Math.random());
-        robot.metry.getTelemetry().update();
+
     }
 
     /**
@@ -41,7 +41,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void start() {
-
+        robot.taskManager.whenPlay();
     }
 
 
@@ -50,9 +50,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void loop() {
-        robot.metry.getTelemetry().addData("inLoop", Math.random());
-        robot.metry.getTelemetry().update();
-        robot.taskManager.start();
+
     }
 
     /**
@@ -61,5 +59,6 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void stop() {
         robot.robotMode = RobotMode.STOP;
+
     }
 }

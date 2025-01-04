@@ -35,6 +35,8 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         upStandingRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         brakeMotors();
+
+        op.telemetry.addLine("Teleskope Inited");
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {

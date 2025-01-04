@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
+import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
@@ -11,11 +12,12 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.Stack;
 
-public class TaskManager {
+public class TaskManager extends Thread{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
 
+//    private final Robot robot;
     private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
     private final Deque<Task> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
     private final Deque<Task> executingDeque; // Очередь для хранения обрабатываемых задач
@@ -30,6 +32,25 @@ public class TaskManager {
         this.taskDeque = new ArrayDeque<Task>();
         this.executingDeque = new ArrayDeque<Task>();
         this.completedTasks = new Stack<Task>();
+    }
+
+    public void forAuto(){
+        if(!executingDeque.isEmpty() || !taskDeque.isEmpty()){
+            pickTaskToDo();
+
+            taskHandler();
+        }
+    }
+    public void whenPlay(){
+        this.setDaemon(true);
+        this.start();
+    }
+
+    @Override
+    public void run() {
+        while (this.isAlive()) {
+            startTasks();
+        }
     }
 
     public Deque<Task> getTaskDeque() {
@@ -67,21 +88,17 @@ public class TaskManager {
      */
 
 
-    public void start() {
-        robot.op.telemetry.addData("toWhile2", isTeleopMode());
-        robot.op.telemetry.update();
+    private void startTasks() {
+        TelemetryMessage telemetryMessage = new TelemetryMessage();
+        telemetryMessage.addData("!executingDeque.isEmpty()",!executingDeque.isEmpty());
+        telemetryMessage.addData("!taskDeque.isEmpty()", !taskDeque.isEmpty());
+        telemetryMessage.addData("TaskMage", Math.random());
+        telemetryMessage.addData("isTe", isTeleopMode());
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!executingDeque.isEmpty() || !taskDeque.isEmpty() || isTeleopMode()) {
-
-            robot.op.telemetry.addData("isTe", isTeleopMode());
+        while(!isStopMode()) {
             if(isTeleopMode()){
-                robot.op.telemetry.addData("TaskMage", Math.random());
                 robot.teleop();
             }
-            // Если мы в режиме телеопа, то дергаем метод, обрабатывающий джойстики
-                pickTaskToDo();
-
-                taskHandler();
         }
     }
 
@@ -234,8 +251,5 @@ public class TaskManager {
     }
 
 
-    public void setRobot(RobotCore robot) {
 
-        this.robot = robot;
-    }
 }

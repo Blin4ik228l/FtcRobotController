@@ -35,7 +35,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void start() {
-
+        robot.taskManager.whenPlay();
     }
 
     /**
@@ -43,7 +43,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void loop() {
-        robot.taskManager.start();
+
     }
 
     /**

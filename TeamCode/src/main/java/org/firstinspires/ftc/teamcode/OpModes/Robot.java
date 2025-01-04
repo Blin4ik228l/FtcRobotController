@@ -43,7 +43,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //    public final DataDisplayer dataDisplayer;
     public final ServosService servosService;
 //    public final RGBColorSensor colorSensor;
-    public final Distance distanceSensor;
+//    public final Distance distanceSensor;
+//    public final TaskManager taskManager;
 
     double horizontalPos = CLOSE_POS_HORIZONTAL, forwardC, sideC;
 
@@ -55,7 +56,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.95,0.000018,0, -1,1);
+    public final PID pidAngular = new PID(1.12,0,0, -1,1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,23 +70,25 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
 //        colorSensor = new RGBColorSensor(op);
-        distanceSensor = new Distance(op);
+//        distanceSensor = new Distance(op);
 
 //        dataDisplayer = new DataDisplayer(this);
 
-        this.taskManager.setRobot(this);
+//        taskManager = new TaskManager(this);
+
     }
     @Override
     // Метод инициализации того, чего надо
     public void init() {
+        metry.init();
         odometry.init();
         drivetrain.init();
         servosService.init();
         teleSkope.init();
         joysticks.init();
-        metry.init();
+
 //        colorSensor.init();
-        distanceSensor.init();
+//        distanceSensor.init();
 
 //        dataDisplayer.init();
     }
@@ -126,9 +129,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = MIN_LINEAR_SPEED;
                 }
 
-                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
-                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
-                }
+//                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
+//                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
+//                }
 
                 if (linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
@@ -137,7 +140,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = 0;
                 }
 
-                if(Math.abs(errorHeading) < Math.toRadians(1.5)){
+                if(Math.abs(errorHeading) < Math.toRadians(0.8)){
                     errorHeadingDone = true;
                 }
 
@@ -157,15 +160,18 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 }
 
                 metry.getTelemetry().addData("Вектор", targetVel.length());
-            metry.getTelemetry().addData("Вектор X", targetVel.x);
-            metry.getTelemetry().addData("Вектор Y", targetVel.y);
-            metry.getTelemetry().addData("Оставшийся угол", errorHeading);
-            metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
-            metry.getTelemetry().addData("Оставшийся X", errorPos.x);
-            metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
-            metry.getTelemetry().addData("result", result);
+                metry.getTelemetry().addData("Вектор X", targetVel.x);
+                metry.getTelemetry().addData("Вектор Y", targetVel.y);
+                metry.getTelemetry().addData("Оставшийся угол", errorHeading);
+                metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
+                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
+                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
+                metry.getTelemetry().addData("result", result);
 
-            metry.getTelemetry().update();
+            metry.getTelemetry().addData("encL", odometry.getEncL().getCurrentPosition());
+            metry.getTelemetry().addData("encR", odometry.getEncR().getCurrentPosition());
+            metry.getTelemetry().addData("encM", odometry.getEncM().getCurrentPosition());
+                metry.getTelemetry().update();
 
             return result;
         }
@@ -378,7 +384,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
         }
 
-        metry.getTelemetry().addData("Tele1 working", Math.random());
+        metry.getTelemetry().addData("turn",g1.right_stick_x );
+//        metry.getTelemetry().addData("Tele1 working", Math.random());
 //        dataDisplayer.addData("distance", distanceSensor.getDistance());
 
 //        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
@@ -430,7 +437,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        metry.getTelemetry().addData("Tele2 working", Math.random());
+//        metry.getTelemetry().addData("Tele2 working", Math.random());
 
 //                .addData("Distance", colorSensor.getDistance())
 //                .addData("MainColor", colorSensor.getMainColor().toString());

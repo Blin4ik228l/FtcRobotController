@@ -48,6 +48,8 @@ public class MecanumDrivetrain implements Module {
 
         offMotors();
         brakeMotors();
+
+        op.telemetry.addLine("Drivetrain Inited");
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behabior) {

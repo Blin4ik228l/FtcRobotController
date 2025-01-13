@@ -12,9 +12,9 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false;
+    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false;
 
-    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false ;
+    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false, switchB_g2 = false ;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -48,6 +48,17 @@ public class Joysticks implements Module {
         }
 
         return isAY_g1;
+    }
+
+    public synchronized boolean isB_G2(){
+        if(gamepad2.b && !switchB_g2) {
+            isB_g2 = !isB_g2;
+            switchB_g2 = true;}
+        if(!gamepad2.b && switchB_g2){
+            switchB_g2 = false;
+        }
+
+        return isB_g2;
     }
 
     public synchronized boolean isX_G1() {

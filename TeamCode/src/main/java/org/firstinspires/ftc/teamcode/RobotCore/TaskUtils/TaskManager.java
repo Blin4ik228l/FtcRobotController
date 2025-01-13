@@ -88,12 +88,7 @@ public class TaskManager extends Thread{
      */
 
 
-    private void startTasks() {
-        TelemetryMessage telemetryMessage = new TelemetryMessage();
-        telemetryMessage.addData("!executingDeque.isEmpty()",!executingDeque.isEmpty());
-        telemetryMessage.addData("!taskDeque.isEmpty()", !taskDeque.isEmpty());
-        telemetryMessage.addData("TaskMage", Math.random());
-        telemetryMessage.addData("isTe", isTeleopMode());
+    private synchronized void startTasks() {
         // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
         while(!isStopMode()) {
             if(isTeleopMode()){

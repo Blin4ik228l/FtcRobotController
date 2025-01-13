@@ -56,7 +56,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(1.12,0,0, -1,1);
+    public final PID pidAngular = new PID(1.0,0.0000038,0, -1,1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -71,11 +71,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         teleSkope = new TeleSkope(op, servosService);
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
-
-//        dataDisplayer = new DataDisplayer(this);
-
-//        taskManager = new TaskManager(this);
-
     }
     @Override
     // Метод инициализации того, чего надо
@@ -89,8 +84,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
 //        colorSensor.init();
 //        distanceSensor.init();
-
-//        dataDisplayer.init();
     }
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -206,7 +199,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 teleSkope.offMotors();
                 result = 0;
             }else {
-                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height);
+                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height, args.flipPos, args.hookPos);
                 result = -1;
             }
 
@@ -220,102 +213,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return result;
         }
     };
-
-    public synchronized void checkJoysticks(){
-        joysticks.checkJoysticksCombo();
-    }
-//    public synchronized void updateColors(){colorSensor.update();}
-
-    public synchronized void telemetry(){
-//        if(robotMode == RobotMode.TELEOP){
-//            dataDisplayer.dataForTeleOp();
-//        }else if(robotMode == RobotMode.AUTO){
-//            dataDisplayer.dataForAuto();
-//        }
-    }
-//    public synchronized Runnable[] runTeleopMethods(){
-//
-//
-//        class runTele1 implements Runnable{
-//            private Thread c1;
-//
-//            public synchronized void run() {
-//                try {
-//                   teleopPl1();
-//                } catch (Exception e) {
-//                    dataDisplayer.addLine("Calc thread interrupted tele1");
-//                    dataDisplayer.update();
-//                }
-//            }
-//            public synchronized void create_c(){
-//                if(c1 == null){
-//                    c1 = new Thread(this, "Calc Tele1");
-//                    c1.setDaemon(true);
-//                }
-//            }
-//        }
-//
-//        class runTele2 implements Runnable{
-//            private Thread c2;
-//
-//            public synchronized void run() {
-//                try {
-//                    teleopPl2();
-//                } catch (Exception e) {
-//                    dataDisplayer.addLine("Calc thread interrupted tele2");
-//                    dataDisplayer.update();
-//                }
-//            }
-//
-//            public synchronized void create_c(){
-//                if(c2 == null){
-//                    c2 = new Thread(this, "Calc Tele2");
-//                    c2.setDaemon(true);
-//                }
-//            }
-//        }
-//
-//        class runStatesMents implements Runnable{
-//            private Thread c3;
-//
-//            public void run() {
-//                try {
-//                    statesment();
-//                } catch (Exception e) {
-//                    dataDisplayer.addLine("Calc thread interrupted tele2");
-//                    dataDisplayer.update();
-//                }
-//            }
-//
-//            public synchronized void create_c(){
-//                if(c3 == null){
-//                    c3 = new Thread(this, "Calc Tele2");
-//                    c3.setDaemon(true);
-//                }
-//            }
-//        }
-//
-//        runTele2 Tele2 = new runTele2();
-//        runTele1 Tele1 = new runTele1();
-//        runStatesMents statesMents = new runStatesMents();
-//
-//        Tele1.create_c();
-//        Tele2.create_c();
-////        statesMents.create_c();
-//
-//        return new Runnable[]{Tele1, Tele2, statesMents};
-//    }
-//
-//    public void updateTeleops(){
-////        runTeleopMethods()[0].run();
-////        runTeleopMethods()[1].run();
-////        runTeleopMethods()[2].run();
-//    }
-//
-//    public void statesment(){
-////        checkJoysticks();
-////        telemetry();
-//    }
 
     // Gamepad 1
     @Override
@@ -375,27 +272,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
         }
 
-        if(joysticks.isX_G1()){
-            forwardC = Range.clip(forwardC + (-Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
-            sideC = Range.clip(sideC + (Range.clip(g1.left_stick_y,-0.02, 0.02)), -0.4, 0.4);
-
-            drivetrain.setPowerTeleOp(forwardC, sideC, angleVoltage);
-        }else {
-            drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
-        }
+        drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
         metry.getTelemetry().addData("turn",g1.right_stick_x );
 //        metry.getTelemetry().addData("Tele1 working", Math.random());
-//        dataDisplayer.addData("distance", distanceSensor.getDistance());
-
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCR, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCM, DataFilter.CM);
-
-//        dataDisplayer.showGroupData(DataGroup.ODOMETRY, DataTarget.displayCurVelocity, DataFilter.CM);
-
-//        dataDisplayer.addData("isCruise", joysticks.isX_G1());
-//        dataDisplayer.addData("isHEadl", joysticks.isAandY_G1());
     }
 
     // Gamepad 2
@@ -407,7 +287,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (-Range.clip(g2.left_stick_y,-0.4, 0.4)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos + (Range.clip(g2.left_stick_y,-0.01, 0.01)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
 //        if(robotAlliance.equals(RobotAlliance.RED) ){
 //            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
@@ -424,34 +304,28 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //            closeAuto = true;
 //        }
 
-    if(closeAuto && !joysticks.isA_G2()){
-        teleSkope.setHook(CLOSE_POS_HOOK);
+//    if(!joysticks.isA_G2() && closeAuto){
+//        teleSkope.setHook(CLOSE_POS_HOOK);
+//    }else {
+//        teleSkope.setHook(OPEN_POS_HOOK);
+//        }
 
-    }else {
-        teleSkope.setHook(OPEN_POS_HOOK);
+
+        if (joysticks.isA_G2()){
+            teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
+        }else {
+            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
         }
 
+        if (joysticks.isB_G2()){
+            teleSkope.setFlip(CONSTSTELESKOPE.HANG_POS_FLIP);
+        }else {
+            teleSkope.setFlip(CONSTSTELESKOPE.TAKE_POS_FLIP);
+        }
 
         if (joysticks.isX_G2()){
             teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
-
-//        metry.getTelemetry().addData("Tele2 working", Math.random());
-
-//                .addData("Distance", colorSensor.getDistance())
-//                .addData("MainColor", colorSensor.getMainColor().toString());
-
-
-//        dataDisplayer.addData("isProp", joysticks.isProportionalTeleskope());
-//        dataDisplayer.addData("isHookOpen", joysticks.isHookOpen());
-//        dataDisplayer.addData("hookPos", servosService.getHook().getPosition());
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.ENCL, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGLEFT, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayCurPosition, DataObject.UPSTANDINGRIGHT, DataFilter.CM);
-//        dataDisplayer.showValue(DataTarget.displayOtherPosition, DataObject.HORIZONTAL, DataFilter.POSITION);
-//
-//        dataDisplayer.addData("horizontalPos", horizontalPos);
-//        dataDisplayer.showValueJoystick(DataTarget.displayJoystickStateMent, DataObject.GAMEPAD2, JoystickStatement.LEFT_STICK);
     }
 }

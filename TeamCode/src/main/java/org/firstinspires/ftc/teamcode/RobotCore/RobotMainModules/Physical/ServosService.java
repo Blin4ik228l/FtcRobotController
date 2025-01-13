@@ -11,6 +11,7 @@ public class ServosService implements Module, CONSTSTELESKOPE {
 
     private Servo hook;
     private Servo horizontal;
+    private Servo flip;
 
     public ServosService(OpMode op){
         this.op = op;
@@ -20,15 +21,21 @@ public class ServosService implements Module, CONSTSTELESKOPE {
     public void init() {
         horizontal = op.hardwareMap.get(Servo.class, "horizontal");
         hook = op.hardwareMap.get(Servo.class, "hook");
+        flip = op.hardwareMap.get(Servo.class, "flip");
 
         setHookStartPos();
         setHorizontalStartPos();
+        setFlipStartPos();
 
         op.telemetry.addLine("Servos Inited");
     }
 
     public Servo getHook() {
         return hook;
+    }
+
+    public Servo getFlip() {
+        return flip;
     }
 
     public Servo getHorizontal() {
@@ -41,6 +48,10 @@ public class ServosService implements Module, CONSTSTELESKOPE {
 
     public void setHookStartPos() {
         hook.setPosition(CLOSE_POS_HOOK);
+    }
+
+    public void setFlipStartPos(){
+        flip.setPosition(TAKE_POS_FLIP);
     }
 
     public void setServosStartPos(){}

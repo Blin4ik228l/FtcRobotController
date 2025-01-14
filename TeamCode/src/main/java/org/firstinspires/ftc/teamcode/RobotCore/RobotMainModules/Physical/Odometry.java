@@ -88,7 +88,7 @@ public class Odometry extends Thread implements Module {
             updateAngularAcceleration();
             updateAngularVelocity();
 
-            op.internalUpdateTelemetryNow(telemetryMessage2);
+//            op.internalUpdateTelemetryNow(telemetryMessage2);
         }
     }
 
@@ -216,7 +216,7 @@ public class Odometry extends Thread implements Module {
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() / 1.06);
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() / 1.02);
         double deltaRightEncoderX = rightEncoderXNow - encROld;
         encROld = rightEncoderXNow;
 
@@ -249,4 +249,19 @@ public class Odometry extends Thread implements Module {
         }
     }
 
+    public synchronized void getRobotPos(){
+        op.telemetry.addLine("Robot position")
+                .addData("\nX:", globalPosition.getX())
+                .addData("\nY", globalPosition.getY())
+                .addData("\nHeading", globalPosition.getHeading() * 57.29);
+        op.telemetry.addLine();
+    }
+
+    public synchronized void getEncPos(){
+        op.telemetry.addLine("Encoders statements")
+                .addData("\nEncL", encL.getCurrentPosition())
+                .addData("\nEncM", encM.getCurrentPosition())
+                .addData("\nEncR", encR.getCurrentPosition());
+        op.telemetry.addLine();
+    }
 }

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
@@ -71,6 +72,9 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
+        if (Math.abs(heading) < 0.08 && heading != 0){
+            heading = 0.08;
+        }
         // TODO
         rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
         rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
@@ -108,5 +112,14 @@ public class MecanumDrivetrain implements Module {
         leftB.setPower(Range.clip((forward - side + angle ) * k, -1.0, 1.0));
         leftF.setPower(Range.clip((forward + side + angle ) * u, -1.0, 1.0));
         rightB.setPower(Range.clip((forward + side - angle) * u, -1.0, 1.0));
+    }
+
+    public synchronized void getMotorsPower(){
+        op.telemetry.addLine("Motors power")
+                .addData("\nrightF", rightF.getPower())
+                .addData("\nrightB", rightB.getPower())
+                .addData("\nleftF", leftF.getPower())
+                .addData("\nleftB", leftB.getPower());
+        op.telemetry.addLine();
     }
 }

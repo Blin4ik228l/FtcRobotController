@@ -67,10 +67,11 @@ public abstract class RobotCore implements Module {
     public synchronized void teleop() {
         teleopPl1();
         teleopPl2();
+        playersTelemetry();
     }
 
     public abstract void teleopPl1();
     public abstract void teleopPl2();
-
+    public abstract void playersTelemetry();
 }
 

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
@@ -43,7 +44,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(1.0,0.0000038,0, -1,1);
+    public final PID pidAngular = new PID(0.97,0.0000038,0, -1,1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +63,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     @Override
     // Метод инициализации того, чего надо
     public void init() {
+        op.telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
+        op.telemetry.setItemSeparator("");
+
+
         metry.init();
         odometry.init();
         drivetrain.init();
@@ -120,9 +125,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = 0;
                 }
 
-                if(Math.abs(errorHeading) < Math.toRadians(0.8)){
+                if(Math.abs(errorHeading) < Math.toRadians(1)){
                     errorHeadingDone = true;
                 }
+
 
                 targetVel.multyplie(linearVel);
 
@@ -139,18 +145,19 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
                 }
 
-                metry.getTelemetry().addData("Вектор", targetVel.length());
-                metry.getTelemetry().addData("Вектор X", targetVel.x);
-                metry.getTelemetry().addData("Вектор Y", targetVel.y);
-                metry.getTelemetry().addData("Оставшийся угол", errorHeading);
-                metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
-                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
-                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
+//                metry.getTelemetry().addData("Вектор", targetVel.length());
+//                metry.getTelemetry().addData("Вектор X", targetVel.x);
+//                metry.getTelemetry().addData("Вектор Y", targetVel.y);
+                metry.getTelemetry().addData("Оставшийся угол", errorHeading * 57.29);
+                metry.getTelemetry().addData("angularPID", angularPID);
+            metry.getTelemetry().addData("speedPIDX", speedPIDX);
+            metry.getTelemetry().addData("speedPIDY", speedPIDY);
+//                metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
+//                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
+//                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
+
                 metry.getTelemetry().addData("result", result);
 
-            metry.getTelemetry().addData("encL", odometry.getEncL().getCurrentPosition());
-            metry.getTelemetry().addData("encR", odometry.getEncR().getCurrentPosition());
-            metry.getTelemetry().addData("encM", odometry.getEncM().getCurrentPosition());
                 metry.getTelemetry().update();
 
             return result;
@@ -258,6 +265,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         if (Math.abs(forward) < 0.13 && forward != 0){
             forward += 0.13 * Math.signum(forward);
         }
+        if (Math.abs(side) < 0.13 && side != 0){
+            side += 0.13 * Math.signum(side);
+        }
 
         double forwardVoltage =  Range.clip(forward * accelLinear , -max_speed, max_speed);
         double sideVoltage = Range.clip(side * accelLinear ,  -max_speed, max_speed);
@@ -294,8 +304,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
-        metry.getTelemetry().addData("turn",g1.right_stick_x );
-//        metry.getTelemetry().addData("Tele1 working", Math.random());
     }
 
     // Gamepad 2
@@ -309,7 +317,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos - (Range.clip(leftStickY,-0.004, 0.004)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos - (Range.clip(leftStickY,-0.006, 0.006)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
 //        if(robotAlliance.equals(RobotAlliance.RED) ){
 //            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
@@ -349,5 +357,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
         }else{
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
+    }
+
+@Override
+    public synchronized void playersTelemetry() {
     }
 }

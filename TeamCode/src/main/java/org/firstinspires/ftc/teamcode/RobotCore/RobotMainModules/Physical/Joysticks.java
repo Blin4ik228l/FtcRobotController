@@ -51,7 +51,7 @@ public class Joysticks implements Module {
     }
 
     public synchronized boolean isB_G2(){
-        if(gamepad2.b && !switchB_g2) {
+        if(gamepad2.b && !switchB_g2 && !gamepad2.start) {
             isB_g2 = !isB_g2;
             switchB_g2 = true;}
         if(!gamepad2.b && switchB_g2){
@@ -88,7 +88,7 @@ public class Joysticks implements Module {
 
     public synchronized boolean isA_G2(){
 
-        if(gamepad2.a && !switchA_g2) {
+        if(gamepad2.a && !switchA_g2 && !gamepad2.start) {
             isA_g2 = !isA_g2;
             switchA_g2 = true;}
 
@@ -100,10 +100,11 @@ public class Joysticks implements Module {
     }
 
     public synchronized void checkJoysticksCombo(){
-        isA_G2();
-        isX_G2();
-        isX_G1();
-        isAandY_G1();
+        op.telemetry.addLine("Joystick buttons statements")
+                .addData("\nisHookOpen", isA_g2)
+                .addData("\nPropMode", isX_g2)
+                .addData("\nisUpped", isB_g2);
+        op.telemetry.addLine();
     }
 
 }

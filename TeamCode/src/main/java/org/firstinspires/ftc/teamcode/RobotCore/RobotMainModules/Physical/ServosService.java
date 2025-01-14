@@ -54,5 +54,11 @@ public class ServosService implements Module, CONSTSTELESKOPE {
         flip.setPosition(TAKE_POS_FLIP);
     }
 
-    public void setServosStartPos(){}
+    public synchronized void getServosPos(){
+        op.telemetry.addLine("Servos")
+                .addData("\nFlip", flip.getPosition())
+                .addData("\nHook", hook.getPosition())
+                .addData("\nHorizontal", horizontal.getPosition());
+        op.telemetry.addLine();
+    }
 }

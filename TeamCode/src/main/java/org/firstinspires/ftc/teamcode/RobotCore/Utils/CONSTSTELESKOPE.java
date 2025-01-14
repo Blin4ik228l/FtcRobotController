@@ -8,9 +8,9 @@ public interface CONSTSTELESKOPE {
     double CLOSE_POS_HOOK = 0.05;
 
     double TAKE_POS_FLIP = 0.9;
-    double HANG_POS_FLIP = 0.4;
+    double HANG_POS_FLIP = 0.33;
 
     double TAKING_HEIGHT = 0;
     double BUSKET_HEIGHT = 119;
-    double UP_TUBE_HEIGHT = 55;
+    double UP_TUBE_HEIGHT = 65;
 }

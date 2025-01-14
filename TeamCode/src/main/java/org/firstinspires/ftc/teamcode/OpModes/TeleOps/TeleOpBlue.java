@@ -50,7 +50,11 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void loop() {
-
+        robot.odometry.getRobotPos();
+        robot.odometry.getEncPos();
+        robot.drivetrain.getMotorsPower();
+        robot.servosService.getServosPos();
+        robot.joysticks.checkJoysticksCombo();
     }
 
     /**

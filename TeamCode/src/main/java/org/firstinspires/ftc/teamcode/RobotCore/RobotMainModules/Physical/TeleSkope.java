@@ -113,9 +113,6 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     }
 
     public synchronized void setTeleskope(double vel, double Pos){
-        if(Pos == 0){
-            Pos = servosService.getHorizontal().getPosition();
-        }
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp(Pos);
         }

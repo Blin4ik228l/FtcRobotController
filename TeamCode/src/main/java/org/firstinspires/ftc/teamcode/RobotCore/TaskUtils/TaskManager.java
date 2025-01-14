@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 
@@ -41,7 +40,7 @@ public class TaskManager extends Thread{
             taskHandler();
         }
     }
-    public void whenPlay(){
+    public void forTeleop(){
         this.setDaemon(true);
         this.start();
     }

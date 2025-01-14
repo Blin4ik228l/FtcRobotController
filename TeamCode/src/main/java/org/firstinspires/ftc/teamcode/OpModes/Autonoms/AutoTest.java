@@ -3,11 +3,7 @@ package org.firstinspires.ftc.teamcode.OpModes.Autonoms;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -89,7 +85,6 @@ public class AutoTest extends LinearOpMode {
             robot.metry.getTelemetry().addData("Оставшийся угол", errorHeading);
             robot.metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
             robot.metry.getTelemetry().addLine();
-//            robot.metry.getTelemetry().showGroupData(DataGroup.DRIVETRAIN, DataTarget.displayCurPower, DataFilter.POWER);
 
             robot.metry.getTelemetry().update();
         }

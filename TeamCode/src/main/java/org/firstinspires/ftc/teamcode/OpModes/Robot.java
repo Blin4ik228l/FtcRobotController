@@ -5,20 +5,12 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Distance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.RGBColorSensor;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ServosService;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.DataDisplayer;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.Colors;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataFilter;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataGroup;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataObject;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.DataTarget;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -33,6 +25,8 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    double horizontalPos = CLOSE_POS_HORIZONTAL;
+
     // Системы робота.
     // Железо хранится уже в самой системе.
     public final Odometry odometry; // Система вычислений одометрии
@@ -40,18 +34,11 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final TeleSkope teleSkope;
     public final Metry metry;
     public final Joysticks joysticks;
-//    public final DataDisplayer dataDisplayer;
     public final ServosService servosService;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
 
-    double horizontalPos = CLOSE_POS_HORIZONTAL, forwardC, sideC;
-
-    float gain = 2;
-    boolean xButtonPreviouslyPressed = false;
-    boolean xButtonCurrentlyPressed = false;
-    public final float[] hsvValues = new float[3];
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
@@ -190,6 +177,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            // TODO: обработчик застреваний телескопа
+            //  если робот вдруг поехал
+            //  если телескоп не поднялся на нужный уровень и стоит на месте долго
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
             int result;
 
@@ -199,26 +189,56 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 teleSkope.offMotors();
                 result = 0;
             }else {
-                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height, args.flipPos, args.hookPos);
+                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height);
                 result = -1;
             }
 
-//            dataDisplayer.addData("resultTele", result);
-//            dataDisplayer.showGroupData(DataGroup.TELESKOPE, DataTarget.displayCurHeightTeleskope,DataFilter.CM);
-//            dataDisplayer.update();
-            // TODO: обработчик застреваний телескопа
-            //  если робот вдруг поехал
-            //  если телескоп не поднялся на нужный уровень и стоит на месте долго
+            return result;
+        }
+    };
+
+    public TaskHandler setZahvat = new TaskHandler(){
+
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+
+        @Override
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.zahvatStandartArgs args = (StandartArgs.zahvatStandartArgs) _args;
+            int result;
+
+            boolean flipDone = false;
+            boolean hookDone = false;
+
+            if(servosService.getFlip().getPosition() == args.flipPos){
+                flipDone = true;
+            }else{
+                teleSkope.setFlip(args.flipPos);
+            }
+
+            if(servosService.getHook().getPosition() == args.hookPos){
+                hookDone = true;
+            }else{
+                teleSkope.setHook(args.hookPos);
+            }
+
+            if(flipDone && hookDone){
+                result = 0;
+            }else{
+                result = -1;
+            }
 
             return result;
         }
+
     };
 
     // Gamepad 1
     @Override
     public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
-
 
         double max_speed = 0.6;
         double accelLinear, accelAngle;
@@ -281,13 +301,15 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // Gamepad 2
     @Override
     public synchronized void teleopPl2() {
-//        updateColors();
         Gamepad g2 = joysticks.getGamepad2();
+
+        double leftStickY = -g2.left_stick_y;
+
         boolean closeAuto = false;
 
         double upStandingVel = -g2.right_stick_y;
 
-        horizontalPos = Range.clip(horizontalPos + (Range.clip(g2.left_stick_y,-0.01, 0.01)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
+        horizontalPos = Range.clip(horizontalPos - (Range.clip(leftStickY,-0.004, 0.004)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
 //        if(robotAlliance.equals(RobotAlliance.RED) ){
 //            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){

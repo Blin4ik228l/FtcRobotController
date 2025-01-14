@@ -52,19 +52,24 @@ public class StandartArgs {
     }
 
     public static class teleskopeStandartArgs extends StandartArgs {
-        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed, double flipPos, double hookPos){
+        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed){
             this.teleskope_height = teleskope_height;
             this.servo_pos = servo_pos;
             this.max_speed = max_speed;
-            this.flipPos = flipPos;
-            this.hookPos = hookPos;
+
         }
         public double teleskope_height;
         public double servo_pos;
         public double max_speed;
+
+    }
+    public static class zahvatStandartArgs extends StandartArgs{
+        public zahvatStandartArgs(double flipPos, double hookPos){
+            this.flipPos = flipPos;
+            this.hookPos = hookPos;
+        }
         public double flipPos;
         public double hookPos;
     }
-
 }
 

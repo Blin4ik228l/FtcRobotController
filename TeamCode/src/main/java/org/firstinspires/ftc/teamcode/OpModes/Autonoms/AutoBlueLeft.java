@@ -23,18 +23,21 @@ public class AutoBlueLeft extends LinearOpMode {
         robot = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this);
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
-        Task task1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 190), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-        Task task4 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.UP_TUBE_HEIGHT, 0.20, 1, CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-        Task task2 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 30), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-        Task task5 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6, CONSTSTELESKOPE.TAKE_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-//        Task task3 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task zahvat1 = new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK),5, Task.taskStartMode.START_AFTER_PREVIOUS);
 
+        Task drive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 190), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-//        robot.taskManager.addTask(task3);
-        robot.taskManager.addTask(task1);
-        robot.taskManager.addTask(task4);
-//        robot.taskManager.addTask(task2);
-//        robot.taskManager.addTask(task5);
+        Task upTele1 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.UP_TUBE_HEIGHT, 0.20, 1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        Task drive2 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 30), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        Task upTele2 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        robot.taskManager.addTask(zahvat1);
+        robot.taskManager.addTask(drive1);
+        robot.taskManager.addTask(upTele1);
+        robot.taskManager.addTask(drive2);
+
         waitForStart();
         while (opModeIsActive() && !isStopRequested()) {
             robot.taskManager.forAuto();

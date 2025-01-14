@@ -98,7 +98,7 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         servosService.getFlip().setPosition(Pos);
     }
 
-    public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight, double flipPos, double hook){
+    public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
         calculateHeight();
 
         double P = (CLOSE_POS_HORIZONTAL - posServo)/(reachableHeight);
@@ -110,11 +110,12 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         setVelUpStandingTeleOp(targetVel);
         setVelHorizontalTeleOp(propLen);
 
-        setFlip(flipPos);
-        setHook(hook);
     }
 
     public synchronized void setTeleskope(double vel, double Pos){
+        if(Pos == 0){
+            Pos = servosService.getHorizontal().getPosition();
+        }
             setVelUpStandingTeleOp(vel);
             setVelHorizontalTeleOp(Pos);
         }

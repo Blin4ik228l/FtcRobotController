@@ -8,6 +8,7 @@ import android.os.Handler;
 import java.io.File;
 
 public class FieldHandler {
+    int Field[][] = new int[366][366];
     File fieldIm = new File("/FieldView/Field/Field.png");
     ImageReader reader = ImageReader.newInstance(366, 366, ImageFormat.RGB_565, 1);
     ImageReader.OnImageAvailableListener listener;

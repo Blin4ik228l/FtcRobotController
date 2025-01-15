@@ -28,8 +28,6 @@ public class Odometry extends Thread implements Module {
     private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;
 
-    TelemetryMessage telemetryMessage2 = new TelemetryMessage();
-
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
 
@@ -73,8 +71,6 @@ public class Odometry extends Thread implements Module {
         this.start();
 
         op.telemetry.addLine("Odometry Inited");
-
-        telemetryMessage2.addData("Random nums in odometry", Math.random());
     }
 
     @Override
@@ -87,8 +83,6 @@ public class Odometry extends Thread implements Module {
             updateAcceleration();
             updateAngularAcceleration();
             updateAngularVelocity();
-
-//            op.internalUpdateTelemetryNow(telemetryMessage2);
         }
     }
 
@@ -216,7 +210,7 @@ public class Odometry extends Thread implements Module {
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() / 1.02);
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() );
         double deltaRightEncoderX = rightEncoderXNow - encROld;
         encROld = rightEncoderXNow;
 

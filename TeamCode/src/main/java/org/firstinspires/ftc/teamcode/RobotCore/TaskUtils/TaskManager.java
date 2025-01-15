@@ -33,37 +33,6 @@ public class TaskManager extends Thread{
         this.completedTasks = new Stack<Task>();
     }
 
-    public void forAuto(){
-        if(!executingDeque.isEmpty() || !taskDeque.isEmpty()){
-            pickTaskToDo();
-
-            taskHandler();
-        }
-    }
-    public void forTeleop(){
-        this.setDaemon(true);
-        this.start();
-    }
-
-    @Override
-    public void run() {
-        while (this.isAlive()) {
-            startTasks();
-        }
-    }
-
-    public Deque<Task> getTaskDeque() {
-        return taskDeque;
-    }
-
-    public Deque<Task> getExecutingDeque() {
-        return executingDeque;
-    }
-
-    public Stack<Task> getCompletedTasks() {
-        return completedTasks;
-    }
-
     /** Обработчик задач
      * Этот метод предназначен для обработки задач, содержащихся в taskDeque.
      * Суть такого подхода заключается в том, что программист создает класс робота,
@@ -95,6 +64,39 @@ public class TaskManager extends Thread{
             }
         }
     }
+
+    public void forAuto(){
+        if(!executingDeque.isEmpty() || !taskDeque.isEmpty()){
+            pickTaskToDo();
+
+            taskHandler();
+        }
+    }
+    public void forTeleop(){
+        this.setDaemon(true);
+        this.start();
+    }
+
+    @Override
+    public void run() {
+        while (this.isAlive()) {
+            startTasks();
+        }
+    }
+
+    public Deque<Task> getTaskDeque() {
+        return taskDeque;
+    }
+
+    public Deque<Task> getExecutingDeque() {
+        return executingDeque;
+    }
+
+    public Stack<Task> getCompletedTasks() {
+        return completedTasks;
+    }
+
+
 
     /**
      * Стартер задач.

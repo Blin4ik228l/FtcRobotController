@@ -66,7 +66,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         op.telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         op.telemetry.setItemSeparator("");
 
-
         metry.init();
         odometry.init();
         drivetrain.init();
@@ -236,10 +235,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }else{
                 result = -1;
             }
-
             return result;
         }
-
     };
 
     // Gamepad 1
@@ -248,62 +245,87 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         Gamepad g1 = joysticks.getGamepad1();
 
         double max_speed = 0.6;
-        double accelLinear, accelAngle;
+        double accelLinear = 1.3, accelAngle = 1.3;
 
-        if(g1.left_trigger > 0.05){
-            accelLinear = 1.5;
-        }else {accelLinear = 1.3;}
-
-        if(g1.right_trigger > 0.05){
+        if(g1.left_trigger > 0.05){//Ускорение робота
+            accelLinear = 1.8;
             accelAngle = 1.8;
-        }else{accelAngle = 1.3;}
+        }
+
+        if(g1.right_trigger > 0.05){//Замедление робота
+            accelLinear = 0.1;
+            accelAngle = 0.1;
+        }
+
+        if(g1.right_bumper){
+            if(joysticks.getGear() == 5){
+                max_speed /= 1.2;
+            } else if (joysticks.getGear() == 4) {
+                max_speed /= 1.3;
+            } else if (joysticks.getGear() == 3) {
+                max_speed /= 1.4;
+            }else{
+                max_speed /= 1;
+            }
+        }
+
+        if (g1.left_bumper){
+            if(joysticks.getGear() == 2){
+                max_speed *= 1.2;
+            } else if (joysticks.getGear() == 3) {
+                max_speed *= 1.3;
+            } else if (joysticks.getGear() == 4) {
+                max_speed *= 1.4;
+            }else {
+                max_speed = 1;
+            }
+        }
 
         double forward = -1*g1.left_stick_y;
         double side = g1.left_stick_x;
         double turn = g1.right_stick_x;
 
-        if (Math.abs(forward) < 0.13 && forward != 0){
-            forward += 0.13 * Math.signum(forward);
+        if (Math.abs(forward) < 0.12 && forward != 0){
+            forward += 0.12 * Math.signum(forward);
         }
-        if (Math.abs(side) < 0.13 && side != 0){
-            side += 0.13 * Math.signum(side);
+        if (Math.abs(side) < 0.12 && side != 0){
+            side += 0.12 * Math.signum(side);
         }
 
-        double forwardVoltage =  Range.clip(forward * accelLinear , -max_speed, max_speed);
-        double sideVoltage = Range.clip(side * accelLinear ,  -max_speed, max_speed);
-        double angleVoltage = Range.clip(turn * accelAngle, -max_speed, max_speed);
-
-        if(joysticks.isAandY_G1()){
-            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
-
-            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
-            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
-
-            metry.getTelemetry().addData("k", k);
-
-            if(k > 0){
-                if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
-                } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
-                }else {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
-                }
-            }else if (k < 0){
-                if(ifForward) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
-                } else if (ifSide) {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
-                }else {
-                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
-                }
-            }else{
-                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
-            }
-        }
+        double forwardVoltage = Range.clip(forward * accelLinear , -max_speed, max_speed);
+        double sideVoltage    = Range.clip(side * accelLinear ,  -max_speed, max_speed);
+        double angleVoltage   = Range.clip(turn * accelAngle, -max_speed, max_speed);
 
         drivetrain.setPowerTeleOp(forwardVoltage, sideVoltage, angleVoltage);
 
+        //        if(joysticks.isAandY_G1()){
+//            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
+//
+//            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
+//            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+//
+//            metry.getTelemetry().addData("k", k);
+//
+//            if(k > 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else if (k < 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else{
+//                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//            }
+//        }
     }
 
     // Gamepad 2
@@ -319,7 +341,24 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         horizontalPos = Range.clip(horizontalPos - (Range.clip(leftStickY,-0.006, 0.006)), OPEN_POS_HORIZONTAL,CLOSE_POS_HORIZONTAL);
 
-//        if(robotAlliance.equals(RobotAlliance.RED) ){
+        if (joysticks.isX_G2()){
+            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
+        }else{
+            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
+
+        if (joysticks.isB_G2()){
+            teleSkope.setFlip(CONSTSTELESKOPE.HANG_POS_FLIP);
+        }else {
+            teleSkope.setFlip(CONSTSTELESKOPE.TAKE_POS_FLIP);
+        }
+
+        if (joysticks.isA_G2()){
+            teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
+        }else {
+            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
+        }
+
+        //        if(robotAlliance.equals(RobotAlliance.RED) ){
 //            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
 //                closeAuto = true;
 //            }
@@ -339,24 +378,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //    }else {
 //        teleSkope.setHook(OPEN_POS_HOOK);
 //        }
-
-
-        if (joysticks.isA_G2()){
-            teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
-        }else {
-            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
-        }
-
-        if (joysticks.isB_G2()){
-            teleSkope.setFlip(CONSTSTELESKOPE.HANG_POS_FLIP);
-        }else {
-            teleSkope.setFlip(CONSTSTELESKOPE.TAKE_POS_FLIP);
-        }
-
-        if (joysticks.isX_G2()){
-            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
-        }else{
-            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
     }
 
 @Override

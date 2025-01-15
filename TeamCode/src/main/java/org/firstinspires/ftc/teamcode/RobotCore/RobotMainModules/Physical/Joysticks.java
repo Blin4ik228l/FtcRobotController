@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 
@@ -12,9 +13,11 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false;
+    private int gear = 1;
 
-    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false, switchB_g2 = false ;
+    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false;
+
+    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false; ;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -99,11 +102,48 @@ public class Joysticks implements Module {
         return isA_g2;
     }
 
+    public synchronized boolean isRBum_G1(){
+
+        if(gamepad1.right_bumper && !switchRBum_g1 ) {
+            isRBum_g1 = !isRBum_g1;
+            gear = Range.clip(gear - 1, 1,5);
+            switchRBum_g1 = true;}
+
+        if(!gamepad1.right_bumper && switchRBum_g1){
+            switchRBum_g1 = false;
+        }
+
+        return isRBum_g1;
+    }
+
+    public synchronized boolean isLBum_G1(){
+
+        if(gamepad1.left_bumper && !switchLBum_g1 ) {
+            isLBum_g1 = !isLBum_g1;
+            gear = Range.clip(gear + 1, 1,5);
+            switchLBum_g1 = true;}
+
+        if(!gamepad1.left_bumper && switchLBum_g1){
+            switchLBum_g1 = false;
+        }
+
+        return isLBum_g1;
+    }
+
+    public synchronized int getGear(){
+        return gear;
+    }
+
     public synchronized void checkJoysticksCombo(){
         op.telemetry.addLine("Joystick buttons statements")
                 .addData("\nisHookOpen", isA_g2)
                 .addData("\nPropMode", isX_g2)
                 .addData("\nisUpped", isB_g2);
+        op.telemetry.addLine();
+    }
+
+    public synchronized void checkGear(){
+        op.telemetry.addData("\nGear", gear);
         op.telemetry.addLine();
     }
 

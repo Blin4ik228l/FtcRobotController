@@ -59,10 +59,6 @@ public abstract class RobotCore implements Module {
         }
     };
 
-    public void autoMode(){
-
-    }
-
     // Метод, обрабатывающий задачу телеопа
     public synchronized void teleop() {
         teleopPl1();

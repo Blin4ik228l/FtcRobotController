@@ -55,6 +55,7 @@ public class TeleOpBlue extends OpMode {
         robot.drivetrain.getMotorsPower();
         robot.servosService.getServosPos();
         robot.joysticks.checkJoysticksCombo();
+        robot.joysticks.checkGear();
     }
 
     /**

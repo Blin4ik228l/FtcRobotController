@@ -53,11 +53,11 @@ public class MecanumDrivetrain implements Module {
         op.telemetry.addLine("Drivetrain Inited");
     }
 
-    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behabior) {
-        rightF.setZeroPowerBehavior(behabior);
-        leftB.setZeroPowerBehavior(behabior);
-        leftF.setZeroPowerBehavior(behabior);
-        rightB.setZeroPowerBehavior(behabior);
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
+        rightF.setZeroPowerBehavior(behavior);
+        leftB.setZeroPowerBehavior(behavior);
+        leftF.setZeroPowerBehavior(behavior);
+        rightB.setZeroPowerBehavior(behavior);
     }
 
     // Распределение требуемой скорости и направления движения робота на скорость колес

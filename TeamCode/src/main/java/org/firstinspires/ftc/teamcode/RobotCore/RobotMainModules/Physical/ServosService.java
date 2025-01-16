@@ -24,8 +24,8 @@ public class ServosService implements Module, CONSTSTELESKOPE {
         flip = op.hardwareMap.get(Servo.class, "flip");
 
         setHookStartPos();
-        setHorizontalStartPos();
-        setFlipStartPos();
+//        setHorizontalStartPos();
+//        setFlipStartPos();
 
         op.telemetry.addLine("Servos Inited");
     }
@@ -47,7 +47,9 @@ public class ServosService implements Module, CONSTSTELESKOPE {
     }
 
     public void setHookStartPos() {
-        hook.setPosition(CLOSE_POS_HOOK);
+        op.telemetry.addData("",hook.getController().getPwmStatus());
+        hook.getController().pwmEnable();
+        hook.getController().setServoPosition(5,CLOSE_POS_HOOK);
     }
 
     public void setFlipStartPos(){
@@ -57,7 +59,7 @@ public class ServosService implements Module, CONSTSTELESKOPE {
     public synchronized void getServosPos(){
         op.telemetry.addLine("Servos")
                 .addData("\nFlip", flip.getPosition())
-                .addData("\nHook", hook.getPosition())
+                .addData("\nHook", hook.getController().getServoPosition(5))
                 .addData("\nHorizontal", horizontal.getPosition());
         op.telemetry.addLine();
     }

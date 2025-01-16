@@ -72,9 +72,6 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
-        if (Math.abs(heading) < 0.08 && heading != 0){
-            heading = 0.08;
-        }
         // TODO
         rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
         rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));

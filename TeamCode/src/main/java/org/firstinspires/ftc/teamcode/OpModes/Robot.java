@@ -44,7 +44,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.97,0.0000038,0, -1,1);
+    public final PID pidAngular = new PID(0.31,0.0000055,0, -1,1);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -124,7 +124,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = 0;
                 }
 
-                if(Math.abs(errorHeading) < Math.toRadians(1)){
+                if(Math.abs(errorHeading) < Math.toRadians(0.1)){
                     errorHeadingDone = true;
                 }
 
@@ -135,6 +135,18 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
                 double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
                 double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
+
+                if(Math.abs(speedPIDX) < 0.05){
+                    speedPIDX = Math.signum(speedPIDX) * 0.05;
+                }
+
+                if(Math.abs(speedPIDY) < 0.05){
+                    speedPIDY = Math.signum(speedPIDY) * 0.05;
+                }
+
+                if(Math.abs(angularPID) < 0.05){
+                    angularPID = Math.signum(angularPID) * 0.05;
+                }
 
                 if(errorPosDone && errorHeadingDone){
                     result = 0;
@@ -148,14 +160,15 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //                metry.getTelemetry().addData("Вектор X", targetVel.x);
 //                metry.getTelemetry().addData("Вектор Y", targetVel.y);
                 metry.getTelemetry().addData("Оставшийся угол", errorHeading * 57.29);
-                metry.getTelemetry().addData("angularPID", angularPID);
+//                metry.getTelemetry().addData("angularPID", angularPID);
             metry.getTelemetry().addData("speedPIDX", speedPIDX);
             metry.getTelemetry().addData("speedPIDY", speedPIDY);
-//                metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
-//                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
-//                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
+            drivetrain.getMotorsPower();
+                metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
+                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
+                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
 
-                metry.getTelemetry().addData("result", result);
+//                metry.getTelemetry().addData("result", result);
 
                 metry.getTelemetry().update();
 
@@ -355,7 +368,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         if (joysticks.isA_G2()){
             teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
         }else {
-            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
+//            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
         }
 
         //        if(robotAlliance.equals(RobotAlliance.RED) ){

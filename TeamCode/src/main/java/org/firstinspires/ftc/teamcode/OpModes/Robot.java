@@ -260,17 +260,17 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         double max_speed = 0.6;
         double accelLinear = 1.3, accelAngle = 1.3;
 
-        if(g1.left_trigger > 0.05){//Ускорение робота
+        if(g1.left_trigger > 0.05 && g1.right_trigger < 0.05){//Ускорение робота
             accelLinear = 1.8;
             accelAngle = 1.8;
         }
 
-        if(g1.right_trigger > 0.05){//Замедление робота
+        if(g1.right_trigger > 0.05 && g1.left_trigger < 0.00){//Замедление робота
             accelLinear = 0.1;
             accelAngle = 0.1;
         }
 
-        if(g1.right_bumper){
+        if(g1.right_bumper && !g1.left_bumper){
             if(joysticks.getGear() == 5){
                 max_speed /= 1.2;
             } else if (joysticks.getGear() == 4) {
@@ -282,7 +282,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
         }
 
-        if (g1.left_bumper){
+        if (g1.left_bumper && !g1.right_bumper){
             if(joysticks.getGear() == 2){
                 max_speed *= 1.2;
             } else if (joysticks.getGear() == 3) {

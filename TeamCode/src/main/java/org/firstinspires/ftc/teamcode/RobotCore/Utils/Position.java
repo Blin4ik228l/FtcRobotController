@@ -19,12 +19,14 @@ public class Position {
         this.x = position.x;
         this.y = position.y;
         this.heading = position.heading;
+        getHeading();
     }
 
     public Position(Vector2 vector2, double heading){
         this.x = vector2.x;
         this.y = vector2.y;
         this.heading = heading;
+        getHeading();
     }
 
     public Position(){
@@ -47,6 +49,7 @@ public class Position {
 
     public void setHeading(double heading){
         this.heading = heading;
+        getHeading();
     }
 
     public double getX(){
@@ -58,13 +61,20 @@ public class Position {
     }
 
     public double getHeading(){
-        return this.heading;
+        // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
+        // к остатку от деления на 2pi (360)
+        if (heading >= 2 * Math.PI) {
+            heading = heading % (2 * Math.PI);
+            setHeading(heading);
+        }
+        return heading;
     }
 
     public void add(@NonNull Vector2 vector2, double heading){
         this.x += vector2.x;
         this.y += vector2.y;
         this.heading += heading;
+        getHeading();
     }
 
     @NonNull

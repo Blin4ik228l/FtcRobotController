@@ -42,9 +42,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinearX = new PID(0.033,0.00000022,0.0000, -1,1);
-    public final PID pidLinearY = new PID(0.033,0.00000022,0.0000, -1,1);
-    public final PID pidAngular = new PID(0.33,0.0000074,0, -1,1);
+    public final PID pidLinearX = new PID(0.018,0.00000022,0.0000, -1,1);
+    public final PID pidLinearY = new PID(0.018,0.00000022,0.0000, -1,1);
+    public final PID pidAngular = new PID(0.09,0.0000074,0, -1,1);
 
 //    public final PID pidAngular = new PID(0.9,0.0000974,0, -1,1);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,9 +114,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = MIN_LINEAR_SPEED;
                 }
 
-//                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
-//                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
-//                }
+                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
+                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
+                }
 
                 if (linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
@@ -125,7 +125,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                     linearVel = 0;
                 }
 
-                if(Math.abs(errorHeading) < Math.toRadians(1)){
+                if(Math.abs(errorHeading) < Math.toRadians(2)){
                     errorHeadingDone = true;
                 }
 
@@ -152,14 +152,14 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 ////                metry.getTelemetry().addData("angularPID", angularPID);
 //            metry.getTelemetry().addData("speedPIDX", speedPIDX);
 //            metry.getTelemetry().addData("speedPIDY", speedPIDY);
-            drivetrain.getMotorsPower();
+//            drivetrain.getMotorsPower();
                 metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
 //                metry.getTelemetry().addData("Оставшийся X", errorPos.x);
 //                metry.getTelemetry().addData("Оставшийся Y", errorPos.y);
 //
-//                metry.getTelemetry().addData("result", result);
+                metry.getTelemetry().addData("result", result);
 //
-//                metry.getTelemetry().update();
+                metry.getTelemetry().update();
 
             return result;
         }

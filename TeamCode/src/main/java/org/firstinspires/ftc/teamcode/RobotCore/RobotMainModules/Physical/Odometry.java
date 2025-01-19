@@ -210,7 +210,7 @@ public class Odometry extends Thread implements Module {
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() * 1.053);
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() );
         double deltaRightEncoderX = rightEncoderXNow - encROld;
         encROld = rightEncoderXNow;
 
@@ -235,12 +235,6 @@ public class Odometry extends Thread implements Module {
 
         // Векторный поворот и добавление глобального перемещения к глобальным координатам
         globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.getHeading()) , deltaPosition.getHeading() );
-
-        // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
-        // к остатку от деления на 2pi (360)
-        if (Math.abs(globalPosition.getHeading()) >= 2 * Math.PI) {
-            globalPosition.setHeading(globalPosition.getHeading() % (2 * Math.PI));
-        }
     }
 
     public synchronized void getRobotPos(){

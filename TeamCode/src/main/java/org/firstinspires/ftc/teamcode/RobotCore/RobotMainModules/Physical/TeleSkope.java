@@ -124,7 +124,7 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
 
         double PROPRTIONAL_HEIGHT = 9;// Высота на которой телескопы будут двигаться одновременно
 
-        double P = (CLOSE_POS_HORIZONTAL - OPEN_POS_HORIZONTAL)/(DEAD_ZONE_HEIGHT - PROPRTIONAL_HEIGHT);
+        double P = (CLOSE_POS_HORIZONTAL - 0.2)/(DEAD_ZONE_HEIGHT - PROPRTIONAL_HEIGHT);
 
         double propLen = CLOSE_POS_HORIZONTAL - (height - PROPRTIONAL_HEIGHT) * P;
 

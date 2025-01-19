@@ -56,15 +56,6 @@ public class TaskManager extends Thread{
      */
 
 
-    private synchronized void startTasks() {
-        // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!isStopMode()) {
-            if(isTeleopMode()){
-                robot.teleop();
-            }
-        }
-    }
-
     public void forAuto(){
         if(!executingDeque.isEmpty() || !taskDeque.isEmpty()){
             pickTaskToDo();
@@ -81,6 +72,15 @@ public class TaskManager extends Thread{
     public void run() {
         while (this.isAlive()) {
             startTasks();
+        }
+    }
+
+    private synchronized void startTasks() {
+        // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
+        while(!isStopMode()) {
+            if(isTeleopMode()){
+                robot.teleop();
+            }
         }
     }
 

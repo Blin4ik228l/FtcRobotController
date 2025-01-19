@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;

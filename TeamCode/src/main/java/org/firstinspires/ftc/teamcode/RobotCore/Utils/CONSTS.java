@@ -13,7 +13,7 @@ public interface CONSTS { // ВСЁ В СМ!!!!
     double DIST_TO_ENC_L_FROM_ENC_M = 15.25;                                //
     double OFFSET_ENC_M_FROM_CENTER = 0.53;                                 // сдвиг линий энкодеров от середины робота
     double DIAM_CIRCLE_ROBOT = 42.7;                                        // диаметр большей окружности робота(колёс)
-    double DIST_BETWEEN_ENC_X = 31.49;                                       // расстояние между энкодерами R и L     // ширина поля
+    double DIST_BETWEEN_ENC_X = 30.8775;                                       // расстояние между энкодерами R и L     // ширина поля
     double MAX_DIST = 366;                                               //
     double MAX_RAD = CONSTS.LENGTH_ROUND_BIG/(CONSTS.DIAM_CIRCLE_ROBOT/2);  //
     double MAX_TIME_DRIVE = MAX_DIST/CONSTS.MAX_CM_PER_SEC;

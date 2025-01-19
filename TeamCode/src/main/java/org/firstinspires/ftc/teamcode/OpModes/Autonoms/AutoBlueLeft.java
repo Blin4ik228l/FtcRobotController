@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.REWARDSFORACTIONS;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -14,7 +15,11 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 @Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "BlueMeow")
 public class AutoBlueLeft extends LinearOpMode {
     Robot robot;
-    Position pos1 = new Position(0, 0 , Math.toRadians(360));
+    Position pos1 = new Position(0, -80 , 0);
+    Position pos5 = new Position(0, 80 , 0);
+    Position pos6 = new Position(80, 0 , 0);
+    Position pos7 = new Position(-80, 0 , 0);
+    Position pos8 = new Position(0, 0 , 360);
 //    Position pos2 = new Position( 55, -80, Math.toRadians(0));
 //    Position pos3 = new Position( 55, 60, Math.toRadians(135));
 //    Position pos4 = new Position( 30, 40,Math.toRadians(-225) );
@@ -23,15 +28,16 @@ public class AutoBlueLeft extends LinearOpMode {
         robot = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this);
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
-        Task zahvat1 = new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK),5, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-        Task drive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 13), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task zahvat1 = new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Take sample");
 
-        Task upTele1 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.UP_TUBE_HEIGHT, 0.26, 1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task drive1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos8, 140), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Go to upper pipe");
+
+        Task upTele1 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.UP_TUBE_HEIGHT, 0.3, 1), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Up tele to upper pipe");
 
 //        Task drive2 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 15), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-        Task upTele2 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task upTele2 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "Down tele for sample");
 
 //        robot.taskManager.addTask(zahvat1);
         robot.taskManager.addTask(drive1);

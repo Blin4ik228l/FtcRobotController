@@ -12,7 +12,7 @@ public class Position {
     public Position(double x ,double y, double heading){
         this.x = x;
         this.y = y;
-        this.heading = heading;
+        this.heading = Math.toRadians(heading);
     }
 
     public Position(Position position){

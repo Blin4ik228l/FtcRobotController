@@ -210,7 +210,7 @@ public class Odometry extends Thread implements Module {
         double deltaLeftEncoderX = leftEncoderXNow - encLOld;
         encLOld = leftEncoderXNow;
 
-        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() * CONSTS.RAZN_ENCODERS);
+        double rightEncoderXNow = ticksToCm(encR.getCurrentPosition() * 1.053);
         double deltaRightEncoderX = rightEncoderXNow - encROld;
         encROld = rightEncoderXNow;
 

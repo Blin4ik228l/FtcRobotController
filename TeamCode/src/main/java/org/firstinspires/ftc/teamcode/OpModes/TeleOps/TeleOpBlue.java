@@ -33,6 +33,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void init_loop() {
+        robot.op.telemetry.clearAll();
 
     }
 
@@ -50,12 +51,13 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void loop() {
-        robot.odometry.getRobotPos();
-        robot.odometry.getEncPos();
-        robot.drivetrain.getMotorsPower();
-        robot.servosService.getServosPos();
-        robot.joysticks.checkJoysticksCombo();
-        robot.joysticks.checkGear();
+//        robot.odometry.getRobotPos();
+//        robot.odometry.getEncPos();
+//        robot.drivetrain.getMotorsPower();
+//        robot.servosService.getServosPos();
+//        robot.joysticks.checkJoysticksCombo();
+//        robot.joysticks.checkGear();
+//        robot.joysticks.getDpadUp();
     }
 
     /**

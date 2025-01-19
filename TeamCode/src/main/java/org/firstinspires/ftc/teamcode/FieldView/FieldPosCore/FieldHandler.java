@@ -39,7 +39,7 @@ public class FieldHandler {
 
         private void calculateCellCoordinate(){
             for (int i = 0; i < 36; i++) {
-                allCellsOnField.get(i).setPosition(new Position(), );
+
             }
         }
 

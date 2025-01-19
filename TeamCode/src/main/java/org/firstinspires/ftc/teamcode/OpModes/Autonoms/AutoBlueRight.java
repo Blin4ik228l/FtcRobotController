@@ -27,7 +27,7 @@ public class AutoBlueRight extends OpMode {
         robot.init();
         robot.odometry.setGlobalPosition(new Position(0,0,0));
 
-        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "");
         robot.taskManager.addTask(driveTask1);
     }
 

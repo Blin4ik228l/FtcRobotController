@@ -13,8 +13,12 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private int gear = 1;
+    private int gear = 1, dpadUp;
 
+    private double nowPos;
+    private boolean isUpGear;
+
+    private boolean isDpadUpReleased = false;
     private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false;
 
     private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false; ;
@@ -130,6 +134,33 @@ public class Joysticks implements Module {
         return isLBum_g1;
     }
 
+    public synchronized boolean isUpGear(){
+        if(isLBum_G1()){
+            isUpGear = true;
+        }else {
+            if (isRBum_G1()){
+                isUpGear = false;
+            }
+        }
+        return isUpGear;
+    }
+
+    public int getDpadUp(boolean dpadDown){
+        if(dpadDown){
+            dpadUp = 0;
+        }
+
+        if(gamepad2.dpad_up && !isDpadUpReleased ) {
+            dpadUp = Range.clip(dpadUp + 1, 0,5);
+            isDpadUpReleased = true;}
+
+        if(!gamepad2.dpad_up && isDpadUpReleased){
+            isDpadUpReleased = false;
+        }
+
+        return dpadUp;
+    }
+
     public synchronized int getGear(){
         return gear;
     }
@@ -144,6 +175,11 @@ public class Joysticks implements Module {
 
     public synchronized void checkGear(){
         op.telemetry.addData("\nGear", gear);
+        op.telemetry.addLine();
+    }
+
+    public synchronized void getDpadUp(){
+        op.telemetry.addData("\nDpadUp", dpadUp);
         op.telemetry.addLine();
     }
 

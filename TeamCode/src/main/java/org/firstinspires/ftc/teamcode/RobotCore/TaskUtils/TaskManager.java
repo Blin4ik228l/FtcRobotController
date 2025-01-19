@@ -149,7 +149,7 @@ public class TaskManager extends Thread{
 
         // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
         if (picked) {
-            Task t = executingDeque.getLast();
+            Task t = executingDeque.getFirst();
             t.startTime = managerRuntime.milliseconds();
             t.state = Task.States.DOING;
             t.taskHandler.init(this, t.args);
@@ -246,6 +246,14 @@ public class TaskManager extends Thread{
         return robot.robotMode == RobotMode.STOP;
     }
 
+    public void getTasksInDeque (){
+        for (int i = 0; i < taskDeque.size(); i++) {
+
+        }
+        robot.op.telemetry.addLine("TaskInDeque")
+                .addData("TaskInDeque",taskDeque.getFirst().nameTask);
+
+    }
 
 
 }

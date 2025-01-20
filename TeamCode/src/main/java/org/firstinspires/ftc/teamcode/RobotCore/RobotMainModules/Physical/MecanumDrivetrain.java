@@ -2,9 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
@@ -73,13 +71,10 @@ public class MecanumDrivetrain implements Module {
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
         double maxV = 0.65;
-        double minVangle = 0.2;
 
-//        if(heading > 0){
-//            if (heading < minVangle) heading = minVangle;
-//        }else {
-//            if(heading > -minVangle) heading = - minVangle;
-//        }
+        double minVangle = 0.1;
+
+        if(Math.abs(heading) < minVangle) heading = minVangle * Math.signum(heading);
 
         // TODO
         rightF.setPower(Range.clip((powerX + PowerY + heading), -maxV, maxV));

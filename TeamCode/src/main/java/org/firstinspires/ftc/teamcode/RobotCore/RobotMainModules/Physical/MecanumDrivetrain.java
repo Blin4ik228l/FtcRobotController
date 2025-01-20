@@ -72,12 +72,13 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
+        double maxV = 0.7;
         // TODO
-        rightF.setPower(Range.clip((powerX + PowerY + heading), -1.0, 1.0));
-        rightB.setPower(Range.clip((powerX - PowerY + heading), -1.0, 1.0));
+        rightF.setPower(Range.clip((powerX + PowerY + heading), -maxV, maxV));
+        rightB.setPower(Range.clip((powerX - PowerY + heading), -maxV, maxV));
 
-        leftF.setPower(Range.clip((powerX - PowerY - heading), -1.0, 1.0));
-        leftB.setPower(Range.clip((powerX + PowerY - heading), -1.0, 1.0));
+        leftF.setPower(Range.clip((powerX - PowerY - heading), -maxV, maxV));
+        leftB.setPower(Range.clip((powerX + PowerY - heading), -maxV, maxV));
 
     }
 

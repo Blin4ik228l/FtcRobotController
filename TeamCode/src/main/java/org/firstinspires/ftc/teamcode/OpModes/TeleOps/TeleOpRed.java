@@ -21,6 +21,8 @@ public class TeleOpRed extends OpMode {
 
         robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().getX(),robot.odometry.getGlobalPosition().getY(),robot.odometry.getGlobalPosition().getHeading()));
         robot.init();
+
+        robot.op.telemetry.addLine("Init End");
     }
 
     /**
@@ -28,6 +30,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void init_loop() {
+        robot.op.telemetry.clear();
     }
 
     /**
@@ -35,6 +38,13 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void start() {
+        robot.odometry.getRobotPos();
+        robot.odometry.getEncPos();
+//        drivetrain.getMotorsPower();
+//        servosService.getServosPos();
+//        joysticks.checkJoysticksCombo();
+//        joysticks.checkGear();
+//        joysticks.getDpadUp();
         robot.taskManager.forTeleop();
     }
 
@@ -43,12 +53,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void loop() {
-        robot.odometry.getRobotPos();
-        robot.odometry.getEncPos();
-        robot.drivetrain.getMotorsPower();
-        robot.servosService.getServosPos();
-        robot.joysticks.checkJoysticksCombo();
-        robot.joysticks.checkGear();
+//        robot.initPlayersTelemetry();
     }
 
     /**

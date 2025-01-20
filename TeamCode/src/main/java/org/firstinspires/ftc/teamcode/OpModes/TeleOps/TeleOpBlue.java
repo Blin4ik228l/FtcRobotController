@@ -22,9 +22,10 @@ public class TeleOpBlue extends OpMode {
         robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
 
         robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().getX(),robot.odometry.getGlobalPosition().getY(),robot.odometry.getGlobalPosition().getHeading()));
+
         robot.init();
 
-        robot.metry.getTelemetry().addData("init end", Math.random());
+        robot.op.telemetry.addLine("Init End");
 
     }
 
@@ -33,8 +34,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void init_loop() {
-        robot.op.telemetry.clearAll();
-
+        robot.op.telemetry.clear();
     }
 
     /**
@@ -51,13 +51,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void loop() {
-        robot.odometry.getRobotPos();
-        robot.odometry.getEncPos();
-//        robot.drivetrain.getMotorsPower();
-//        robot.servosService.getServosPos();
-//        robot.joysticks.checkJoysticksCombo();
-//        robot.joysticks.checkGear();
-//        robot.joysticks.getDpadUp();
+
     }
 
     /**

@@ -52,7 +52,7 @@ public class ServosService implements Module, CONSTSTELESKOPE {
     }
 
     public void setFlipStartPos(){
-        flip.setPosition(TAKE_POS_FLIP);
+        flip.setPosition(HANG_POS_FLIP);
     }
 
     public synchronized void getServosPos(){

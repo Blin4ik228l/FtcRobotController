@@ -44,7 +44,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.0000001,0.000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.0000001,0.000, -1,1);
-    public final PID pidAngular = new PID(0.0900,0.000100000,0.000, -1,1);
+    public final PID pidAngular = new PID(1.2,0.0,0.000, -1,1);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -123,24 +123,16 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 linearVel = 0;
             }
 
+            if(Math.abs(errorHeading) < Math.toRadians(2) && odometry.getAngularAcceleration() < 5 && odometry.getAngularVelocity() < 5){
+                errorHeadingDone = true;
+
+            }
                 targetVel.multyplie(linearVel);
 
                 // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
                 double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
                 double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
                 double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
-
-//            if (errorPos.length() < 2){
-//                errorPosDone = true;
-//                speedPIDX = 0;
-//                speedPIDY = 0;
-//            }
-
-            if(Math.abs(errorHeading) < Math.toRadians(2)){
-                errorHeadingDone = true;
-                angularPID = 0;
-            }
-
 
             if(errorPosDone && errorHeadingDone){
                     result = 0;

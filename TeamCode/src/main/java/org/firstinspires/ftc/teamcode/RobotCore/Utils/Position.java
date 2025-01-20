@@ -60,10 +60,7 @@ public class Position {
     public double getHeading(){
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
         // к остатку от деления на 2pi (360)
-        if (heading >= 2 * Math.PI) {
-           heading = heading % (2 * Math.PI);
-        }
-        return this.heading;
+        return this.heading % (2 * Math.PI);
     }
 
     public void add(@NonNull Vector2 vector2, double heading){

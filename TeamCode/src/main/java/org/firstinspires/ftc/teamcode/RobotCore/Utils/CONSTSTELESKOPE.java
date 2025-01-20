@@ -5,13 +5,13 @@ public interface CONSTSTELESKOPE {
     double CLOSE_POS_HORIZONTAL = 0.5;
     double CLOSE_POS_HORIZONTAL_AUTO = 0.44;
 
-    double OPEN_POS_HOOK = 0.5;  // 0.5
+    double OPEN_POS_HOOK = 0.7;  // 0.5
     double CLOSE_POS_HOOK = 0.15;
 
     double TAKE_POS_FLIP = 0.9;
     double HANG_POS_FLIP = 0.33;
 
     double TAKING_HEIGHT = 1;
-    double BUSKET_HEIGHT = 119;
-    double UP_TUBE_HEIGHT = 60;
+    double BUSKET_HEIGHT = 100;
+    double UP_TUBE_HEIGHT = 55;
 }

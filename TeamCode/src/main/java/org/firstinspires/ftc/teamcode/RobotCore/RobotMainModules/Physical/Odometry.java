@@ -149,7 +149,7 @@ public class Odometry extends Thread implements Module {
     public synchronized void setGlobalPosition(Position position) {
         globalPosition.setX(position.getX());
         globalPosition.setY(position.getY());
-        globalPosition.setY(position.getHeading());
+        globalPosition.setHeading(position.getHeading());
     }
 
     private synchronized void updateMaxAcceleration(){
@@ -234,7 +234,9 @@ public class Odometry extends Thread implements Module {
         deltaPosition.setY(deltaY);
 
         // Векторный поворот и добавление глобального перемещения к глобальным координатам
-        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.getHeading()) , deltaPosition.getHeading() );
+        globalPosition.add(Vector2.rotate(deltaPosition.toVector(), globalPosition.getHeading()) , deltaPosition.getHeading());
+
+        globalPosition.setHeading(globalPosition.getHeading());
     }
 
     public synchronized void getRobotPos(){

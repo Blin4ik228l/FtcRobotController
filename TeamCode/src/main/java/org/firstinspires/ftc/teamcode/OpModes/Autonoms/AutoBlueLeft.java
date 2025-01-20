@@ -32,14 +32,20 @@ public class AutoBlueLeft extends LinearOpMode {
         Task upTele1 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.UP_TUBE_HEIGHT, 0.3, 1), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Up tele to upper pipe");
 
 //        Task drive2 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 15), 5, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task upTele2 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "Down tele for sample");
+//
+//        Task zahvat2 = new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Take sample");
+//
+//
+//
+//        Task upTele2 = new Task(robot.driveToPosition,new StandartArgs.teleskopeStandartArgs(CONSTSTELESKOPE.TAKING_HEIGHT, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL, 0.6), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "Down tele for sample");
 
         robot.taskManager.addTask(zahvat1);
         robot.taskManager.addTask(drive1);
         robot.taskManager.addTask(upTele1);
 //        robot.taskManager.addTask(drive2);
-
+//        robot.taskManager.addTask(zahvat2);
+//        robot.taskManager.addTask(drive1);
+//        robot.taskManager.addTask(upTele2);
         waitForStart();
         while (opModeIsActive() && !isStopRequested()) {
             robot.taskManager.forAuto();

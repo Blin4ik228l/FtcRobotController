@@ -184,6 +184,7 @@ public class Odometry extends Thread implements Module {
         dt[1] = (runtime.milliseconds() - oldTime[1])/1000.0;
         oldTime[1] = runtime.milliseconds();
 
+
         acceleration.x = (velocity.x - oldVelocity.x)/dt[1];
         acceleration.y = (velocity.y - oldVelocity.y)/dt[1];
     }

@@ -137,10 +137,12 @@ public class Joysticks implements Module {
     public synchronized boolean isUpGear(){
         if(isLBum_G1()){
             isUpGear = true;
-        }else {
-            if (isRBum_G1()){
-                isUpGear = false;
-            }
+            isRBum_g1 = false;
+        }
+
+        if (isRBum_G1() ){
+            isUpGear = false;
+            isLBum_g1 = false;
         }
         return isUpGear;
     }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.OpModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -44,7 +45,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.0000001,0.000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.0000001,0.000, -1,1);
-    public final PID pidAngular = new PID(1.2,0.0,0.000, -1,1);
+    public final PID pidAngular = new PID(0.6,0.0,0.000, -1,1);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -86,6 +87,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+
+
             int result;
 
                 boolean errorPosDone = false;
@@ -189,14 +192,30 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             int result;
 
             double target = args.teleskope_height - teleSkope.getHeight();
+            boolean horizontalPosDone = false;
 
-            if(Math.abs(target) < 1){
+            if(servosService.getHorizontal().getPosition() != args.servo_pos){
+
+                teleSkope.setPosHorizontalTeleOp(args.servo_pos);
+
+                horizontalPosDone = true;
+            }
+
+            if(Math.abs(target) < 1.8 && horizontalPosDone){
                 teleSkope.offMotors();
                 result = 0;
             }else {
-                teleSkope.setTeleskopePropAuto(args.max_speed, args.servo_pos, args.teleskope_height);
+                teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);
                 result = -1;
             }
+
+            op.telemetry.addData("Teleskope height", teleSkope.getHeight());
+            op.telemetry.addData("Math.abs(target) < 3", Math.abs(target) < 3);
+            op.telemetry.addData("horizontalPosDone", horizontalPosDone);
+            op.telemetry.addData("result", result);
+            op.telemetry.addLine("Task")
+                            .addData("Explanation", args.st);
+            op.telemetry.update();
 
             return result;
         }
@@ -238,12 +257,36 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
     };
 
+    public TaskHandler robotSleep = new TaskHandler() {
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+
+        @Override
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+
+            StandartArgs.robotSleep args = (StandartArgs.robotSleep) _args;
+
+            ElapsedTime runTime = new ElapsedTime();
+
+            int result = -1;
+
+            while (runTime.milliseconds() < args.time){
+                result = 0;
+            }
+
+            return result;
+        }
+    };
+
     // Gamepad 1
     @Override
     public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
 
         double max_speed = 0.6;
+        double oldmax_speed = max_speed;
         double accelLinear = 1.3, accelAngle = 1.3;
 
         if(g1.left_trigger > 0.05 && g1.right_trigger < 0.05){//Ускорение робота
@@ -252,21 +295,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         if(g1.right_trigger > 0.05 && g1.left_trigger < 0.05){//Замедление робота
-            accelLinear = 0.3;
-            accelAngle = 0.3;
+            accelLinear = 0.25;
+            accelAngle = 0.25;
         }
 
-        if(!joysticks.isUpGear()){
-            if(joysticks.getGear() == 5){
-                max_speed /= 1.2;
-            } else if (joysticks.getGear() == 4) {
-                max_speed /= 1.3;
-            } else if (joysticks.getGear() == 3) {
-                max_speed /= 1.4;
-            }else{
-                max_speed /= 1;
-            }
-        }
 
         if (joysticks.isUpGear()){
             if(joysticks.getGear() == 2){
@@ -325,6 +357,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
 //            }
 //        }
+
+        op.telemetry.addData("MAx_speed", max_speed);
+        op.telemetry.addData("Gear", joysticks.getGear());
+        op.telemetry.addData("Is up gear", joysticks.isUpGear());
     }
 
     // Gamepad 2
@@ -348,6 +384,13 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             horizontalPos = OPEN_POS_HORIZONTAL;
         }else {
             horizontalPos = CLOSE_POS_HORIZONTAL;
+        }
+
+        if(servosService.getHook().getPosition() == CLOSE_POS_HOOK){
+            drivetrain.onLed();
+        }
+        if(servosService.getHook().getPosition() == OPEN_POS_HOOK){
+            drivetrain.offLed();
         }
 
         if (joysticks.isX_G2()){

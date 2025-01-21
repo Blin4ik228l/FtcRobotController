@@ -15,6 +15,7 @@ public class MecanumDrivetrain implements Module {
     public volatile DcMotor rightF;
     public volatile DcMotor leftB;
     public volatile DcMotor leftF;
+    public volatile DcMotor led;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;
@@ -26,6 +27,8 @@ public class MecanumDrivetrain implements Module {
         rightF = op.hardwareMap.get(DcMotor.class, "rightF");
         leftB = op.hardwareMap.get(DcMotor.class, "leftB");
         leftF = op.hardwareMap.get(DcMotor.class, "leftF");
+
+        led = op.hardwareMap.get(DcMotor.class, "led");
 
         rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -47,8 +50,17 @@ public class MecanumDrivetrain implements Module {
 
         offMotors();
         brakeMotors();
+        offLed();
 
         op.telemetry.addLine("Drivetrain Inited");
+    }
+
+    public void offLed(){
+        led.setPower(0);
+    }
+
+    public void onLed(){
+        led.setPower(-0.7);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) {
@@ -72,9 +84,9 @@ public class MecanumDrivetrain implements Module {
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
         double maxV = 0.65;
 
-        double minVangle = 0.1;
+        double minVAngle = 0.12;
 
-        if(Math.abs(heading) < minVangle) heading = minVangle * Math.signum(heading);
+        if(Math.abs(heading) < minVAngle) heading = minVAngle * Math.signum(heading);
 
         // TODO
         rightF.setPower(Range.clip((powerX + PowerY + heading), -maxV, maxV));

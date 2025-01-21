@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 //Класс, описывающий структуру задачи, передаваемой в робота
 public class Task {
-    public Task(TaskHandler taskHandler, StandartArgs args, int reward, taskStartMode startMode, String nameTask){
+    public Task(TaskHandler taskHandler, StandartArgs args, int reward, taskStartMode startMode){
         this.taskHandler = taskHandler;
         this.startMode = startMode;
         this.reward = reward;

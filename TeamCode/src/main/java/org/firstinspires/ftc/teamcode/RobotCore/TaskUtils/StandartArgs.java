@@ -31,10 +31,11 @@ public class StandartArgs {
     // }
 
     public static class driveStandartArgs extends StandartArgs {
-        public driveStandartArgs(Position position, double max_linear_speed, double max_angular_speed){
+        public driveStandartArgs(Position position, double max_linear_speed, double max_angular_speed, long sleep){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
+            this.sleep = sleep;
         }
         public driveStandartArgs(Position position, double max_linear_speed) {
             this.position = position;
@@ -49,18 +50,21 @@ public class StandartArgs {
         public Position position;
         public double max_linear_speed;
         public double max_angular_speed;
+        public long sleep;
     }
 
     public static class teleskopeStandartArgs extends StandartArgs {
-        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed){
+        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed, String st){
             this.teleskope_height = teleskope_height;
             this.servo_pos = servo_pos;
             this.max_speed = max_speed;
+            this.st = st;
 
         }
         public double teleskope_height;
         public double servo_pos;
         public double max_speed;
+        public String st;
 
     }
     public static class zahvatStandartArgs extends StandartArgs{
@@ -70,6 +74,13 @@ public class StandartArgs {
         }
         public double flipPos;
         public double hookPos;
+    }
+
+    public static class robotSleep extends StandartArgs{
+        public robotSleep(double time){
+            this.time = time;
+        }
+        public double time;
     }
 }
 

@@ -108,13 +108,21 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         double targetVel = speed * Math.signum(reachableHeight - height);
 
         setVelUpStandingTeleOp(targetVel);
-        setVelHorizontalTeleOp(propLen);
+        setPosHorizontalTeleOp(propLen);
 
+    }
+
+    public synchronized void setTeleskopeAuto(double speed, double targetHeight){
+        calculateHeight();
+
+        double targetVel = speed * Math.signum(targetHeight - height);
+
+        setVelUpStandingTeleOp(targetVel);
     }
 
     public synchronized void setTeleskope(double vel, double Pos){
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp(Pos);
+            setPosHorizontalTeleOp(Pos);
         }
 
     public synchronized void setTeleskopeProp(double vel, double Pos){
@@ -130,10 +138,10 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
 
         if((height > PROPRTIONAL_HEIGHT) ) {
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp(propLen);
+            setPosHorizontalTeleOp(propLen);
         }else{
             setVelUpStandingTeleOp(vel);
-            setVelHorizontalTeleOp(Pos);
+            setPosHorizontalTeleOp(Pos);
         }
 
     }
@@ -162,7 +170,7 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
 
     }
 
-    public synchronized void setVelHorizontalTeleOp(double Pos){
+    public synchronized void setPosHorizontalTeleOp(double Pos){
         servosService.getHorizontal().setPosition(Range.clip(Pos, OPEN_POS_HORIZONTAL, CLOSE_POS_HORIZONTAL));
     }
 

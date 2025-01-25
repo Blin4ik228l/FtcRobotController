@@ -16,11 +16,12 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @Autonomous(name = "BlueRight", group = "Blue", preselectTeleOp = "TeleOpBlue")
 public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, REWARDSFORACTIONS {
-    Robot robot;
-    Position pos1 = new Position(180,10,135);
-    Position pos11 = new Position(180,10,135);
-    Position pos2 = new Position(180,10,-8);
-    Position pos3 = new Position(180,10,10);
+    Robot robot;//180
+    Position pos1 = new Position(30, 160,135);//25, 45, 135
+    Position pos2 = new Position(30, 155,0);//25, 33, 0
+    Position pos3 = new Position(30, 183, 0);//25, 60, 0
+    Position pos4 = new Position(30, 160,-225);//25, 60, -225
+    Position pos5 = new Position(10, -100, 0);
 
     /**
      *  Метод вызывается один раз при нажатии INIT
@@ -35,6 +36,8 @@ public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, RE
 //        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "");
 //        robot.taskManager.addTask(driveTask1);
 
+
+
         Task driveToBasket =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
@@ -42,7 +45,7 @@ public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, RE
                 new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, CLOSE_POS_HORIZONTAL_AUTO, 1,  "Up tele to upper busket and Move horizontal to" + " " + CLOSE_POS_HORIZONTAL_AUTO), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS );
 
         Task moveHorizontal =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, 0.18, 0.4, "Move horizontal to"+ " " + 0.22), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, 0.26, 0.4, "Move horizontal to"+ " " + 0.22), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
         Task sleep1 =
                 new Task(robot.robotSleep, new StandartArgs.robotSleep(500),NOTHING,Task.taskStartMode.START_AFTER_PREVIOUS);
@@ -63,7 +66,7 @@ public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, RE
                 new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Down tele to land"), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
         Task RotateTo1Sample =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 90), NOTHING, Task.taskStartMode.START_WITH_PREVIOUS);
 
         Task moveHorizontal3 =
                 new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.2, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
@@ -72,68 +75,95 @@ public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, RE
                 new Task(robot.robotSleep, new StandartArgs.robotSleep(1000), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
         Task taking =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP2, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
         Task getting =
                 new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-//        Task upping =
-//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-//
+        Task upping =
+                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+
 //        Task RotateTo3Sample =
 //                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
         Task RotateTo2Sample =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
+        Task moveHorizontal4 =
+                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.26, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        Task moveHorizontal5 =
+                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT,  CLOSE_POS_HORIZONTAL, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        Task driveToBasket2 =
+                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+
+        Task driveTParking =
+                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos5, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
 
         robot.taskManager.addTask(driveToBasket);
-        robot.taskManager.addTask(upTele);
-        robot.taskManager.addTask(moveHorizontal);
-        robot.taskManager.addTask(sleep1);
-        robot.taskManager.addTask(takeOutSample);
-        robot.taskManager.addTask(hangSample);
-        robot.taskManager.addTask(moveHorizontal2);
-        robot.taskManager.addTask(sleep2);
-        robot.taskManager.addTask(downTele);
+//        robot.taskManager.addTask(upTele);
+//        robot.taskManager.addTask(moveHorizontal);
+//        robot.taskManager.addTask(sleep1);
+//        robot.taskManager.addTask(takeOutSample);
+//        robot.taskManager.addTask(hangSample);
+//        robot.taskManager.addTask(moveHorizontal2);
+//        robot.taskManager.addTask(sleep2);
+//        robot.taskManager.addTask(downTele);
+//
+//        robot.taskManager.addTask(sleep2);
+//
+//        robot.taskManager.addTask(RotateTo1Sample);
+//        robot.taskManager.addTask(moveHorizontal4);
+//        robot.taskManager.addTask(taking);
+//        robot.taskManager.addTask(sleep3);
+//        robot.taskManager.addTask(getting);
+//        robot.taskManager.addTask(sleep2);
+//        robot.taskManager.addTask(upping);
+//        robot.taskManager.addTask(sleep2);
+//        robot.taskManager.addTask(moveHorizontal5);
+//
+//        robot.taskManager.addTask(driveToBasket);
+//        robot.taskManager.addTask(upTele);
+//        robot.taskManager.addTask(moveHorizontal);
+//        robot.taskManager.addTask(sleep2);
+//        robot.taskManager.addTask(takeOutSample);
+//        robot.taskManager.addTask(hangSample);
+//        robot.taskManager.addTask(moveHorizontal2);
+//        robot.taskManager.addTask(sleep2);
+//        robot.taskManager.addTask(downTele);
+//
+////        robot.taskManager.addTask(RotateTo2Sample);
+////        robot.taskManager.addTask(moveHorizontal3);
+////        robot.taskManager.addTask(taking);
+////        robot.taskManager.addTask(sleep2);
+////        robot.taskManager.addTask(getting);
+////        robot.taskManager.addTask(sleep2);
+////        robot.taskManager.addTask(upping);
+////        robot.taskManager.addTask(sleep2);
+////        robot.taskManager.addTask(moveHorizontal2);
+////        robot.taskManager.addTask(upTele);
+////        robot.taskManager.addTask(driveToBasket2);
+////
+////
+////        robot.taskManager.addTask(moveHorizontal);
+////        robot.taskManager.addTask(sleep2);
+////        robot.taskManager.addTask(takeOutSample);
+////        robot.taskManager.addTask(hangSample);
+////        robot.taskManager.addTask(moveHorizontal2);
+////        robot.taskManager.addTask(sleep2);
+////        robot.taskManager.addTask(downTele);
+////
+//        robot.taskManager.addTask(driveTParking);
+
+
+//        robot.taskManager.addTask(driveToHunging);
+//        robot.taskManager.addTask(HungTele);
+//        robot.taskManager.addTask(CammingToHung);
+//        robot.taskManager.addTask(downTele);
 
 
 
-        robot.taskManager.addTask(RotateTo1Sample);
-        robot.taskManager.addTask(moveHorizontal3);
-        robot.taskManager.addTask(taking);
-        robot.taskManager.addTask(sleep3);
-        robot.taskManager.addTask(getting);
-        robot.taskManager.addTask(moveHorizontal2);
-
-        robot.taskManager.addTask(driveToBasket);
-        robot.taskManager.addTask(upTele);
-        robot.taskManager.addTask(moveHorizontal);
-        robot.taskManager.addTask(sleep1);
-        robot.taskManager.addTask(takeOutSample);
-        robot.taskManager.addTask(hangSample);
-        robot.taskManager.addTask(moveHorizontal2);
-        robot.taskManager.addTask(sleep2);
-        robot.taskManager.addTask(downTele);
-
-
-
-        robot.taskManager.addTask(RotateTo2Sample);
-        robot.taskManager.addTask(moveHorizontal3);
-        robot.taskManager.addTask(taking);
-        robot.taskManager.addTask(sleep3);
-        robot.taskManager.addTask(getting);
-        robot.taskManager.addTask(moveHorizontal2);
-
-        robot.taskManager.addTask(driveToBasket);
-        robot.taskManager.addTask(upTele);
-        robot.taskManager.addTask(moveHorizontal);
-        robot.taskManager.addTask(sleep1);
-        robot.taskManager.addTask(takeOutSample);
-        robot.taskManager.addTask(hangSample);
-        robot.taskManager.addTask(moveHorizontal2);
-        robot.taskManager.addTask(sleep2);
-        robot.taskManager.addTask(downTele);
     }
 
     /**

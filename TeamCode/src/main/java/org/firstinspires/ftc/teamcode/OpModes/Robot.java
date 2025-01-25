@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Button;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
@@ -37,6 +38,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final Metry metry;
     public final Joysticks joysticks;
     public final ServosService servosService;
+    public final Button button;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
@@ -45,7 +47,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     // либо извне через PID.setPID(ваши коэффициенты)
     public final PID pidLinearX = new PID(0.018,0.0000001,0.000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.0000001,0.000, -1,1);
-    public final PID pidAngular = new PID(0.6,0.0,0.000, -1,1);
+    public final PID pidAngular = new PID(0.27,0.0,0.000, -1,1);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -57,6 +59,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         drivetrain = new MecanumDrivetrain(op);
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
+        button = new Button(op);
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
     }
@@ -71,7 +74,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         servosService.init();
         teleSkope.init();
         joysticks.init();
-
+        button.init();
 
 //        colorSensor.init();
 //        distanceSensor.init();
@@ -125,8 +128,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 errorPosDone = true;
                 linearVel = 0;
             }
-
-            if(Math.abs(errorHeading) < Math.toRadians(2) && odometry.getAngularAcceleration() < 5 && odometry.getAngularVelocity() < 5){
+//&& odometry.getAngularAcceleration() < 5 && odometry.getAngularVelocity() < 5
+            if(Math.abs(errorHeading) < Math.toRadians(2) ){
                 errorHeadingDone = true;
 
             }
@@ -280,12 +283,35 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
     };
 
+    public TaskHandler doWhile = new TaskHandler() {
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+
+        @Override
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.doWhile args = (StandartArgs.doWhile) _args;
+            int result;
+
+            if (!button.isTouched() && button.getTimesTouched() != 1){
+                teleSkope.setTeleskope(args.power, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL);
+                result = -1;
+            }else{
+                teleSkope.init();
+                result = 0;
+            }
+
+            return result;
+        }
+    };
+
     // Gamepad 1
     @Override
     public synchronized void teleopPl1() {
         Gamepad g1 = joysticks.getGamepad1();
 
-        double max_speed = 0.6;
+        double max_speed = 0.5;
         double oldmax_speed = max_speed;
         double accelLinear = 1.3, accelAngle = 1.3;
 
@@ -408,6 +434,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
         }else {
             teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
+        }
+        if (joysticks.isY_g1()){
+            init();
         }
 
         //        if(robotAlliance.equals(RobotAlliance.RED) ){

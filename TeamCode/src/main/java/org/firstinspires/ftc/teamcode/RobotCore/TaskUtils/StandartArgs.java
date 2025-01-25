@@ -82,5 +82,11 @@ public class StandartArgs {
         }
         public double time;
     }
+    public static class doWhile extends StandartArgs{
+        public doWhile(double power){
+            this.power = power;
+        }
+       public double power;
+    }
 }
 

@@ -84,7 +84,7 @@ public class MecanumDrivetrain implements Module {
     public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
         double maxV = 0.65;
 
-        double minVAngle = 0.12;
+        double minVAngle = 0.15;
 
         if(Math.abs(heading) < minVAngle) heading = minVAngle * Math.signum(heading);
 

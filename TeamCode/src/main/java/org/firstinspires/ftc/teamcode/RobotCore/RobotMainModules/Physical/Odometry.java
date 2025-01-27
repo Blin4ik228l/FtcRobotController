@@ -226,7 +226,7 @@ public class Odometry extends Thread implements Module {
 
         // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
         // Для корректной работы этот метод должен работать в непрерывном цикле
-        double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / CONSTS.DIST_BETWEEN_ENC_X );
+        double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / CONSTS.DIST_BETWEEN_ENC_X);
         double deltaX = (deltaLeftEncoderX - deltaRightEncoderX ) / 2.0;
         double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
 

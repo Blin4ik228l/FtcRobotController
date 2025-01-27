@@ -45,9 +45,11 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
+
     public final PID pidLinearX = new PID(0.018,0.0000001,0.000, -1,1);
     public final PID pidLinearY = new PID(0.018,0.0000001,0.000, -1,1);
     public final PID pidAngular = new PID(0.27,0.0,0.000, -1,1);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
@@ -62,6 +64,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         button = new Button(op);
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
+
     }
     @Override
     // Метод инициализации того, чего надо
@@ -90,7 +93,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
-
 
             int result;
 
@@ -156,7 +158,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             op.telemetry.addData("speedPIDX", speedPIDX);
             op.telemetry.addData("speedPIDY", speedPIDY);
             drivetrain.getMotorsPower();
-                op.telemetry.addData("Оставшийся расстояние", errorPos.length());
+            op.telemetry.addData("Оставшийся расстояние", errorPos.length());
             op.telemetry.addData("Оставшийся X", errorPos.x);
             op.telemetry.addData("Оставшийся Y", errorPos.y);
 //
@@ -324,7 +326,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             accelLinear = 0.25;
             accelAngle = 0.25;
         }
-
 
         if (joysticks.isUpGear()){
             if(joysticks.getGear() == 2){

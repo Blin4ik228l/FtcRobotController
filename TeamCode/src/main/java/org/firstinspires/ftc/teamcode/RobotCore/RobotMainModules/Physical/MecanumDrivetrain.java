@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
@@ -16,6 +17,7 @@ public class MecanumDrivetrain implements Module {
     public volatile DcMotor leftB;
     public volatile DcMotor leftF;
     public volatile DcMotor led;
+    public volatile DcMotorEx right;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;

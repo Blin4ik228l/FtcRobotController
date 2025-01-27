@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.DataUtils.JoystickStatement;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
@@ -46,14 +45,11 @@ public class TeleOpBlue extends OpMode {
     public void start() {
         robot.taskManager.forTeleop();
     }
-
-
     /**
      *  Метод крутится в цикле после нажатия START
      */
     @Override
     public void loop() {
-
     }
 
     /**
@@ -62,6 +58,5 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void stop() {
         robot.robotMode = RobotMode.STOP;
-
     }
 }

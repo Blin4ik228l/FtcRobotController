@@ -73,6 +73,7 @@ public class Joysticks implements Module {
         if(gamepad1.x && !switchX_g1) {
             isX_g1 = !isX_g1;
             switchX_g1 = true;}
+
         if(!gamepad1.x && switchX_g1){
             switchX_g1 = false;
         }

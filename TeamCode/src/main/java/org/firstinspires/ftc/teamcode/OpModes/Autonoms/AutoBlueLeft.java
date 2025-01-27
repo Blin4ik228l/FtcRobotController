@@ -13,8 +13,6 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
-import java.util.Objects;
-
 @Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "BlueMeow")
 public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONSTS, REWARDSFORACTIONS {
     Robot robot;
@@ -196,11 +194,11 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
 //        robot.taskManager.addTask(CammingToHung);
 //        robot.taskManager.addTask(downTele);
 
-
-
         waitForStart();
+
         while (opModeIsActive() && !isStopRequested()) {
             robot.taskManager.forAuto();
         }
+
     }
 }

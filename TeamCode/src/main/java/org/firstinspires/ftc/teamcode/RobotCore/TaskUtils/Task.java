@@ -20,6 +20,9 @@ public class Task {
 
     public States state;
     public double startTime; // Время начала выполнения задачи относительно runtime TaskManager'а
+    public double finishTime;
+
+    public double progressBar;
 
     public enum States {
         TODO,

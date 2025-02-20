@@ -9,13 +9,15 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
+import java.util.Base64;
+
 public class MecanumDrivetrain implements Module {
     public final OpMode op;
 
-    public volatile DcMotor rightB;
+    public volatile DcMotor rightB;//encM
     public volatile DcMotor rightF;
-    public volatile DcMotor leftB;
-    public volatile DcMotor leftF;
+    public volatile DcMotor leftB;//encR
+    public volatile DcMotor leftF;//ecnL
     public volatile DcMotor led;
     public volatile DcMotorEx right;
 

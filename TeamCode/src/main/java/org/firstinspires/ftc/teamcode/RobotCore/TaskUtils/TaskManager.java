@@ -152,7 +152,7 @@ public class TaskManager extends Thread{
             Task t = executingDeque.getFirst();
             t.startTime = managerRuntime.milliseconds();
             t.state = Task.States.DOING;
-            t.taskHandler.init(this, t.args);
+            t.taskHandler.init(this, t.args, t);
         }
     }
 
@@ -206,15 +206,17 @@ public class TaskManager extends Thread{
         // остальные обработчики вызываются один раз
         if (currentTask.startMode == Task.taskStartMode.HOTCAKE) {
             while (result != 0) {
-                result = currentTask.taskHandler.execute(this, currentTask.args);
+                result = currentTask.taskHandler.execute(this, currentTask.args, currentTask);
             }
         } else {
-            result = currentTask.taskHandler.execute(this, currentTask.args);
+            result = currentTask.taskHandler.execute(this, currentTask.args, currentTask);
         }
 
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
         if (result == 0) {
+            currentTask.finishTime = managerRuntime.milliseconds();
             currentTask.state = Task.States.DONE;
+
         }
 
         // Возвращаем 0, если задача перешла в режим DONE

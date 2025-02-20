@@ -175,12 +175,12 @@ public class Joysticks implements Module {
         return dpadUp;
     }
 
-    public synchronized int getGear(){
+    public synchronized int getGear(){                       // создаем метод для получения передачи
         return gear;
     }
 
     public synchronized void checkJoysticksCombo(){
-        op.telemetry.addLine("Joystick buttons statements")
+        op.telemetry.addLine("Joystick buttons statements")// выводим состояния кнопок
                 .addData("\nisHookOpen", isA_g2)
                 .addData("\nPropMode", isX_g2)
                 .addData("\nisUpped", isB_g2);
@@ -189,7 +189,7 @@ public class Joysticks implements Module {
     }
 
     public synchronized void checkGear(){
-        op.telemetry.addData("\nGear", gear);
+        op.telemetry.addData("\nGear", gear);              // выводим передачи
         op.telemetry.addLine();
     }
 

@@ -17,8 +17,10 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
+import org.firstinspires.ftc.teamcode.RobotCore.Tree.RobotTreeLogic;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
@@ -39,6 +41,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final Joysticks joysticks;
     public final ServosService servosService;
     public final Button button;
+    public final RobotTreeLogic robotTreeLogic;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
@@ -62,6 +65,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
         button = new Button(op);
+
+        robotTreeLogic = new RobotTreeLogic(this.taskManager);
+
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
 
@@ -91,8 +97,15 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
+            //TODO:  Написать уровень прогресса в каждом обработчике
+
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+
+            double progressBar;
+
+            double progressToPos;
+            double progressHeading;
 
             int result;
 
@@ -107,6 +120,12 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
                 errorPos.x = args.position.getX() - odometry.getGlobalPosition().getX();
                 errorPos.y = args.position.getY() - odometry.getGlobalPosition().getY();
                 double errorHeading = args.position.getHeading() - odometry.getGlobalPosition().getHeading();
+
+                progressHeading = (args.position.getHeading() - errorHeading)/args.position.getHeading();
+                progressToPos = ((args.position.getX() - errorPos.x)/args.position.getX() + (args.position.getY() - errorPos.y)/args.position.getY()) / 2.0;
+                progressBar = (progressHeading + progressToPos) / 2;
+
+                task.progressBar = progressBar;
 
                 // Направление движения
                 Vector2 targetVel = new Vector2(errorPos);
@@ -189,7 +208,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return 0;
         }
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
@@ -234,7 +253,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
             StandartArgs.zahvatStandartArgs args = (StandartArgs.zahvatStandartArgs) _args;
             int result;
 
@@ -269,7 +288,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
 
             StandartArgs.robotSleep args = (StandartArgs.robotSleep) _args;
 
@@ -292,7 +311,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
             StandartArgs.doWhile args = (StandartArgs.doWhile) _args;
             int result;
 
@@ -385,8 +404,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //            }
 //        }
 
-        op.telemetry.addData("MAx_speed", max_speed);
-        op.telemetry.addData("Gear", joysticks.getGear());
+        op.telemetry.addData("Max_speed", max_speed);// выводим максимальную скорость
+        op.telemetry.addData("Gear", joysticks.getGear());// выводим передачу
         op.telemetry.addData("Is up gear", joysticks.isUpGear());
     }
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.configuration.DeviceConfiguration;
 import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,18 +16,18 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 public class Odometry extends Thread implements Module {
     private final OpMode op;
 
-    private final ElapsedTime runtime;                                          // Пройденное время
-    private final double[] oldTime;                                                     // Предыдущее время
-    private final double[] dt;                                                          // Разница во времени
-    private double encLOld, encROld, encMOld;                                   // Значения энкодера на предыдущем шаге
+    private final ElapsedTime runtime;                                      // Пройденное время
+    private final double[] oldTime;                                         // Предыдущее время
+    private final double[] dt;                                              // Разница во времени
+    private double encLOld, encROld, encMOld;                               // Значения энкодера на предыдущем шаге
     private double angularVelocity, angularAcceleration, oldAngularVelocity;
-    private DcMotorEx encM;                                                // Объекты энкодеров
-    private DcMotorEx encL;
-    private DcMotorEx encR;
-    private final Position deltaPosition;
-    private final Position globalPosition;                                      // Относительное перемещение и глобальное положение
-    private final Vector2 velocity, oldVelocity, acceleration;                  // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
-    private double maxAcceleration, maxVel;
+    private DcMotorEx encM;                                                 // Объекты энкодеров
+    private DcMotorEx encL;                                                 //
+    private DcMotorEx encR;                                                 //
+    private final Position deltaPosition;                                   // Относительное перемещение
+    private final Position globalPosition;                                  // Глобальное положение
+    private final Vector2 velocity, oldVelocity, acceleration;              // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
+    private double maxAcceleration, maxVel;                                 // Максимальные скорость и ускорение
 
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
@@ -50,31 +51,30 @@ public class Odometry extends Thread implements Module {
     }
 
     public  Odometry (OpMode op){
-        this(new Position(0,0,0), op);
+        this(new Position(0,0,0), op);                            // обнуляем позицию
     }
 
     @Override
     public void init() {
-        this.encM = op.hardwareMap.get(DcMotorEx.class, "encM") ;
-        this.encL = op.hardwareMap.get(DcMotorEx.class, "leftB") ;
-        this.encR = op.hardwareMap.get(DcMotorEx.class, "rightB");
+      encM = op.hardwareMap.get(DcMotorEx.class, "encM");
+        encL = op.hardwareMap.get(DcMotorEx.class, "encL");
+        encR = op.hardwareMap.get(DcMotorEx.class, "encR");
+        encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем правый энкодер
+        encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем левый энкодер
+        encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем средний энкодер
 
-        encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        encM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encM.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем средний энкодер
+        encR.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем правый энкодер
+        encL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем левый энкодер
 
         this.setDaemon(true);
         this.start();
 
-        op.telemetry.addLine("Odometry Inited");
+        op.telemetry.addLine("Odometry Inited");                             // объявляем об обнавлении одометрии
     }
 
-    @Override
-    // Запускаем методы для обновления данных, пока объект существует
+    @Override                                                                   // Запускаем методы для обновления данных,
+                                                                                // пока объект существует
     public void run() {
         while (this.isAlive()){
             updateGlobalPosition();
@@ -86,37 +86,33 @@ public class Odometry extends Thread implements Module {
         }
     }
 
-    public synchronized DcMotorEx getEncL() {
+    public synchronized DcMotorEx getEncL() {                                   // создаем метод для получения левого энкодера
         return encL;
     }
-
-    public synchronized DcMotorEx getEncM() {
+    public synchronized DcMotorEx getEncM() {                                   // создаем метод для получения левого энкодера
         return encM;
     }
-
-    public synchronized DcMotorEx getEncR() {
+    public synchronized DcMotorEx getEncR() {                                   // создаем метод для получения левого энкодера
         return encR;
     }
 
-    public synchronized double[] getDt() {
+
+    public synchronized double[] getDt() {                                      // создаем метод для получения времени на цикл
         return dt;
     }
 
-    public synchronized double getMaxVel(){
+    public synchronized double getMaxVel(){                                     // создаем метод для получения максимальной скорости
         return maxVel;
     }
-
-    public synchronized double getMaxAcceleration(){
+    public synchronized double getMaxAcceleration(){                            // создаем метод для получения максимального ускорения
         return maxAcceleration;
     }
 
-    // Геттер глобального положения робота
-    public synchronized Position getGlobalPosition(){
+    public synchronized Position getGlobalPosition(){                           // создаем метод для получения глобальных координат
         return globalPosition;
     }
 
-    // Геттер вектора скорости
-    public synchronized Vector2 getVelocity(){
+    public synchronized Vector2 getVelocity(){                                  // создаем метод для получения вектора скорости
         return velocity;
     }
 
@@ -166,7 +162,7 @@ public class Odometry extends Thread implements Module {
 
     // Обновление вектора скорости робота
     private synchronized void updateVelocity(){
-        dt[0] = (runtime.milliseconds() - oldTime[0])/1000.0;
+        dt[0] = (runtime.milliseconds() - oldTime[0])/1000.0;// считаем время одного цикла
         oldTime[0] = runtime.milliseconds();
 
         oldVelocity.x = velocity.x;
@@ -188,7 +184,7 @@ public class Odometry extends Thread implements Module {
         acceleration.x = (velocity.x - oldVelocity.x)/dt[1];
         acceleration.y = (velocity.y - oldVelocity.y)/dt[1];
     }
-
+    // Обнавление вектора угловой скорости
     private synchronized void updateAngularVelocity(){
         dt[3] = (runtime.milliseconds() - oldTime[3])/1000.0;
         oldTime[3] = runtime.milliseconds();
@@ -196,15 +192,13 @@ public class Odometry extends Thread implements Module {
         oldAngularVelocity = angularVelocity;
         angularVelocity = deltaPosition.getHeading()/dt[3];
     }
-
-    // Обновление вектора ускорения робота
+    // Обновление вектора углового ускорения робота
     private synchronized void updateAngularAcceleration() {
         dt[2] = (runtime.milliseconds() - oldTime[2])/1000.0;
         oldTime[2] = runtime.milliseconds();
 
         angularAcceleration = (angularVelocity - oldAngularVelocity)/dt[2];
     }
-
     // Обновление положения робота на поле с помощью следящих колес
     private synchronized void updateGlobalPosition(){
         double leftEncoderXNow = ticksToCm(-encL.getCurrentPosition() );
@@ -240,6 +234,7 @@ public class Odometry extends Thread implements Module {
         globalPosition.setHeading(globalPosition.getHeading());
     }
 
+    // Вывод позиции робота
     public synchronized void getRobotPos(){
         op.telemetry.addLine("Robot position")
                 .addData("\nX:", globalPosition.getX())
@@ -247,7 +242,7 @@ public class Odometry extends Thread implements Module {
                 .addData("\nHeading", globalPosition.getHeading() * 57.29);
         op.telemetry.addLine();
     }
-
+    // Вывод позиции энкодеров
     public synchronized void getEncPos(){
         op.telemetry.addLine("Encoders statements")
                 .addData("\nEncL", encL.getCurrentPosition())

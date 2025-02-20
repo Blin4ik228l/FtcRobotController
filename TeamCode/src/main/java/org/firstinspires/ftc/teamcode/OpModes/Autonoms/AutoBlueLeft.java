@@ -57,7 +57,6 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
 
         Task downTeleWhile = new Task(robot.doWhile, new StandartArgs.doWhile(-1), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-        Task upTele232 = new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Sfsf") ,0,Task.taskStartMode.START_AFTER_PREVIOUS);
         Task driveToBasket =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
@@ -84,7 +83,6 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
 
         Task downTele =
                 new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Down tele to land"), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
         Task RotateTo1Sample =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 90), NOTHING, Task.taskStartMode.START_WITH_PREVIOUS);
 
@@ -103,8 +101,8 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
         Task upping =
                 new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
-//        Task RotateTo3Sample =
-//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+        Task RotateTo3Sample =
+                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
         Task RotateTo2Sample =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
@@ -117,6 +115,7 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
         Task driveToBasket2 =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
+
         Task driveTParking =
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos5, 100), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
@@ -127,7 +126,7 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
                 new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos6, 100), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
 
         robot.taskManager.addTask(downTeleWhile);
-        robot.taskManager.addTask(upTele232);
+        robot.taskManager.addTask(downTele);
         robot.taskManager.addTask(driveToBasket);
         robot.taskManager.addTask(upTele);
         robot.taskManager.addTask(moveHorizontal);
@@ -139,7 +138,7 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
         robot.taskManager.addTask(downTele);
 
         robot.taskManager.addTask(sleep2);
-//
+
         robot.taskManager.addTask(RotateTo1Sample);
         robot.taskManager.addTask(moveHorizontal4);
         robot.taskManager.addTask(taking);
@@ -151,7 +150,7 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
         robot.taskManager.addTask(moveHorizontal5);
 
         robot.taskManager.addTask(sleep3);
-//
+
         robot.taskManager.addTask(driveToBasket5);
         robot.taskManager.addTask(upTele);
         robot.taskManager.addTask(moveHorizontal);

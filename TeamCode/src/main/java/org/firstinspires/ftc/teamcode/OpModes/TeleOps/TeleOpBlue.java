@@ -20,9 +20,10 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void init() {
 
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this);
-
-        robot.odometry.setGlobalPosition(new Position(robot.odometry.getGlobalPosition().getX(),robot.odometry.getGlobalPosition().getY(),robot.odometry.getGlobalPosition().getHeading()));
+        robot = new Robot(RobotMode.TELEOP, RobotAlliance.BLUE, this,
+                new Position(robot.odometry.getGlobalPosition().getX(),
+                        robot.odometry.getGlobalPosition().getY(),
+                        robot.odometry.getGlobalPosition().getHeading()));
 
         robot.init();
 

@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
+import org.firstinspires.ftc.teamcode.Consts.CONSTS;
+import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
 
 public class TeleSkope implements Module, CONSTSTELESKOPE {
     public final OpMode op;

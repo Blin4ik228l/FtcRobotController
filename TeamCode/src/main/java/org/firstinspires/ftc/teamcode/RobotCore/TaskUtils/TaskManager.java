@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
@@ -124,7 +123,7 @@ public class TaskManager extends Thread{
                 case START_AFTER_PREVIOUS:
                     if (executingDeque.isEmpty()) {
                         pollToLast();
-                    } else if (executingDeque.getLast().state == Task.States.DONE) {
+                    } else if (executingDeque.getLast().state == Task.States.SUCCESS) {
                         pollToLast();
                     } else {
                         picked = false; // Если не перенесли
@@ -151,8 +150,8 @@ public class TaskManager extends Thread{
         if (picked) {
             Task t = executingDeque.getFirst();
             t.startTime = managerRuntime.milliseconds();
-            t.state = Task.States.DOING;
-            t.taskHandler.init(this, t.args, t);
+            t.state = Task.States.RUNNING;
+            t.taskHandler.init(this, t.args);
         }
     }
 
@@ -206,16 +205,16 @@ public class TaskManager extends Thread{
         // остальные обработчики вызываются один раз
         if (currentTask.startMode == Task.taskStartMode.HOTCAKE) {
             while (result != 0) {
-                result = currentTask.taskHandler.execute(this, currentTask.args, currentTask);
+                result = currentTask.taskHandler.execute(this, currentTask.args);
             }
         } else {
-            result = currentTask.taskHandler.execute(this, currentTask.args, currentTask);
+            result = currentTask.taskHandler.execute(this, currentTask.args);
         }
 
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
         if (result == 0) {
             currentTask.finishTime = managerRuntime.milliseconds();
-            currentTask.state = Task.States.DONE;
+            currentTask.state = Task.States.SUCCESS;
 
         }
 

@@ -4,13 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.REWARDSFORACTIONS;
+import org.firstinspires.ftc.teamcode.Consts.REWARDSFORACTIONS;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
+import org.firstinspires.ftc.teamcode.Consts.CONSTS;
+import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "BlueMeow")
@@ -29,9 +29,8 @@ public class AutoBlueLeft extends LinearOpMode implements CONSTSTELESKOPE, CONST
     Position pos6 = new Position(150, -40, 0);
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this);
+        robot = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this, new Position(0,0,0));
         robot.init();
-        robot.odometry.setGlobalPosition(new Position(0,0,0));// 2 клетка от карзины
 
 //        Task zahvat1 = new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(CONSTSTELESKOPE.HANG_POS_FLIP, CONSTSTELESKOPE.CLOSE_POS_HOOK), REWARDSFORACTIONS.NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS, "Take sample");
 

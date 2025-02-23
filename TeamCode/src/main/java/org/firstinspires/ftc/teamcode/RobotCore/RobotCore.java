@@ -2,13 +2,16 @@ package org.firstinspires.ftc.teamcode.RobotCore;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
+
+import java.util.Deque;
 
 public abstract class RobotCore implements Module {
 
@@ -56,6 +59,16 @@ public abstract class RobotCore implements Module {
             // Какое-то действие робота
 
             return -1;
+        }
+
+        @Override
+        public Deque<RobotStatusInDrive>[] statusInDrive() {
+            return new Deque[0];
+        }
+
+        @Override
+        public RobotStatus statusRobot() {
+            return null;
         }
     };
 

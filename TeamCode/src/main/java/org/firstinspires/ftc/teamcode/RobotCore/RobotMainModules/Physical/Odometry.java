@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.configuration.DeviceConfiguration;
-import com.qualcomm.robotcore.robocol.TelemetryMessage;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
+import org.firstinspires.ftc.teamcode.Consts.CONSTS;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
@@ -26,12 +25,18 @@ public class Odometry extends Thread implements Module {
     private DcMotorEx encR;                                                 //
     private final Position deltaPosition;                                   // Относительное перемещение
     private final Position globalPosition;                                  // Глобальное положение
+    private final Position startGlobalPosition;
     private final Vector2 velocity, oldVelocity, acceleration;              // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;                                 // Максимальные скорость и ускорение
+
+    private EncoderStatus encXst;
+    private EncoderStatus encYst;
+    private EncoderStatus encRadSt;
 
     public  Odometry (Position startPosition, OpMode op){
         this.op = op;
 
+        startGlobalPosition = startPosition;
         this.globalPosition = new Position(startPosition);
         this.deltaPosition = new Position();
 
@@ -84,6 +89,22 @@ public class Odometry extends Thread implements Module {
             updateAngularAcceleration();
             updateAngularVelocity();
         }
+    }
+
+    public Position getStartGlobalPosition() {
+        return startGlobalPosition;
+    }
+
+    public EncoderStatus getEncXst() {
+        return encXst;
+    }
+
+    public EncoderStatus getEncYst() {
+        return encYst;
+    }
+
+    public EncoderStatus getEncRadSt() {
+        return encRadSt;
     }
 
     public synchronized DcMotorEx getEncL() {                                   // создаем метод для получения левого энкодера
@@ -215,6 +236,9 @@ public class Odometry extends Thread implements Module {
 
         // Если перемещения не было - выходим из метода
         if(deltaLeftEncoderX == 0 && deltaRightEncoderX == 0 && deltaEncoderY == 0 ) {
+            encXst = EncoderStatus.ZeroDelta;
+            encYst = EncoderStatus.ZeroDelta;
+            encRadSt = EncoderStatus.ZeroDelta;
             return;
         }
 
@@ -223,6 +247,20 @@ public class Odometry extends Thread implements Module {
         double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / CONSTS.DIST_BETWEEN_ENC_X);
         double deltaX = (deltaLeftEncoderX - deltaRightEncoderX ) / 2.0;
         double deltaY = (deltaEncoderY) - deltaRad * CONSTS.OFFSET_ENC_M_FROM_CENTER;
+
+        //TODO: понять каково перемещение по энкодеру при застревании, на сколько оно маленькое
+        if(deltaX == 0) encXst = EncoderStatus.ZeroDelta;
+        else if(Math.abs(deltaX) < 0.05) encXst = EncoderStatus.SmallDelta;
+        else encXst = EncoderStatus.InMoving;
+
+        if(deltaY == 0) encYst = EncoderStatus.ZeroDelta;
+        //Нужно понимать, что значение у центрального может быть маленьким при кручении
+        else if(Math.abs(deltaY) < 0.05 && Math.abs(deltaRad) == 0 || Math.abs(deltaY) < 0.05 && Math.abs(deltaRad) > 0) encYst = EncoderStatus.SmallDelta;
+        else encYst = EncoderStatus.InMoving;
+
+        if(deltaRad == 0) encRadSt = EncoderStatus.ZeroDelta;
+        else if(Math.abs(deltaRad) == 0 ||  Math.abs(deltaRad) < 0.05) encRadSt = EncoderStatus.SmallDelta;
+        else encRadSt = EncoderStatus.InMoving;
 
         deltaPosition.setHeading(deltaRad);
         deltaPosition.setX(deltaX);

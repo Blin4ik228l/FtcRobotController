@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
-
-import java.util.Base64;
 
 public class MecanumDrivetrain implements Module {
     public final OpMode op;
@@ -19,7 +17,9 @@ public class MecanumDrivetrain implements Module {
     public volatile DcMotor leftB;//encR
     public volatile DcMotor leftF;//ecnL
     public volatile DcMotor led;
-    public volatile DcMotorEx right;
+
+    public MotorsStatus motorsYdirection;
+    public MotorsStatus motorsXdirection;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;
@@ -27,6 +27,9 @@ public class MecanumDrivetrain implements Module {
 
     @Override
     public void init() {
+        motorsYdirection = MotorsStatus.Normal;
+        motorsXdirection = MotorsStatus.Normal;
+
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
         rightF = op.hardwareMap.get(DcMotor.class, "rightF");
         leftB = op.hardwareMap.get(DcMotor.class, "leftB");
@@ -85,19 +88,39 @@ public class MecanumDrivetrain implements Module {
 
     }
 
-    public synchronized void setXYHeadVel(double powerX, double PowerY, double heading){
+    public synchronized MotorsStatus setXYHeadVel(double powerX, double powerY, double powHead){
         double maxV = 0.65;
 
         double minVAngle = 0.15;
 
-        if(Math.abs(heading) < minVAngle) heading = minVAngle * Math.signum(heading);
+        if(Math.abs(powHead) < minVAngle) powHead = minVAngle * Math.signum(powHead);
 
-        // TODO
-        rightF.setPower(Range.clip((powerX + PowerY + heading), -maxV, maxV));
-        rightB.setPower(Range.clip((powerX - PowerY + heading), -maxV, maxV));
+        if(motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Normal) {
+            powerX *= 1;
+            powerY *= 1;
+            powHead *= 1;
+        } else if (motorsYdirection == MotorsStatus.Reversed && motorsXdirection == MotorsStatus.Normal) {
+            powerX *= 1;
+            powerY *= -1;
+            powHead *= 1;
+        } else if ((motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Reversed)) {
+            powerX *= -1;
+            powerY *=  1;
+            powHead *= 1;
+        }else{
+            powerX *= -1;
+            powerY *= -1;
+            powHead *= 1;
+        }
 
-        leftF.setPower(Range.clip((powerX - PowerY - heading), -maxV, maxV));
-        leftB.setPower(Range.clip((powerX + PowerY - heading), -maxV, maxV));
+        rightF.setPower(Range.clip((powerX + powerY + powHead), -maxV, maxV));
+        rightB.setPower(Range.clip((powerX - powerY + powHead), -maxV, maxV));
+
+        leftF.setPower(Range.clip((powerX - powerY - powHead), -maxV, maxV));
+        leftB.setPower(Range.clip((powerX + powerY - powHead), -maxV, maxV));
+
+
+        return powerX == 0 && powerY == 0 && powHead == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
 
     }
 
@@ -109,11 +132,13 @@ public class MecanumDrivetrain implements Module {
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void offMotors(){
+    public MotorsStatus offMotors(){
         rightF.setPower(0);
         leftB.setPower(0);
         leftF.setPower(0);
         rightB.setPower(0);
+
+        return MotorsStatus.Stopped;
     }
 
     public synchronized void setPowerTeleOp(double forward, double side, double angle){

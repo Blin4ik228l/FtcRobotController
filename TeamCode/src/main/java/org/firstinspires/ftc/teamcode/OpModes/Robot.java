@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Consts.CONSTS;
+import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Root;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.RobotTreeLogic;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Button;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
@@ -14,18 +18,21 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odomet
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ServosService;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
-import org.firstinspires.ftc.teamcode.RobotCore.Tree.RobotTreeLogic;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTS;
-import org.firstinspires.ftc.teamcode.RobotCore.Utils.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +49,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final ServosService servosService;
     public final Button button;
     public final RobotTreeLogic robotTreeLogic;
+    public final Root root;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
@@ -55,18 +63,20 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op) {
+    public Robot(RobotMode robotMode, RobotAlliance robotAlliance, OpMode op, Position startPos) {
         super(robotMode, robotAlliance, op);
 
         metry = new Metry(op);
         joysticks = new Joysticks(op);
-        odometry = new Odometry(op);
+        odometry = new Odometry(startPos, op);
         drivetrain = new MecanumDrivetrain(op);
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
         button = new Button(op);
 
         robotTreeLogic = new RobotTreeLogic(this.taskManager);
+
+        root = new Root(this.taskManager, this);
 
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
@@ -89,18 +99,57 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 //        distanceSensor.init();
     }
 
+
+
     // Метод, обрабатывающий задачу перемещения робота в точку
     public TaskHandler driveToPosition = new TaskHandler() {
+        //Сделать статусы состояний робота в разных действиях, для дальнейших работ с ним
+       public RobotStatus statusInDrive;
+
+       public RobotStatusInDrive statusBy_X;
+       public RobotStatusInDrive statusBy_Y;
+       public RobotStatusInDrive statusBy_Rotate;
+
+       public Deque<RobotStatusInDrive> statusBy_X_history = new ArrayDeque<>();
+       public Deque<RobotStatusInDrive> statusBy_Y_history = new ArrayDeque<>();
+       public Deque<RobotStatusInDrive> statusBy_Rotate_history = new ArrayDeque<>();
+
+       public MotorsStatus motorsStatus;
+
+       public ElapsedTime stuckTimeBy_X;
+       public ElapsedTime stuckTimeBy_Y;
+       public ElapsedTime stuckTimeBy_Rotate;
+
+       public double progressBar;
+
+        @Override
+        public Deque[] statusInDrive() {
+            return new Deque[]{statusBy_X_history, statusBy_Y_history, statusBy_Rotate_history};
+        }
+
+        @Override
+        public RobotStatus statusRobot() {
+            return statusInDrive;
+        }
+
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
-            //TODO:  Написать уровень прогресса в каждом обработчике
-
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+
+            if(statusBy_X == null && statusBy_Y == null && statusBy_Rotate == null) {
+                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X:RobotStatusInDrive.MovingBy_X;
+                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y:RobotStatusInDrive.MovingBy_Y;
+                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate:RobotStatusInDrive.MovingBy_Rotate;
+
+                statusBy_X_history.addLast(statusBy_X);
+                statusBy_Y_history.addLast(statusBy_Y);
+                statusBy_Rotate_history.addLast(statusBy_Rotate);
+            }
 
             double progressBar;
 
@@ -109,65 +158,134 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             int result;
 
-                boolean errorPosDone = false;
-                boolean errorHeadingDone = false;
+            boolean errorPosDone = false;
+            boolean errorHeadingDone = false;
 
-                double linearVel; // Линейная скорость робота
+            double linearVel; // Линейная скорость робота
 
-                Vector2 errorPos = new Vector2();
+            Vector2 errorPos = new Vector2();
 
-                // Находим ошибку положения
-                errorPos.x = args.position.getX() - odometry.getGlobalPosition().getX();
-                errorPos.y = args.position.getY() - odometry.getGlobalPosition().getY();
-                double errorHeading = args.position.getHeading() - odometry.getGlobalPosition().getHeading();
+            // Находим ошибку положения
+            errorPos.x = args.position.getX() - odometry.getGlobalPosition().getX();
+            errorPos.y = args.position.getY() - odometry.getGlobalPosition().getY();
+            double errorHeading = args.position.getHeading() - odometry.getGlobalPosition().getHeading();
 
-                progressHeading = (args.position.getHeading() - errorHeading)/args.position.getHeading();
-                progressToPos = ((args.position.getX() - errorPos.x)/args.position.getX() + (args.position.getY() - errorPos.y)/args.position.getY()) / 2.0;
-                progressBar = (progressHeading + progressToPos) / 2;
+            progressHeading = (args.position.getHeading() - errorHeading)/args.position.getHeading();
+            progressToPos = ((args.position.getX() - errorPos.x)/args.position.getX() + (args.position.getY() - errorPos.y)/args.position.getY()) / 2.0;
+            progressBar = (progressHeading + progressToPos) / 2;
 
-                task.progressBar = progressBar;
+            //Проверяем на отклонение от курса
+            if(errorPos.x > args.position.getX()){
+                statusBy_X = RobotStatusInDrive.MovingInOtherSideBy_X;
+                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+            }else{
+                statusBy_X = RobotStatusInDrive.MovingBy_X;
+                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+            }
+            if(errorPos.y > args.position.getX()){
+                statusBy_Y = RobotStatusInDrive.MovingInOtherSideBy_Y;
+                if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
+            }else {
+                statusBy_Y = RobotStatusInDrive.MovingBy_Y;
+                if(statusBy_Y_history.getLast() != statusBy_Y) statusBy_Y_history.addLast(statusBy_Y);
+            }
 
-                // Направление движения
-                Vector2 targetVel = new Vector2(errorPos);
-                targetVel.normalize();
-                targetVel.rotate(-odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+            /**Если перемещение по энкодерам не велико и на моторы подаётся напряжение, то начинается отсчёт времени застревания
+             * Оно нужно для того, чтобы робот возможно успел бы вернутся на траекторию движения, например:
+             * Если бы робот ударился и начал ехать в другого робота, но тот бы отъехал и наш бы продолжил движение
+             * Если же нет, то тогда считаем что робот застрял, въехал в стенку или игровую конструкцию
+             */
 
-                // Выбираем скорости в зависимости от величины ошибки
-                if (errorPos.length() > returnDistance(args.max_linear_speed, MAX_LINEAR_ACCEL)) {
-                    linearVel = args.max_linear_speed; //Максимально допустимая скорость с args
-                } else {
-                    linearVel = MIN_LINEAR_SPEED;
-                }
+            if (
+                    (odometry.getEncXst() == EncoderStatus.SmallDelta
+                            || odometry.getEncXst() == EncoderStatus.ZeroDelta)
+                            && motorsStatus == MotorsStatus.Powered && errorPos.x != 0
+            )stuckTimeBy_X.seconds();
+            else stuckTimeBy_X.reset();
 
-                if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
-                    targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
-                }
+            if (
+                    (odometry.getEncYst() == EncoderStatus.SmallDelta
+                            || odometry.getEncYst() == EncoderStatus.ZeroDelta)
+                            && motorsStatus == MotorsStatus.Powered && errorPos.y != 0
+            )stuckTimeBy_Y.seconds();
+            else stuckTimeBy_Y.reset();
 
-                if (linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
+            if (
+                    (odometry.getEncRadSt() == EncoderStatus.SmallDelta
+                            || odometry.getEncRadSt() == EncoderStatus.ZeroDelta)
+                            && motorsStatus == MotorsStatus.Powered && errorHeading != 0
+            )stuckTimeBy_Rotate.seconds();
+            else stuckTimeBy_Rotate.reset();
+
+
+            if(stuckTimeBy_X.seconds() > 2){
+                statusBy_X = RobotStatusInDrive.StuckedBy_X;//Застревание при движении по X
+                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+            }
+            if(stuckTimeBy_Y.seconds() > 2){
+                statusBy_Y = RobotStatusInDrive.StuckedBy_Y;//Застревание при движении по Y
+                if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
+            }
+            if(stuckTimeBy_Rotate.seconds() > 2){
+                statusBy_Rotate = RobotStatusInDrive.StuckedBy_Rotate;//Застревание при повороте
+                if(statusBy_Rotate_history.getLast() != statusBy_Rotate)statusBy_Rotate_history.addLast(statusBy_Rotate);
+            }
+
+            statusInDrive = statusBy_Rotate == RobotStatusInDrive.StuckedBy_Rotate || statusBy_Y == RobotStatusInDrive.StuckedBy_Y ||statusBy_X == RobotStatusInDrive.StuckedBy_X ? RobotStatus.Stucked:RobotStatus.Moving;
+
+            // Направление движения
+            Vector2 targetVel = new Vector2(errorPos);
+            targetVel.normalize();
+            targetVel.rotate(-odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+
+            // Выбираем скорости в зависимости от величины ошибки
+            linearVel = errorPos.length() > returnDistance(args.max_linear_speed, MAX_LINEAR_ACCEL) ? args.max_linear_speed : MIN_LINEAR_SPEED;
+
+            if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
+                targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
+            }
+
+            if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
             if (errorPos.length() < 2){
                 errorPosDone = true;
                 linearVel = 0;
             }
-//&& odometry.getAngularAcceleration() < 5 && odometry.getAngularVelocity() < 5
+
             if(Math.abs(errorHeading) < Math.toRadians(2) ){
                 errorHeadingDone = true;
 
             }
-                targetVel.multyplie(linearVel);
+            targetVel.multyplie(linearVel);
 
-                // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
-                double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
-                double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
-                double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
+            // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
+            double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
+            double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
+            double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
 
             if(errorPosDone && errorHeadingDone){
-                    result = 0;
-                    drivetrain.offMotors();
-                }else{
-                    result = -1;
-                    drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
+                result = 0;
+                motorsStatus = drivetrain.offMotors();
+
+                statusInDrive = RobotStatus.Completed;
+
+                if(statusBy_X != RobotStatusInDrive.StuckedBy_X){
+                    statusBy_X = RobotStatusInDrive.CompletedBy_X;
+                    statusBy_X_history.addLast(statusBy_X);
                 }
+                if(statusBy_Y != RobotStatusInDrive.StuckedBy_Y){
+                    statusBy_Y = RobotStatusInDrive.CompletedBy_Y;
+                    statusBy_Y_history.addLast(statusBy_Y);
+                }
+                if(statusBy_Rotate != RobotStatusInDrive.StuckedBy_Rotate){
+                    statusBy_Rotate = RobotStatusInDrive.CompletedBy_Rotate;
+                    statusBy_Rotate_history.addLast(statusBy_Rotate);
+                }
+            }else{
+                result = -1;
+
+                motorsStatus = drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
+            }
 
             op.telemetry.addData("Вектор", targetVel.length());
             op.telemetry.addData("Вектор X", targetVel.x);
@@ -208,7 +326,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return 0;
         }
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
@@ -243,6 +361,17 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             return result;
         }
+
+        @Override
+        public Deque[] statusInDrive() {
+            return new Deque[0];
+        }
+
+
+        @Override
+        public RobotStatus statusRobot() {
+            return null;
+        }
     };
 
     public TaskHandler setZahvat = new TaskHandler(){
@@ -253,7 +382,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.zahvatStandartArgs args = (StandartArgs.zahvatStandartArgs) _args;
             int result;
 
@@ -279,16 +408,28 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
             return result;
         }
+
+        @Override
+        public Deque[] statusInDrive() {
+            return new Deque[0];
+        }
+
+
+        @Override
+        public RobotStatus statusRobot() {
+            return null;
+        }
     };
 
     public TaskHandler robotSleep = new TaskHandler() {
+
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
 
             StandartArgs.robotSleep args = (StandartArgs.robotSleep) _args;
 
@@ -302,6 +443,16 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             return result;
         }
+
+        @Override
+        public Deque[] statusInDrive() {
+            return new Deque[0];
+        }
+
+        @Override
+        public RobotStatus statusRobot() {
+            return null;
+        }
     };
 
     public TaskHandler doWhile = new TaskHandler() {
@@ -311,7 +462,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         }
 
         @Override
-        public int execute(TaskManager thisTaskManager, StandartArgs _args, Task task) {
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.doWhile args = (StandartArgs.doWhile) _args;
             int result;
 
@@ -324,6 +475,17 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
 
             return result;
+        }
+
+        @Override
+        public Deque[] statusInDrive() {
+            return new Deque[0];
+        }
+
+
+        @Override
+        public RobotStatus statusRobot() {
+            return null;
         }
     };
 

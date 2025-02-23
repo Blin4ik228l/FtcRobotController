@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotUtils;
+package org.firstinspires.ftc.teamcode.Consts;
 
 public interface REWARDSFORACTIONS {
     int SAMPLE_UNDER_THE_BUSCKET = 2;

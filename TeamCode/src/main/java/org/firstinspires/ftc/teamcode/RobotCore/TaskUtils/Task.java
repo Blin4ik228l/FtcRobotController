@@ -26,8 +26,9 @@ public class Task {
 
     public enum States {
         TODO,
-        DOING,
-        DONE
+        RUNNING,
+        SUCCESS,
+        FAILURE
     }
 
     // Энам, перечисляющий режим начала выполнения задачи

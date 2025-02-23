@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.Utils;
+package org.firstinspires.ftc.teamcode.Consts;
 
 
 public interface CONSTS { // ВСЁ В СМ!!!!

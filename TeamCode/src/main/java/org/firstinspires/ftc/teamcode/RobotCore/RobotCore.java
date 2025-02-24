@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.TaskHandlerOrdinal;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 
 import java.util.Deque;
@@ -43,7 +43,7 @@ public abstract class RobotCore implements Module {
     /** Как написать свой метод-обработчик задачи?
      *
      */
-    public TaskHandler example = new TaskHandler() {
+    public TaskHandlerOrdinal example = new TaskHandlerOrdinal() {
         // Переменные, которые должны хранить долгосрочные данные в процессе
         // выполнения задачи нужно прописывать здесь.
         double var1;
@@ -61,15 +61,6 @@ public abstract class RobotCore implements Module {
             return -1;
         }
 
-        @Override
-        public Deque<RobotStatusInDrive>[] statusInDrive() {
-            return new Deque[0];
-        }
-
-        @Override
-        public RobotStatus statusRobot() {
-            return null;
-        }
     };
 
     // Метод, обрабатывающий задачу телеопа

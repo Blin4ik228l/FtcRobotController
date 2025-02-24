@@ -18,5 +18,9 @@ public enum RobotStatusInDrive {
 
     NoneBy_X,
     NoneBy_Y,
-    NoneBy_Rotate
+    NoneBy_Rotate,
+
+    StayingBy_X,
+    StayingBy_Y,
+    StayingBy_Rotate
 }

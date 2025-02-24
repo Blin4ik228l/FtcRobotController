@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -17,9 +18,9 @@ public class TaskManager extends Thread{
 
 //    private final Robot robot;
     private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
-    private final Deque<Task> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
-    private final Deque<Task> executingDeque; // Очередь для хранения обрабатываемых задач
-    private final Stack<Task> completedTasks; // Стэк для хранения выполненных задач
+    private final Deque<OrdinaryTask> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
+    private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
+    private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,9 +28,9 @@ public class TaskManager extends Thread{
         this.robot = robot;
 
         this.managerRuntime = new ElapsedTime();
-        this.taskDeque = new ArrayDeque<Task>();
-        this.executingDeque = new ArrayDeque<Task>();
-        this.completedTasks = new Stack<Task>();
+        this.taskDeque = new ArrayDeque<OrdinaryTask>();
+        this.executingDeque = new ArrayDeque<OrdinaryTask>();
+        this.completedTasks = new Stack<OrdinaryTask>();
     }
 
     /** Обработчик задач
@@ -83,15 +84,15 @@ public class TaskManager extends Thread{
         }
     }
 
-    public Deque<Task> getTaskDeque() {
+    public Deque<OrdinaryTask> getTaskDeque() {
         return taskDeque;
     }
 
-    public Deque<Task> getExecutingDeque() {
+    public Deque<OrdinaryTask> getExecutingDeque() {
         return executingDeque;
     }
 
-    public Stack<Task> getCompletedTasks() {
+    public Stack<OrdinaryTask> getCompletedTasks() {
         return completedTasks;
     }
 
@@ -123,7 +124,7 @@ public class TaskManager extends Thread{
                 case START_AFTER_PREVIOUS:
                     if (executingDeque.isEmpty()) {
                         pollToLast();
-                    } else if (executingDeque.getLast().state == Task.States.SUCCESS) {
+                    } else if (executingDeque.getLast().state == OrdinaryTask.States.SUCCESS) {
                         pollToLast();
                     } else {
                         picked = false; // Если не перенесли
@@ -148,9 +149,9 @@ public class TaskManager extends Thread{
 
         // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
         if (picked) {
-            Task t = executingDeque.getFirst();
+            OrdinaryTask t = executingDeque.getFirst();
             t.startTime = managerRuntime.milliseconds();
-            t.state = Task.States.RUNNING;
+            t.state = OrdinaryTask.States.RUNNING;
             t.taskHandler.init(this, t.args);
         }
     }
@@ -170,8 +171,8 @@ public class TaskManager extends Thread{
      * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
      */
     private void taskHandler() {
-        for (Iterator<Task> iterator = executingDeque.iterator(); iterator.hasNext() ; ) {
-            Task currentTask = iterator.next();
+        for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext() ; ) {
+            OrdinaryTask currentTask = iterator.next();
 
             int result = updateTask(currentTask);
 
@@ -192,7 +193,7 @@ public class TaskManager extends Thread{
      * проходится один раз за вызов, это позволяет дергать методы-обработчики в цикле Итератора
      * несколько раз в секунду и работать над несколькими задачами "одновременно".
      */
-    private int updateTask(Task currentTask) {
+    private int updateTask(OrdinaryTask currentTask) {
         /*
             Обратите внимание, что ваш метод должен возвращать int, показывая результат своей работы,
             который нужно присвоить переменной result.
@@ -203,7 +204,7 @@ public class TaskManager extends Thread{
 
         // Обработчики HOTCAKE задач крутятся в цикле, пока не выполнят задачу,
         // остальные обработчики вызываются один раз
-        if (currentTask.startMode == Task.taskStartMode.HOTCAKE) {
+        if (currentTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) {
             while (result != 0) {
                 result = currentTask.taskHandler.execute(this, currentTask.args);
             }
@@ -214,7 +215,7 @@ public class TaskManager extends Thread{
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
         if (result == 0) {
             currentTask.finishTime = managerRuntime.milliseconds();
-            currentTask.state = Task.States.SUCCESS;
+            currentTask.state = OrdinaryTask.States.SUCCESS;
 
         }
 
@@ -223,12 +224,12 @@ public class TaskManager extends Thread{
     }
 
     // Добавление задачи в конец очереди
-    public void addTask(Task newtask) {
+    public void addTask(OrdinaryTask newtask) {
         taskDeque.offerLast(newtask);
     }
 
     // Добавление задачи в начало очереди
-    public void addTaskFirst(Task newtask) {
+    public void addTaskFirst(OrdinaryTask newtask) {
         taskDeque.offerFirst(newtask);
     }
 

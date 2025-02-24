@@ -22,10 +22,14 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatusInAction;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.DriveHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.TeleskopeHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.ZahvatHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.TaskHandlerOrdinal;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.PID;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
@@ -102,7 +106,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
 
     // Метод, обрабатывающий задачу перемещения робота в точку
-    public TaskHandler driveToPosition = new TaskHandler() {
+    public DriveHandler driveToPosition = new DriveHandler() {
         //Сделать статусы состояний робота в разных действиях, для дальнейших работ с ним
        public RobotStatus statusInDrive;
 
@@ -110,9 +114,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
        public RobotStatusInDrive statusBy_Y;
        public RobotStatusInDrive statusBy_Rotate;
 
-       public Deque<RobotStatusInDrive> statusBy_X_history = new ArrayDeque<>();
-       public Deque<RobotStatusInDrive> statusBy_Y_history = new ArrayDeque<>();
-       public Deque<RobotStatusInDrive> statusBy_Rotate_history = new ArrayDeque<>();
+       public final Deque<RobotStatusInDrive> statusBy_X_history = new ArrayDeque<>();
+       public final Deque<RobotStatusInDrive> statusBy_Y_history = new ArrayDeque<>();
+       public final Deque<RobotStatusInDrive> statusBy_Rotate_history = new ArrayDeque<>();
 
        public MotorsStatus motorsStatus;
 
@@ -142,9 +146,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
 
             if(statusBy_X == null && statusBy_Y == null && statusBy_Rotate == null) {
-                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X:RobotStatusInDrive.MovingBy_X;
-                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y:RobotStatusInDrive.MovingBy_Y;
-                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate:RobotStatusInDrive.MovingBy_Rotate;
+                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X:RobotStatusInDrive.StayingBy_X;
+                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y:RobotStatusInDrive.StayingBy_Y;
+                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate:RobotStatusInDrive.StayingBy_Rotate;
 
                 statusBy_X_history.addLast(statusBy_X);
                 statusBy_Y_history.addLast(statusBy_Y);
@@ -174,21 +178,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             progressToPos = ((args.position.getX() - errorPos.x)/args.position.getX() + (args.position.getY() - errorPos.y)/args.position.getY()) / 2.0;
             progressBar = (progressHeading + progressToPos) / 2;
 
-            //Проверяем на отклонение от курса
-            if(errorPos.x > args.position.getX()){
-                statusBy_X = RobotStatusInDrive.MovingInOtherSideBy_X;
-                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
-            }else{
-                statusBy_X = RobotStatusInDrive.MovingBy_X;
-                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
-            }
-            if(errorPos.y > args.position.getX()){
-                statusBy_Y = RobotStatusInDrive.MovingInOtherSideBy_Y;
-                if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
-            }else {
-                statusBy_Y = RobotStatusInDrive.MovingBy_Y;
-                if(statusBy_Y_history.getLast() != statusBy_Y) statusBy_Y_history.addLast(statusBy_Y);
-            }
 
             /**Если перемещение по энкодерам не велико и на моторы подаётся напряжение, то начинается отсчёт времени застревания
              * Оно нужно для того, чтобы робот возможно успел бы вернутся на траекторию движения, например:
@@ -284,6 +273,25 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }else{
                 result = -1;
 
+                statusInDrive = RobotStatus.Moving;
+
+
+                //Проверяем на отклонение от курса
+                if(errorPos.x > args.position.getX() && statusBy_X != RobotStatusInDrive.NoneBy_X){
+                    statusBy_X = RobotStatusInDrive.MovingInOtherSideBy_X;
+                    if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+                }else{
+                    statusBy_X = RobotStatusInDrive.MovingBy_X;
+                    if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+                }
+                if(errorPos.y > args.position.getX() && statusBy_Y != RobotStatusInDrive.NoneBy_Y){
+                    statusBy_Y = RobotStatusInDrive.MovingInOtherSideBy_Y;
+                    if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
+                }else {
+                    statusBy_Y = RobotStatusInDrive.MovingBy_Y;
+                    if(statusBy_Y_history.getLast() != statusBy_Y) statusBy_Y_history.addLast(statusBy_Y);
+                }
+
                 motorsStatus = drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
@@ -306,6 +314,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return result;
         }
 
+
         private double returnDistance(double VelMax, double assel ){
             return Math.pow(VelMax, 2) / (2 * assel);
         }
@@ -316,7 +325,14 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     };
 
     // Метод, обрабатывающий задачу подъема телескопа
-    public TaskHandler setTeleskopePos = new TaskHandler() {
+    public TeleskopeHandler setTeleskopePos = new TeleskopeHandler() {
+        MotorsStatus motorsStatus;
+
+        TeleskopeStatusInAction teleskopeStatus;
+        Deque<TeleskopeStatusInAction> teleskopeStatusHistory = new ArrayDeque<>();
+
+        ElapsedTime stuckTime;
+
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
@@ -331,10 +347,33 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
+
+            if(teleskopeStatus == null){
+                teleskopeStatus = args.teleskope_height == 0 ? TeleskopeStatusInAction.None : TeleskopeStatusInAction.Staying;
+                teleskopeStatusHistory.addLast(teleskopeStatus);
+            }
+
             int result;
 
             double target = args.teleskope_height - teleSkope.getHeight();
             boolean horizontalPosDone = false;
+
+            if ((teleSkope.leftEncUpSt == EncoderStatus.ZeroDelta || teleSkope.leftEncUpSt == EncoderStatus.SmallDelta)
+            && (teleSkope.rightEncUpSt == EncoderStatus.ZeroDelta || teleSkope.rightEncUpSt == EncoderStatus.SmallDelta)
+            && motorsStatus == MotorsStatus.Powered) stuckTime.seconds();
+            else stuckTime.reset();
+
+            if(stuckTime.seconds() > 1){
+                if(args.teleskope_height > teleSkope.getHeight()){
+                    teleskopeStatus = TeleskopeStatusInAction.StuckedBy_Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                }
+
+                if(args.teleskope_height < teleSkope.getHeight()){
+                    teleskopeStatus = TeleskopeStatusInAction.StuckedBy_Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                }
+            }
 
             if(servosService.getHorizontal().getPosition() != args.servo_pos){
 
@@ -344,11 +383,26 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             }
 
             if(Math.abs(target) < 1.8 && horizontalPosDone){
-                teleSkope.offMotors();
                 result = 0;
+
+                motorsStatus = teleSkope.offMotors();
+
+                teleskopeStatus = TeleskopeStatusInAction.Completed;
+                teleskopeStatusHistory.addLast(teleskopeStatus);
             }else {
-                teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);
                 result = -1;
+
+                if(args.teleskope_height > teleSkope.getHeight()){
+                    teleskopeStatus = TeleskopeStatusInAction.Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                }
+
+                if(args.teleskope_height < teleSkope.getHeight()){
+                    teleskopeStatus = TeleskopeStatusInAction.Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                }
+
+                motorsStatus = teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);
             }
 
             op.telemetry.addData("Teleskope height", teleSkope.getHeight());
@@ -361,20 +415,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             return result;
         }
-
-        @Override
-        public Deque[] statusInDrive() {
-            return new Deque[0];
-        }
-
-
-        @Override
-        public RobotStatus statusRobot() {
-            return null;
-        }
     };
 
-    public TaskHandler setZahvat = new TaskHandler(){
+    public ZahvatHandler setZahvat = new ZahvatHandler(){
 
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
@@ -409,19 +452,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return result;
         }
 
-        @Override
-        public Deque[] statusInDrive() {
-            return new Deque[0];
-        }
-
-
-        @Override
-        public RobotStatus statusRobot() {
-            return null;
-        }
     };
 
-    public TaskHandler robotSleep = new TaskHandler() {
+    public TaskHandlerOrdinal robotSleep = new TaskHandlerOrdinal() {
 
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
@@ -444,18 +477,9 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return result;
         }
 
-        @Override
-        public Deque[] statusInDrive() {
-            return new Deque[0];
-        }
-
-        @Override
-        public RobotStatus statusRobot() {
-            return null;
-        }
     };
 
-    public TaskHandler doWhile = new TaskHandler() {
+    public TaskHandlerOrdinal doWhile = new TaskHandlerOrdinal() {
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
@@ -477,16 +501,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             return result;
         }
 
-        @Override
-        public Deque[] statusInDrive() {
-            return new Deque[0];
-        }
-
-
-        @Override
-        public RobotStatus statusRobot() {
-            return null;
-        }
     };
 
     // Gamepad 1

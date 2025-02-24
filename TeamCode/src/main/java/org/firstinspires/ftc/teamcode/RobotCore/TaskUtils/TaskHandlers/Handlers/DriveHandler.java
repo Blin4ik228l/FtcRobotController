@@ -1,14 +1,12 @@
-package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
+package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.TaskHandlerOrdinal;
 
 import java.util.Deque;
 
-public interface TaskHandler {
-    int init(final TaskManager thisTaskManager, StandartArgs _args);
-    int execute(final TaskManager thisTaskManager, StandartArgs _args);
-
+public interface DriveHandler extends TaskHandlerOrdinal {
     Deque<RobotStatusInDrive>[] statusInDrive();
     RobotStatus statusRobot();
 }

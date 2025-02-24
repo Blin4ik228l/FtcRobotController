@@ -1,8 +1,14 @@
-package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
+package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks;
 
-//Класс, описывающий структуру задачи, передаваемой в робота
-public class Task {
-    public Task(TaskHandler taskHandler, StandartArgs args, int reward, taskStartMode startMode){
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.DriveHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.TeleskopeHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.Handlers.ZahvatHandler;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.TaskHandlerOrdinal;
+
+public class OrdinaryTask {
+
+    public OrdinaryTask(TaskHandlerOrdinal taskHandler, StandartArgs args, taskStartMode startMode){
         this.taskHandler = taskHandler;
         this.startMode = startMode;
         this.reward = reward;
@@ -12,17 +18,21 @@ public class Task {
         this.state = States.TODO;
     }
 
+    public TaskHandlerOrdinal taskHandler;
     public String nameTask;
     public int reward;
-    public TaskHandler taskHandler;
-    public taskStartMode startMode;
+    public DriveHandler driveHandler;
+    public ZahvatHandler zahvatHandler;
+    public TeleskopeHandler teleskopeHandler;
+    public OrdinaryTask.taskStartMode startMode;
     public StandartArgs args;
 
-    public States state;
+    public OrdinaryTask.States state;
     public double startTime; // Время начала выполнения задачи относительно runtime TaskManager'а
     public double finishTime;
 
     public double progressBar;
+
 
     public enum States {
         TODO,

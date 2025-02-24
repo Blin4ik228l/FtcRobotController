@@ -7,9 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.Consts.CONSTS;
 import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
 
 public class TeleSkope implements Module, CONSTSTELESKOPE {
     public final OpMode op;
@@ -19,12 +21,21 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     private DcMotor upStandingRight;
     private double height;
 
+    public EncoderStatus leftEncUpSt;
+    public EncoderStatus rightEncUpSt;
+
+    private double leftEncUpold;
+    private double rightEncUpold;
+
     public TeleSkope(OpMode op, ServosService servosService){
         this.op = op;
         this.servosService = servosService;
     }
     @Override
     public void init() {
+        leftEncUpSt = EncoderStatus.ZeroDelta;
+        rightEncUpSt = EncoderStatus.ZeroDelta;
+
         upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStandingLeft");
         upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
 
@@ -55,9 +66,11 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
-    public void offMotors(){
+    public MotorsStatus offMotors(){
         upStandingLeft.setPower(0);
         upStandingRight.setPower(0);
+
+        return MotorsStatus.Stopped;
     }
 
     public DcMotor getUpStandingLeft() {
@@ -81,13 +94,29 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     }
 
     public void calculateHeight(){
-        if(upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition()){
-            height = ticksToCM((upStandingLeft.getCurrentPosition()));
-        } else if (upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition()) {
-            height = ticksToCM((upStandingLeft.getCurrentPosition()));
-        }else {
-            height = ticksToCM((upStandingLeft.getCurrentPosition() + upStandingRight.getCurrentPosition()) / 2.0);
+        double leftEncUp = ticksToCM(upStandingLeft.getCurrentPosition());
+        double deltaLeftEncUp = leftEncUp - leftEncUpold;
+        leftEncUpold = leftEncUp;
+
+        double rightEncUp = ticksToCM(upStandingRight.getCurrentPosition());
+        double deltaRightEncUp = rightEncUp - rightEncUpold;
+        rightEncUpold = rightEncUp;
+
+        if (deltaRightEncUp == 0 && deltaLeftEncUp == 0) {
+            leftEncUpSt = EncoderStatus.ZeroDelta;
+            rightEncUpSt = EncoderStatus.ZeroDelta;
+            return;
         }
+
+        if(deltaRightEncUp == 0) rightEncUpSt = EncoderStatus.ZeroDelta;
+        else if (deltaRightEncUp < 0.05) rightEncUpSt = EncoderStatus.SmallDelta;
+        else rightEncUpSt = EncoderStatus.InMoving;
+
+        if(deltaLeftEncUp == 0) leftEncUpSt = EncoderStatus.ZeroDelta;
+        else if (deltaLeftEncUp < 0.05) leftEncUpSt = EncoderStatus.SmallDelta;
+        else leftEncUpSt = EncoderStatus.InMoving;
+
+        height += (deltaRightEncUp + deltaLeftEncUp) / 2.0;
     }
 
     public synchronized void setHook(double Pos){
@@ -112,12 +141,14 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
 
     }
 
-    public synchronized void setTeleskopeAuto(double speed, double targetHeight){
+    public synchronized MotorsStatus setTeleskopeAuto(double speed, double targetHeight){
         calculateHeight();
 
         double targetVel = speed * Math.signum(targetHeight - height);
 
         setVelUpStandingTeleOp(targetVel);
+
+        return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }
 
     public synchronized void setTeleskope(double vel, double Pos){

@@ -3,14 +3,12 @@ package org.firstinspires.ftc.teamcode.OpModes.Autonoms;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.Consts.REWARDSFORACTIONS;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.Consts.CONSTS;
 import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
+import org.firstinspires.ftc.teamcode.Consts.REWARDSFORACTIONS;
+import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @Autonomous(name = "BlueRight", group = "Blue", preselectTeleOp = "TeleOpBlue")
@@ -27,80 +25,78 @@ public class AutoBlueRight extends OpMode implements CONSTSTELESKOPE, CONSTS, RE
      */
     @Override
     public void init() {
-        robot = new Robot(RobotMode.AUTO, RobotAlliance.BLUE, this);
+        robot = new Robot(RobotMode.AUTO, RobotAlliance.BLUE, this, new Position(0,0,0));
 
         robot.init();
-        robot.odometry.setGlobalPosition(new Position(0,0,0)); // 3 клетка от стенки
-
 //        Task driveTask1 = new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(position1), 5, Task.taskStartMode.START_AFTER_PREVIOUS, "");
 //        robot.taskManager.addTask(driveTask1);
 
 
-
-        Task driveToBasket =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task upTele =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, CLOSE_POS_HORIZONTAL_AUTO, 1,  "Up tele to upper busket and Move horizontal to" + " " + CLOSE_POS_HORIZONTAL_AUTO), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS );
-
-        Task moveHorizontal =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, 0.26, 0.4, "Move horizontal to"+ " " + 0.22), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task sleep1 =
-                new Task(robot.robotSleep, new StandartArgs.robotSleep(500),NOTHING,Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task takeOutSample =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(THROW_POS_FLIP, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task hangSample =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task moveHorizontal2 =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Move horizontal to"+ " " + CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task sleep2 =
-                new Task(robot.robotSleep, new StandartArgs.robotSleep(500),NOTHING,Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task downTele =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Down tele to land"), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task RotateTo1Sample =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 90), NOTHING, Task.taskStartMode.START_WITH_PREVIOUS);
-
-        Task moveHorizontal3 =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.2, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task sleep3 =
-                new Task(robot.robotSleep, new StandartArgs.robotSleep(1000), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task taking =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP2, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task getting =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task upping =
-                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-//        Task RotateTo3Sample =
-//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-        Task RotateTo2Sample =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task moveHorizontal4 =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.26, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task moveHorizontal5 =
-                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT,  CLOSE_POS_HORIZONTAL, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task driveToBasket2 =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-        Task driveTParking =
-                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos5, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
-
-
-        robot.taskManager.addTask(driveToBasket);
+//
+//        Task driveToBasket =
+//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task upTele =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, CLOSE_POS_HORIZONTAL_AUTO, 1,  "Up tele to upper busket and Move horizontal to" + " " + CLOSE_POS_HORIZONTAL_AUTO), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS );
+//
+//        Task moveHorizontal =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, 0.26, 0.4, "Move horizontal to"+ " " + 0.22), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task sleep1 =
+//                new Task(robot.robotSleep, new StandartArgs.robotSleep(500),NOTHING,Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task takeOutSample =
+//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(THROW_POS_FLIP, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task hangSample =
+//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task moveHorizontal2 =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(BUSKET_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Move horizontal to"+ " " + CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task sleep2 =
+//                new Task(robot.robotSleep, new StandartArgs.robotSleep(500),NOTHING,Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task downTele =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, CLOSE_POS_HORIZONTAL, 1, "Down tele to land"), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task RotateTo1Sample =
+//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos2, 90), NOTHING, Task.taskStartMode.START_WITH_PREVIOUS);
+//
+//        Task moveHorizontal3 =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.2, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task sleep3 =
+//                new Task(robot.robotSleep, new StandartArgs.robotSleep(1000), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task taking =
+//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP2, OPEN_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task getting =
+//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task upping =
+//                new Task(robot.setZahvat, new StandartArgs.zahvatStandartArgs(HANG_POS_FLIP, CLOSE_POS_HOOK), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+////        Task RotateTo3Sample =
+////                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 120), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//        Task RotateTo2Sample =
+//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos3, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task moveHorizontal4 =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT, 0.26, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task moveHorizontal5 =
+//                new Task(robot.setTeleskopePos, new StandartArgs.teleskopeStandartArgs(TAKING_HEIGHT,  CLOSE_POS_HORIZONTAL, 1, "Move horizontal to"+ " " + OPEN_POS_HORIZONTAL), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task driveToBasket2 =
+//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos4, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//        Task driveTParking =
+//                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos5, 30), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);
+//
+//
+//        robot.taskManager.addTask(driveToBasket);
 //        robot.taskManager.addTask(upTele);
 //        robot.taskManager.addTask(moveHorizontal);
 //        robot.taskManager.addTask(sleep1);

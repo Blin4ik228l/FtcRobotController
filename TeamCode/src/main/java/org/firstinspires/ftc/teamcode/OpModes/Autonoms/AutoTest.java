@@ -92,7 +92,7 @@ public class AutoTest extends LinearOpMode {
 
         @Override
         public void runOpMode() throws InterruptedException {
-            robot = new Robot(RobotMode.AUTO,RobotAlliance.RED, this);
+            robot = new Robot(RobotMode.AUTO,RobotAlliance.RED, this, new Position());
             robot.init();
             waitForStart();
             while (opModeIsActive()) {

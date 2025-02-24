@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Task;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskManager;
+import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public class Root {
     private Sequence sequence;
@@ -22,7 +22,7 @@ public class Root {
     public void programmHandler(){
         //Отбирать задачи в действии
 
-        if(taskManager.getExecutingDeque().getFirst().startMode == Task.taskStartMode.START_WITH_PREVIOUS){
+        if(taskManager.getExecutingDeque().getFirst().startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS){
             sequence.addAction(taskManager.getExecutingDeque().getFirst(), taskManager.getExecutingDeque().iterator().next());
         }else{
             sequence.addAction(taskManager.getExecutingDeque().getFirst());

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.DriveTrainStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
@@ -20,6 +21,7 @@ public class MecanumDrivetrain implements Module {
 
     public MotorsStatus motorsYdirection;
     public MotorsStatus motorsXdirection;
+    public DriveTrainStatus driveTrainStatus;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;
@@ -29,6 +31,7 @@ public class MecanumDrivetrain implements Module {
     public void init() {
         motorsYdirection = MotorsStatus.Normal;
         motorsXdirection = MotorsStatus.Normal;
+        driveTrainStatus = DriveTrainStatus.Normal;
 
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
         rightF = op.hardwareMap.get(DcMotor.class, "rightF");
@@ -89,35 +92,38 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized MotorsStatus setXYHeadVel(double powerX, double powerY, double powHead){
-        double maxV = 0.65;
 
-        double minVAngle = 0.15;
+        if(driveTrainStatus != DriveTrainStatus.EmergStopped) {
+            double maxV = 0.65;
 
-        if(Math.abs(powHead) < minVAngle) powHead = minVAngle * Math.signum(powHead);
+            double minVAngle = 0.15;
 
-        if(motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Normal) {
-            powerX *= 1;
-            powerY *= 1;
-            powHead *= 1;
-        } else if (motorsYdirection == MotorsStatus.Reversed && motorsXdirection == MotorsStatus.Normal) {
-            powerX *= 1;
-            powerY *= -1;
-            powHead *= 1;
-        } else if ((motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Reversed)) {
-            powerX *= -1;
-            powerY *=  1;
-            powHead *= 1;
-        }else{
-            powerX *= -1;
-            powerY *= -1;
-            powHead *= 1;
+            if (Math.abs(powHead) < minVAngle) powHead = minVAngle * Math.signum(powHead);
+
+            if (motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Normal) {
+                powerX *= 1;
+                powerY *= 1;
+                powHead *= 1;
+            } else if (motorsYdirection == MotorsStatus.Reversed && motorsXdirection == MotorsStatus.Normal) {
+                powerX *= 1;
+                powerY *= -1;
+                powHead *= 1;
+            } else if ((motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Reversed)) {
+                powerX *= -1;
+                powerY *= 1;
+                powHead *= 1;
+            } else {
+                powerX *= -1;
+                powerY *= -1;
+                powHead *= 1;
+            }
+
+            rightF.setPower(Range.clip((powerX + powerY + powHead), -maxV, maxV));
+            rightB.setPower(Range.clip((powerX - powerY + powHead), -maxV, maxV));
+
+            leftF.setPower(Range.clip((powerX - powerY - powHead), -maxV, maxV));
+            leftB.setPower(Range.clip((powerX + powerY - powHead), -maxV, maxV));
         }
-
-        rightF.setPower(Range.clip((powerX + powerY + powHead), -maxV, maxV));
-        rightB.setPower(Range.clip((powerX - powerY + powHead), -maxV, maxV));
-
-        leftF.setPower(Range.clip((powerX - powerY - powHead), -maxV, maxV));
-        leftB.setPower(Range.clip((powerX + powerY - powHead), -maxV, maxV));
 
 
         return powerX == 0 && powerY == 0 && powHead == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;

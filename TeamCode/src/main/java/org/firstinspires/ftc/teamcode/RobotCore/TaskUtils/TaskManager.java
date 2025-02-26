@@ -22,6 +22,8 @@ public class TaskManager extends Thread{
     private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
     private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
 
+    public boolean goNextTask = false;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public TaskManager(RobotCore robot) {
@@ -32,6 +34,7 @@ public class TaskManager extends Thread{
         this.executingDeque = new ArrayDeque<OrdinaryTask>();
         this.completedTasks = new Stack<OrdinaryTask>();
     }
+
 
     /** Обработчик задач
      * Этот метод предназначен для обработки задач, содержащихся в taskDeque.
@@ -177,7 +180,8 @@ public class TaskManager extends Thread{
             int result = updateTask(currentTask);
 
             // Вернулся 0 - значит задача выполнилась
-            if (result == 0) {
+            if (result == 0 || goNextTask) {
+                goNextTask = false;
                 // Проверяем, можно ли теперь взять новую задачу
                 pickTaskToDo();
                 // Выкидываем задачу в стэк выполненного
@@ -205,7 +209,7 @@ public class TaskManager extends Thread{
         // Обработчики HOTCAKE задач крутятся в цикле, пока не выполнят задачу,
         // остальные обработчики вызываются один раз
         if (currentTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) {
-            while (result != 0) {
+            while (result != 0 || goNextTask) {
                 result = currentTask.taskHandler.execute(this, currentTask.args);
             }
         } else {
@@ -213,7 +217,7 @@ public class TaskManager extends Thread{
         }
 
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
-        if (result == 0) {
+        if (result == 0 || goNextTask) {
             currentTask.finishTime = managerRuntime.milliseconds();
             currentTask.state = OrdinaryTask.States.SUCCESS;
 

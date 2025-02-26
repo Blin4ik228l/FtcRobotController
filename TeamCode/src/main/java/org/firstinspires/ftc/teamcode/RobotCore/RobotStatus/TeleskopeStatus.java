@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.RobotCore.RobotStatus;
 
-public enum RobotStatus {
-    None,
-    Moving,
-    MovingInOtherSide,
+public enum TeleskopeStatus {
+    EmergStopped,
     Normal,
     Stucked,
-    Completed
-
+    InMoving
 }

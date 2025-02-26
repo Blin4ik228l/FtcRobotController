@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatus;
 
 public class TeleSkope implements Module, CONSTSTELESKOPE {
     public final OpMode op;
@@ -27,6 +28,8 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     private double leftEncUpold;
     private double rightEncUpold;
 
+    public TeleskopeStatus motorsTeleskopeSt;
+
     public TeleSkope(OpMode op, ServosService servosService){
         this.op = op;
         this.servosService = servosService;
@@ -35,6 +38,7 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
     public void init() {
         leftEncUpSt = EncoderStatus.ZeroDelta;
         rightEncUpSt = EncoderStatus.ZeroDelta;
+        motorsTeleskopeSt = TeleskopeStatus.Normal;
 
         upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStandingLeft");
         upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
@@ -146,7 +150,8 @@ public class TeleSkope implements Module, CONSTSTELESKOPE {
 
         double targetVel = speed * Math.signum(targetHeight - height);
 
-        setVelUpStandingTeleOp(targetVel);
+        if(motorsTeleskopeSt == TeleskopeStatus.Normal) setVelUpStandingTeleOp(targetVel);
+        else offMotors();
 
         return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }

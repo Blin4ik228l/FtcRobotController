@@ -123,7 +123,7 @@ public class MecanumDrivetrain implements Module {
 
             leftF.setPower(Range.clip((powerX - powerY - powHead), -maxV, maxV));
             leftB.setPower(Range.clip((powerX + powerY - powHead), -maxV, maxV));
-        }
+        }else offMotors();
 
 
         return powerX == 0 && powerY == 0 && powHead == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;

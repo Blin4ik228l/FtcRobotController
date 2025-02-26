@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Consts.CONSTS;
 import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.RobotTreeLogic;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Button;
@@ -22,6 +21,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatusInAction;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
@@ -53,7 +53,10 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final ServosService servosService;
     public final Button button;
     public final RobotTreeLogic robotTreeLogic;
-    public final Root root;
+
+
+    public RobotStatus robotStatus;
+    public TeleskopeStatus teleskopeStatus;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
@@ -80,7 +83,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         robotTreeLogic = new RobotTreeLogic(this.taskManager);
 
-        root = new Root(this.taskManager, this);
 
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
@@ -99,6 +101,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         joysticks.init();
         button.init();
 
+        robotStatus = RobotStatus.Normal;
+        teleskopeStatus = TeleskopeStatus.Normal;
 //        colorSensor.init();
 //        distanceSensor.init();
     }
@@ -326,12 +330,19 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
     // Метод, обрабатывающий задачу подъема телескопа
     public TeleskopeHandler setTeleskopePos = new TeleskopeHandler() {
+
         MotorsStatus motorsStatus;
 
-        TeleskopeStatusInAction teleskopeStatus;
+        TeleskopeStatus teleskopeStatus;
+        TeleskopeStatusInAction teleskopeStatusInAction;
         Deque<TeleskopeStatusInAction> teleskopeStatusHistory = new ArrayDeque<>();
 
         ElapsedTime stuckTime;
+
+        @Override
+        public Deque<TeleskopeStatusInAction>[] status() {
+            return new Deque[]{teleskopeStatusHistory};
+        }
 
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
@@ -349,8 +360,8 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
 
             if(teleskopeStatus == null){
-                teleskopeStatus = args.teleskope_height == 0 ? TeleskopeStatusInAction.None : TeleskopeStatusInAction.Staying;
-                teleskopeStatusHistory.addLast(teleskopeStatus);
+                teleskopeStatusInAction = args.teleskope_height == 0 ? TeleskopeStatusInAction.None : TeleskopeStatusInAction.Staying;
+                teleskopeStatusHistory.addLast(teleskopeStatusInAction);
             }
 
             int result;
@@ -360,20 +371,24 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
             if ((teleSkope.leftEncUpSt == EncoderStatus.ZeroDelta || teleSkope.leftEncUpSt == EncoderStatus.SmallDelta)
             && (teleSkope.rightEncUpSt == EncoderStatus.ZeroDelta || teleSkope.rightEncUpSt == EncoderStatus.SmallDelta)
-            && motorsStatus == MotorsStatus.Powered) stuckTime.seconds();
+            && motorsStatus == MotorsStatus.Powered && !button.isTouched()) stuckTime.seconds();
             else stuckTime.reset();
 
             if(stuckTime.seconds() > 1){
                 if(args.teleskope_height > teleSkope.getHeight()){
-                    teleskopeStatus = TeleskopeStatusInAction.StuckedBy_Upping;
-                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                    teleskopeStatusInAction = TeleskopeStatusInAction.StuckedBy_Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
                 }
 
                 if(args.teleskope_height < teleSkope.getHeight()){
-                    teleskopeStatus = TeleskopeStatusInAction.StuckedBy_Downing;
-                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                    teleskopeStatusInAction = TeleskopeStatusInAction.StuckedBy_Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
                 }
             }
+
+            if(teleskopeStatusInAction == TeleskopeStatusInAction.StuckedBy_Downing || teleskopeStatusInAction == TeleskopeStatusInAction.StuckedBy_Upping){
+                teleskopeStatus = TeleskopeStatus.Stucked;
+            }else teleskopeStatus = TeleskopeStatus.InMoving;
 
             if(servosService.getHorizontal().getPosition() != args.servo_pos){
 
@@ -387,19 +402,19 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
                 motorsStatus = teleSkope.offMotors();
 
-                teleskopeStatus = TeleskopeStatusInAction.Completed;
-                teleskopeStatusHistory.addLast(teleskopeStatus);
+                teleskopeStatusInAction = TeleskopeStatusInAction.Completed;
+                teleskopeStatusHistory.addLast(teleskopeStatusInAction);
             }else {
                 result = -1;
 
                 if(args.teleskope_height > teleSkope.getHeight()){
-                    teleskopeStatus = TeleskopeStatusInAction.Upping;
-                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                    teleskopeStatusInAction = TeleskopeStatusInAction.Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
                 }
 
                 if(args.teleskope_height < teleSkope.getHeight()){
-                    teleskopeStatus = TeleskopeStatusInAction.Downing;
-                    teleskopeStatusHistory.addLast(teleskopeStatus);
+                    teleskopeStatusInAction = TeleskopeStatusInAction.Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
                 }
 
                 motorsStatus = teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);

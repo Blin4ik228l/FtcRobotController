@@ -6,23 +6,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Consts.CONSTS;
-import org.firstinspires.ftc.teamcode.Consts.CONSTSTELESKOPE;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.RobotTreeLogic;
+import org.firstinspires.ftc.teamcode.Consts.Consts;
+import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Button;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Joysticks;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Odometry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.ServosService;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.TeleSkope;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Singles.Button;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.Joysticks;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.Odometry;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.ServosService;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.TeleSkope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.EncoderStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.MotorsStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotStatusInDrive;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.TeleskopeStatusInAction;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.RobotStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.RobotStatusInDrive;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.TeleskopeStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.TeleskopeStatusInAction;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -38,7 +37,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
+public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     double horizontalPos = CLOSE_POS_HORIZONTAL;
@@ -52,8 +51,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
     public final Joysticks joysticks;
     public final ServosService servosService;
     public final Button button;
-    public final RobotTreeLogic robotTreeLogic;
-
 
     public RobotStatus robotStatus;
     public TeleskopeStatus teleskopeStatus;
@@ -80,9 +77,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
         button = new Button(op);
-
-        robotTreeLogic = new RobotTreeLogic(this.taskManager);
-
 
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
@@ -147,7 +141,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
-            StandartArgs.driveStandartArgs args = (StandartArgs.driveStandartArgs) _args;
+            StandartArgs.driveArgs args = (StandartArgs.driveArgs) _args;
 
             if(statusBy_X == null && statusBy_Y == null && statusBy_Rotate == null) {
                 statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X:RobotStatusInDrive.StayingBy_X;
@@ -346,7 +340,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
-            StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
+            StandartArgs.teleskopeArgs args = (StandartArgs.teleskopeArgs) _args;
             if(args.teleskope_height == 0){
                 args.teleskope_height = 1;
             }
@@ -357,7 +351,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
-            StandartArgs.teleskopeStandartArgs args = (StandartArgs.teleskopeStandartArgs) _args;
+            StandartArgs.teleskopeArgs args = (StandartArgs.teleskopeArgs) _args;
 
             if(teleskopeStatus == null){
                 teleskopeStatusInAction = args.teleskope_height == 0 ? TeleskopeStatusInAction.None : TeleskopeStatusInAction.Staying;
@@ -424,8 +418,6 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             op.telemetry.addData("Math.abs(target) < 3", Math.abs(target) < 3);
             op.telemetry.addData("horizontalPosDone", horizontalPosDone);
             op.telemetry.addData("result", result);
-            op.telemetry.addLine("Task")
-                            .addData("Explanation", args.st);
             op.telemetry.update();
 
             return result;
@@ -441,7 +433,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
 
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
-            StandartArgs.zahvatStandartArgs args = (StandartArgs.zahvatStandartArgs) _args;
+            StandartArgs.captureArgs args = (StandartArgs.captureArgs) _args;
             int result;
 
             boolean flipDone = false;
@@ -506,7 +498,7 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             int result;
 
             if (!button.isTouched() && button.getTimesTouched() != 1){
-                teleSkope.setTeleskope(args.power, CONSTSTELESKOPE.CLOSE_POS_HORIZONTAL);
+                teleSkope.setTeleskope(args.power, ConstsTeleskope.CLOSE_POS_HORIZONTAL);
                 result = -1;
             }else{
                 teleSkope.init();
@@ -636,15 +628,15 @@ public class Robot extends RobotCore implements CONSTS, CONSTSTELESKOPE {
             teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
         if (joysticks.isB_G2()){
-            teleSkope.setFlip(CONSTSTELESKOPE.HANG_POS_FLIP);
+            teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
         }else {
-            teleSkope.setFlip(CONSTSTELESKOPE.TAKE_POS_FLIP);
+            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
         }
 
         if (joysticks.isA_G2()){
-            teleSkope.setHook(CONSTSTELESKOPE.OPEN_POS_HOOK);
+            teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);
         }else {
-            teleSkope.setHook(CONSTSTELESKOPE.CLOSE_POS_HOOK);
+            teleSkope.setHook(ConstsTeleskope.CLOSE_POS_HOOK);
         }
         if (joysticks.isY_g1()){
             init();

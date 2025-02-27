@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
-import org.firstinspires.ftc.teamcode.Consts.CONSTS;
+import org.firstinspires.ftc.teamcode.Consts.Consts;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 /**
@@ -30,22 +30,22 @@ public class StandartArgs {
     //     тип_n переменная_m;
     // }
 
-    public static class driveStandartArgs extends StandartArgs {
-        public driveStandartArgs(Position position, double max_linear_speed, double max_angular_speed, long sleep){
+    public static class driveArgs extends StandartArgs {
+        public driveArgs(Position position, double max_linear_speed, double max_angular_speed, long sleep){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
             this.sleep = sleep;
         }
-        public driveStandartArgs(Position position, double max_linear_speed) {
+        public driveArgs(Position position, double max_linear_speed) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
-            this.max_angular_speed = CONSTS.MAX_ANGULAR_SPEED;
+            this.max_angular_speed = Consts.MAX_ANGULAR_SPEED;
         }
-        public driveStandartArgs(Position position) {
+        public driveArgs(Position position) {
             this.position = position;
-            this.max_linear_speed = CONSTS.MAX_LINEAR_SPEED;
-            this.max_angular_speed = CONSTS.MAX_ANGULAR_SPEED;
+            this.max_linear_speed = Consts.MAX_LINEAR_SPEED;
+            this.max_angular_speed = Consts.MAX_ANGULAR_SPEED;
         }
         public Position position;
         public double max_linear_speed;
@@ -53,22 +53,19 @@ public class StandartArgs {
         public long sleep;
     }
 
-    public static class teleskopeStandartArgs extends StandartArgs {
-        public teleskopeStandartArgs( double teleskope_height, double servo_pos, double max_speed, String st){
+    public static class teleskopeArgs extends StandartArgs {
+        public teleskopeArgs(double teleskope_height, double servo_pos, double max_speed){
             this.teleskope_height = teleskope_height;
             this.servo_pos = servo_pos;
             this.max_speed = max_speed;
-            this.st = st;
-
         }
         public double teleskope_height;
         public double servo_pos;
         public double max_speed;
-        public String st;
-
     }
-    public static class zahvatStandartArgs extends StandartArgs{
-        public zahvatStandartArgs(double flipPos, double hookPos){
+
+    public static class captureArgs extends StandartArgs{
+        public captureArgs(double flipPos, double hookPos){
             this.flipPos = flipPos;
             this.hookPos = hookPos;
         }
@@ -87,6 +84,12 @@ public class StandartArgs {
             this.power = power;
         }
        public double power;
+    }
+
+    public static class selfInspect extends StandartArgs{
+        public selfInspect(){
+
+        }
     }
 }
 

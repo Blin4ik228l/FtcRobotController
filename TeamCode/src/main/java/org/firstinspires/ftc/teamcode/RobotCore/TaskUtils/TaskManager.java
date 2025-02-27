@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.TaskUtils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
@@ -21,8 +22,11 @@ public class TaskManager extends Thread{
     private final Deque<OrdinaryTask> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
     private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
     private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
+    private Stack<OrdinaryTask> tasksToDo;
 
     public boolean goNextTask = false;
+
+    public OrdinaryTask taskFromNode;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +70,7 @@ public class TaskManager extends Thread{
             taskHandler();
         }
     }
+
     public void forTeleop(){
         this.setDaemon(true);
         this.start();
@@ -100,6 +105,60 @@ public class TaskManager extends Thread{
     }
 
 
+    public void permanentlyExecute(){
+        stackTasks();
+
+        OrdinaryTask executingTask = prepareTask();
+
+        executeTask(executingTask);
+
+    }
+
+    public OrdinaryTask prepareTask(){
+
+        OrdinaryTask t = tasksToDo.peek();
+
+        if(t.state == States.TODO){
+            t.startTime = managerRuntime.milliseconds();
+            t.state = States.RUNNING;
+            t.taskHandler.init(this, t.args);
+        }else return t;
+
+        return t;
+    }
+
+    public void executeTask(OrdinaryTask executingTask){
+
+        int result = updateTask(executingTask);
+
+        // Вернулся 0 - значит задача выполнилась
+        if (result == 0 || goNextTask) {
+            goNextTask = false;
+            // Выкидываем задачу в стэк выполненного
+            completedTasks.push(executingTask);
+
+            taskDeque.remove(executingTask);//Убираем из общей очереди задач
+            tasksToDo.pop();//Убираем из очереди выполняемых задач
+        }
+
+    }
+
+    public void addTaskToStack(OrdinaryTask newTask){
+        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS) taskDeque.addFirst(newTask);
+
+        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
+    }
+
+    public void stackTasks(){
+        tasksToDo = new Stack<>();
+
+        for (Iterator<OrdinaryTask> iterator = taskDeque.iterator(); iterator.hasNext() ; ) {
+            OrdinaryTask currentTask = iterator.next();
+
+            tasksToDo.push(currentTask);
+        }
+    }
+
 
     /**
      * Стартер задач.
@@ -127,7 +186,7 @@ public class TaskManager extends Thread{
                 case START_AFTER_PREVIOUS:
                     if (executingDeque.isEmpty()) {
                         pollToLast();
-                    } else if (executingDeque.getLast().state == OrdinaryTask.States.SUCCESS) {
+                    } else if (executingDeque.getLast().state == States.SUCCESS) {
                         pollToLast();
                     } else {
                         picked = false; // Если не перенесли
@@ -154,21 +213,10 @@ public class TaskManager extends Thread{
         if (picked) {
             OrdinaryTask t = executingDeque.getFirst();
             t.startTime = managerRuntime.milliseconds();
-            t.state = OrdinaryTask.States.RUNNING;
+            t.state = States.RUNNING;
             t.taskHandler.init(this, t.args);
         }
     }
-
-    // Перенести задачу из очереди задач в начало очереди исполняемых задач
-    private void pollToFirst() {
-        executingDeque.offerFirst(taskDeque.pollFirst());
-    }
-
-    // Перенести задачу из очереди задач в конец очереди исполняемых задач
-    private void pollToLast() {
-        executingDeque.offerLast(taskDeque.pollFirst());
-    }
-
     /**
      * Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
      * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
@@ -219,14 +267,24 @@ public class TaskManager extends Thread{
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
         if (result == 0 || goNextTask) {
             currentTask.finishTime = managerRuntime.milliseconds();
-            currentTask.state = OrdinaryTask.States.SUCCESS;
-
+            currentTask.state = States.SUCCESS;
         }
 
         // Возвращаем 0, если задача перешла в режим DONE
         return result;
     }
 
+
+
+    // Перенести задачу из очереди задач в начало очереди исполняемых задач
+    private void pollToFirst() {
+        executingDeque.offerFirst(taskDeque.pollFirst());
+    }
+
+    // Перенести задачу из очереди задач в конец очереди исполняемых задач
+    private void pollToLast() {
+        executingDeque.offerLast(taskDeque.pollFirst());
+    }
     // Добавление задачи в конец очереди
     public void addTask(OrdinaryTask newtask) {
         taskDeque.offerLast(newtask);

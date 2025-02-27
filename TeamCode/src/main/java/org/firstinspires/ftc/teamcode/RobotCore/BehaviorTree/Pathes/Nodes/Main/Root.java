@@ -1,23 +1,24 @@
 package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Nodes.Main;
 
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.States;
+import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Node;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Nodes.Sequence;
 
-public class Root {
-    Sequence root = new Sequence();
+public class Root extends Node {
+    Sequence root;
 
-    public void addControlNode(){
+    public Root(Robot robot){
+        this.robot = robot;
 
+        root = new Sequence();
     }
 
-    public void add(TaskNode children){
-        root.addChildren(children);
+    @Override
+    public void tickMe() {
+        root.tickMe();
     }
 
-    public void tickSequence(){
-        while(root.sequenceState != States.SUCCESS){
-            root.tickMe();
-
-            if(root.sequenceState == States.FAILURE) break;
-        }
+    public void add(Node children){
+        root.addNode(children);
     }
 }

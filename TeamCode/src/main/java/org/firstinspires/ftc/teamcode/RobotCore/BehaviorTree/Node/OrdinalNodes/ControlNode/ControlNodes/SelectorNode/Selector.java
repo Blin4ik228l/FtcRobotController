@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Nodes;
+package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.ControlNode.ControlNodes.SelectorNode;
 
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.ControlNode;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.ControlNode.ControlNode;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 
 public class Selector extends ControlNode {
@@ -9,15 +9,8 @@ public class Selector extends ControlNode {
     //Если все вернули failure, то сам Selecetor вернёт failure
     //Если ветвь(node) вернёт failure, то перейдёт к следующей
     @Override
-    public void tickMe() {
-        programm();
-    }
-
-    @Override
     public void programm() {
         while(nodeState != States.SUCCESS){
-            if(nodeState != States.RUNNING && nodeState != States.FAILURE) nodeState = States.RUNNING;
-
             if(stackToDo.isEmpty()) stackNodes();//Заполняем одностороний Стэк ветвями
 
             tickNode();//Дёргаем ветвь для выполнения

@@ -1,4 +1,6 @@
-package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes;
+package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.ControlNode;
+
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.Node;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

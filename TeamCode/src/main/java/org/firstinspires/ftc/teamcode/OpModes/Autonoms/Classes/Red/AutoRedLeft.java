@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.OpModes.Autonoms.Classes.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.Consts.Consts;
 import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Consts.RewardsForActions;
+import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @Autonomous(name = "RedLeft", group = "Red", preselectTeleOp = "TeleOpRed")
-public class AutoRedLeft extends LinearOpMode implements ConstsTeleskope, Consts, RewardsForActions {
-    Robot robot;
+public class AutoRedLeft extends LinearOpModeModified implements ConstsTeleskope, Consts, RewardsForActions {
     Position pos1 = new Position( 25, 43,135);
     Position pos11 = new Position( 25, 46,135);
     Position pos2 = new Position(25, 46,-8);

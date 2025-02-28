@@ -4,6 +4,7 @@ public enum States{
     RUNNING,
     SUCCESS,
     FAILURE,
+
     WAITING,
     TODO
 }

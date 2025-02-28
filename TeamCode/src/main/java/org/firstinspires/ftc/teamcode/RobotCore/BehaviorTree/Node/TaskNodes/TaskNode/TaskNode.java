@@ -1,13 +1,10 @@
-package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.TaskNodes;
+package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode;
 
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.Node;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.Node;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
-public class TaskNode extends Node {
+public abstract class TaskNode extends Node {
     public OrdinaryTask task;
-
-    public States nodeState = task.state;
 
     public boolean isAdded = false;
 
@@ -19,5 +16,7 @@ public class TaskNode extends Node {
         }
 
         robot.taskManager.permanentlyExecute();
+
+        nodeState = task.state;
     }
 }

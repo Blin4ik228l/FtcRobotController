@@ -1,15 +1,14 @@
-package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.TaskNodes.ActionNodes;
+package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences;
 
 import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Pathes.TaskNodes.TaskSequence;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequence;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
-public class TakeOutElement extends TaskSequence implements ConstsTeleskope {
+public class TakeOutElementSeq extends TaskSequence implements ConstsTeleskope {
     //Это заранее написаная подпрограмма для размещения игрового элемента
     //Состоит в структуре дерева
-    public TakeOutElement(){
+    public TakeOutElementSeq(){
         OrdinaryTask prepareCapture = new OrdinaryTask(robot.setZahvat,
                 new StandartArgs.captureArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
@@ -25,13 +24,7 @@ public class TakeOutElement extends TaskSequence implements ConstsTeleskope {
         taskToDo.push(upUnCaptured);
         taskToDo.push(throwAway);
         taskToDo.push(prepareCapture);
+
+        countTasks = 3;
     }
-
-    @Override
-    public void tickMe() {
-        programm();
-
-        if(completCount == 3) nodeState = States.SUCCESS;
-    }
-
 }

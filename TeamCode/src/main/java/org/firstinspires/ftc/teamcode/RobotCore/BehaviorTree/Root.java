@@ -18,6 +18,7 @@ public class Root {
     }
 
     public void add(Node children){
+        children.robot = root.robot;
         root.addNode(children);
     }
 }

@@ -72,7 +72,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
         metry = new Metry(op);
         joysticks = new Joysticks(op);
-        odometry = new Odometry(startPos, op);
+        odometry = new Odometry(op, startPos);
         drivetrain = new MecanumDrivetrain(op);
         servosService = new ServosService(op);
         teleSkope = new TeleSkope(op, servosService);
@@ -118,9 +118,9 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
        public MotorsStatus motorsStatus;
 
-       public ElapsedTime stuckTimeBy_X;
-       public ElapsedTime stuckTimeBy_Y;
-       public ElapsedTime stuckTimeBy_Rotate;
+       public final ElapsedTime stuckTimeBy_X = new ElapsedTime();
+       public final ElapsedTime stuckTimeBy_Y = new ElapsedTime();
+       public final ElapsedTime stuckTimeBy_Rotate = new ElapsedTime();
 
        public double progressBar;
 
@@ -590,6 +590,9 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         op.telemetry.addData("Max_speed", max_speed);// выводим максимальную скорость
         op.telemetry.addData("Gear", joysticks.getGear());// выводим передачу
         op.telemetry.addData("Is up gear", joysticks.isUpGear());
+        op.telemetry.addData("encM", odometry.getEncM().getCurrentPosition());
+        op.telemetry.addData("encL", odometry.getEncL().getCurrentPosition());
+        op.telemetry.addData("encR", odometry.getEncR().getCurrentPosition());
     }
 
     // Gamepad 2

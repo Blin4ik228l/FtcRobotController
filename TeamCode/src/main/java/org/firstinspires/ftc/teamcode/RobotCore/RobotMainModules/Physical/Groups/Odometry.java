@@ -33,7 +33,7 @@ public class Odometry extends Thread implements Module {
     private EncoderStatus encYst;
     private EncoderStatus encRadSt;
 
-    public  Odometry (Position startPosition, OpMode op){
+    public  Odometry (OpMode op, Position startPosition){
         this.op = op;
 
         startGlobalPosition = startPosition;
@@ -55,15 +55,12 @@ public class Odometry extends Thread implements Module {
         }
     }
 
-    public  Odometry (OpMode op){
-        this(new Position(0,0,0), op);                            // обнуляем позицию
-    }
-
     @Override
     public void init() {
-      encM = op.hardwareMap.get(DcMotorEx.class, "encM");
-        encL = op.hardwareMap.get(DcMotorEx.class, "encL");
-        encR = op.hardwareMap.get(DcMotorEx.class, "encR");
+        encM = op.hardwareMap.get(DcMotorEx.class, "rightF");
+        encL = op.hardwareMap.get(DcMotorEx.class, "leftB");
+        encR = op.hardwareMap.get(DcMotorEx.class, "rightB");
+
         encR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем правый энкодер
         encL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем левый энкодер
         encM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем средний энкодер

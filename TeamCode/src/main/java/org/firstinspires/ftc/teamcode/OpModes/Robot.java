@@ -594,9 +594,6 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         op.telemetry.addData("Max_speed", max_speed);// выводим максимальную скорость
         op.telemetry.addData("Gear", joysticks.getGear());// выводим передачу
         op.telemetry.addData("Is up gear", joysticks.isUpGear());
-        op.telemetry.addData("encM", odometry.getEncM().getCurrentPosition());
-        op.telemetry.addData("encL", odometry.getEncL().getCurrentPosition());
-        op.telemetry.addData("encR", odometry.getEncR().getCurrentPosition());
     }
 
     // Gamepad 2

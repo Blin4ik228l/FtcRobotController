@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.RobotCore;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.RobotStatusHandler;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -21,6 +22,8 @@ public abstract class RobotCore implements Module {
     // Менеджер задач робота
     public final TaskManager taskManager;
 
+    public final RobotStatusHandler robotStatusHandler;
+
 //  МЕТОДЫ КЛАССА
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,6 +34,7 @@ public abstract class RobotCore implements Module {
         this.op = op;
 
         taskManager = new TaskManager(this);
+        robotStatusHandler = new RobotStatusHandler(taskManager);
     }
 
 //  МЕТОДЫ, ОБРАБАТЫВАЮЩИЕ ЗАДАЧИ

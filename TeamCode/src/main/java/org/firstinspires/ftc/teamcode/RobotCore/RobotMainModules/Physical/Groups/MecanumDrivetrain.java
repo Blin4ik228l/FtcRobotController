@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.MotorsStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.RobotModuleState;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.RobotModuleStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 
 public class MecanumDrivetrain implements Module {
@@ -21,7 +21,7 @@ public class MecanumDrivetrain implements Module {
 
     public MotorsStatus motorsYdirection;
     public MotorsStatus motorsXdirection;
-    public RobotModuleState driveTrainStatus;
+    public RobotModuleStatus driveTrainStatus;
 
     public MecanumDrivetrain(OpMode op){
         this.op = op;
@@ -31,7 +31,8 @@ public class MecanumDrivetrain implements Module {
     public void init() {
         motorsYdirection = MotorsStatus.Normal;
         motorsXdirection = MotorsStatus.Normal;
-        driveTrainStatus = RobotModuleState.Normal;
+
+        driveTrainStatus = RobotModuleStatus.Normal;
 
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
         rightF = op.hardwareMap.get(DcMotor.class, "rightF");
@@ -93,7 +94,7 @@ public class MecanumDrivetrain implements Module {
 
     public synchronized MotorsStatus setXYHeadVel(double powerX, double powerY, double powHead){
 
-        if(driveTrainStatus != RobotModuleState.Stucked) {
+        if(driveTrainStatus != RobotModuleStatus.Stucked) {
             double maxV = 0.65;
 
             double minVAngle = 0.15;

@@ -44,7 +44,7 @@ public class TeleOpRed extends OpMode {
 //        joysticks.checkJoysticksCombo();
 //        joysticks.checkGear();
 //        joysticks.getDpadUp();
-        robot.taskManager.forTeleop();
+        robot.taskManager.startTeleop();
     }
 
     /**

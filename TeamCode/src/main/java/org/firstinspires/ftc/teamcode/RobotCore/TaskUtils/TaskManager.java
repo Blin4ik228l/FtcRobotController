@@ -14,32 +14,6 @@ import java.util.Stack;
 
 public class TaskManager extends Thread{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
-
-//    private final Robot robot;
-    private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
-    private final Deque<OrdinaryTask> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
-    private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
-    private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
-    private Stack<OrdinaryTask> tasksToDo;
-
-    public boolean goNextTask = false;
-
-    public OrdinaryTask taskFromNode;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public TaskManager(RobotCore robot) {
-        this.robot = robot;
-
-        this.managerRuntime = new ElapsedTime();
-        this.taskDeque = new ArrayDeque<OrdinaryTask>();
-        this.executingDeque = new ArrayDeque<OrdinaryTask>();
-        this.completedTasks = new Stack<OrdinaryTask>();
-    }
-
-
     /** Обработчик задач
      * Этот метод предназначен для обработки задач, содержащихся в taskDeque.
      * Суть такого подхода заключается в том, что программист создает класс робота,
@@ -61,35 +35,23 @@ public class TaskManager extends Thread{
      * Для начала выполнения задач в методе runOpMode напишите
      *      my_robot.taskManager.start();
      */
+    private RobotCore robot; // Храним здесь объект, который владеет TaskManager'ом
 
+//    private final Robot robot;
+    private final ElapsedTime managerRuntime; // Рантайм объекта TaskManager
+    private final Deque<OrdinaryTask> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
+    private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
+    private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
 
-    public void forAuto(){
-        if(!executingDeque.isEmpty() || !taskDeque.isEmpty()){
-            pickTaskToDo();
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            taskHandler();
-        }
-    }
+    public TaskManager(RobotCore robot) {
+        this.robot = robot;
 
-    public void forTeleop(){
-        this.setDaemon(true);
-        this.start();
-    }
-
-    @Override
-    public void run() {
-        while (this.isAlive()) {
-            startTasks();
-        }
-    }
-
-    private synchronized void startTasks() {
-        // Обработчик будет работать, пока есть задачи либо пока робот в телеоп режиме
-        while(!isStopMode()) {
-            if(isTeleopMode()){
-                robot.teleop();
-            }
-        }
+        this.managerRuntime = new ElapsedTime();
+        this.taskDeque = new ArrayDeque<OrdinaryTask>();
+        this.executingDeque = new ArrayDeque<OrdinaryTask>();
+        this.completedTasks = new Stack<OrdinaryTask>();
     }
 
     public Deque<OrdinaryTask> getTaskDeque() {
@@ -104,61 +66,24 @@ public class TaskManager extends Thread{
         return completedTasks;
     }
 
-
-    public void permanentlyExecute(){
-        stackTasks();
-
-        OrdinaryTask executingTask = prepareTask();
-
-        executeTask(executingTask);
-
+    public void startTeleop(){
+        this.setDaemon(true);
+        this.start();
     }
 
-    public OrdinaryTask prepareTask(){
-
-        OrdinaryTask t = tasksToDo.peek();
-
-        if(t.state == States.TODO){
-            t.startTime = managerRuntime.milliseconds();
-            t.state = States.RUNNING;
-            t.taskHandler.init(this, t.args);
-        }else return t;
-
-        return t;
+    @Override
+    public void run() {
+        forTeleop();
     }
 
-    public void executeTask(OrdinaryTask executingTask){
-
-        int result = updateTask(executingTask);
-
-        // Вернулся 0 - значит задача выполнилась
-        if (result == 0 || goNextTask) {
-            goNextTask = false;
-            // Выкидываем задачу в стэк выполненного
-            completedTasks.push(executingTask);
-
-            taskDeque.remove(executingTask);//Убираем из общей очереди задач
-            tasksToDo.pop();//Убираем из очереди выполняемых задач
-        }
-
-    }
-
-    public void addTaskToStack(OrdinaryTask newTask){
-        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS) taskDeque.addFirst(newTask);
-
-        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
-    }
-
-    public void stackTasks(){
-        tasksToDo = new Stack<>();
-
-        for (Iterator<OrdinaryTask> iterator = taskDeque.iterator(); iterator.hasNext() ; ) {
-            OrdinaryTask currentTask = iterator.next();
-
-            tasksToDo.push(currentTask);
+    private synchronized void forTeleop() {
+        // Обработчик будет работать, пока робот в телеоп режиме
+        while(!isStopMode()) {
+            if(isTeleopMode()){
+                robot.teleop();
+            }
         }
     }
-
 
     /**
      * Стартер задач.
@@ -166,6 +91,17 @@ public class TaskManager extends Thread{
      * то задача переходит в очередь обрабатываемых задач,
      * получает время начала выполнения и режим - DOING.
      */
+
+    public void startDoing(){
+        robot.robotStatusHandler.loadTasks();
+        if(taskDeque.size() != completedTasks.size()){
+            pickTaskToDo();
+
+            taskHandler();
+        }
+
+    }
+
     private void pickTaskToDo()
     {
         boolean picked = true; // Тут храним результат выбора
@@ -217,19 +153,19 @@ public class TaskManager extends Thread{
             t.taskHandler.init(this, t.args);
         }
     }
+
     /**
      * Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
      * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
      */
     private void taskHandler() {
-        for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext() ; ) {
+        for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext();) {
             OrdinaryTask currentTask = iterator.next();
 
             int result = updateTask(currentTask);
 
             // Вернулся 0 - значит задача выполнилась
-            if (result == 0 || goNextTask) {
-                goNextTask = false;
+            if (result == 0 ) {
                 // Проверяем, можно ли теперь взять новую задачу
                 pickTaskToDo();
                 // Выкидываем задачу в стэк выполненного
@@ -257,7 +193,7 @@ public class TaskManager extends Thread{
         // Обработчики HOTCAKE задач крутятся в цикле, пока не выполнят задачу,
         // остальные обработчики вызываются один раз
         if (currentTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) {
-            while (result != 0 || goNextTask) {
+            while (result != 0) {
                 result = currentTask.taskHandler.execute(this, currentTask.args);
             }
         } else {
@@ -265,7 +201,7 @@ public class TaskManager extends Thread{
         }
 
         // Вернулся 0 -> задача выполнена -> ставим ее в режим DONE
-        if (result == 0 || goNextTask) {
+        if (result == 0) {
             currentTask.finishTime = managerRuntime.milliseconds();
             currentTask.state = States.SUCCESS;
         }
@@ -273,8 +209,6 @@ public class TaskManager extends Thread{
         // Возвращаем 0, если задача перешла в режим DONE
         return result;
     }
-
-
 
     // Перенести задачу из очереди задач в начало очереди исполняемых задач
     private void pollToFirst() {

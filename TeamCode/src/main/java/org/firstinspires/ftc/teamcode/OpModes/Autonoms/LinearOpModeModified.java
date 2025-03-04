@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 
 public class LinearOpModeModified extends LinearOpMode {
-    public Robot robot;
+    public Robot r;
 
     public Root startNode;
 

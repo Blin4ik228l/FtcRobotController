@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses;
 
 public enum EncoderStatus {
     ZeroDelta,//Когда перемещение по энкорем нету

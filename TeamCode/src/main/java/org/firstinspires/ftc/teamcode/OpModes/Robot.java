@@ -9,19 +9,18 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Consts.Consts;
 import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotCore;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Singles.Button;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.Joysticks;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.Odometry;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.ServosService;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Groups.TeleSkope;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Singles.Button;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Virtual.Metry;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.EncoderStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.MotorsStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.RobotStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.RobotStatusInDrive;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.TeleskopeStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.TeleskopeStatusInAction;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.OtherStatuses.RobotStatusInDrive;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.OtherStatuses.TeleskopeStatusInMoving;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.RobotModuleStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
@@ -52,8 +51,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
     public final ServosService servosService;
     public final Button button;
 
-    public RobotStatus robotStatus;
-    public TeleskopeStatus teleskopeStatus;
+    public RobotModuleStatus robotStatus;
+    public RobotModuleStatus teleskopeStatus;
 //    public final RGBColorSensor colorSensor;
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
@@ -78,6 +77,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         teleSkope = new TeleSkope(op, servosService);
         button = new Button(op);
 
+        this.robotStatusHandler.robot = this;
+
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
 
@@ -95,8 +96,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         joysticks.init();
         button.init();
 
-        robotStatus = RobotStatus.Normal;
-        teleskopeStatus = TeleskopeStatus.Normal;
+        robotStatus = RobotModuleStatus.Normal;
+        teleskopeStatus = RobotModuleStatus.Normal;
 //        colorSensor.init();
 //        distanceSensor.init();
     }
@@ -106,7 +107,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
     // Метод, обрабатывающий задачу перемещения робота в точку
     public DriveHandler driveToPosition = new DriveHandler() {
         //Сделать статусы состояний робота в разных действиях, для дальнейших работ с ним
-       public RobotStatus statusInDrive;
+       public RobotModuleStatus statusInDrive;
 
        public RobotStatusInDrive statusBy_X;
        public RobotStatusInDrive statusBy_Y;
@@ -130,7 +131,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         }
 
         @Override
-        public RobotStatus statusRobot() {
+        public RobotModuleStatus statusRobot() {
             return statusInDrive;
         }
 
@@ -144,9 +145,9 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             StandartArgs.driveArgs args = (StandartArgs.driveArgs) _args;
 
             if(statusBy_X == null && statusBy_Y == null && statusBy_Rotate == null) {
-                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X:RobotStatusInDrive.StayingBy_X;
-                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y:RobotStatusInDrive.StayingBy_Y;
-                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate:RobotStatusInDrive.StayingBy_Rotate;
+                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X: RobotStatusInDrive.StayingBy_X;
+                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y: RobotStatusInDrive.StayingBy_Y;
+                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate: RobotStatusInDrive.StayingBy_Rotate;
 
                 statusBy_X_history.addLast(statusBy_X);
                 statusBy_Y_history.addLast(statusBy_Y);
@@ -218,7 +219,10 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
                 if(statusBy_Rotate_history.getLast() != statusBy_Rotate)statusBy_Rotate_history.addLast(statusBy_Rotate);
             }
 
-            statusInDrive = statusBy_Rotate == RobotStatusInDrive.StuckedBy_Rotate || statusBy_Y == RobotStatusInDrive.StuckedBy_Y ||statusBy_X == RobotStatusInDrive.StuckedBy_X ? RobotStatus.Stucked:RobotStatus.Moving;
+            statusInDrive = statusBy_Rotate == RobotStatusInDrive.StuckedBy_Rotate
+                    || statusBy_Y == RobotStatusInDrive.StuckedBy_Y
+                    ||statusBy_X == RobotStatusInDrive.StuckedBy_X
+                    ? RobotModuleStatus.Stucked:RobotModuleStatus.Moving;
 
             // Направление движения
             Vector2 targetVel = new Vector2(errorPos);
@@ -254,7 +258,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
                 result = 0;
                 motorsStatus = drivetrain.offMotors();
 
-                statusInDrive = RobotStatus.Completed;
+                statusInDrive = RobotModuleStatus.Normal;
 
                 if(statusBy_X != RobotStatusInDrive.StuckedBy_X){
                     statusBy_X = RobotStatusInDrive.CompletedBy_X;
@@ -271,7 +275,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             }else{
                 result = -1;
 
-                statusInDrive = RobotStatus.Moving;
+                statusInDrive = RobotModuleStatus.Moving;
 
 
                 //Проверяем на отклонение от курса
@@ -327,14 +331,14 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
         MotorsStatus motorsStatus;
 
-        TeleskopeStatus teleskopeStatus;
-        TeleskopeStatusInAction teleskopeStatusInAction;
-        Deque<TeleskopeStatusInAction> teleskopeStatusHistory = new ArrayDeque<>();
+        RobotModuleStatus teleskopeStatus;
+        TeleskopeStatusInMoving teleskopeStatusInMoving;
+        Deque<TeleskopeStatusInMoving> teleskopeStatusHistory = new ArrayDeque<>();
 
         ElapsedTime stuckTime;
 
         @Override
-        public Deque<TeleskopeStatusInAction>[] status() {
+        public Deque<TeleskopeStatusInMoving>[] status() {
             return new Deque[]{teleskopeStatusHistory};
         }
 
@@ -354,8 +358,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             StandartArgs.teleskopeArgs args = (StandartArgs.teleskopeArgs) _args;
 
             if(teleskopeStatus == null){
-                teleskopeStatusInAction = args.teleskope_height == 0 ? TeleskopeStatusInAction.None : TeleskopeStatusInAction.Staying;
-                teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                teleskopeStatusInMoving = args.teleskope_height == 0 ? TeleskopeStatusInMoving.None : TeleskopeStatusInMoving.Staying;
+                teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
             }
 
             int result;
@@ -370,19 +374,19 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
             if(stuckTime.seconds() > 1){
                 if(args.teleskope_height > teleSkope.getHeight()){
-                    teleskopeStatusInAction = TeleskopeStatusInAction.StuckedBy_Upping;
-                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                    teleskopeStatusInMoving = TeleskopeStatusInMoving.StuckedBy_Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
                 }
 
                 if(args.teleskope_height < teleSkope.getHeight()){
-                    teleskopeStatusInAction = TeleskopeStatusInAction.StuckedBy_Downing;
-                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                    teleskopeStatusInMoving = TeleskopeStatusInMoving.StuckedBy_Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
                 }
             }
 
-            if(teleskopeStatusInAction == TeleskopeStatusInAction.StuckedBy_Downing || teleskopeStatusInAction == TeleskopeStatusInAction.StuckedBy_Upping){
-                teleskopeStatus = TeleskopeStatus.Stucked;
-            }else teleskopeStatus = TeleskopeStatus.InMoving;
+            if(teleskopeStatusInMoving == TeleskopeStatusInMoving.StuckedBy_Downing || teleskopeStatusInMoving == TeleskopeStatusInMoving.StuckedBy_Upping){
+                teleskopeStatus = RobotModuleStatus.Stucked;
+            }else teleskopeStatus = RobotModuleStatus.Normal;
 
             if(servosService.getHorizontal().getPosition() != args.servo_pos){
 
@@ -396,19 +400,19 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
                 motorsStatus = teleSkope.offMotors();
 
-                teleskopeStatusInAction = TeleskopeStatusInAction.Completed;
-                teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                teleskopeStatusInMoving = TeleskopeStatusInMoving.Completed;
+                teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
             }else {
                 result = -1;
 
                 if(args.teleskope_height > teleSkope.getHeight()){
-                    teleskopeStatusInAction = TeleskopeStatusInAction.Upping;
-                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                    teleskopeStatusInMoving = TeleskopeStatusInMoving.Upping;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
                 }
 
                 if(args.teleskope_height < teleSkope.getHeight()){
-                    teleskopeStatusInAction = TeleskopeStatusInAction.Downing;
-                    teleskopeStatusHistory.addLast(teleskopeStatusInAction);
+                    teleskopeStatusInMoving = TeleskopeStatusInMoving.Downing;
+                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
                 }
 
                 motorsStatus = teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);

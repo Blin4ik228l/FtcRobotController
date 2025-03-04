@@ -40,7 +40,7 @@ public class TeleOpBlue extends OpMode {
      */
     @Override
     public void start() {
-        robot.taskManager.forTeleop();
+        robot.taskManager.startTeleop();
     }
     /**
      *  Метод крутится в цикле после нажатия START

@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Consts.Consts;
 import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.EncoderStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.MotorsStatus;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.TeleskopeStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.MotorsStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.RobotModuleStatus;
 
 public class TeleSkope implements Module, ConstsTeleskope {
     public final OpMode op;
@@ -28,7 +28,7 @@ public class TeleSkope implements Module, ConstsTeleskope {
     private double leftEncUpold;
     private double rightEncUpold;
 
-    public TeleskopeStatus motorsTeleskopeSt;
+    public RobotModuleStatus motorsTeleskopeSt;
 
     public TeleSkope(OpMode op, ServosService servosService){
         this.op = op;
@@ -38,7 +38,7 @@ public class TeleSkope implements Module, ConstsTeleskope {
     public void init() {
         leftEncUpSt = EncoderStatus.ZeroDelta;
         rightEncUpSt = EncoderStatus.ZeroDelta;
-        motorsTeleskopeSt = TeleskopeStatus.Normal;
+        motorsTeleskopeSt = RobotModuleStatus.Normal;
 
         upStandingLeft = op.hardwareMap.get(DcMotorEx.class, "upStandingLeft");
         upStandingRight = op.hardwareMap.get(DcMotorEx.class, "upStandingRight");
@@ -152,7 +152,7 @@ public class TeleSkope implements Module, ConstsTeleskope {
 
         double targetVel = speed * Math.signum(targetHeight - height);
 
-        if(motorsTeleskopeSt == TeleskopeStatus.Normal) setVelUpStandingTeleOp(targetVel);
+        if(motorsTeleskopeSt == RobotModuleStatus.Normal) setVelUpStandingTeleOp(targetVel);
         else offMotors();
 
         return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;

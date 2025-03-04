@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates;
+package org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.OtherStatuses;
 
 public enum RobotStatusInDrive {
     MovingBy_X,

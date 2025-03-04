@@ -6,7 +6,8 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public class DriveTo extends TaskNode {
-    public DriveTo(StandartArgs.driveArgs driveToArgs, Robot robot){
+    public DriveTo(Robot robot, StandartArgs.driveArgs driveToArgs){
+        super(robot);
         task = new OrdinaryTask(robot.driveToPosition,
                 driveToArgs,
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);

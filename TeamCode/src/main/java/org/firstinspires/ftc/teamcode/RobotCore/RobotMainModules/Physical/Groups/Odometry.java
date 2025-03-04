@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Module;
 import org.firstinspires.ftc.teamcode.Consts.Consts;
-import org.firstinspires.ftc.teamcode.RobotCore.RobotStatus.OtherStates.EncoderStatus;
+import org.firstinspires.ftc.teamcode.RobotCore.RobotModulesStatus.ComonStatuses.EncoderStatus;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Vector2;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 

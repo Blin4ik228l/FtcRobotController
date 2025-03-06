@@ -15,7 +15,7 @@ public class Sequence extends ControlNode {
             stackToDo.pop();
         }
 
-        if(stackToDo.peek().nodeState == States.FAILURE){
+        if(!stackToDo.isEmpty() && stackToDo.peek().nodeState == States.FAILURE){
             nodeState = States.FAILURE;
         }
 

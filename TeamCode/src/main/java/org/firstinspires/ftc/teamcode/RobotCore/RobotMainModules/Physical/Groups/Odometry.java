@@ -247,16 +247,16 @@ public class Odometry extends Thread implements Module {
 
         //TODO: понять каково перемещение по энкодеру при застревании, на сколько оно маленькое
         if(deltaX == 0) encXst = EncoderStatus.ZeroDelta;
-        else if(Math.abs(deltaX) < 0.05) encXst = EncoderStatus.SmallDelta;
+        else if(Math.abs(deltaX) < 0.5) encXst = EncoderStatus.SmallDelta;
         else encXst = EncoderStatus.InMoving;
 
         if(deltaY == 0) encYst = EncoderStatus.ZeroDelta;
         //Нужно понимать, что значение у центрального может быть маленьким при кручении
-        else if(Math.abs(deltaY) < 0.05 && Math.abs(deltaRad) == 0 || Math.abs(deltaY) < 0.05 && Math.abs(deltaRad) > 0) encYst = EncoderStatus.SmallDelta;
+        else if(Math.abs(deltaY) < 0.5 && Math.abs(deltaRad) == 0 || Math.abs(deltaY) < 0.05 && Math.abs(deltaRad) > 0) encYst = EncoderStatus.SmallDelta;
         else encYst = EncoderStatus.InMoving;
 
         if(deltaRad == 0) encRadSt = EncoderStatus.ZeroDelta;
-        else if(Math.abs(deltaRad) == 0 ||  Math.abs(deltaRad) < 0.05) encRadSt = EncoderStatus.SmallDelta;
+        else if(Math.abs(deltaRad) == 0 ||  Math.abs(deltaRad) < 0.5) encRadSt = EncoderStatus.SmallDelta;
         else encRadSt = EncoderStatus.InMoving;
 
         deltaPosition.setHeading(deltaRad);

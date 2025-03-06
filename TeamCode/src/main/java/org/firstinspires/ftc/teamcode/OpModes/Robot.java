@@ -96,6 +96,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         joysticks.init();
         button.init();
 
+
         robotStatus = RobotModuleStatus.Normal;
         teleskopeStatus = RobotModuleStatus.Normal;
 //        colorSensor.init();
@@ -276,7 +277,6 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
                 result = -1;
 
                 statusInDrive = RobotModuleStatus.Moving;
-
 
                 //Проверяем на отклонение от курса
                 if(errorPos.x > args.position.getX() && statusBy_X != RobotStatusInDrive.NoneBy_X){

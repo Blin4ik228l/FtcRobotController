@@ -19,8 +19,8 @@ public class AutoRedLeft extends LinearOpModeModified implements ConstsTeleskope
     Position pos3 = new Position(25, 43, 10);
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this, new Position(0,0,0));
-        robot.init();
+        r = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this, new Position(0,0,0));
+        r.init();
 //
 //        Task driveToBasket =
 //                new Task(robot.driveToPosition, new StandartArgs.driveStandartArgs(pos1, 80), NOTHING, Task.taskStartMode.START_AFTER_PREVIOUS);

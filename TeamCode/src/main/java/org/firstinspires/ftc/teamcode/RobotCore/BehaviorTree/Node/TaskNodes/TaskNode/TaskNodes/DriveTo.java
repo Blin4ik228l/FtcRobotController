@@ -11,6 +11,5 @@ public class DriveTo extends TaskNode {
         task = new OrdinaryTask(robot.driveToPosition,
                 driveToArgs,
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
-
     }
 }

@@ -8,4 +8,6 @@ public abstract class Decorator extends Node {
     }
 
     public Node nodeToWork;
+
+
 }

@@ -42,7 +42,7 @@ public class TaskManager extends Thread{
     private final Deque<OrdinaryTask> taskDeque; // Двусторонняя очередь, содержащая задачи для выполнения
     private final Deque<OrdinaryTask> executingDeque; // Очередь для хранения обрабатываемых задач
     private final Stack<OrdinaryTask> completedTasks; // Стэк для хранения выполненных задач
-
+    private Stack<OrdinaryTask> tasksToDo;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public TaskManager(RobotCore robot) {
@@ -66,7 +66,67 @@ public class TaskManager extends Thread{
         return completedTasks;
     }
 
-    public void startTeleop(){
+    public void permanentlyExecute(){
+        robot.robotStatusHandler.loadTasks();
+
+        stackTasks();
+
+        OrdinaryTask executingTask = prepareTask();
+
+        executeTask(executingTask);
+
+    }
+
+    public OrdinaryTask prepareTask(){
+
+        OrdinaryTask t = tasksToDo.peek();
+
+        if(t.state == States.TODO){
+            t.startTime = managerRuntime.milliseconds();
+            t.state = States.RUNNING;
+            t.taskHandler.init(this, t.args);
+        }else return t;
+
+        return t;
+    }
+
+    public void executeTask(OrdinaryTask executingTask) {
+
+        int result = updateTask(executingTask);
+
+        if (executingTask.state == States.FAILURE){
+            taskDeque.remove(executingTask);//Убираем из общей очереди задач
+            tasksToDo.pop();//Убираем из очереди выполняемых задач
+        }
+
+        // Вернулся 0 - значит задача выполнилась
+        if (result == 0 ) {
+            // Выкидываем задачу в стэк выполненного
+            completedTasks.push(executingTask);
+
+            taskDeque.remove(executingTask);//Убираем из общей очереди задач
+            tasksToDo.pop();//Убираем из очереди выполняемых задач
+        }
+    }
+
+    public void addTaskToStack(OrdinaryTask newTask){
+        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
+                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) taskDeque.addFirst(newTask);
+
+        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
+    }
+
+    public void stackTasks() {
+        tasksToDo = new Stack<>();
+
+        for (Iterator<OrdinaryTask> iterator = taskDeque.iterator(); iterator.hasNext(); ) {
+            OrdinaryTask currentTask = iterator.next();
+
+            tasksToDo.push(currentTask);
+        }
+    }
+
+        public void startTeleop(){
         this.setDaemon(true);
         this.start();
     }
@@ -92,95 +152,95 @@ public class TaskManager extends Thread{
      * получает время начала выполнения и режим - DOING.
      */
 
-    public void startDoing(){
-        robot.robotStatusHandler.loadTasks();
-        if(taskDeque.size() != completedTasks.size()){
-            pickTaskToDo();
-
-            taskHandler();
-        }
-
-    }
-
-    private void pickTaskToDo()
-    {
-        boolean picked = true; // Тут храним результат выбора
-        if (!taskDeque.isEmpty()) {
-            /*
-                В этом ветвлении программист должен прописать логику обработки startMode'ов задач.
-                Задачи из taskDeque стоит добавлять в конец очереди executingDeque, разве что
-                если вы полностью уверены в том, что делаете
-             */
-            switch (taskDeque.getFirst().startMode) {
-                // Пример:
-                //  case ВАШ_ЭНАМ_ИЗ_taskStartMode
-                //      какое-то условие для переноса задачи из taskDeque в executingDeque
-                //      для начала обработки задачи.
-                //          pollToLast(); или pollToFirst();
-                //      break; <- обязательно
-
-                case START_AFTER_PREVIOUS:
-                    if (executingDeque.isEmpty()) {
-                        pollToLast();
-                    } else if (executingDeque.getLast().state == States.SUCCESS) {
-                        pollToLast();
-                    } else {
-                        picked = false; // Если не перенесли
-                    }
-                    break;
-
-                case START_WITH_PREVIOUS:
-                    pollToLast();
-                    break;
-
-                case HOTCAKE:
-                    pollToFirst();
-                    break;
-
-                default:
-                    picked = false; // Если не попали ни в один из кейсов
-                    break;
-            }
-        } else {
-            picked = false;
-        }
-
-        // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
-        if (picked) {
-            OrdinaryTask t = executingDeque.getFirst();
-            t.startTime = managerRuntime.milliseconds();
-            t.state = States.RUNNING;
-            t.taskHandler.init(this, t.args);
-        }
-    }
-
-    /**
-     * Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
-     * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
-     */
-    private void taskHandler() {
-        for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext();) {
-            OrdinaryTask currentTask = iterator.next();
-
-            int result = updateTask(currentTask);
-
-            // Вернулся 0 - значит задача выполнилась
-            if (result == 0 ) {
-                // Проверяем, можно ли теперь взять новую задачу
-                pickTaskToDo();
-                // Выкидываем задачу в стэк выполненного
-                completedTasks.push(currentTask);
-                iterator.remove();
-            }
-        }
-    }
-
-    /**
-     * Выполняем метод, который предназначен для обработки задачи.
-     * ВАЖНО! Внутри обработчика не должно быть циклов, ожидающих выполнения задачи, метод
-     * проходится один раз за вызов, это позволяет дергать методы-обработчики в цикле Итератора
-     * несколько раз в секунду и работать над несколькими задачами "одновременно".
-     */
+//    public void startDoing(){
+//        robot.robotStatusHandler.loadTasks();
+//        if(!taskDeque.isEmpty() || !completedTasks.isEmpty()){
+//            pickTaskToDo();
+//
+//            taskHandler();
+//        }
+//
+//    }
+//
+//    private void pickTaskToDo()
+//    {
+//        boolean picked = true; // Тут храним результат выбора
+//        if (!taskDeque.isEmpty()) {
+//            /*
+//                В этом ветвлении программист должен прописать логику обработки startMode'ов задач.
+//                Задачи из taskDeque стоит добавлять в конец очереди executingDeque, разве что
+//                если вы полностью уверены в том, что делаете
+//             */
+//            switch (taskDeque.getFirst().startMode) {
+//                // Пример:
+//                //  case ВАШ_ЭНАМ_ИЗ_taskStartMode
+//                //      какое-то условие для переноса задачи из taskDeque в executingDeque
+//                //      для начала обработки задачи.
+//                //          pollToLast(); или pollToFirst();
+//                //      break; <- обязательно
+//
+//                case START_AFTER_PREVIOUS:
+//                    if (executingDeque.isEmpty()) {
+//                        pollToLast();
+//                    } else if (executingDeque.getLast().state == States.SUCCESS) {
+//                        pollToLast();
+//                    } else {
+//                        picked = false; // Если не перенесли
+//                    }
+//                    break;
+//
+//                case START_WITH_PREVIOUS:
+//                    pollToLast();
+//                    break;
+//
+//                case HOTCAKE:
+//                    pollToFirst();
+//                    break;
+//
+//                default:
+//                    picked = false; // Если не попали ни в один из кейсов
+//                    break;
+//            }
+//        } else {
+//            picked = false;
+//        }
+//
+//        // Если перенесли, то обновляем состояние на DOING и задаем время старта выполнения задачи
+//        if (picked) {
+//            OrdinaryTask t = executingDeque.getFirst();
+//            t.startTime = managerRuntime.milliseconds();
+//            t.state = States.RUNNING;
+//            t.taskHandler.init(this, t.args);
+//        }
+//    }
+//
+//    /**
+//     * Итератор задач, которые лежат в очереди выполняемых задач executingTasks.
+//     * Проходим по каждой задаче и обновляем ее, принимая результат обновления.
+//     */
+//    private void taskHandler() {
+//        for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext();) {
+//            OrdinaryTask currentTask = iterator.next();
+//
+//            int result = updateTask(currentTask);
+//
+//            // Вернулся 0 - значит задача выполнилась
+//            if (result == 0 ) {
+//                // Проверяем, можно ли теперь взять новую задачу
+//                pickTaskToDo();
+//                // Выкидываем задачу в стэк выполненного
+//                completedTasks.push(currentTask);
+//                iterator.remove();
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Выполняем метод, который предназначен для обработки задачи.
+//     * ВАЖНО! Внутри обработчика не должно быть циклов, ожидающих выполнения задачи, метод
+//     * проходится один раз за вызов, это позволяет дергать методы-обработчики в цикле Итератора
+//     * несколько раз в секунду и работать над несколькими задачами "одновременно".
+//     */
     private int updateTask(OrdinaryTask currentTask) {
         /*
             Обратите внимание, что ваш метод должен возвращать int, показывая результат своей работы,

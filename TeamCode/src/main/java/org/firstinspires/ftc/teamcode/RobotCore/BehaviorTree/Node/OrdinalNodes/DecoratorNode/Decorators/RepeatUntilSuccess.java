@@ -14,5 +14,6 @@ public class RepeatUntilSuccess extends Decorator {
         while(nodeToWork.nodeState != States.SUCCESS){
             nodeToWork.tickMe();
         }
+        nodeState = nodeToWork.nodeState;
     }
 }

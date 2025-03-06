@@ -20,8 +20,8 @@ public class AutoRedRight extends LinearOpModeModified implements ConstsTeleskop
     @Override
     public void runOpMode() throws InterruptedException {
 
-        robot = new Robot(RobotMode.AUTO, RobotAlliance.RED, this, new Position(0,0,0));
-        robot.init();
+        r = new Robot(RobotMode.AUTO, RobotAlliance.RED, this, new Position(0,0,0));
+        r.init();
 
 //
 //        Task driveToBasket =

@@ -19,11 +19,11 @@ public abstract class TaskNode extends Node {
     public void programm() {
         if(!isProgrammDisabled) {
             if (!isAdded) {
-                robot.taskManager.addTask(task);
+                robot.taskManager.addTaskToStack(task);
                 isAdded = true;
             }
 
-            robot.taskManager.startDoing();
+            robot.taskManager.permanentlyExecute();
 
             nodeState = task.state;
         }

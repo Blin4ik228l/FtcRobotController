@@ -23,22 +23,17 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
     @Override
     public void runOpMode() throws InterruptedException {
-        r = new Robot(RobotMode.AUTO,RobotAlliance.BLUE, this, new Position(0,0,0));
+        r = new Robot(RobotMode.AUTO, RobotAlliance.BLUE, this, new Position(0,0,0));
         r.init();
 
         startNode = new Root();
 
         startNode.add(new RepeatUntilSuccess(new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0)))));
 
-        startNode.add(new RepeatUntilSuccess(
-                new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
-
-        startNode.add(new ParallelActions(r,
-                new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0))),
-                new MoveVerticalTeleTo(r,50)));
+        startNode.add(new RepeatUntilSuccess(new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
 
         waitForStart();
-
+        r.robotStatusHandler.init();
         while (opModeIsActive() && !isStopRequested()) {
             if(startNode.root.nodeState == States.SUCCESS)break;
             else if(startNode.root.nodeState == States.FAILURE) break;

@@ -49,7 +49,7 @@ public class RobotStatusHandler extends Thread implements Module {
     private Deque<OrdinaryTask> tasksToDo;
 
     public void startLurking() {
-        while (tasksToDo.size() != taskManager.getCompletedTasks().size()) {
+        while (!tasksToDo.isEmpty()) {
             Deque<OrdinaryTask> executingTasks = taskManager.getExecutingDeque();
 
             for (Iterator<OrdinaryTask> iterator = executingTasks.iterator(); iterator.hasNext();) {
@@ -174,11 +174,12 @@ public class RobotStatusHandler extends Thread implements Module {
                             currentTask.startMode = OrdinaryTask.taskStartMode.HOTCAKE;
                             currentTask.state = States.FAILURE;
 
-                            taskManager.addTask(
+                            taskManager.addTaskToStack(
                                     new OrdinaryTask(currentTask.taskHandler,newArgs,
                                             OrdinaryTask.taskStartMode.HOTCAKE));//Исполняем ещё раз, если хоть что то надо исправить
 
-                            taskManager.addTask(currentTask);
+                            taskManager.addTaskToStack( new OrdinaryTask(currentTask.taskHandler,currentTask.args,
+                                    OrdinaryTask.taskStartMode.HOTCAKE));
                         }
                     } else if (currentTask instanceof TeleskopeTask) {
 
@@ -202,11 +203,11 @@ public class RobotStatusHandler extends Thread implements Module {
                             currentTask.startMode = OrdinaryTask.taskStartMode.HOTCAKE;
                             currentTask.state = States.FAILURE;
 
-                            taskManager.addTask(
+                            taskManager.addTaskToStack(
                                     new OrdinaryTask(currentTask.taskHandler, newArgs,
                                             OrdinaryTask.taskStartMode.HOTCAKE));//Исполняем ещё раз, если хоть что то надо исправить
 
-                            taskManager.addTask(currentTask);//Кидаем задачу ещё раз
+                            taskManager.addTaskToStack(currentTask);//Кидаем задачу ещё раз
                         }
                     }
                 }

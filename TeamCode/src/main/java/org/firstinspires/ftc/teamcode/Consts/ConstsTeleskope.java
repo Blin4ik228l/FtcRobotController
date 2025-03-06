@@ -5,8 +5,8 @@ public interface ConstsTeleskope {
     double CLOSE_POS_HORIZONTAL = 0.48;
     double CLOSE_POS_HORIZONTAL_AUTO = 0.40;
 
-    double OPEN_POS_HOOK = 0.7;  // 0.5
-    double CLOSE_POS_HOOK = 0.1;
+    double OPEN_POS_HOOK = 0.48;  // 0.8
+    double CLOSE_POS_HOOK = 0.18;// 0.1
 
     double TAKE_POS_FLIP = 0.72;
     double TAKE_POS_FLIP2 = 0.7;

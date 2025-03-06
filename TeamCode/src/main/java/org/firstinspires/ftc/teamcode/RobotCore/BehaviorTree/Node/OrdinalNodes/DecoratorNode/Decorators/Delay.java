@@ -21,5 +21,7 @@ public class Delay extends Decorator {
         }
         delayTimer.reset();
         nodeToWork.tickMe();
+
+        nodeState = nodeToWork.nodeState;
     }
 }

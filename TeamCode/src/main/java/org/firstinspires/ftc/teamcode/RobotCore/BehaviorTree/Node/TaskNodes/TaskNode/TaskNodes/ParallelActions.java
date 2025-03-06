@@ -22,10 +22,10 @@ public class ParallelActions extends TaskNode {
     @Override
     public void programm() {
         if(!isAdded){
-            robot.taskManager.addTask(parallel1.task);
-            robot.taskManager.addTask(parallel2.task);
+            robot.taskManager.addTaskToStack(parallel1.task);
+            robot.taskManager.addTaskToStack(parallel2.task);
         }
 
-        robot.taskManager.startDoing();
+        robot.taskManager.permanentlyExecute();
     }
 }

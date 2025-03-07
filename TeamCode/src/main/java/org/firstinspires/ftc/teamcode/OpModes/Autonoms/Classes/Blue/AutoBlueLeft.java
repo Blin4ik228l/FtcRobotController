@@ -28,12 +28,12 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
         startNode = new Root();
 
-        startNode.add(new RepeatUntilSuccess(new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0)))));
+        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0)))));
 
-        startNode.add(new RepeatUntilSuccess(new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
+        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
 
         waitForStart();
-        r.robotStatusHandler.init();
+
         while (opModeIsActive() && !isStopRequested()) {
             if(startNode.root.nodeState == States.SUCCESS)break;
             else if(startNode.root.nodeState == States.FAILURE) break;

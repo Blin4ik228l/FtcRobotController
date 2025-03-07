@@ -161,7 +161,7 @@ public class TeleSkope implements Module, ConstsTeleskope {
     public synchronized void setTeleskope(double vel, double Pos){
             setVelUpStandingTeleOp(vel);
             setPosHorizontalTeleOp(Pos);
-        }
+    }
 
     public synchronized void setTeleskopeProp(double vel, double Pos){
         calculateHeight();
@@ -180,6 +180,17 @@ public class TeleSkope implements Module, ConstsTeleskope {
         }else{
             setVelUpStandingTeleOp(vel);
             setPosHorizontalTeleOp(Pos);
+        }
+
+    }
+    public void setSmallTele(ServosService.servoPos servoPos, double Pos){
+        if (servoPos == ServosService.servoPos.UP){
+            servosService.setLeftStartPos();
+            servosService.setRightStartPos();
+        }
+        if (servoPos == ServosService.servoPos.DOWN) {
+            servosService.getLeft().setPosition(Pos);
+            servosService.getRight().setPosition(1 - Pos);
         }
 
     }

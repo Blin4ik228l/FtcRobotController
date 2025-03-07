@@ -591,9 +591,9 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 //            }
 //        }
 
-        op.telemetry.addData("Max_speed", max_speed);// выводим максимальную скорость
-        op.telemetry.addData("Gear", joysticks.getGear());// выводим передачу
-        op.telemetry.addData("Is up gear", joysticks.isUpGear());
+//        op.telemetry.addData("Max_speed", max_speed);// выводим максимальную скорость
+//        op.telemetry.addData("Gear", joysticks.getGear());// выводим передачу
+//        op.telemetry.addData("Is up gear", joysticks.isUpGear());
     }
 
     // Gamepad 2
@@ -605,19 +605,19 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
         double upStandingVel = -g2.right_stick_y;
 
-        if(joysticks.getDpadUp(g2.dpad_down) == 1){
-            horizontalPos = CLOSE_POS_HORIZONTAL - 0.1;
-        } else if (joysticks.getDpadUp(g2.dpad_down) == 2) {
-            horizontalPos = CLOSE_POS_HORIZONTAL - 0.2;
-        }else if (joysticks.getDpadUp(g2.dpad_down) == 3) {
-            horizontalPos = CLOSE_POS_HORIZONTAL - 0.3;
-        }else if (joysticks.getDpadUp(g2.dpad_down) == 4) {
-            horizontalPos = CLOSE_POS_HORIZONTAL - 0.4;
-        }else if (joysticks.getDpadUp(g2.dpad_down) == 5) {
-            horizontalPos = OPEN_POS_HORIZONTAL;
-        }else {
-            horizontalPos = CLOSE_POS_HORIZONTAL;
-        }
+//        if(joysticks.getDpadUp(g2.dpad_down) == 1){
+//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.1;
+//        } else if (joysticks.getDpadUp(g2.dpad_down) == 2) {
+//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.2;
+//        }else if (joysticks.getDpadUp(g2.dpad_down) == 3) {
+//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.3;
+//        }else if (joysticks.getDpadUp(g2.dpad_down) == 4) {
+//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.4;
+//        }else if (joysticks.getDpadUp(g2.dpad_down) == 5) {
+//            horizontalPos = OPEN_POS_HORIZONTAL;
+//        }else {
+//            horizontalPos = CLOSE_POS_HORIZONTAL;
+//        }
 
         if(servosService.getHook().getPosition() == CLOSE_POS_HOOK){
             drivetrain.onLed();
@@ -626,10 +626,15 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             drivetrain.offLed();
         }
 
+//        if (joysticks.isX_G2()){
+//            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
+//        }else{
+//            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
+
         if (joysticks.isX_G2()){
-            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
+            teleSkope.setSmallTele(ServosService.servoPos.UP, 0.25);
         }else{
-            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
+            teleSkope.setSmallTele(ServosService.servoPos.DOWN, 0.25);}
 
         if (joysticks.isB_G2()){
             teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
@@ -666,6 +671,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 //    }else {
 //        teleSkope.setHook(OPEN_POS_HOOK);
 //        }
+        op.telemetry.addData("Left",servosService.getLeft().getPosition());
+        op.telemetry.addData("Right", servosService.getRight().getPosition());
     }
 
     public synchronized void initPlayersTelemetry() {

@@ -67,7 +67,7 @@ public class TaskManager extends Thread{
     }
 
     public void permanentlyExecute(){
-        robot.robotStatusHandler.loadTasks();
+        robot.robotStatusHandler.tasksToDo = taskDeque;
 
         stackTasks();
 
@@ -126,7 +126,7 @@ public class TaskManager extends Thread{
         }
     }
 
-        public void startTeleop(){
+    public void startTeleop(){
         this.setDaemon(true);
         this.start();
     }

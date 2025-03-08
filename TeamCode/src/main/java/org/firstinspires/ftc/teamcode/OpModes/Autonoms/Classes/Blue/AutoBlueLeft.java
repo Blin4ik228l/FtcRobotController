@@ -7,10 +7,7 @@ import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Consts.RewardsForActions;
 import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators.RepeatUntilSuccess;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.DriveTo;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.MoveVerticalTeleTo;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.ParallelActions;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
@@ -33,6 +30,7 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
         startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
 
         waitForStart();
+        r.robotStatusHandler.start();
 
         while (opModeIsActive() && !isStopRequested()) {
             if(startNode.root.nodeState == States.SUCCESS)break;

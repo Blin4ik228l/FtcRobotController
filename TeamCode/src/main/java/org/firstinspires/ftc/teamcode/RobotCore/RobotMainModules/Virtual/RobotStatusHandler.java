@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.VarietiesTasks.D
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.VarietiesTasks.TeleskopeTask;
 import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Stack;
@@ -34,7 +35,6 @@ public class RobotStatusHandler extends Thread implements Module {
     @Override
     public void init() {
         this.setDaemon(true);
-        this.start();
     }
 
     @Override
@@ -46,10 +46,10 @@ public class RobotStatusHandler extends Thread implements Module {
         tasksToDo = taskManager.getTaskDeque();
     }
 
-    private Deque<OrdinaryTask> tasksToDo;
+    public Deque<OrdinaryTask> tasksToDo = new ArrayDeque<>();
 
     public void startLurking() {
-        while (!tasksToDo.isEmpty()) {
+        while (!tasksToDo.isEmpty() && this.isAlive()) {
             Deque<OrdinaryTask> executingTasks = taskManager.getExecutingDeque();
 
             for (Iterator<OrdinaryTask> iterator = executingTasks.iterator(); iterator.hasNext();) {

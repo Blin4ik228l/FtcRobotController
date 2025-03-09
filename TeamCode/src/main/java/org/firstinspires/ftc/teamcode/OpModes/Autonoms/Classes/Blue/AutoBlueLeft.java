@@ -22,6 +22,7 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
     public void runOpMode() throws InterruptedException {
         r = new Robot(RobotMode.AUTO, RobotAlliance.BLUE, this, new Position(0,0,0));
         r.init();
+        r.robotStatusHandler.start();
 
         startNode = new Root();
 
@@ -30,7 +31,6 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
         startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
 
         waitForStart();
-        r.robotStatusHandler.start();
 
         while (opModeIsActive() && !isStopRequested()) {
             if(startNode.root.nodeState == States.SUCCESS)break;

@@ -50,7 +50,9 @@ public class RobotStatusHandler extends Thread implements Module {
 
     public void startLurking() {
         while (!tasksToDo.isEmpty() && this.isAlive()) {
-            Deque<OrdinaryTask> executingTasks = taskManager.getExecutingDeque();
+            while(taskManager.getExecutingDeque() == null && this.isAlive()){
+                //..waiting
+            }Deque<OrdinaryTask> executingTasks = taskManager.getExecutingDeque();
 
             for (Iterator<OrdinaryTask> iterator = executingTasks.iterator(); iterator.hasNext();) {
                 OrdinaryTask currentTask = iterator.next();

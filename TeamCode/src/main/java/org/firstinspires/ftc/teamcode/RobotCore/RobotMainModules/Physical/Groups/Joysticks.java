@@ -13,7 +13,7 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private int gear = 1, dpadUp;
+    private int gear = 1, dpadUp, bPressed = 1;
 
     private double nowPos;
     private boolean isUpGear;
@@ -57,15 +57,37 @@ public class Joysticks implements Module {
         return isAY_g1;
     }
 
-    public synchronized boolean isB_G2(){
+    public synchronized int isB_G2(){
+        if(bPressed == 4) bPressed = 1;
+
         if(gamepad2.b && !switchB_g2 && !gamepad2.start) {
-            isB_g2 = !isB_g2;
+            bPressed = Range.clip(bPressed + 1, 1,4);
             switchB_g2 = true;}
         if(!gamepad2.b && switchB_g2){
             switchB_g2 = false;
         }
 
-        return isB_g2;
+        return bPressed;
+    }
+
+    public int getBPressed() {
+        return bPressed;
+    }
+
+    public int getDpadUp(boolean dpadDown){
+        if(dpadDown){
+            dpadUp = 0;
+        }
+
+        if(gamepad2.dpad_up && !isDpadUpReleased ) {
+            dpadUp = Range.clip(dpadUp + 1, 0,5);
+            isDpadUpReleased = true;}
+
+        if(!gamepad2.dpad_up && isDpadUpReleased){
+            isDpadUpReleased = false;
+        }
+
+        return dpadUp;
     }
 
     public synchronized boolean isX_G1() {
@@ -159,21 +181,7 @@ public class Joysticks implements Module {
         return isUpGear;
     }
 
-    public int getDpadUp(boolean dpadDown){
-        if(dpadDown){
-            dpadUp = 0;
-        }
 
-        if(gamepad2.dpad_up && !isDpadUpReleased ) {
-            dpadUp = Range.clip(dpadUp + 1, 0,5);
-            isDpadUpReleased = true;}
-
-        if(!gamepad2.dpad_up && isDpadUpReleased){
-            isDpadUpReleased = false;
-        }
-
-        return dpadUp;
-    }
 
     public synchronized int getGear(){                       // создаем метод для получения передачи
         return gear;

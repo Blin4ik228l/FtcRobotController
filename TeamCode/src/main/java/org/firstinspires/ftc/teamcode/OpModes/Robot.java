@@ -39,7 +39,7 @@ import java.util.Deque;
 public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    double horizontalPos = CLOSE_POS_HORIZONTAL;
+    double horizontalPos = CLOSE_POS_HORIZONTAL2;
 
     // Системы робота.
     // Железо хранится уже в самой системе.
@@ -605,19 +605,19 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
         double upStandingVel = -g2.right_stick_y;
 
-//        if(joysticks.getDpadUp(g2.dpad_down) == 1){
-//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.1;
-//        } else if (joysticks.getDpadUp(g2.dpad_down) == 2) {
-//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.2;
-//        }else if (joysticks.getDpadUp(g2.dpad_down) == 3) {
-//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.3;
-//        }else if (joysticks.getDpadUp(g2.dpad_down) == 4) {
-//            horizontalPos = CLOSE_POS_HORIZONTAL - 0.4;
-//        }else if (joysticks.getDpadUp(g2.dpad_down) == 5) {
-//            horizontalPos = OPEN_POS_HORIZONTAL;
-//        }else {
-//            horizontalPos = CLOSE_POS_HORIZONTAL;
-//        }
+        if(joysticks.getDpadUp(g2.dpad_down) == 1){
+            horizontalPos = CLOSE_POS_HORIZONTAL2 + 0.05;
+        } else if (joysticks.getDpadUp(g2.dpad_down) == 2) {
+            horizontalPos = CLOSE_POS_HORIZONTAL2 + 0.1;
+        }else if (joysticks.getDpadUp(g2.dpad_down) == 3) {
+            horizontalPos = CLOSE_POS_HORIZONTAL2 + 0.15;
+        }else if (joysticks.getDpadUp(g2.dpad_down) == 4) {
+            horizontalPos = CLOSE_POS_HORIZONTAL2 + 0.2;
+        }else if (joysticks.getDpadUp(g2.dpad_down) == 5) {
+            horizontalPos = OPEN_POS_HORIZONTAL2;
+        }else {
+            horizontalPos = CLOSE_POS_HORIZONTAL2;
+        }
 
         if(servosService.getHook().getPosition() == CLOSE_POS_HOOK){
             drivetrain.onLed();
@@ -626,20 +626,18 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             drivetrain.offLed();
         }
 
-//        if (joysticks.isX_G2()){
-//            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
-//        }else{
-//            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
-
         if (joysticks.isX_G2()){
-            teleSkope.setSmallTele(ServosService.servoPos.UP, 0.25);
+            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
         }else{
-            teleSkope.setSmallTele(ServosService.servoPos.DOWN, 0.25);}
+            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
 
-        if (joysticks.isB_G2()){
-            teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
-        }else {
+
+        if (joysticks.isB_G2() == 1){
             teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
+        }else if(joysticks.isB_G2() == 2){
+            teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
+        }else {
+            teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
         }
 
         if (joysticks.isA_G2()){
@@ -671,8 +669,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 //    }else {
 //        teleSkope.setHook(OPEN_POS_HOOK);
 //        }
-        op.telemetry.addData("Left",servosService.getLeft().getPosition());
-        op.telemetry.addData("Right", servosService.getRight().getPosition());
+        op.telemetry.addData("FLip",servosService.getFlip().getPosition());
+        op.telemetry.addData("bPressed", joysticks.getBPressed());
     }
 
     public synchronized void initPlayersTelemetry() {

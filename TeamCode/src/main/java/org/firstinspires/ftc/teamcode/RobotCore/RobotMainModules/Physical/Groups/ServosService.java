@@ -25,7 +25,6 @@ public class ServosService implements Module, ConstsTeleskope {
 
     @Override
     public void init() {
-        horizontal = op.hardwareMap.get(Servo.class, "horizontal");
         hook = op.hardwareMap.get(Servo.class, "hook");
         flip = op.hardwareMap.get(Servo.class, "flip");
 
@@ -33,7 +32,6 @@ public class ServosService implements Module, ConstsTeleskope {
         right = op.hardwareMap.get(Servo.class, "right");
 
         setHookStartPos();
-        setHorizontalStartPos();
         setFlipStartPos();
 
         setLeftStartPos();
@@ -44,10 +42,10 @@ public class ServosService implements Module, ConstsTeleskope {
 
 
     public void setLeftStartPos(){
-        left.setPosition(0);
+        left.setPosition(CLOSE_POS_HORIZ_LEFT);
     }
     public void setRightStartPos(){
-        right.setPosition(1);
+        right.setPosition(CLOSE_POS_HORIZ_RIGHT);
     }
 
     public Servo getLeft() {
@@ -79,7 +77,7 @@ public class ServosService implements Module, ConstsTeleskope {
     }
 
     public void setFlipStartPos(){
-        flip.setPosition(HANG_POS_FLIP);
+        flip.setPosition(TAKE_POS_FLIP);
     }
 
     public synchronized void getServosPos(){

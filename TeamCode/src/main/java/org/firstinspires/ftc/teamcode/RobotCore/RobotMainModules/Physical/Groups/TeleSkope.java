@@ -158,9 +158,9 @@ public class TeleSkope implements Module, ConstsTeleskope {
         return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }
 
-    public synchronized void setTeleskope(double vel, double Pos){
+    public synchronized void setTeleskope(double vel, double deltaPos){
             setVelUpStandingTeleOp(vel);
-            setPosHorizontalTeleOp(Pos);
+            setLeftRightHorizont(deltaPos);
     }
 
     public synchronized void setTeleskopeProp(double vel, double Pos){
@@ -176,10 +176,8 @@ public class TeleSkope implements Module, ConstsTeleskope {
 
         if((height > PROPRTIONAL_HEIGHT) ) {
             setVelUpStandingTeleOp(vel);
-            setPosHorizontalTeleOp(propLen);
         }else{
             setVelUpStandingTeleOp(vel);
-            setPosHorizontalTeleOp(Pos);
         }
 
     }
@@ -193,6 +191,11 @@ public class TeleSkope implements Module, ConstsTeleskope {
             servosService.getRight().setPosition(1 - Pos);
         }
 
+    }
+
+    public void setLeftRightHorizont(double delta){
+        servosService.getLeft().setPosition(Range.clip(CLOSE_POS_HORIZ_LEFT + delta,CLOSE_POS_HORIZ_LEFT, OPEN_POS_HORIZ_LEFT));
+        servosService.getRight().setPosition(Range.clip(CLOSE_POS_HORIZ_RIGHT - delta,OPEN_POS_HIRIZ_RIGHT, CLOSE_POS_HORIZ_RIGHT));
     }
 
     public synchronized void setVelUpStandingTeleOp(double Vel){

@@ -67,8 +67,6 @@ public class TaskManager extends Thread{
     }
 
     public void permanentlyExecute(){
-        robot.robotStatusHandler.tasksToDo = taskDeque;
-
         stackTasks();
 
         OrdinaryTask executingTask = prepareTask();
@@ -133,16 +131,14 @@ public class TaskManager extends Thread{
 
     @Override
     public void run() {
-        forTeleop();
+        while(!isInterrupted()) {
+            forTeleop();
+        }
     }
 
     private synchronized void forTeleop() {
         // Обработчик будет работать, пока робот в телеоп режиме
-        while(!isStopMode()) {
-            if(isTeleopMode()){
-                robot.teleop();
-            }
-        }
+        robot.teleop();
     }
 
     /**

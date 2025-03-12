@@ -20,7 +20,7 @@ public abstract class TaskNode extends Node {
         if(!isProgrammDisabled) {
             if (!isAdded) {
                 robot.taskManager.addTaskToStack(task);
-                robot.robotStatusHandler.tasksToDo.add(task);
+//                robot.robotStatusHandler.tasksToDo.add(task);
                 isAdded = true;
             }
 

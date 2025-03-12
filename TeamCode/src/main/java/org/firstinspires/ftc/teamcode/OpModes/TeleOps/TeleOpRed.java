@@ -36,7 +36,13 @@ public class TeleOpRed extends OpMode {
      *  Метод вызывается один раз при нажатии кнопки START
      */
     @Override
-    public void start() {
+    public void start() {robot.taskManager.startTeleop();}
+
+    /**
+     *  Метод крутится в цикле после нажатия START
+     */
+    @Override
+    public void loop() {
         robot.odometry.getRobotPos();
         robot.odometry.getEncPos();
 //        drivetrain.getMotorsPower();
@@ -44,15 +50,6 @@ public class TeleOpRed extends OpMode {
 //        joysticks.checkJoysticksCombo();
 //        joysticks.checkGear();
 //        joysticks.getDpadUp();
-        robot.taskManager.startTeleop();
-    }
-
-    /**
-     *  Метод крутится в цикле после нажатия START
-     */
-    @Override
-    public void loop() {
-//        robot.initPlayersTelemetry();
     }
 
     /**
@@ -60,6 +57,6 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void stop() {
-        robot.robotMode = RobotMode.STOP;
+        robot.teleInterrupt();
     }
 }

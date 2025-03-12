@@ -78,9 +78,9 @@ public class Odometry extends Thread implements Module {
     @Override                                                                   // Запускаем методы для обновления данных,
                                                                                 // пока объект существует
     public void run() {
-        while (this.isAlive()){
-            updateGlobalPosition();
+        while (!isInterrupted()) {
 
+            updateGlobalPosition();
             updateVelocity();
             updateAcceleration();
             updateAngularAcceleration();

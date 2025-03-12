@@ -163,6 +163,16 @@ public class TeleSkope implements Module, ConstsTeleskope {
             setLeftRightHorizont(deltaPos);
     }
 
+    public void setTeleskopeHeight(double targetHeight){
+        while (height != targetHeight) {
+            calculateHeight();
+
+            double targetVel = 0.6 * Math.signum(targetHeight - height);
+
+            setVelUpStandingTeleOp(targetVel);
+        }
+    }
+
     public synchronized void setTeleskopeProp(double vel, double Pos){
         calculateHeight();
 

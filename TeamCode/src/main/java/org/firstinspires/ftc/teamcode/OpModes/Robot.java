@@ -59,10 +59,10 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-
-    public final PID pidLinearX = new PID(0.018,0.0000001,0.000, -1,1);
-    public final PID pidLinearY = new PID(0.018,0.0000001,0.000, -1,1);
-    public final PID pidAngular = new PID(0.27,0.0,0.000, -1,1);
+    double I = 1;
+    public final PID pidLinearX = new PID(0.018,0.00000062,0.000, -I,I);
+    public final PID pidLinearY = new PID(0.018,0.00000062,0.000, -I,I);
+    public final PID pidAngular = new PID(1.0,0.00000000,0.001, -I,I);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +103,15 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 //        distanceSensor.init();
     }
 
+    public void autoInterrupt(){
+        odometry.interrupt();
+        robotStatusHandler.interrupt();
+    }
+
+    public void teleInterrupt(){
+        odometry.interrupt();
+        taskManager.interrupt();
+    }
 
 
     // Метод, обрабатывающий задачу перемещения робота в точку
@@ -140,7 +149,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
         }
-
+double midSpeed = 0;
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
             StandartArgs.driveArgs args = (StandartArgs.driveArgs) _args;
@@ -153,6 +162,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
                 statusBy_X_history.addLast(statusBy_X);
                 statusBy_Y_history.addLast(statusBy_Y);
                 statusBy_Rotate_history.addLast(statusBy_Rotate);
+                midSpeed = MID_LINEAR_SPEED;
             }
 
             double progressBar;
@@ -233,18 +243,19 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             // Выбираем скорости в зависимости от величины ошибки
             linearVel = errorPos.length() > returnDistance(args.max_linear_speed, MAX_LINEAR_ACCEL) ? args.max_linear_speed : MIN_LINEAR_SPEED;
 
-            if(Math.abs(targetVel.y) > MAX_LINEAR_SIDE){
-                targetVel.multyplie(MAX_LINEAR_SIDE/Math.abs(targetVel.y));
-            }
+//            if(linearVel <= MID_LINEAR_SPEED){
+//                midSpeed -= 1;
+//            }
+
 
             if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
-            if (errorPos.length() < 2){
+            if (errorPos.length() < 1){
                 errorPosDone = true;
                 linearVel = 0;
             }
 
-            if(Math.abs(errorHeading) < Math.toRadians(2) ){
+            if(Math.abs(errorHeading) < Math.toRadians(1) ){
                 errorHeadingDone = true;
 
             }
@@ -549,11 +560,11 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         double side = g1.left_stick_x;
         double turn = g1.right_stick_x;
 
-        if (Math.abs(forward) < 0.12 && forward != 0){
-            forward += 0.12 * Math.signum(forward);
+        if (Math.abs(forward) < 0.1 && forward != 0){
+            forward += 0.1 * Math.signum(forward);
         }
-        if (Math.abs(side) < 0.12 && side != 0){
-            side += 0.12 * Math.signum(side);
+        if (Math.abs(side) < 0.1 && side != 0){
+            side += 0.1 * Math.signum(side);
         }
 
         double forwardVoltage = Range.clip(forward * accelLinear , -max_speed, max_speed);
@@ -626,51 +637,36 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
             drivetrain.offLed();
         }
 
-        if (joysticks.isX_G2()){
-            teleSkope.setTeleskopeProp(upStandingVel, horizontalPos);
-        }else{
-            teleSkope.setTeleskope(upStandingVel, horizontalPos);}
+        teleSkope.setTeleskope(upStandingVel, horizontalPos);
 
-
-        if (joysticks.isB_G2() == 1){
-            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
-        }else if(joysticks.isB_G2() == 2){
-            teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
-        }else {
-            teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
+        if(joysticks.getGearTele() == 0){
+            teleSkope.setTeleskopeHeight(0);
+        } else if (joysticks.getGearTele() == 1) {
+            teleSkope.setTeleskopeHeight(20);
+        } else if (joysticks.getGearTele() == 2) {
+            teleSkope.setTeleskopeHeight(40);
+        } else if (joysticks.getGearTele() == 3) {
+            teleSkope.setTeleskopeHeight(60);
         }
+
+        if (joysticks.isB_G2() ){
+            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
+            joysticks.isY_g2 = false;
+        }
+        if(joysticks.isY_G2()){
+            teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
+            joysticks.isB_g2 = false;
+        }
+        if(!joysticks.isB_G2() && !joysticks.isY_G2()){
+            teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
+        }
+
 
         if (joysticks.isA_G2()){
             teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);
         }else {
             teleSkope.setHook(ConstsTeleskope.CLOSE_POS_HOOK);
         }
-        if (joysticks.isY_g1()){
-            init();
-        }
-
-        //        if(robotAlliance.equals(RobotAlliance.RED) ){
-//            if(colorSensor.getMainColor() == Colors.RED && colorSensor.getDistance() < 3){
-//                closeAuto = true;
-//            }
-//        }
-//
-//        if(robotAlliance.equals(RobotAlliance.BLUE)){
-//            if(colorSensor.getMainColor() == Colors.BLUE && colorSensor.getDistance() < 3){
-//                closeAuto = true;
-//            }
-//        }
-//        if(colorSensor.getMainColor() == Colors.YELLOW && colorSensor.getDistance() < 3){
-//            closeAuto = true;
-//        }
-
-//    if(!joysticks.isA_G2() && closeAuto){
-//        teleSkope.setHook(CLOSE_POS_HOOK);
-//    }else {
-//        teleSkope.setHook(OPEN_POS_HOOK);
-//        }
-        op.telemetry.addData("FLip",servosService.getFlip().getPosition());
-        op.telemetry.addData("bPressed", joysticks.getBPressed());
     }
 
     public synchronized void initPlayersTelemetry() {

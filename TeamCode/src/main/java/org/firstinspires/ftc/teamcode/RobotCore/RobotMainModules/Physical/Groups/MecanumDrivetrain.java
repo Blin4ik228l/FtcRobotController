@@ -99,7 +99,7 @@ public class MecanumDrivetrain implements Module {
 
             double minVAngle = 0.15;
 
-            if (Math.abs(powHead) < minVAngle) powHead = minVAngle * Math.signum(powHead);
+//            if (Math.abs(powHead) < minVAngle) powHead = minVAngle * Math.signum(powHead);
 
             if (motorsYdirection == MotorsStatus.Normal && motorsXdirection == MotorsStatus.Normal) {
                 powerX *= 1;

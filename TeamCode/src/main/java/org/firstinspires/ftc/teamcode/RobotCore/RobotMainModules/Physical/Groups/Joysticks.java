@@ -13,15 +13,17 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private int gear = 1, dpadUp, bPressed = 1;
+    private int gear = 1, dpadUp, bPressed = 1, gearTele = 0;
 
     private double nowPos;
     private boolean isUpGear;
 
     private boolean isDpadUpReleased = false;
-    private boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false, isY_G1 = false;
+    public boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false, isY_g2 = false;
 
-    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false, switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false, switchY_g1 = false;
+    private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false,
+            switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false, switchY_g2 = false,
+    rightTrigger = false, leftTrigger = false;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -43,6 +45,13 @@ public class Joysticks implements Module {
         return gamepad2;
     }
 
+    public boolean isB_g2() {
+        return isB_g2;
+    }
+
+    public boolean isY_g2() {
+        return isY_g2;
+    }
 
     public synchronized boolean isAandY_G1(){
 
@@ -57,21 +66,44 @@ public class Joysticks implements Module {
         return isAY_g1;
     }
 
-    public synchronized int isB_G2(){
+    public synchronized boolean isB_G2(){
         if(bPressed == 4) bPressed = 1;
 
         if(gamepad2.b && !switchB_g2 && !gamepad2.start) {
             bPressed = Range.clip(bPressed + 1, 1,4);
+            isB_g2 = !isB_g2;
             switchB_g2 = true;}
         if(!gamepad2.b && switchB_g2){
             switchB_g2 = false;
         }
 
-        return bPressed;
+        return isB_g2;
     }
+
 
     public int getBPressed() {
         return bPressed;
+    }
+    public int getGearTele(){
+        if (gamepad2.right_trigger > 0.05 && !rightTrigger){
+            gearTele = Range.clip(gearTele + 1, 0, 3);
+            rightTrigger = true;
+        }
+
+        if(gamepad2.right_trigger < 0.05 && rightTrigger){
+            rightTrigger = false;
+        }
+
+        if (gamepad2.left_trigger > 0.05 && !leftTrigger){
+            gearTele = Range.clip(gearTele - 1, 0, 3);
+            leftTrigger = true;
+        }
+
+        if(gamepad2.left_trigger < 0.05 && leftTrigger){
+            leftTrigger = false;
+        }
+
+        return gearTele;
     }
 
     public int getDpadUp(boolean dpadDown){
@@ -143,15 +175,15 @@ public class Joysticks implements Module {
         return isRBum_g1;
     }
 
-    public synchronized boolean isY_g1(){
-        if(gamepad1.y && !switchY_g1){
-            isY_G1 = !isY_G1;
-            switchY_g1 = true;
+    public synchronized boolean isY_G2(){
+        if(gamepad2.y && !switchY_g2){
+            isY_g2 = !isY_g2;
+            switchY_g2 = true;
         }
-        if (!gamepad1.y && switchY_g1){
-            switchY_g1 = false;
+        if (!gamepad2.y && switchY_g2){
+            switchY_g2 = false;
         }
-        return isY_G1;
+        return isY_g2;
     }
 
     public synchronized boolean isLBum_G1(){
@@ -193,7 +225,7 @@ public class Joysticks implements Module {
                 .addData("\nPropMode", isX_g2)
                 .addData("\nisUpped", isB_g2);
         op.telemetry.addLine()
-                .addData("\nisUpped", isY_G1);
+                .addData("\nisUpped", isY_g2);
     }
 
     public synchronized void checkGear(){

@@ -39,7 +39,9 @@ public class RobotStatusHandler extends Thread implements Module {
 
     @Override
     public void run() {
-        while (this.isAlive()) startLurking();
+        while (!isInterrupted()){
+            startLurking();
+        }
     }
 
     public void loadTasks(){
@@ -49,7 +51,7 @@ public class RobotStatusHandler extends Thread implements Module {
     public Deque<OrdinaryTask> tasksToDo = new ArrayDeque<>();
 
     public void startLurking() {
-        while (!tasksToDo.isEmpty() && this.isAlive()) {
+        if(!tasksToDo.isEmpty()) {
             while(taskManager.getExecutingDeque() == null && this.isAlive()){
                 //..waiting
             }Deque<OrdinaryTask> executingTasks = taskManager.getExecutingDeque();

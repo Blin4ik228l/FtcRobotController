@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Consts.RewardsForActions;
 import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.DriveTo;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.Teleskope;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
@@ -26,9 +27,16 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
         startNode = new Root();
 
-        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0)))));
-
+        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0), 150))));
+//
         startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
+//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60, 135)))));
+//        startNode.add((new Teleskope(r, new StandartArgs.teleskopeArgs(20, 0, 0.7))));
+
+//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60,0)))));
+
+//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60, 135)))));
+
 
         waitForStart();
 
@@ -38,5 +46,6 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
             else startNode.tick();
         }
 
+        r.autoInterrupt();
     }
 }

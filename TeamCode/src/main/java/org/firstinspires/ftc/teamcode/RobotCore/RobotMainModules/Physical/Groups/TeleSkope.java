@@ -28,7 +28,9 @@ public class TeleSkope implements Module, ConstsTeleskope {
     private double leftEncUpold;
     private double rightEncUpold;
 
+    boolean completed = false;
     public RobotModuleStatus motorsTeleskopeSt;
+
 
     public TeleSkope(OpMode op, ServosService servosService){
         this.op = op;
@@ -157,19 +159,24 @@ public class TeleSkope implements Module, ConstsTeleskope {
 
         return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }
-
     public synchronized void setTeleskope(double vel, double deltaPos){
-            setVelUpStandingTeleOp(vel);
-            setLeftRightHorizont(deltaPos);
+        setVelUpStandingTeleOp(vel);
+        setLeftRightHorizont(deltaPos);
+    }
+    public synchronized void setTeleskope2(double vel, double deltaPos, Joysticks joysticks){
+        if(vel != 0) joysticks.isBack_g2 = true;
+        setVelUpStandingTeleOp(vel);
+        setLeftRightHorizont(deltaPos);
     }
 
-    public void setTeleskopeHeight(double targetHeight){
-        while (height != targetHeight) {
-            calculateHeight();
-
-            double targetVel = 0.6 * Math.signum(targetHeight - height);
-
-            setVelUpStandingTeleOp(targetVel);
+    public void setTeleskopeHeight(double targetHeight, Joysticks joysticks){
+        calculateHeight();
+        if(!joysticks.isBack_G2()) {
+            while (Math.abs(height - targetHeight) > 2.5 && !joysticks.isBack_G2()) {
+                calculateHeight();
+                double targetVel = 1 * Math.signum(targetHeight - height);
+                setVelUpStandingTeleOp(targetVel);
+            }
         }
     }
 

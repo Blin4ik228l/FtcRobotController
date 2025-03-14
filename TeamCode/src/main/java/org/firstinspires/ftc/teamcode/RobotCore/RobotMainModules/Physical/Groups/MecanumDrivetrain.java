@@ -95,7 +95,7 @@ public class MecanumDrivetrain implements Module {
     public synchronized MotorsStatus setXYHeadVel(double powerX, double powerY, double powHead){
 
         if(driveTrainStatus != RobotModuleStatus.Stucked) {
-            double maxV = 0.65;
+            double maxV = 0.75;
 
             double minVAngle = 0.15;
 

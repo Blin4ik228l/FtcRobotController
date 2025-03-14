@@ -8,7 +8,7 @@ public class Sequence extends ControlNode {
     public void programm() {
         if(stackToDo.isEmpty()) stackNodes();//Заполняем одностороний Стэк ветвями
 
-        tickNode();//Дёргаем ветвь для выполнения
+        if(!stackToDo.isEmpty())tickNode();//Дёргаем ветвь для выполнения
 
         if(stackToDo.peek().nodeState == States.SUCCESS){
             completCount ++;

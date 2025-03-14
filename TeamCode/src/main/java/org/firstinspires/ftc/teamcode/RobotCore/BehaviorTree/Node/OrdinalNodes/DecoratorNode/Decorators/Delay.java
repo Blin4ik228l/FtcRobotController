@@ -12,11 +12,18 @@ public class Delay extends Decorator {
         this.waitTime = time;
     }
     public double waitTime;
-    public ElapsedTime delayTimer;
+    public ElapsedTime delayTimer = new ElapsedTime();
+    boolean stop;
+
+
+    @Override
+    public void stopProgramm() {
+        stop = true;
+    }
 
     @Override
     public void programm() {
-        while (delayTimer.seconds() != waitTime){
+        while (delayTimer.seconds() != waitTime && !stop){
             //waiting...
         }
         delayTimer.reset();

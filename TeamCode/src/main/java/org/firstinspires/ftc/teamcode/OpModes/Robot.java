@@ -57,12 +57,15 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 //    public final Distance distanceSensor;
 //    public final TaskManager taskManager;
 
+    Gamepad g1;
+
+    Gamepad g2;
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    double I = 1;
-    public final PID pidLinearX = new PID(0.018,0.00000062,0.000, -I,I);
-    public final PID pidLinearY = new PID(0.018,0.00000062,0.000, -I,I);
-    public final PID pidAngular = new PID(1.0,0.00000000,0.001, -I,I);
+    double I = 0.75;
+    public final PID pidLinearX = new PID(0.033,0.000000500,0.000, -I,I);
+    public final PID pidLinearY = new PID(0.033,0.000000500,0.000, -I,I);
+    public final PID pidAngular = new PID(1,0.0000000,0.00, -I,I);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,6 +99,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         joysticks.init();
         button.init();
 
+        g1 = joysticks.getGamepad1();
+        g2 = joysticks.getGamepad2();
 
         robotStatus = RobotModuleStatus.Normal;
         teleskopeStatus = RobotModuleStatus.Normal;
@@ -110,6 +115,8 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
 
     public void teleInterrupt(){
         odometry.interrupt();
+//        taskManager.tele1.interrupt();
+//        taskManager.tele2.interrupt();
         taskManager.interrupt();
     }
 
@@ -250,21 +257,33 @@ double midSpeed = 0;
 
             if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
-            if (errorPos.length() < 1){
+
+            double heading;
+
+            if(Math.abs(errorHeading) < Math.toRadians(15)){
+                pidAngular.setPID(0.6,0,0);
+                heading = args.position.getHeading() + Math.toRadians(5);
+            }else {
+                heading = args.position.getHeading();
+            }
+
+            if (errorPos.length() < 0.5){
                 errorPosDone = true;
                 linearVel = 0;
             }
 
-            if(Math.abs(errorHeading) < Math.toRadians(1) ){
+            if(Math.abs(errorHeading) < Math.toRadians(0.5) ){
                 errorHeadingDone = true;
 
             }
             targetVel.multyplie(linearVel);
 
+
+
             // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
             double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
             double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
-            double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
+            double angularPID = pidAngular.calculate(heading, odometry.getGlobalPosition().getHeading());
 
             if(errorPosDone && errorHeadingDone){
                 result = 0;
@@ -346,7 +365,7 @@ double midSpeed = 0;
         TeleskopeStatusInMoving teleskopeStatusInMoving;
         Deque<TeleskopeStatusInMoving> teleskopeStatusHistory = new ArrayDeque<>();
 
-        ElapsedTime stuckTime;
+        ElapsedTime stuckTime = new ElapsedTime();
 
         @Override
         public Deque<TeleskopeStatusInMoving>[] status() {
@@ -399,12 +418,13 @@ double midSpeed = 0;
                 teleskopeStatus = RobotModuleStatus.Stucked;
             }else teleskopeStatus = RobotModuleStatus.Normal;
 
-            if(servosService.getHorizontal().getPosition() != args.servo_pos){
-
-                teleSkope.setPosHorizontalTeleOp(args.servo_pos);
+            if(servosService.getLeft().getPosition() != args.servo_pos + 0.02 ) {
+                teleSkope.setLeftRightHorizont(args.servo_pos);
 
                 horizontalPosDone = true;
+                SLEEP(2);
             }
+
 
             if(Math.abs(target) < 1.8 && horizontalPosDone){
                 result = 0;
@@ -430,7 +450,7 @@ double midSpeed = 0;
             }
 
             op.telemetry.addData("Teleskope height", teleSkope.getHeight());
-            op.telemetry.addData("Math.abs(target) < 3", Math.abs(target) < 3);
+            op.telemetry.addData("Math.abs(target) < 3", Math.abs(target) < 1.8);
             op.telemetry.addData("horizontalPosDone", horizontalPosDone);
             op.telemetry.addData("result", result);
             op.telemetry.update();
@@ -528,7 +548,6 @@ double midSpeed = 0;
     // Gamepad 1
     @Override
     public synchronized void teleopPl1() {
-        Gamepad g1 = joysticks.getGamepad1();
 
         double max_speed = 0.5;
         double oldmax_speed = max_speed;
@@ -610,8 +629,6 @@ double midSpeed = 0;
     // Gamepad 2
     @Override
     public synchronized void teleopPl2() {
-        Gamepad g2 = joysticks.getGamepad2();
-
         double leftStickY = -g2.left_stick_y;
 
         double upStandingVel = -g2.right_stick_y;
@@ -630,43 +647,56 @@ double midSpeed = 0;
             horizontalPos = CLOSE_POS_HORIZONTAL2;
         }
 
-        if(servosService.getHook().getPosition() == CLOSE_POS_HOOK){
-            drivetrain.onLed();
-        }
-        if(servosService.getHook().getPosition() == OPEN_POS_HOOK){
-            drivetrain.offLed();
-        }
-
-        teleSkope.setTeleskope(upStandingVel, horizontalPos);
+        teleSkope.setTeleskope2(upStandingVel, horizontalPos, joysticks);
 
         if(joysticks.getGearTele() == 0){
-            teleSkope.setTeleskopeHeight(0);
-        } else if (joysticks.getGearTele() == 1) {
-            teleSkope.setTeleskopeHeight(20);
-        } else if (joysticks.getGearTele() == 2) {
-            teleSkope.setTeleskopeHeight(40);
-        } else if (joysticks.getGearTele() == 3) {
-            teleSkope.setTeleskopeHeight(60);
+            teleSkope.setTeleskopeHeight(0, joysticks);
         }
+        else if(joysticks.getGearTele() == 1){
+            teleSkope.setTeleskopeHeight(17, joysticks);
+        }
+        else if (joysticks.getGearTele() == 2) {
+            teleSkope.setTeleskopeHeight(55, joysticks);
+        }
+//        else if (joysticks.getGearTele() == 3) {
+//            teleSkope.setTeleskopeHeight(70, joysticks);
+//        }
 
-        if (joysticks.isB_G2() ){
-            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
-            joysticks.isY_g2 = false;
-        }
-        if(joysticks.isY_G2()){
+
+        if(joysticks.isY_G2())
+        {
             teleSkope.setFlip(ConstsTeleskope.HANG_POS_FLIP);
             joysticks.isB_g2 = false;
         }
-        if(!joysticks.isB_G2() && !joysticks.isY_G2()){
+        if (joysticks.isB_G2() )
+        {
             teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
+            joysticks.isY_g2 = false;
+        }
+        if (!joysticks.isB_G2() && !joysticks.isY_G2())
+        {
+            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
+            joysticks.isY_g2 = false;
         }
 
 
         if (joysticks.isA_G2()){
-            teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);
-        }else {
-            teleSkope.setHook(ConstsTeleskope.CLOSE_POS_HOOK);
+            if(servosService.getHook().getPosition() == OPEN_POS_HOOK){
+                servosService.getHook().setPosition(CLOSE_POS_HOOK);
+            }else{teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);}
+            joysticks.isA_g2 = false;
+
         }
+
+        if(joysticks.getGamepad2().x) {
+            while (joysticks.getGamepad2().x) {
+                teleSkope.setVelUpStandingTeleOp(-0.7);
+            }
+            servosService.getHook().setPosition(OPEN_POS_HOOK);
+            teleSkope.setTeleskopeHeight(17, joysticks);
+            joysticks.gearTele = 1;
+        }
+
     }
 
     public synchronized void initPlayersTelemetry() {
@@ -677,5 +707,15 @@ double midSpeed = 0;
 //        joysticks.checkJoysticksCombo();
 //        joysticks.checkGear();
 //        joysticks.getDpadUp();
+    }
+
+    public void SLEEP(double time){
+        ElapsedTime timer = new ElapsedTime();
+
+        while (timer.seconds() < time){
+            //...waiting
+        }
+
+        timer.reset();
     }
 }

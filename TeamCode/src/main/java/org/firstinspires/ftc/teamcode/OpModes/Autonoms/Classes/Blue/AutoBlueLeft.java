@@ -7,8 +7,12 @@ import org.firstinspires.ftc.teamcode.Consts.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Consts.RewardsForActions;
 import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators.Delay;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.DriveTo;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.MoveHorizontTeleTo;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.Teleskope;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.Wait;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences.TakeInElementSeq;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
@@ -27,22 +31,27 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
         startNode = new Root();
 
-        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(100, 0,0), 150))));
+//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 30,135), 160))));
+//        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 36,0), 160)));
 //
-        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,0)))));
-//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60, 135)))));
-//        startNode.add((new Teleskope(r, new StandartArgs.teleskopeArgs(20, 0, 0.7))));
+//        startNode.add(new MoveHorizontTeleTo(r, 0.4));
+//        startNode.add(new MoveHorizontTeleTo(r, -0.4));
+////        startNode.add(new TakeInElementSeq(r));
+//        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 38,-225), 160)));
 
-//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60,0)))));
-
-//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 60, 135)))));
-
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,90), 160)));
 
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
-            if(startNode.root.nodeState == States.SUCCESS)break;
-            else if(startNode.root.nodeState == States.FAILURE) break;
+            if(startNode.root.nodeState == States.SUCCESS){
+                startNode.root.stopProgramm();
+                break;
+            }
+            else if(startNode.root.nodeState == States.FAILURE) {
+                startNode.root.stopProgramm();
+                break;
+            }
             else startNode.tick();
         }
 

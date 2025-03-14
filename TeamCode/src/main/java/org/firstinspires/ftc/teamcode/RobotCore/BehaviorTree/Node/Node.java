@@ -17,4 +17,8 @@ public abstract class Node {
     public void programm(){
 
     }
+
+    public void stopProgramm(){
+
+    }
 }

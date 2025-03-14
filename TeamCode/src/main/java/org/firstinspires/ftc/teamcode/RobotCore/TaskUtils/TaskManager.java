@@ -69,9 +69,11 @@ public class TaskManager extends Thread{
     public void permanentlyExecute(){
         stackTasks();
 
-        OrdinaryTask executingTask = prepareTask();
+        if(!tasksToDo.isEmpty()) {
+            OrdinaryTask executingTask = prepareTask();
 
-        executeTask(executingTask);
+            executeTask(executingTask);
+        }
 
     }
 
@@ -124,6 +126,7 @@ public class TaskManager extends Thread{
         }
     }
 
+
     public void startTeleop(){
         this.setDaemon(true);
         this.start();
@@ -140,6 +143,43 @@ public class TaskManager extends Thread{
         // Обработчик будет работать, пока робот в телеоп режиме
         robot.teleop();
     }
+
+
+    public class Tele1 extends Thread {
+        public void init(){
+            this.setDaemon(true);
+        }
+
+        @Override
+        public void run() {
+            while (!this.isInterrupted()) {
+                robot.teleopPl1();
+            }
+        }
+    }
+
+    public class Tele2 extends Thread{
+        public void init(){
+            this.setDaemon(true);
+        }
+        @Override
+        public void run() {
+            while (!this.isInterrupted()){
+                robot.teleopPl2();
+            }
+        }
+    }
+
+   public final Tele1 tele1 = new Tele1();
+   public final Tele2 tele2 = new Tele2();
+
+//    public synchronized void forTeleop() {
+//        tele1.init();
+//        tele2.init();
+//
+//        tele1.start();
+//        tele2.start();
+//    }
 
     /**
      * Стартер задач.

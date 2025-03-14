@@ -13,17 +13,17 @@ public class Joysticks implements Module {
     private Gamepad gamepad1;
     private Gamepad gamepad2;
 
-    private int gear = 1, dpadUp, bPressed = 1, gearTele = 0;
+    public int gear = 1, dpadUp, bPressed = 1, gearTele = 0, lastGearTele = 0;
 
     private double nowPos;
     private boolean isUpGear;
 
     private boolean isDpadUpReleased = false;
-    public boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false, isY_g2 = false;
+    public boolean isAY_g1 = false, isX_g1 = false, isX_g2 = true, isA_g2 = false, isB_g2 = false, isRBum_g1 = false, isLBum_g1 = false, isY_g2 = false, isBack_g2 = true;
 
     private boolean switchAY_g1 = false, switchX_g1 = false, switchX_g2 = false,
             switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false, switchY_g2 = false,
-    rightTrigger = false, leftTrigger = false;
+    rightTrigger = false, leftTrigger = false, switchBack_g2 = false;
 
     public Joysticks(OpMode op){
         this.op = op;
@@ -53,6 +53,16 @@ public class Joysticks implements Module {
         return isY_g2;
     }
 
+    public synchronized boolean isBack_G2(){
+        if(gamepad2.back && !switchBack_g2){
+            isBack_g2 = !isBack_g2;
+            switchBack_g2 = true;
+        }
+        if(!gamepad2.back && switchBack_g2){
+            switchBack_g2 = false;
+        }
+        return isBack_g2;
+    }
     public synchronized boolean isAandY_G1(){
 
         if(gamepad1.a && gamepad1.y && !switchAY_g1) {
@@ -86,6 +96,7 @@ public class Joysticks implements Module {
     }
     public int getGearTele(){
         if (gamepad2.right_trigger > 0.05 && !rightTrigger){
+            isBack_g2 = false;
             gearTele = Range.clip(gearTele + 1, 0, 3);
             rightTrigger = true;
         }
@@ -95,6 +106,7 @@ public class Joysticks implements Module {
         }
 
         if (gamepad2.left_trigger > 0.05 && !leftTrigger){
+            isBack_g2 = false;
             gearTele = Range.clip(gearTele - 1, 0, 3);
             leftTrigger = true;
         }

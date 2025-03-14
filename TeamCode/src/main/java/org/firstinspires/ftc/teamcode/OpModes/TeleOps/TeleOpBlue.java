@@ -49,6 +49,8 @@ public class TeleOpBlue extends OpMode {
     public void loop() {
         robot.odometry.getEncPos();
         telemetry.addData("Gear", robot.joysticks.getGear());
+        telemetry.addData("teleGear", robot.joysticks.gearTele);
+        telemetry.addData("height", robot.teleSkope.getHeight());
     }
 
     /**
@@ -57,5 +59,6 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void stop() {
         robot.teleInterrupt();
+
     }
 }

@@ -54,23 +54,27 @@ public class StandartArgs {
     }
 
     public static class teleskopeArgs extends StandartArgs {
-        public teleskopeArgs(double teleskope_height, double servo_pos, double max_speed){
+        public teleskopeArgs(double teleskope_height, double servo_pos, double max_speed, double time){
             this.teleskope_height = teleskope_height;
             this.servo_pos = servo_pos;
             this.max_speed = max_speed;
+            this.time = time;
         }
         public double teleskope_height;
         public double servo_pos;
         public double max_speed;
+        public double time;
     }
 
     public static class captureArgs extends StandartArgs{
-        public captureArgs(double flipPos, double hookPos){
+        public captureArgs(double flipPos, double hookPos, double time){
             this.flipPos = flipPos;
             this.hookPos = hookPos;
+            this.time = time;
         }
         public double flipPos;
         public double hookPos;
+        public double time;
     }
 
     public static class robotSleep extends StandartArgs{

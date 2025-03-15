@@ -11,33 +11,18 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 import java.util.Stack;
 
-public class TakeInElementSeq extends TaskSequence implements ConstsTeleskope {
-    //Это заранее написаная подпрограмма для взятия игрового элемента
-    //Состоит в структуре дерева
-
-    public TakeInElementSeq(Robot robot, LinearOpMode lin){
+public class PrepareToElement extends TaskSequence implements ConstsTeleskope {
+    public PrepareToElement(Robot robot, LinearOpMode lin) {
         super(robot);
         this.lin = lin;
-        OrdinaryTask prepareCapture = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(TAKE_POS_FLIP, OPEN_POS_HOOK, 0.5),
-                OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
-
-        OrdinaryTask capture = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK, 0.25),
-                OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
         OrdinaryTask upCaptured = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.25),
+                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.3),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
-
 
         taskToDo.push(upCaptured);
 
-        taskToDo.push(capture);
-
-        taskToDo.push(prepareCapture);
-
-        countTasks = 3;
+        countTasks = 1;
     }
 
     public Stack<OrdinaryTask> taskToDo = new Stack<>();
@@ -60,6 +45,7 @@ public class TakeInElementSeq extends TaskSequence implements ConstsTeleskope {
         if (!taskToDo.isEmpty()){
             while ((taskToDo.peek().state == States.TODO || taskToDo.peek().state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()) {
                 robot.taskManager.permanentlyExecute();
+                lin.telemetry.update();
             }
         }
 
@@ -75,7 +61,5 @@ public class TakeInElementSeq extends TaskSequence implements ConstsTeleskope {
         if (completCount == countTasks) {
             nodeState = States.SUCCESS;
         }
-        lin.telemetry.addData("completCount",completCount);
-        lin.telemetry.update();
     }
 }

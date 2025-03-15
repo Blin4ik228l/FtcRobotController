@@ -77,7 +77,7 @@ public class ServosService implements Module, ConstsTeleskope {
     }
 
     public void setFlipStartPos(){
-        flip.setPosition(TAKE_POS_FLIP);
+        flip.setPosition(MIDLE_POS_FLIP);
     }
 
     public synchronized void getServosPos(){

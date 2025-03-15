@@ -68,12 +68,8 @@ public class TaskManager extends Thread{
 
     public void permanentlyExecute(){
         stackTasks();
-
-        if(!tasksToDo.isEmpty()) {
-            OrdinaryTask executingTask = prepareTask();
-
-            executeTask(executingTask);
-        }
+        OrdinaryTask executingTask = prepareTask();
+        executeTask(executingTask);
 
     }
 

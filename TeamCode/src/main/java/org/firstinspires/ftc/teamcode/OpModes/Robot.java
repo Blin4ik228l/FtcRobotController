@@ -63,9 +63,11 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
     double I = 0.75;
-    public final PID pidLinearX = new PID(0.033,0.000000500,0.000, -I,I);
-    public final PID pidLinearY = new PID(0.033,0.000000500,0.000, -I,I);
-    public final PID pidAngular = new PID(1,0.0000000,0.00, -I,I);
+    double kPang = 1;
+    double kPlin = 0.024;
+    public final PID pidLinearX = new PID(kPlin,0.000000080,0.000, -I,I);
+    public final PID pidLinearY = new PID(kPlin,0.000000080,0.000, -I,I);
+    public final PID pidAngular = new PID(kPang,0.0000000,0.00, -I,I);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -257,15 +259,12 @@ double midSpeed = 0;
 
             if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
-
-            double heading;
-
-            if(Math.abs(errorHeading) < Math.toRadians(15)){
-                pidAngular.setPID(0.6,0,0);
-                heading = args.position.getHeading() + Math.toRadians(5);
-            }else {
-                heading = args.position.getHeading();
+            if(Math.abs(errorHeading) < Math.toRadians(6)){
+                kPang += 0.5;
+            }else{
+                kPang = 1;
             }
+
 
             if (errorPos.length() < 0.5){
                 errorPosDone = true;
@@ -274,16 +273,17 @@ double midSpeed = 0;
 
             if(Math.abs(errorHeading) < Math.toRadians(0.5) ){
                 errorHeadingDone = true;
-
+                kPang = 0.0;
             }
+
+            pidAngular.setPID(kPang, 0,0);
+
             targetVel.multyplie(linearVel);
-
-
 
             // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
             double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
             double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
-            double angularPID = pidAngular.calculate(heading, odometry.getGlobalPosition().getHeading());
+            double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
 
             if(errorPosDone && errorHeadingDone){
                 result = 0;
@@ -327,6 +327,7 @@ double midSpeed = 0;
                 motorsStatus = drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
+            op.telemetry.addData("kPang", kPang);
             op.telemetry.addData("Вектор", targetVel.length());
             op.telemetry.addData("Вектор X", targetVel.x);
             op.telemetry.addData("Вектор Y", targetVel.y);
@@ -366,6 +367,8 @@ double midSpeed = 0;
         Deque<TeleskopeStatusInMoving> teleskopeStatusHistory = new ArrayDeque<>();
 
         ElapsedTime stuckTime = new ElapsedTime();
+
+        ElapsedTime runTime = new ElapsedTime();
 
         @Override
         public Deque<TeleskopeStatusInMoving>[] status() {
@@ -418,21 +421,26 @@ double midSpeed = 0;
                 teleskopeStatus = RobotModuleStatus.Stucked;
             }else teleskopeStatus = RobotModuleStatus.Normal;
 
-            if(servosService.getLeft().getPosition() != args.servo_pos + 0.02 ) {
-                teleSkope.setLeftRightHorizont(args.servo_pos);
 
-                horizontalPosDone = true;
-                SLEEP(2);
+            while (runTime.seconds() < args.time) {
+                teleSkope.setLeftRightHorizont(args.servo_pos);
+            }
+
+            if(servosService.getLeft().getPosition() == Range.clip(args.servo_pos + 0.02, CLOSE_POS_HORIZ_LEFT, OPEN_POS_HORIZ_LEFT)) {
+                    horizontalPosDone = true;
+            }else{
+                runTime.reset();
             }
 
 
             if(Math.abs(target) < 1.8 && horizontalPosDone){
                 result = 0;
-
+                runTime.reset();
                 motorsStatus = teleSkope.offMotors();
 
                 teleskopeStatusInMoving = TeleskopeStatusInMoving.Completed;
                 teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+
             }else {
                 result = -1;
 
@@ -460,7 +468,7 @@ double midSpeed = 0;
     };
 
     public ZahvatHandler setZahvat = new ZahvatHandler(){
-
+        ElapsedTime runTime = new ElapsedTime();
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
@@ -474,23 +482,32 @@ double midSpeed = 0;
             boolean flipDone = false;
             boolean hookDone = false;
 
+            while(runTime.seconds() < args.time){
+                teleSkope.setFlip(args.flipPos);
+                teleSkope.setHook(args.hookPos);
+            }
+
             if(servosService.getFlip().getPosition() == args.flipPos){
                 flipDone = true;
-            }else{
-                teleSkope.setFlip(args.flipPos);
+            }else {
+                runTime.reset();
             }
 
             if(servosService.getHook().getPosition() == args.hookPos){
                 hookDone = true;
             }else{
-                teleSkope.setHook(args.hookPos);
+                runTime.reset();
             }
 
-            if(flipDone && hookDone){
+            if(flipDone && hookDone ){
                 result = 0;
+                runTime.reset();
             }else{
                 result = -1;
             }
+            op.telemetry.addData("runf", runTime.seconds());
+            op.telemetry.update();
+
             return result;
         }
 
@@ -502,17 +519,17 @@ double midSpeed = 0;
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
             return 0;
         }
-
+        ElapsedTime runTime = new ElapsedTime();
         @Override
         public int execute(TaskManager thisTaskManager, StandartArgs _args) {
 
             StandartArgs.robotSleep args = (StandartArgs.robotSleep) _args;
+            int result;
 
-            ElapsedTime runTime = new ElapsedTime();
-
-            int result = -1;
-
-            while (runTime.milliseconds() < args.time){
+            if (runTime.seconds() < args.time){
+                result = -1;
+            }else{
+                runTime.reset();
                 result = 0;
             }
 

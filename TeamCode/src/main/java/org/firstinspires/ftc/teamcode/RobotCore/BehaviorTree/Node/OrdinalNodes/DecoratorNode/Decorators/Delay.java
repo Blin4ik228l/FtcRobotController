@@ -25,9 +25,10 @@ public class Delay extends Decorator {
 
     @Override
     public void programm() {
-        lin.sleep(waitTime);
+        if (delayTimer.seconds() < waitTime && !lin.isStopRequested() && lin.opModeIsActive()){
+            return;
+        }
 
-        delayTimer.reset();
         nodeToWork.tickMe();
 
         nodeState = nodeToWork.nodeState;

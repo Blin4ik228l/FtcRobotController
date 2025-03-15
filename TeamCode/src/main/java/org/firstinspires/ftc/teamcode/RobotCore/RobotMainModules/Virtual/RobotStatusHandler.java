@@ -199,7 +199,7 @@ public class RobotStatusHandler extends Thread implements Module {
                             robot.teleSkope.motorsTeleskopeSt = RobotModuleStatus.Stucked;
                         }
                         newArgs =
-                                new StandartArgs.teleskopeArgs(robot.teleSkope.getHeight(), robot.servosService.getHorizontal().getPosition(), 0.5);
+                                new StandartArgs.teleskopeArgs(robot.teleSkope.getHeight(), robot.servosService.getHorizontal().getPosition(), 0.5, 0.8);
 
                         if (robot.teleSkope.motorsTeleskopeSt == RobotModuleStatus.Stucked) {
                             robot.teleSkope.motorsTeleskopeSt = RobotModuleStatus.Normal;

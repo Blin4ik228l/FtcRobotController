@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNode;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public class ParallelActions extends TaskNode {
-    public ParallelActions(Robot robot, TaskNode parallel1, TaskNode parallel2) {
-        super(robot);
+    public ParallelActions(Robot robot, TaskNode parallel1, TaskNode parallel2, LinearOpMode lin) {
+        super(robot, lin);
         parallel1.isProgrammDisabled = true;
         parallel2.isProgrammDisabled = true;
 

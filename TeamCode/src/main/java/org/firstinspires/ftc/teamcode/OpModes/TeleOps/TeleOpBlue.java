@@ -48,6 +48,7 @@ public class TeleOpBlue extends OpMode {
     @Override
     public void loop() {
         robot.odometry.getEncPos();
+        robot.odometry.getRobotPos();
         telemetry.addData("Gear", robot.joysticks.getGear());
         telemetry.addData("teleGear", robot.joysticks.gearTele);
         telemetry.addData("height", robot.teleSkope.getHeight());

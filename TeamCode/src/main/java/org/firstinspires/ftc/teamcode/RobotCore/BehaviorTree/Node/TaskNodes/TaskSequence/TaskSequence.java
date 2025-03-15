@@ -12,7 +12,7 @@ public abstract class TaskSequence extends Node {
         this.robot = robot;
     }
 
-    public Stack<OrdinaryTask> taskToDo = new Stack();
+    public Stack<OrdinaryTask> taskToDo = new Stack<>();
 
     public int countTasks;
 

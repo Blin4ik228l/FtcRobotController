@@ -9,6 +9,10 @@ import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators.Delay;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.DriveTo;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.MoveHorizontTeleTo;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences.PrepareToElement;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences.TakeInElementSeq;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences.TakeOutElementSeq;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
@@ -27,17 +31,51 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
         startNode = new Root();
 
-//        startNode.add((new DriveTo(r, new StandartArgs.driveArgs(new Position(20, 30,135), 160))));
-//        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 36,0), 160)));
-//
-//        startNode.add(new MoveHorizontTeleTo(r, 0.4));
-//        startNode.add(new MoveHorizontTeleTo(r, -0.4));
-////        startNode.add(new TakeInElementSeq(r));
-//        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 38,-225), 160)));
+        //Выгрузили sample1
+        startNode.add(new PrepareToElement(r, this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.08, this));
+        startNode.add(new TakeOutElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.08, this));
 
-        startNode.add(new Delay(
-                new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,90), 160)), 2000, this));
+        //Взяли sample2
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,0), 160), this));
+        startNode.add(new PrepareToElement(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.18, this));
+        startNode.add(new TakeInElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.18, this));
 
+        //Выгрузили sample2
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.08, this));
+        startNode.add(new TakeOutElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.08, this));
+        startNode.add(new PrepareToElement(r, this));
+
+        //Взяли sample3
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,25), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.22, this));
+        startNode.add(new TakeInElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.22, this));
+
+        //Выгрузили sample3
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.08, this));
+        startNode.add(new TakeOutElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.08, this));
+        startNode.add(new PrepareToElement(r, this));
+
+        //Взяли sample4
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(60, 40,42), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.14, this));
+        startNode.add(new TakeInElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.14, this));
+
+        //Выгрузили sample4
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.08, this));
+        startNode.add(new TakeOutElementSeq(r, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.08, this));
 
         waitForStart();
 

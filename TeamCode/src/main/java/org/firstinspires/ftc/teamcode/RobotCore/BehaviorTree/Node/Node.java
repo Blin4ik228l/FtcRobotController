@@ -8,6 +8,8 @@ public abstract class Node {
 
     public States nodeState;
 
+    public boolean stop = false;
+
     public void tickMe() {
         if(nodeState == null) nodeState = States.RUNNING;
 

@@ -1,20 +1,22 @@
 package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorator;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.Node;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorator;
 
 public class Delay extends Decorator {
     //Программа будет обращаться к следующему узлу через какое - то время, каждый раз
-    public Delay(Node node, double time) {
+    public Delay(Node node, long time, LinearOpMode lin) {
         super(node);
         this.waitTime = time;
+        this.lin = lin;
     }
-    public double waitTime;
+    public long waitTime;
     public ElapsedTime delayTimer = new ElapsedTime();
     boolean stop;
-
+    public LinearOpMode lin;
 
     @Override
     public void stopProgramm() {
@@ -23,9 +25,8 @@ public class Delay extends Decorator {
 
     @Override
     public void programm() {
-        while (delayTimer.seconds() != waitTime && !stop){
-            //waiting...
-        }
+        lin.sleep(waitTime);
+
         delayTimer.reset();
         nodeToWork.tickMe();
 

@@ -9,10 +9,6 @@ import org.firstinspires.ftc.teamcode.OpModes.Autonoms.LinearOpModeModified;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators.Delay;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.DriveTo;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.MoveHorizontTeleTo;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.Teleskope;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNodes.Wait;
-import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskSequence.TaskSequences.TakeInElementSeq;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
@@ -39,7 +35,9 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 ////        startNode.add(new TakeInElementSeq(r));
 //        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 38,-225), 160)));
 
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,90), 160)));
+        startNode.add(new Delay(
+                new DriveTo(r, new StandartArgs.driveArgs(new Position(0, 0,90), 160)), 2000, this));
+
 
         waitForStart();
 

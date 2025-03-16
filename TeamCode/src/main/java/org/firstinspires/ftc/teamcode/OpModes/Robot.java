@@ -82,7 +82,7 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         teleSkope = new TeleSkope(op, servosService);
         button = new Button(op);
 
-        this.robotStatusHandler.robot = this;
+//        this.robotStatusHandler.robot = this;
 
 //        colorSensor = new RGBColorSensor(op);
 //        distanceSensor = new Distance(op);
@@ -259,9 +259,11 @@ double midSpeed = 0;
 
             if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
 
-            if(Math.abs(errorHeading) < Math.toRadians(6)){
-                kPang += 0.5;
-            }else{
+            if(Math.abs(errorHeading) < Math.toRadians(8)){
+                kPang += 0.45;
+            } else if (Math.abs(errorHeading) >= Math.toRadians(8) && Math.abs(errorHeading) < Math.toRadians(15)) {
+                kPang = 0.50;
+            } else{
                 kPang = 1;
             }
 
@@ -358,7 +360,7 @@ double midSpeed = 0;
     };
 
     // Метод, обрабатывающий задачу подъема телескопа
-    public TeleskopeHandler setTeleskopePos = new TeleskopeHandler() {
+    public TeleskopeHandler setVerticalTeleskopePos = new TeleskopeHandler() {
 
         MotorsStatus motorsStatus;
 
@@ -377,10 +379,7 @@ double midSpeed = 0;
 
         @Override
         public int init(TaskManager thisTaskManager, StandartArgs _args) {
-            StandartArgs.teleskopeArgs args = (StandartArgs.teleskopeArgs) _args;
-            if(args.teleskope_height == 0){
-                args.teleskope_height = 1;
-            }
+
             return 0;
         }
         @Override
@@ -388,7 +387,7 @@ double midSpeed = 0;
             // TODO: обработчик застреваний телескопа
             //  если робот вдруг поехал
             //  если телескоп не поднялся на нужный уровень и стоит на месте долго
-            StandartArgs.teleskopeArgs args = (StandartArgs.teleskopeArgs) _args;
+            StandartArgs.verticalArgs args = (StandartArgs.verticalArgs) _args;
 
             if(teleskopeStatus == null){
                 teleskopeStatusInMoving = args.teleskope_height == 0 ? TeleskopeStatusInMoving.None : TeleskopeStatusInMoving.Staying;
@@ -398,7 +397,6 @@ double midSpeed = 0;
             int result;
 
             double target = args.teleskope_height - teleSkope.getHeight();
-            boolean horizontalPosDone = false;
 
             if ((teleSkope.leftEncUpSt == EncoderStatus.ZeroDelta || teleSkope.leftEncUpSt == EncoderStatus.SmallDelta)
             && (teleSkope.rightEncUpSt == EncoderStatus.ZeroDelta || teleSkope.rightEncUpSt == EncoderStatus.SmallDelta)
@@ -421,22 +419,14 @@ double midSpeed = 0;
                 teleskopeStatus = RobotModuleStatus.Stucked;
             }else teleskopeStatus = RobotModuleStatus.Normal;
 
-
-            while (runTime.seconds() < args.time) {
-                teleSkope.setLeftRightHorizont(args.servo_pos);
-            }
-
-            if(servosService.getLeft().getPosition() == Range.clip(args.servo_pos + 0.02, CLOSE_POS_HORIZ_LEFT, OPEN_POS_HORIZ_LEFT)) {
-                    horizontalPosDone = true;
-            }else{
-                runTime.reset();
-            }
-
-
-            if(Math.abs(target) < 1.8 && horizontalPosDone){
+            if(Math.abs(target) < 1.8){
                 result = 0;
                 runTime.reset();
-                motorsStatus = teleSkope.offMotors();
+                if(args.teleskope_height < 10){
+                    teleSkope.offMotors();
+                }else {
+                    teleSkope.keepInPower();
+                }
 
                 teleskopeStatusInMoving = TeleskopeStatusInMoving.Completed;
                 teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
@@ -453,17 +443,55 @@ double midSpeed = 0;
                     teleskopeStatusInMoving = TeleskopeStatusInMoving.Downing;
                     teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
                 }
-
-                motorsStatus = teleSkope.setTeleskopeAuto(args.max_speed, args.teleskope_height);
+                teleSkope.setTele(args.max_speed, args.teleskope_height);
             }
 
-            op.telemetry.addData("Teleskope height", teleSkope.getHeight());
-            op.telemetry.addData("Math.abs(target) < 3", Math.abs(target) < 1.8);
-            op.telemetry.addData("horizontalPosDone", horizontalPosDone);
+            op.telemetry.addData("height",teleSkope.getHeight());
             op.telemetry.addData("result", result);
             op.telemetry.update();
 
             return result;
+        }
+    };
+
+    public TeleskopeHandler setHorizontalTeleskopePos = new TeleskopeHandler() {
+        ElapsedTime runTime = new ElapsedTime();
+
+        @Override
+        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+            return 0;
+        }
+        @Override
+        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+            StandartArgs.horizontalArgs args = (StandartArgs.horizontalArgs) _args;
+            int result;
+            boolean horizontalPosDone = false;
+
+            while (runTime.seconds() < args.time) {
+                teleSkope.setLeftRightHorizont(args.servo_pos);
+            }
+
+            if(servosService.getLeft().getPosition() == Range.clip(args.servo_pos + CLOSE_POS_HORIZ_LEFT, CLOSE_POS_HORIZ_LEFT, OPEN_POS_HORIZ_LEFT)) {
+                horizontalPosDone = true;
+            }else{
+                runTime.reset();
+            }
+
+            if(horizontalPosDone){
+                result = 0;
+                runTime.reset();
+            }else{
+                result = -1;
+            }
+            op.telemetry.addData("servoPos", servosService.getLeft());
+            op.telemetry.addData("result", result);
+            op.telemetry.update();
+            return result;
+        }
+
+        @Override
+        public Deque<TeleskopeStatusInMoving>[] status() {
+            return new Deque[0];
         }
     };
 
@@ -505,8 +533,8 @@ double midSpeed = 0;
             }else{
                 result = -1;
             }
-            op.telemetry.addData("runf", runTime.seconds());
-            op.telemetry.update();
+//            op.telemetry.addData("runf", runTime.seconds());
+//            op.telemetry.update();
 
             return result;
         }
@@ -566,7 +594,7 @@ double midSpeed = 0;
     @Override
     public synchronized void teleopPl1() {
 
-        double max_speed = 0.5;
+        double max_speed = 0.8;
         double oldmax_speed = max_speed;
         double accelLinear = 1.3, accelAngle = 1.3;
 
@@ -580,17 +608,17 @@ double midSpeed = 0;
             accelAngle = 0.25;
         }
 
-        if (joysticks.isUpGear()){
-            if(joysticks.getGear() == 2){
-                max_speed *= 1.2;
-            } else if (joysticks.getGear() == 3) {
-                max_speed *= 1.3;
-            } else if (joysticks.getGear() == 4) {
-                max_speed *= 1.4;
-            }else {
-                max_speed = 1;
-            }
-        }
+//        if (joysticks.isUpGear()){
+//            if(joysticks.getGear() == 2){
+//                max_speed *= 1.2;
+//            } else if (joysticks.getGear() == 3) {
+//                max_speed *= 1.3;
+//            } else if (joysticks.getGear() == 4) {
+//                max_speed *= 1.4;
+//            }else {
+//                max_speed = 1;
+//            }
+//        }
 
         double forward = -1*g1.left_stick_y;
         double side = g1.left_stick_x;
@@ -687,22 +715,25 @@ double midSpeed = 0;
         }
         if (joysticks.isB_G2() )
         {
-            teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
+            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
             joysticks.isY_g2 = false;
         }
         if (!joysticks.isB_G2() && !joysticks.isY_G2())
         {
-            teleSkope.setFlip(ConstsTeleskope.TAKE_POS_FLIP);
+            teleSkope.setFlip(ConstsTeleskope.MIDLE_POS_FLIP);
             joysticks.isY_g2 = false;
         }
 
 
         if (joysticks.isA_G2()){
-            if(servosService.getHook().getPosition() == OPEN_POS_HOOK){
+            if(servosService.getHook().getPosition() == OPEN_POS_HOOK)
+            {
                 servosService.getHook().setPosition(CLOSE_POS_HOOK);
-            }else{teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);}
+            }else
+            {
+                teleSkope.setHook(ConstsTeleskope.OPEN_POS_HOOK);
+            }
             joysticks.isA_g2 = false;
-
         }
 
         if(joysticks.getGamepad2().x) {

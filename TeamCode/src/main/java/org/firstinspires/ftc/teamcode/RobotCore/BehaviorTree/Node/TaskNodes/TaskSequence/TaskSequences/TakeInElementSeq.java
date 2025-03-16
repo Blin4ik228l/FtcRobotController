@@ -19,15 +19,15 @@ public class TakeInElementSeq extends TaskSequence implements ConstsTeleskope {
         super(robot);
         this.lin = lin;
         OrdinaryTask prepareCapture = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(TAKE_POS_FLIP, OPEN_POS_HOOK, 0.5),
+                new StandartArgs.captureArgs(TAKE_POS_FLIP, OPEN_POS_HOOK, 0.3),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
         OrdinaryTask capture = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK, 0.25),
+                new StandartArgs.captureArgs(TAKE_POS_FLIP, CLOSE_POS_HOOK, 0.15),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
         OrdinaryTask upCaptured = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.25),
+                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.1),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
 

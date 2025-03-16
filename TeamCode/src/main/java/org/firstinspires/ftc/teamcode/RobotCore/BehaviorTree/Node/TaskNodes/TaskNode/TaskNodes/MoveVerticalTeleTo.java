@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 public class MoveVerticalTeleTo extends TaskNode implements ConstsTeleskope {
     public MoveVerticalTeleTo(Robot robot, double height, LinearOpMode lin){
         super(robot, lin);
-        task = new OrdinaryTask(robot.setTeleskopePos,
-                new StandartArgs.teleskopeArgs(height, CLOSE_POS_HORIZONTAL, 0.7, 1),
+        task = new OrdinaryTask(robot.setVerticalTeleskopePos,
+                new StandartArgs.verticalArgs(height, 0.95, 0.3),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
     }
 }

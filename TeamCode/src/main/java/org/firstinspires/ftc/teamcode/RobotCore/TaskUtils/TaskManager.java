@@ -68,14 +68,20 @@ public class TaskManager extends Thread{
 
     public void permanentlyExecute(){
         stackTasks();
-        OrdinaryTask executingTask = prepareTask();
-        executeTask(executingTask);
+        if(!executingDeque.isEmpty()) {
+            for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext();) {
+                OrdinaryTask currentTask = iterator.next();
+                OrdinaryTask executingTask = prepareTask(currentTask);
+                executeTask(executingTask);
+            }
+        }
+
 
     }
 
-    public OrdinaryTask prepareTask(){
+    public OrdinaryTask prepareTask(OrdinaryTask t){
 
-        OrdinaryTask t = tasksToDo.peek();
+//        OrdinaryTask t = tasksToDo.peek();
 
         if(t.state == States.TODO){
             t.startTime = managerRuntime.milliseconds();
@@ -92,7 +98,7 @@ public class TaskManager extends Thread{
 
         if (executingTask.state == States.FAILURE){
             taskDeque.remove(executingTask);//Убираем из общей очереди задач
-            tasksToDo.pop();//Убираем из очереди выполняемых задач
+//            tasksToDo.pop();//Убираем из очереди выполняемых задач
         }
 
         // Вернулся 0 - значит задача выполнилась
@@ -101,15 +107,20 @@ public class TaskManager extends Thread{
             completedTasks.push(executingTask);
 
             taskDeque.remove(executingTask);//Убираем из общей очереди задач
-            tasksToDo.pop();//Убираем из очереди выполняемых задач
+//            tasksToDo.pop();//Убираем из очереди выполняемых задач
         }
     }
 
     public void addTaskToStack(OrdinaryTask newTask){
-        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
-                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) taskDeque.addFirst(newTask);
+//        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
+//                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) taskDeque.addFirst(newTask);
+//
+//        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
 
-        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
+        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
+                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) executingDeque.addLast(newTask);
+
+        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) executingDeque.addFirst(newTask);
     }
 
     public void stackTasks() {

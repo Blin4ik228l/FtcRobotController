@@ -3,12 +3,16 @@ package org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.Tas
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.Node;
 import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.Node.TaskNodes.TaskNode.TaskNode;
+import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public class ParallelActions extends TaskNode {
     public ParallelActions(Robot robot, TaskNode parallel1, TaskNode parallel2, LinearOpMode lin) {
         super(robot, lin);
+        this.task = parallel1.task;
+
         parallel1.isProgrammDisabled = true;
         parallel2.isProgrammDisabled = true;
 
@@ -23,11 +27,14 @@ public class ParallelActions extends TaskNode {
 
     @Override
     public void programm() {
-        if(!isAdded){
-            robot.taskManager.addTaskToStack(parallel1.task);
-            robot.taskManager.addTaskToStack(parallel2.task);
+
+
+
+        while ((task.state == States.TODO || task.state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()){
+            robot.taskManager.permanentlyExecute();
         }
 
-        robot.taskManager.permanentlyExecute();
+        nodeState = task.state;
+
     }
 }

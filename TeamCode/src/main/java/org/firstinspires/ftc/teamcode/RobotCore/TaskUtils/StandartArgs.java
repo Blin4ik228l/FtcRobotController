@@ -53,16 +53,24 @@ public class StandartArgs {
         public long sleep;
     }
 
-    public static class teleskopeArgs extends StandartArgs {
-        public teleskopeArgs(double teleskope_height, double servo_pos, double max_speed, double time){
+    public static class verticalArgs extends StandartArgs {
+        public verticalArgs(double teleskope_height,double max_speed, double time){
             this.teleskope_height = teleskope_height;
-            this.servo_pos = servo_pos;
             this.max_speed = max_speed;
             this.time = time;
         }
         public double teleskope_height;
-        public double servo_pos;
         public double max_speed;
+        public double time;
+    }
+
+
+    public static class horizontalArgs extends StandartArgs {
+        public horizontalArgs( double servo_pos, double time){
+            this.servo_pos = servo_pos;
+            this.time = time;
+        }
+        public double servo_pos;
         public double time;
     }
 

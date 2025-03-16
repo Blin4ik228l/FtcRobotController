@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Group
 
 import androidx.annotation.NonNull;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -81,6 +82,11 @@ public class TeleSkope implements Module, ConstsTeleskope {
         return MotorsStatus.Stopped;
     }
 
+    public void keepInPower(){
+        upStandingLeft.setPower(0.05);
+        upStandingRight.setPower(0.05);
+    }
+
     public DcMotor getUpStandingLeft() {
         return upStandingLeft;
     }
@@ -125,7 +131,10 @@ public class TeleSkope implements Module, ConstsTeleskope {
         else leftEncUpSt = EncoderStatus.InMoving;
 
         height += (deltaRightEncUp + deltaLeftEncUp) / 2.0;
+
+//        height += deltaLeftEncUp;
     }
+
 
     public synchronized void setHook(double Pos){
         servosService.getHook().setPosition(Pos);
@@ -159,7 +168,16 @@ public class TeleSkope implements Module, ConstsTeleskope {
 
         return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }
+
+    public void setTele(double power, double targetHeight){
+        calculateHeight();
+
+        double targetPower = power * Math.signum(targetHeight - height);
+        setVelUpStandingTeleOp(targetPower);
+    }
     public synchronized void setTeleskope(double vel, double deltaPos){
+        calculateHeight();
+
         setVelUpStandingTeleOp(vel);
         setLeftRightHorizont(deltaPos);
     }
@@ -179,6 +197,16 @@ public class TeleSkope implements Module, ConstsTeleskope {
             }
         }
     }
+
+    public void setTeleskopeHeightAuto(double targetHeight, double max_speed){
+        calculateHeight();
+            while (Math.abs(height - targetHeight) > 2.5) {
+                calculateHeight();
+                double targetVel = max_speed * Math.signum(targetHeight - height);
+                setVelUpStandingTeleOp(targetVel);
+        }
+    }
+
 
     public synchronized void setTeleskopeProp(double vel, double Pos){
         calculateHeight();

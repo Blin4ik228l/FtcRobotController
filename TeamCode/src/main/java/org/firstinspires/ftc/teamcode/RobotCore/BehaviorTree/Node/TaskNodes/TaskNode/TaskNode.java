@@ -21,20 +21,35 @@ public abstract class TaskNode extends Node {
 
     public boolean isProgrammDisabled = false;
 
+    public boolean isParallel = false;
+
+
     @Override
     public void programm() {
-        if(!isProgrammDisabled) {
-            if (!isAdded) {
-                robot.taskManager.addTaskToStack(task);
+        if (!isParallel) {
+            if (!isProgrammDisabled) {
+                if (!isAdded) {
+                    robot.taskManager.addTaskToStack(task);
 //                robot.robotStatusHandler.tasksToDo.add(task);
-                isAdded = true;
-            }
+                    isAdded = true;
+                }
 
-            while ((task.state == States.TODO || task.state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()){
-                robot.taskManager.permanentlyExecute();
-            }
+                while ((task.state == States.TODO || task.state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()) {
+                    robot.taskManager.permanentlyExecute();
+                }
 
-            nodeState = task.state;
+                nodeState = task.state;
+            }
+        }else{
+            if (!isProgrammDisabled) {
+                if (!isAdded) {
+                    robot.taskManager.addTaskToStack(task);
+//                robot.robotStatusHandler.tasksToDo.add(task);
+                    isAdded = true;
+                }
+
+                nodeState = task.state;
+            }
         }
     }
 }

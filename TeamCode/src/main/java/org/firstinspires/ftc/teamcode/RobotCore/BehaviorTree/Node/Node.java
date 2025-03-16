@@ -6,12 +6,11 @@ import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 public abstract class Node {
     public Robot robot;
 
-    public States nodeState;
+    public States nodeState = States.RUNNING;;
 
     public boolean stop = false;
 
     public void tickMe() {
-        if(nodeState == null) nodeState = States.RUNNING;
 
         programm();
     }

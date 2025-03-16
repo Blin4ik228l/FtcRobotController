@@ -17,7 +17,7 @@ public class PrepareToElement extends TaskSequence implements ConstsTeleskope {
         this.lin = lin;
 
         OrdinaryTask upCaptured = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.3),
+                new StandartArgs.captureArgs(HANG_POS_FLIP, CLOSE_POS_HOOK, 0.1),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
         taskToDo.push(upCaptured);

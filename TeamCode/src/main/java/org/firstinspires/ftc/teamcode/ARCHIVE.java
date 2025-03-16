@@ -1,0 +1,466 @@
+package org.firstinspires.ftc.teamcode;
+
+public class ARCHIVE {
+//    public TaskHandlerOrdinal doWhile = new TaskHandlerOrdinal() {
+//        @Override
+//        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+//            return 0;
+//        }
+//
+//        @Override
+//        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+//            StandartArgs.doWhile args = (StandartArgs.doWhile) _args;
+//            int result;
+//
+//            if (!button.isTouched() && button.getTimesTouched() != 1){
+//                teleSkope.setTeleskope(args.power, ConstsTeleskope.CLOSE_POS_HORIZONTAL);
+//                result = -1;
+//            }else{
+//                teleSkope.init();
+//                result = 0;
+//            }
+//
+//            return result;
+//        }
+//
+//    };
+
+//    public TaskHandlerOrdinal robotSleep = new TaskHandlerOrdinal() {
+//
+//        @Override
+//        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+//            return 0;
+//        }
+//        ElapsedTime runTime = new ElapsedTime();
+//        @Override
+//        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+//
+//            StandartArgs.robotSleep args = (StandartArgs.robotSleep) _args;
+//            int result;
+//
+//            if (runTime.seconds() < args.time){
+//                result = -1;
+//            }else{
+//                runTime.reset();
+//                result = 0;
+//            }
+//
+//            return result;
+//        }
+//
+//    };
+//
+//
+//    public TeleskopeHandler setVerticalTeleskopePos = new TeleskopeHandler() {
+//
+//        MotorsStatus motorsStatus;
+//
+//        RobotModuleStatus teleskopeStatus;
+//        TeleskopeStatusInMoving teleskopeStatusInMoving;
+//        Deque<TeleskopeStatusInMoving> teleskopeStatusHistory = new ArrayDeque<>();
+//
+//        ElapsedTime stuckTime = new ElapsedTime();
+//
+//        ElapsedTime runTime = new ElapsedTime();
+//
+//        @Override
+//        public Deque<TeleskopeStatusInMoving>[] status() {
+//            return new Deque[]{teleskopeStatusHistory};
+//        }
+//
+//        @Override
+//        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+//
+//            return 0;
+//        }
+//        @Override
+//        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+//            // TODO: обработчик застреваний телескопа
+//            //  если робот вдруг поехал
+//            //  если телескоп не поднялся на нужный уровень и стоит на месте долго
+//            StandartArgs.verticalArgs args = (StandartArgs.verticalArgs) _args;
+//
+//            if(teleskopeStatus == null){
+//                teleskopeStatusInMoving = args.teleskope_height == 0 ? TeleskopeStatusInMoving.None : TeleskopeStatusInMoving.Staying;
+//                teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//            }
+//
+//            int result;
+//
+//            double target = args.teleskope_height - teleSkope.getHeight();
+//
+//            if ((teleSkope.leftEncUpSt == EncoderStatus.ZeroDelta || teleSkope.leftEncUpSt == EncoderStatus.SmallDelta)
+//                    && (teleSkope.rightEncUpSt == EncoderStatus.ZeroDelta || teleSkope.rightEncUpSt == EncoderStatus.SmallDelta)
+//                    && motorsStatus == MotorsStatus.Powered && !button.isTouched()) stuckTime.seconds();
+//            else stuckTime.reset();
+//
+//            if(stuckTime.seconds() > 1){
+//                if(args.teleskope_height > teleSkope.getHeight()){
+//                    teleskopeStatusInMoving = TeleskopeStatusInMoving.StuckedBy_Upping;
+//                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//                }
+//
+//                if(args.teleskope_height < teleSkope.getHeight()){
+//                    teleskopeStatusInMoving = TeleskopeStatusInMoving.StuckedBy_Downing;
+//                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//                }
+//            }
+//
+//            if(teleskopeStatusInMoving == TeleskopeStatusInMoving.StuckedBy_Downing || teleskopeStatusInMoving == TeleskopeStatusInMoving.StuckedBy_Upping){
+//                teleskopeStatus = RobotModuleStatus.Stucked;
+//            }else teleskopeStatus = RobotModuleStatus.Normal;
+//
+//            if(Math.abs(target) < 1.8){
+//                result = 0;
+//                runTime.reset();
+//                if(args.teleskope_height < 10){
+//                    teleSkope.offMotors();
+//                }else {
+//                    teleSkope.keepInPower();
+//                }
+//
+//                teleskopeStatusInMoving = TeleskopeStatusInMoving.Completed;
+//                teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//
+//            }else {
+//                result = -1;
+//
+//                if(args.teleskope_height > teleSkope.getHeight()){
+//                    teleskopeStatusInMoving = TeleskopeStatusInMoving.Upping;
+//                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//                }
+//
+//                if(args.teleskope_height < teleSkope.getHeight()){
+//                    teleskopeStatusInMoving = TeleskopeStatusInMoving.Downing;
+//                    teleskopeStatusHistory.addLast(teleskopeStatusInMoving);
+//                }
+//                teleSkope.setTele(args.max_speed, args.teleskope_height);
+//            }
+//
+//            op.telemetry.addData("height",teleSkope.getHeight());
+//            op.telemetry.addData("result", result);
+//            op.telemetry.update();
+//
+//            return result;
+//        }
+//    };
+//
+//
+//    // Метод, обрабатывающий задачу перемещения робота в точку
+//    public DriveHandler driveToPosition = new DriveHandler() {
+//        //Сделать статусы состояний робота в разных действиях, для дальнейших работ с ним
+//        public RobotModuleStatus statusInDrive;
+//
+//        public RobotStatusInDrive statusBy_X;
+//        public RobotStatusInDrive statusBy_Y;
+//        public RobotStatusInDrive statusBy_Rotate;
+//
+//        public final Deque<RobotStatusInDrive> statusBy_X_history = new ArrayDeque<>();
+//        public final Deque<RobotStatusInDrive> statusBy_Y_history = new ArrayDeque<>();
+//        public final Deque<RobotStatusInDrive> statusBy_Rotate_history = new ArrayDeque<>();
+//
+//        public MotorsStatus motorsStatus;
+//
+//        public final ElapsedTime stuckTimeBy_X = new ElapsedTime();
+//        public final ElapsedTime stuckTimeBy_Y = new ElapsedTime();
+//        public final ElapsedTime stuckTimeBy_Rotate = new ElapsedTime();
+//
+//        public double progressBar;
+//
+//        @Override
+//        public Deque[] statusInDrive() {
+//            return new Deque[]{statusBy_X_history, statusBy_Y_history, statusBy_Rotate_history};
+//        }
+//
+//        @Override
+//        public RobotModuleStatus statusRobot() {
+//            return statusInDrive;
+//        }
+//
+//        @Override
+//        public int init(TaskManager thisTaskManager, StandartArgs _args) {
+//            return 0;
+//        }
+//        double midSpeed = 0;
+//        @Override
+//        public int execute(TaskManager thisTaskManager, StandartArgs _args) {
+//            StandartArgs.driveArgs args = (StandartArgs.driveArgs) _args;
+//
+//            if(statusBy_X == null && statusBy_Y == null && statusBy_Rotate == null) {
+//                statusBy_X = args.position.getX() == 0 ? RobotStatusInDrive.NoneBy_X: RobotStatusInDrive.StayingBy_X;
+//                statusBy_Y = args.position.getY() == 0 ? RobotStatusInDrive.NoneBy_Y: RobotStatusInDrive.StayingBy_Y;
+//                statusBy_Rotate = args.position.getHeading() == 0 ? RobotStatusInDrive.NoneBy_Rotate: RobotStatusInDrive.StayingBy_Rotate;
+//
+//                statusBy_X_history.addLast(statusBy_X);
+//                statusBy_Y_history.addLast(statusBy_Y);
+//                statusBy_Rotate_history.addLast(statusBy_Rotate);
+//                midSpeed = MID_LINEAR_SPEED;
+//            }
+//
+//            double progressBar;
+//
+//            double progressToPos;
+//            double progressHeading;
+//
+//            int result;
+//
+//            boolean errorPosDone = false;
+//            boolean errorHeadingDone = false;
+//
+//            double linearVel; // Линейная скорость робота
+//
+//            Vector2 errorPos = new Vector2();
+//
+//            // Находим ошибку положения
+//            errorPos.x = args.position.getX() - odometry.getGlobalPosition().getX();
+//            errorPos.y = args.position.getY() - odometry.getGlobalPosition().getY();
+//            double errorHeading = args.position.getHeading() - odometry.getGlobalPosition().getHeading();
+//
+//            progressHeading = (args.position.getHeading() - errorHeading)/args.position.getHeading();
+//            progressToPos = ((args.position.getX() - errorPos.x)/args.position.getX() + (args.position.getY() - errorPos.y)/args.position.getY()) / 2.0;
+//            progressBar = (progressHeading + progressToPos) / 2;
+//
+//
+//            /**Если перемещение по энкодерам не велико и на моторы подаётся напряжение, то начинается отсчёт времени застревания
+//             * Оно нужно для того, чтобы робот возможно успел бы вернутся на траекторию движения, например:
+//             * Если бы робот ударился и начал ехать в другого робота, но тот бы отъехал и наш бы продолжил движение
+//             * Если же нет, то тогда считаем что робот застрял, въехал в стенку или игровую конструкцию
+//             */
+//
+//            if (
+//                    (odometry.getEncXst() == EncoderStatus.SmallDelta
+//                            || odometry.getEncXst() == EncoderStatus.ZeroDelta)
+//                            && motorsStatus == MotorsStatus.Powered && errorPos.x != 0
+//            )stuckTimeBy_X.seconds();
+//            else stuckTimeBy_X.reset();
+//
+//            if (
+//                    (odometry.getEncYst() == EncoderStatus.SmallDelta
+//                            || odometry.getEncYst() == EncoderStatus.ZeroDelta)
+//                            && motorsStatus == MotorsStatus.Powered && errorPos.y != 0
+//            )stuckTimeBy_Y.seconds();
+//            else stuckTimeBy_Y.reset();
+//
+//            if (
+//                    (odometry.getEncRadSt() == EncoderStatus.SmallDelta
+//                            || odometry.getEncRadSt() == EncoderStatus.ZeroDelta)
+//                            && motorsStatus == MotorsStatus.Powered && errorHeading != 0
+//            )stuckTimeBy_Rotate.seconds();
+//            else stuckTimeBy_Rotate.reset();
+//
+//
+//            if(stuckTimeBy_X.seconds() > 2){
+//                statusBy_X = RobotStatusInDrive.StuckedBy_X;//Застревание при движении по X
+//                if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+//            }
+//            if(stuckTimeBy_Y.seconds() > 2){
+//                statusBy_Y = RobotStatusInDrive.StuckedBy_Y;//Застревание при движении по Y
+//                if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
+//            }
+//            if(stuckTimeBy_Rotate.seconds() > 2){
+//                statusBy_Rotate = RobotStatusInDrive.StuckedBy_Rotate;//Застревание при повороте
+//                if(statusBy_Rotate_history.getLast() != statusBy_Rotate)statusBy_Rotate_history.addLast(statusBy_Rotate);
+//            }
+//
+//            statusInDrive = statusBy_Rotate == RobotStatusInDrive.StuckedBy_Rotate
+//                    || statusBy_Y == RobotStatusInDrive.StuckedBy_Y
+//                    ||statusBy_X == RobotStatusInDrive.StuckedBy_X
+//                    ? RobotModuleStatus.Stucked:RobotModuleStatus.Moving;
+//
+//            // Направление движения
+//            Vector2 targetVel = new Vector2(errorPos);
+//            targetVel.normalize();
+//            targetVel.rotate(-odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+//
+//            // Выбираем скорости в зависимости от величины ошибки
+//            linearVel = errorPos.length() > returnDistance(args.max_linear_speed, MAX_LINEAR_ACCEL) ? args.max_linear_speed : MIN_LINEAR_SPEED;
+
+//            if(linearVel <= MID_LINEAR_SPEED){
+//                midSpeed -= 1;
+//            }
+
+
+//            if(linearVel < MIN_LINEAR_SPEED) linearVel = MIN_LINEAR_SPEED;// Ограничиваем скорость снизу
+//
+//            if(Math.abs(errorHeading) < Math.toRadians(8)){
+//                kPang += 0.45;
+//            } else if (Math.abs(errorHeading) >= Math.toRadians(8) && Math.abs(errorHeading) < Math.toRadians(15)) {
+//                kPang = 0.50;
+//            } else{
+//                kPang = 1;
+//            }
+//
+//
+//            if (errorPos.length() < 0.5){
+//                errorPosDone = true;
+//                linearVel = 0;
+//            }
+//
+//            if(Math.abs(errorHeading) < Math.toRadians(0.5) ){
+//                errorHeadingDone = true;
+//                kPang = 0.0;
+//            }
+//
+//            pidAngular.setPID(kPang, 0,0);
+//
+//            targetVel.multyplie(linearVel);
+//
+//            // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
+//            double speedPIDX = pidLinearX.calculate(targetVel.x, odometry.getVelocity().x);
+//            double speedPIDY = pidLinearY.calculate(targetVel.y, odometry.getVelocity().y);
+//            double angularPID = pidAngular.calculate(args.position.getHeading(), odometry.getGlobalPosition().getHeading());
+//
+//            if(errorPosDone && errorHeadingDone){
+//                result = 0;
+//                motorsStatus = drivetrain.offMotors();
+//
+//                statusInDrive = RobotModuleStatus.Normal;
+//
+//                if(statusBy_X != RobotStatusInDrive.StuckedBy_X){
+//                    statusBy_X = RobotStatusInDrive.CompletedBy_X;
+//                    statusBy_X_history.addLast(statusBy_X);
+//                }
+//                if(statusBy_Y != RobotStatusInDrive.StuckedBy_Y){
+//                    statusBy_Y = RobotStatusInDrive.CompletedBy_Y;
+//                    statusBy_Y_history.addLast(statusBy_Y);
+//                }
+//                if(statusBy_Rotate != RobotStatusInDrive.StuckedBy_Rotate){
+//                    statusBy_Rotate = RobotStatusInDrive.CompletedBy_Rotate;
+//                    statusBy_Rotate_history.addLast(statusBy_Rotate);
+//                }
+//            }else{
+//                result = -1;
+//
+//                statusInDrive = RobotModuleStatus.Moving;
+//
+//                //Проверяем на отклонение от курса
+//                if(errorPos.x > args.position.getX() && statusBy_X != RobotStatusInDrive.NoneBy_X){
+//                    statusBy_X = RobotStatusInDrive.MovingInOtherSideBy_X;
+//                    if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+//                }else{
+//                    statusBy_X = RobotStatusInDrive.MovingBy_X;
+//                    if(statusBy_X_history.getLast() != statusBy_X)statusBy_X_history.addLast(statusBy_X);
+//                }
+//                if(errorPos.y > args.position.getX() && statusBy_Y != RobotStatusInDrive.NoneBy_Y){
+//                    statusBy_Y = RobotStatusInDrive.MovingInOtherSideBy_Y;
+//                    if(statusBy_Y_history.getLast() != statusBy_Y)statusBy_Y_history.addLast(statusBy_Y);
+//                }else {
+//                    statusBy_Y = RobotStatusInDrive.MovingBy_Y;
+//                    if(statusBy_Y_history.getLast() != statusBy_Y) statusBy_Y_history.addLast(statusBy_Y);
+//                }
+//
+//                motorsStatus = drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
+//            }
+//
+//            op.telemetry.addData("kPang", kPang);
+//            op.telemetry.addData("Вектор", targetVel.length());
+//            op.telemetry.addData("Вектор X", targetVel.x);
+//            op.telemetry.addData("Вектор Y", targetVel.y);
+//            op.telemetry.addData("Оставшийся угол", errorHeading * 57.29);
+//            op.telemetry.addData("angularPID", angularPID);
+//            op.telemetry.addData("speedPIDX", speedPIDX);
+//            op.telemetry.addData("speedPIDY", speedPIDY);
+//            drivetrain.getMotorsPower();
+//            op.telemetry.addData("Оставшийся расстояние", errorPos.length());
+//            op.telemetry.addData("Оставшийся X", errorPos.x);
+//            op.telemetry.addData("Оставшийся Y", errorPos.y);
+////
+//            op.telemetry.addData("result", result);
+////
+//            op.telemetry.update();
+//
+//            return result;
+//        }
+//
+//
+//        private double returnDistance(double VelMax, double assel ){
+//            return Math.pow(VelMax, 2) / (2 * assel);
+//        }
+//
+//        private double returnSpeed(Position position, double assel){
+//            return Math.sqrt(2 * position.toVector().length() * assel);
+//        }
+//    };
+
+
+
+
+    //-------------Из Телеопа 1
+    //        if(joysticks.isAandY_G1()){
+//            double k = odometry.getGlobalPosition().getHeading()/Math.toRadians(90);
+//
+//            boolean ifForward = Math.abs(forwardVoltage) > Math.abs(sideVoltage);
+//            boolean ifSide = Math.abs(sideVoltage) > Math.abs(forwardVoltage);
+//
+//            metry.getTelemetry().addData("k", k);
+//
+//            if(k > 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else if (k < 0){
+//                if(ifForward) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1/k, 1);
+//                } else if (ifSide) {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1/k);
+//                }else {
+//                    drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//                }
+//            }else{
+//                drivetrain.setPowerTeleOpHeadless(forwardVoltage, sideVoltage, angleVoltage, 1, 1);
+//            }
+//        }
+
+
+    //Из класса Teleskope
+//    public synchronized void setTeleskopeProp(double vel, double Pos){
+//        calculateHeight();
+//
+//        double DEAD_ZONE_HEIGHT = 106;
+//
+//        double PROPRTIONAL_HEIGHT = 15;// Высота на которой телескопы будут двигаться одновременно
+//
+//        double P = (CLOSE_POS_HORIZONTAL - 0.2)/(DEAD_ZONE_HEIGHT - PROPRTIONAL_HEIGHT);
+//
+//        double propLen = CLOSE_POS_HORIZONTAL - (height - PROPRTIONAL_HEIGHT) * P;
+//
+//        if((height > PROPRTIONAL_HEIGHT) ) {
+//            setVelUpStandingTeleOp(vel);
+//        }else{
+//            setVelUpStandingTeleOp(vel);
+//        }
+//
+//    }
+//
+//    public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
+//        calculateHeight();
+//
+//        double P = (CLOSE_POS_HORIZONTAL - posServo)/(reachableHeight);
+//
+//        double propLen = CLOSE_POS_HORIZONTAL - (height) * P;
+//
+//        double targetVel = speed * Math.signum(reachableHeight - height);
+//
+//        setVelUpStandingTeleOp(targetVel);
+//        setPosHorizontalTeleOp(propLen);
+//
+//    }
+
+
+    //        if (joysticks.isUpGear()){
+//            if(joysticks.getGear() == 2){
+//                max_speed *= 1.2;
+//            } else if (joysticks.getGear() == 3) {
+//                max_speed *= 1.3;
+//            } else if (joysticks.getGear() == 4) {
+//                max_speed *= 1.4;
+//            }else {
+//                max_speed = 1;
+//            }
+//        }
+
+}

@@ -61,7 +61,6 @@ public class MecanumDrivetrain implements Module {
 
         offMotors();
         brakeMotors();
-        offLed();
 
         op.telemetry.addLine("Drivetrain Inited");
     }
@@ -149,6 +148,10 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized void setPowerTeleOp(double forward, double side, double angle){
+        if((forward = side = angle) == 0 ){
+            offMotors();
+            return;
+        }
         rightF.setPower(Range.clip((forward - side - angle ), -1.0, 1.0));
         rightB.setPower(Range.clip((forward + side - angle ), -1.0, 1.0));
 

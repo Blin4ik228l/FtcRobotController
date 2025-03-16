@@ -31,18 +31,18 @@ public class StandartArgs {
     // }
 
     public static class driveArgs extends StandartArgs {
-        public driveArgs(Position position, double max_linear_speed, double max_angular_speed, long sleep){
+        public driveArgs(Position position, double max_linear_speed, double max_angular_speed, double delayTime){
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = max_angular_speed;
-            this.sleep = sleep;
+            this.delayTime = delayTime;
         }
-        public driveArgs(Position position, double max_linear_speed) {
+        public driveArgs(Position position, double max_linear_speed, double delayTime) {
             this.position = position;
             this.max_linear_speed = max_linear_speed;
             this.max_angular_speed = Consts.MAX_ANGULAR_SPEED;
         }
-        public driveArgs(Position position) {
+        public driveArgs(Position position, double delayTime) {
             this.position = position;
             this.max_linear_speed = Consts.MAX_LINEAR_SPEED;
             this.max_angular_speed = Consts.MAX_ANGULAR_SPEED;
@@ -50,39 +50,39 @@ public class StandartArgs {
         public Position position;
         public double max_linear_speed;
         public double max_angular_speed;
-        public long sleep;
+        public double delayTime;
     }
 
     public static class verticalArgs extends StandartArgs {
-        public verticalArgs(double teleskope_height,double max_speed, double time){
+        public verticalArgs(double teleskope_height,double max_speed, double delayTime){
             this.teleskope_height = teleskope_height;
             this.max_speed = max_speed;
-            this.time = time;
+            this.delayTime = delayTime;
         }
         public double teleskope_height;
         public double max_speed;
-        public double time;
+        public double delayTime;
     }
 
 
     public static class horizontalArgs extends StandartArgs {
-        public horizontalArgs( double servo_pos, double time){
+        public horizontalArgs( double servo_pos, double delayTime){
             this.servo_pos = servo_pos;
-            this.time = time;
+            this.delayTime = delayTime;
         }
         public double servo_pos;
-        public double time;
+        public double delayTime;
     }
 
     public static class captureArgs extends StandartArgs{
-        public captureArgs(double flipPos, double hookPos, double time){
+        public captureArgs(double flipPos, double hookPos, double delayTime){
             this.flipPos = flipPos;
             this.hookPos = hookPos;
-            this.time = time;
+            this.delayTime = delayTime;
         }
         public double flipPos;
         public double hookPos;
-        public double time;
+        public double delayTime;
     }
 
     public static class robotSleep extends StandartArgs{

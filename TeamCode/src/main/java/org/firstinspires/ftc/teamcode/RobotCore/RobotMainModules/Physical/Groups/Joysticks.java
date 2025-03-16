@@ -188,6 +188,7 @@ public class Joysticks implements Module {
     }
 
     public synchronized boolean isY_G2(){
+
         if(gamepad2.y && !switchY_g2){
             isY_g2 = !isY_g2;
             switchY_g2 = true;

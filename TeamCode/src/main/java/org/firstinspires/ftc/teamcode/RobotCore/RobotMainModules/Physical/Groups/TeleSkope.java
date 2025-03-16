@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.RobotCore.RobotMainModules.Physical.Group
 
 import androidx.annotation.NonNull;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -131,57 +130,42 @@ public class TeleSkope implements Module, ConstsTeleskope {
         else leftEncUpSt = EncoderStatus.InMoving;
 
         height += (deltaRightEncUp + deltaLeftEncUp) / 2.0;
-
-//        height += deltaLeftEncUp;
     }
 
 
     public synchronized void setHook(double Pos){
+        if(Pos == servosService.getHook().getPosition()){
+            return;
+        }
         servosService.getHook().setPosition(Pos);
     }
 
     public synchronized void setFlip(double Pos){
+        if(Pos == servosService.getFlip().getPosition()){
+            return;
+        }
+
         servosService.getFlip().setPosition(Pos);
     }
 
-    public synchronized void setTeleskopePropAuto(double speed, double posServo, double reachableHeight){
+    public synchronized MotorsStatus setTeleskopeAuto(double power, double targetHeight){
         calculateHeight();
 
-        double P = (CLOSE_POS_HORIZONTAL - posServo)/(reachableHeight);
+        double targetPower= power * Math.signum(targetHeight - height);
 
-        double propLen = CLOSE_POS_HORIZONTAL - (height) * P;
-
-        double targetVel = speed * Math.signum(reachableHeight - height);
-
-        setVelUpStandingTeleOp(targetVel);
-        setPosHorizontalTeleOp(propLen);
-
-    }
-
-    public synchronized MotorsStatus setTeleskopeAuto(double speed, double targetHeight){
-        calculateHeight();
-
-        double targetVel = speed * Math.signum(targetHeight - height);
-
-        if(motorsTeleskopeSt == RobotModuleStatus.Normal) setVelUpStandingTeleOp(targetVel);
+        if(motorsTeleskopeSt == RobotModuleStatus.Normal) setVelUpStandingTeleOp(targetPower);
         else offMotors();
 
-        return speed == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
+        return power == 0 ? MotorsStatus.Stopped : MotorsStatus.Powered;
     }
 
-    public void setTele(double power, double targetHeight){
+    public synchronized void setTeleskopeTele(double vel, double deltaPos, Joysticks joysticks){
         calculateHeight();
+        if(vel == 0 && deltaPos == 0){
+            keepInPower();
+            return;
+        }
 
-        double targetPower = power * Math.signum(targetHeight - height);
-        setVelUpStandingTeleOp(targetPower);
-    }
-    public synchronized void setTeleskope(double vel, double deltaPos){
-        calculateHeight();
-
-        setVelUpStandingTeleOp(vel);
-        setLeftRightHorizont(deltaPos);
-    }
-    public synchronized void setTeleskope2(double vel, double deltaPos, Joysticks joysticks){
         if(vel != 0) joysticks.isBack_g2 = true;
         setVelUpStandingTeleOp(vel);
         setLeftRightHorizont(deltaPos);
@@ -198,77 +182,22 @@ public class TeleSkope implements Module, ConstsTeleskope {
         }
     }
 
-    public void setTeleskopeHeightAuto(double targetHeight, double max_speed){
-        calculateHeight();
-            while (Math.abs(height - targetHeight) > 2.5) {
-                calculateHeight();
-                double targetVel = max_speed * Math.signum(targetHeight - height);
-                setVelUpStandingTeleOp(targetVel);
-        }
-    }
-
-
-    public synchronized void setTeleskopeProp(double vel, double Pos){
-        calculateHeight();
-
-        double DEAD_ZONE_HEIGHT = 106;
-
-        double PROPRTIONAL_HEIGHT = 15;// Высота на которой телескопы будут двигаться одновременно
-
-        double P = (CLOSE_POS_HORIZONTAL - 0.2)/(DEAD_ZONE_HEIGHT - PROPRTIONAL_HEIGHT);
-
-        double propLen = CLOSE_POS_HORIZONTAL - (height - PROPRTIONAL_HEIGHT) * P;
-
-        if((height > PROPRTIONAL_HEIGHT) ) {
-            setVelUpStandingTeleOp(vel);
-        }else{
-            setVelUpStandingTeleOp(vel);
-        }
-
-    }
-    public void setSmallTele(ServosService.servoPos servoPos, double Pos){
-        if (servoPos == ServosService.servoPos.UP){
-            servosService.setLeftStartPos();
-            servosService.setRightStartPos();
-        }
-        if (servoPos == ServosService.servoPos.DOWN) {
-            servosService.getLeft().setPosition(Pos);
-            servosService.getRight().setPosition(1 - Pos);
-        }
-
-    }
-
     public void setLeftRightHorizont(double delta){
+        if(delta == 0){
+            return;
+        }
         servosService.getLeft().setPosition(Range.clip(CLOSE_POS_HORIZ_LEFT + delta,CLOSE_POS_HORIZ_LEFT, OPEN_POS_HORIZ_LEFT));
         servosService.getRight().setPosition(Range.clip(CLOSE_POS_HORIZ_RIGHT - delta,OPEN_POS_HIRIZ_RIGHT, CLOSE_POS_HORIZ_RIGHT));
     }
 
     public synchronized void setVelUpStandingTeleOp(double Vel){
         if(Vel == 0 ){
-            offMotors();
+            keepInPower();
             return;
         }
-//        if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition() && Vel > 0){
-//            upStandingLeft.setPower(0);
-//            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
-//        } else if (Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingRight.getCurrentPosition() < upStandingLeft.getCurrentPosition() && Vel < 0) {
-//            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
-//            upStandingRight.setPower(0);
-//        } else if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition() && Vel > 0){
-//            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
-//            upStandingRight.setPower(0);
-//        }else if(Math.abs(upStandingRight.getCurrentPosition() - upStandingLeft.getCurrentPosition()) > 2 && upStandingLeft.getCurrentPosition() < upStandingRight.getCurrentPosition() && Vel < 0){
-//            upStandingLeft.setPower(0);
-//            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
-//        }else {
-            upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
-            upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
-//        }
 
-    }
-
-    public synchronized void setPosHorizontalTeleOp(double Pos){
-        servosService.getHorizontal().setPosition(Range.clip(Pos, OPEN_POS_HORIZONTAL, CLOSE_POS_HORIZONTAL));
+        upStandingLeft.setPower(Range.clip((Vel), -1.0, 1.0));
+        upStandingRight.setPower(Range.clip((-Vel), -1.0, 1.0));
     }
 
 }

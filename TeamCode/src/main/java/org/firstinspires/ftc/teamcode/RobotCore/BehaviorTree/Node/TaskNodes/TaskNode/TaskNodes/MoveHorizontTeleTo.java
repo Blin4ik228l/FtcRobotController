@@ -12,7 +12,7 @@ public class MoveHorizontTeleTo extends TaskNode implements ConstsTeleskope {
     public MoveHorizontTeleTo(Robot robot, double horizontalPos, LinearOpMode lin){
         super(robot, lin);
         task = new OrdinaryTask(robot.setHorizontalTeleskopePos,
-                new StandartArgs.horizontalArgs(horizontalPos, 0.3),
+                new StandartArgs.horizontalArgs(horizontalPos, 4),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
     }
 }

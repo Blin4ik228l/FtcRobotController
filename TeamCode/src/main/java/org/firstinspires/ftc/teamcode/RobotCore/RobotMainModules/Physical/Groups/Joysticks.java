@@ -12,6 +12,7 @@ public class Joysticks implements Module {
 
     private Gamepad gamepad1;
     private Gamepad gamepad2;
+    private int num;
 
     public int gear = 1, dpadUp, bPressed = 1, gearTele = 0, lastGearTele = 0;
 
@@ -25,14 +26,20 @@ public class Joysticks implements Module {
             switchA_g2 = false, switchB_g2 = false, switchRBum_g1 = false, switchLBum_g1 = false, switchY_g2 = false,
     rightTrigger = false, leftTrigger = false, switchBack_g2 = false;
 
-    public Joysticks(OpMode op){
+    public Joysticks(OpMode op, int num){
         this.op = op;
+        this.num = num;
     }
 
     @Override
     public void init() {
-        this.gamepad1 = op.gamepad1;
-        this.gamepad2 = op.gamepad2;
+        if(num == 1){
+            this.gamepad1 = op.gamepad1;
+        }
+
+        if(num == 2){
+            this.gamepad2 = op.gamepad2;
+        }
 
         op.telemetry.addLine("Gamepads Inited");
     }

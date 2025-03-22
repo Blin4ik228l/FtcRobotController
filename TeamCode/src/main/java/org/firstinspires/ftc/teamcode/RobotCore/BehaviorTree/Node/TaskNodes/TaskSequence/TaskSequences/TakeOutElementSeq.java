@@ -19,7 +19,7 @@ public class TakeOutElementSeq extends TaskSequence implements ConstsTeleskope {
         this.lin = lin;
 
         OrdinaryTask throwAway = new OrdinaryTask(robot.setZahvat,
-                new StandartArgs.captureArgs(MIDLE_POS_FLIP, OPEN_POS_HOOK, 0.1),
+                new StandartArgs.captureArgs(MIDLE_POS_FLIP, OPEN_POS_HOOK, 1.5),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
 
         OrdinaryTask downUnCaptured = new OrdinaryTask(robot.setZahvat,

@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package org.firstinspires.ftc.robotcontroller.internal;
 
+import static org.openftc.apriltag.BuildConfig.BUILD_TYPE;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -123,7 +125,6 @@ import org.firstinspires.ftc.robotcore.internal.ui.ThemedActivity;
 import org.firstinspires.ftc.robotcore.internal.ui.UILocation;
 import org.firstinspires.ftc.robotcore.internal.webserver.RobotControllerWebInfo;
 import org.firstinspires.ftc.robotserver.internal.programmingmode.ProgrammingModeManager;
-import org.firstinspires.inspection.BuildConfig;
 import org.firstinspires.inspection.RcInspectionActivity;
 import org.threeten.bp.YearMonth;
 import org.xmlpull.v1.XmlPullParserException;
@@ -403,7 +404,7 @@ public class FtcRobotControllerActivity extends Activity
       initWifiMute(true);
     }
 
-    FtcAboutActivity.setBuildTimeFromBuildConfig(BuildConfig.BUILD_TYPE);
+    FtcAboutActivity.setBuildTimeFromBuildConfig(BUILD_TYPE);
 
     // check to see if there is a preferred Wi-Fi to use.
     checkPreferredChannel();

@@ -63,13 +63,6 @@ public abstract class RobotCore implements Module {
 
     };
 
-    // Метод, обрабатывающий задачу телеопа
-    public synchronized void teleop() {
-        teleopPl1();
-        teleopPl2();
-    }
 
-    public abstract void teleopPl1();
-    public abstract void teleopPl2();
 }
 

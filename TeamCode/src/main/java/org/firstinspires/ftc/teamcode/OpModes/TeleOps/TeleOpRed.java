@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.OpModes.TeleOps;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.OpModes.Players.Player1;
+import org.firstinspires.ftc.teamcode.OpModes.Players.Player2;
 import org.firstinspires.ftc.teamcode.OpModes.Robot;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotAlliance;
 import org.firstinspires.ftc.teamcode.RobotCore.RobotUtils.RobotMode;
@@ -10,18 +12,16 @@ import org.firstinspires.ftc.teamcode.RobotCore.Utils.Position;
 
 @TeleOp(name = "RedMeow", group = "Red")
 public class TeleOpRed extends OpMode {
-    Robot robot;
+    Player1 player1;
+    Player2 player2;
 
     /**
      *  Метод вызывается один раз при нажатии INIT
      */
     @Override
     public void init() {
-        robot = new Robot(RobotMode.TELEOP, RobotAlliance.RED, this, new Position());
-
-        robot.init();
-
-        robot.op.telemetry.addLine("Init End");
+        player1 = new Player1(this);
+        player2 = new Player2(this);
     }
 
     /**
@@ -29,27 +29,28 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void init_loop() {
-        robot.op.telemetry.clear();
+        telemetry.clear();
     }
 
     /**
      *  Метод вызывается один раз при нажатии кнопки START
      */
     @Override
-    public void start() {robot.taskManager.startTeleop();}
-
+    public void start() {
+        player1.start();
+        player2.start();
+    }
     /**
      *  Метод крутится в цикле после нажатия START
      */
     @Override
     public void loop() {
-        robot.odometry.getRobotPos();
-        robot.odometry.getEncPos();
-//        drivetrain.getMotorsPower();
-//        servosService.getServosPos();
-//        joysticks.checkJoysticksCombo();
-//        joysticks.checkGear();
-//        joysticks.getDpadUp();
+//        robot.odometry.getEncPos();
+//        robot.odometry.getRobotPos();
+//        telemetry.addData("Gear", robot.joysticks.getGear());
+//        telemetry.addData("teleGear", robot.joysticks.gearTele);
+//        telemetry.addData("height", robot.teleSkope.getHeight());
+//        robot.joysticks.getDpadUp();
     }
 
     /**
@@ -57,6 +58,7 @@ public class TeleOpRed extends OpMode {
      */
     @Override
     public void stop() {
-        robot.teleInterrupt();
+        player1.interrupt();
+        player2.interrupt();
     }
 }

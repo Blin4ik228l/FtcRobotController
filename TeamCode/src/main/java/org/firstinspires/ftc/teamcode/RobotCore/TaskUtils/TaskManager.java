@@ -68,20 +68,18 @@ public class TaskManager extends Thread{
 
     public void permanentlyExecute(){
         stackTasks();
-        if(!executingDeque.isEmpty()) {
-            for (Iterator<OrdinaryTask> iterator = executingDeque.iterator(); iterator.hasNext();) {
-                OrdinaryTask currentTask = iterator.next();
-                OrdinaryTask executingTask = prepareTask(currentTask);
-                executeTask(executingTask);
-            }
-        }
+        OrdinaryTask executingTask = prepareTask();
+        executeTask(executingTask);
+//        if(!executingDeque.isEmpty()) {
+//            for (OrdinaryTask currentTask : tasksToDo) {
 
-
+//            }
+//        }
     }
 
-    public OrdinaryTask prepareTask(OrdinaryTask t){
+    public OrdinaryTask prepareTask(){
 
-//        OrdinaryTask t = tasksToDo.peek();
+        OrdinaryTask t = tasksToDo.peek();
 
         if(t.state == States.TODO){
             t.startTime = managerRuntime.milliseconds();
@@ -98,7 +96,7 @@ public class TaskManager extends Thread{
 
         if (executingTask.state == States.FAILURE){
             taskDeque.remove(executingTask);//Убираем из общей очереди задач
-//            tasksToDo.pop();//Убираем из очереди выполняемых задач
+            tasksToDo.pop();//Убираем из очереди выполняемых задач
         }
 
         // Вернулся 0 - значит задача выполнилась
@@ -107,20 +105,20 @@ public class TaskManager extends Thread{
             completedTasks.push(executingTask);
 
             taskDeque.remove(executingTask);//Убираем из общей очереди задач
-//            tasksToDo.pop();//Убираем из очереди выполняемых задач
+            tasksToDo.pop();//Убираем из очереди выполняемых задач
         }
     }
 
     public void addTaskToStack(OrdinaryTask newTask){
-//        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
-//                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) taskDeque.addFirst(newTask);
-//
-//        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
-
         if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
-                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) executingDeque.addLast(newTask);
+                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) taskDeque.addFirst(newTask);
 
-        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) executingDeque.addFirst(newTask);
+        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) taskDeque.addLast(newTask);
+//
+//        if(newTask.startMode == OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS ||
+//                newTask.startMode == OrdinaryTask.taskStartMode.START_WITH_PREVIOUS) executingDeque.addLast(newTask);
+//
+//        if(newTask.startMode == OrdinaryTask.taskStartMode.HOTCAKE) executingDeque.addFirst(newTask);
     }
 
     public void stackTasks() {
@@ -133,60 +131,6 @@ public class TaskManager extends Thread{
         }
     }
 
-
-    public void startTeleop(){
-        this.setDaemon(true);
-        this.start();
-    }
-
-    @Override
-    public void run() {
-        while(!isInterrupted()) {
-            forTeleop();
-        }
-    }
-
-    private synchronized void forTeleop() {
-        // Обработчик будет работать, пока робот в телеоп режиме
-        robot.teleop();
-    }
-
-
-    public class Tele1 extends Thread {
-        public void init(){
-            this.setDaemon(true);
-        }
-
-        @Override
-        public void run() {
-            while (!this.isInterrupted()) {
-                robot.teleopPl1();
-            }
-        }
-    }
-
-    public class Tele2 extends Thread{
-        public void init(){
-            this.setDaemon(true);
-        }
-        @Override
-        public void run() {
-            while (!this.isInterrupted()){
-                robot.teleopPl2();
-            }
-        }
-    }
-
-   public final Tele1 tele1 = new Tele1();
-   public final Tele2 tele2 = new Tele2();
-
-//    public synchronized void forTeleop() {
-//        tele1.init();
-//        tele2.init();
-//
-//        tele1.start();
-//        tele2.start();
-//    }
 
     /**
      * Стартер задач.
@@ -284,6 +228,7 @@ public class TaskManager extends Thread{
 //     * проходится один раз за вызов, это позволяет дергать методы-обработчики в цикле Итератора
 //     * несколько раз в секунду и работать над несколькими задачами "одновременно".
 //     */
+
     private int updateTask(OrdinaryTask currentTask) {
         /*
             Обратите внимание, что ваш метод должен возвращать int, показывая результат своей работы,

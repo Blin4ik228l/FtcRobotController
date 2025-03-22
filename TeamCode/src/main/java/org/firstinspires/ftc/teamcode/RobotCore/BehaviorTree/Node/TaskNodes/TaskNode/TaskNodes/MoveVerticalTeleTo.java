@@ -12,7 +12,7 @@ public class MoveVerticalTeleTo extends TaskNode implements ConstsTeleskope {
     public MoveVerticalTeleTo(Robot robot, double height, LinearOpMode lin){
         super(robot, lin);
         task = new OrdinaryTask(robot.setVerticalTeleskopePos,
-                new StandartArgs.verticalArgs(height, 0.95, 0.3),
+                new StandartArgs.verticalArgs(height, 1, 4),
                 OrdinaryTask.taskStartMode.START_AFTER_PREVIOUS);
     }
 }

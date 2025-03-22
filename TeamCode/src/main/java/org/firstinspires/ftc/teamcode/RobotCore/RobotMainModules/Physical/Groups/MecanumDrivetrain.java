@@ -94,7 +94,7 @@ public class MecanumDrivetrain implements Module {
     public synchronized MotorsStatus setXYHeadVel(double powerX, double powerY, double powHead){
 
         if(driveTrainStatus != RobotModuleStatus.Stucked) {
-            double maxV = 0.75;
+            double maxV = 0.65;
 
             double minVAngle = 0.15;
 
@@ -148,7 +148,7 @@ public class MecanumDrivetrain implements Module {
     }
 
     public synchronized void setPowerTeleOp(double forward, double side, double angle){
-        if((forward = side = angle) == 0 ){
+        if(forward == 0 && angle == 0 && side == 0 ){
             offMotors();
             return;
         }

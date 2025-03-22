@@ -81,12 +81,7 @@ public class AutoTest extends LinearOpMode {
                 robot.drivetrain.setXYHeadVel(speedPIDX, speedPIDY, angularPID);
             }
 
-            robot.metry.getTelemetry().addLine();
-            robot.metry.getTelemetry().addData("Оставшийся угол", errorHeading);
-            robot.metry.getTelemetry().addData("Оставшийся расстояние", errorPos.length());
-            robot.metry.getTelemetry().addLine();
 
-            robot.metry.getTelemetry().update();
         }
     }
 
@@ -97,7 +92,7 @@ public class AutoTest extends LinearOpMode {
             waitForStart();
             while (opModeIsActive()) {
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive1, 200));
-                driveMethod(new StandartArgs.driveArgs(posForDrive1));
+//                driveMethod(new StandartArgs.driveArgs(posForDrive1));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive2));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive3));
 //                driveMethod(new StandartArgs.driveStandartArgs(posForDrive4));

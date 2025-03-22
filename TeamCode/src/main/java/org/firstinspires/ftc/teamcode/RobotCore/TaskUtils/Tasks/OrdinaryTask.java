@@ -4,7 +4,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.StandartArgs;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.TaskHandlers.TaskHandlerOrdinal;
 
-public class OrdinaryTask {
+public class OrdinaryTask extends Thread{
 
     public OrdinaryTask(TaskHandlerOrdinal taskHandler, StandartArgs args, taskStartMode startMode){
         this.taskHandler = taskHandler;
@@ -28,6 +28,12 @@ public class OrdinaryTask {
 
     public double progressBar;
 
+    @Override
+    public void run() {
+        while (!isInterrupted()){
+
+        }
+    }
 
     // Энам, перечисляющий режим начала выполнения задачи
     public enum taskStartMode {

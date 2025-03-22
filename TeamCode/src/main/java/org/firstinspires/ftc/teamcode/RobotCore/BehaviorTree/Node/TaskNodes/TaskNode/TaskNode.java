@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public abstract class TaskNode extends Node {
-    public TaskNode(Robot robot, LinearOpMode lin) {
+    public TaskNode(Robot robot,  LinearOpMode lin) {
         this.robot = robot;
         this.lin = lin;
     }

@@ -9,9 +9,12 @@ import org.firstinspires.ftc.teamcode.RobotCore.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.RobotCore.TaskUtils.Tasks.OrdinaryTask;
 
 public class ParallelActions extends TaskNode {
-    public ParallelActions(Robot robot, TaskNode parallel1, TaskNode parallel2, LinearOpMode lin) {
-        super(robot, lin);
+    public ParallelActions(Robot robotT1, Robot robotT2, TaskNode parallel1, TaskNode parallel2, LinearOpMode lin) {
+        super(robotT1, lin);
         this.task = parallel1.task;
+
+        this.robot1 = robotT1;
+        this.robot2 = robotT2;
 
         parallel1.isProgrammDisabled = true;
         parallel2.isProgrammDisabled = true;
@@ -22,16 +25,15 @@ public class ParallelActions extends TaskNode {
         this.parallel1 = parallel1;
         this.parallel2 = parallel2;
     }
+    public Robot robot2;
+    public Robot robot1;
     public TaskNode parallel1;
     public TaskNode parallel2;
 
     @Override
     public void programm() {
-
-
-
         while ((task.state == States.TODO || task.state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()){
-            robot.taskManager.permanentlyExecute();
+            robot1.taskManager.permanentlyExecute();
         }
 
         nodeState = task.state;

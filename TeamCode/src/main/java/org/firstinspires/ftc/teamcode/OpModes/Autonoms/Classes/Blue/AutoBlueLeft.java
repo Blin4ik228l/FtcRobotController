@@ -34,18 +34,17 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
 
         //Выгрузили sample1
         startNode.add(new PrepareToElement(r, this));
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(28, 38,135), 160,0), this));
 
-        startNode.add(new MoveVerticalTeleTo(r, 62, this));
-        startNode.add(new MoveHorizontTeleTo(r, 0.14, this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.20, this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
         startNode.add(new TakeOutElementSeq(r, this));
         startNode.add(new PrepareToElement(r, this));
-        startNode.add(new MoveHorizontTeleTo(r, -0.14, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.20, this));
 
-        startNode.add(
-                new TaskNodeParallel(r,
-                        new MoveVerticalTeleTo(r, 1, this),
-                        new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,0), 160), this), this));
+        startNode.add(new MoveVerticalTeleTo(r, 1, this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,0), 160, 0), this));
 
         //Взяли sample2
         startNode.add(new MoveHorizontTeleTo(r, 0.18, this));
@@ -53,42 +52,44 @@ public class AutoBlueLeft extends LinearOpModeModified implements ConstsTeleskop
         startNode.add(new MoveHorizontTeleTo(r, -0.18, this));
 
         //Выгрузили sample2
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
-        startNode.add(new MoveVerticalTeleTo(r, 62, this));
-        startNode.add(new MoveHorizontTeleTo(r, 0.14, this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160, 0), this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.20, this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
         startNode.add(new TakeOutElementSeq(r, this));
         startNode.add(new PrepareToElement(r, this));
-        startNode.add(new MoveHorizontTeleTo(r, -0.14, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.20, this));
         startNode.add(new MoveVerticalTeleTo(r, 1, this));
 
 //        //Взяли sample3
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,24), 160), this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(40, 24,24), 160, 0), this));
         startNode.add(new MoveHorizontTeleTo(r, 0.24, this));
         startNode.add(new TakeInElementSeq(r, this));
         startNode.add(new MoveHorizontTeleTo(r, -0.24, this));
 
 //        //Выгрузили sample3
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
-        startNode.add(new MoveVerticalTeleTo(r, 62, this));
-        startNode.add(new MoveHorizontTeleTo(r, 0.14, this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160, 0), this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.20, this));
         startNode.add(new TakeOutElementSeq(r, this));
         startNode.add(new PrepareToElement(r, this));
-        startNode.add(new MoveHorizontTeleTo(r, -0.14, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.20, this));
         startNode.add(new MoveVerticalTeleTo(r, 1, this));
 
 //        //Взяли sample4
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(60, 40,45), 160), this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(60, 40,45), 160, 0), this));
         startNode.add(new MoveHorizontTeleTo(r, 0.16, this));
         startNode.add(new TakeInElementSeq(r, this));
         startNode.add(new MoveHorizontTeleTo(r, -0.16, this));
 
 //        //Выгрузили sample4
-        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160), this));
-        startNode.add(new MoveVerticalTeleTo(r, 62, this));
-        startNode.add(new MoveHorizontTeleTo(r, 0.14, this));
+        startNode.add(new DriveTo(r, new StandartArgs.driveArgs(new Position(22, 38,135), 160, 0), this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
+        startNode.add(new MoveHorizontTeleTo(r, 0.20, this));
+        startNode.add(new MoveVerticalTeleTo(r, 45, this));
         startNode.add(new TakeOutElementSeq(r, this));
         startNode.add(new PrepareToElement(r, this));
-        startNode.add(new MoveHorizontTeleTo(r, -0.14, this));
+        startNode.add(new MoveHorizontTeleTo(r, -0.20, this));
         startNode.add(new MoveVerticalTeleTo(r, 1, this));
 
         waitForStart();

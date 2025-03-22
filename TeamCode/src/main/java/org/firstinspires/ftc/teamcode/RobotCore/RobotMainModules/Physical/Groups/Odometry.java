@@ -25,7 +25,7 @@ public class Odometry extends Thread implements Module {
     private DcMotorEx encR;                                                 //
     private final Position deltaPosition;                                   // Относительное перемещение
     private final Position globalPosition;                                  // Глобальное положение
-    private final Position startGlobalPosition;
+    private Position startGlobalPosition = new Position();
     private final Vector2 velocity, oldVelocity, acceleration;              // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;                                 // Максимальные скорость и ускорение
 
@@ -54,6 +54,28 @@ public class Odometry extends Thread implements Module {
             oldTime[i] = 0;
         }
     }
+
+    public  Odometry (OpMode op){
+        this.op = op;
+
+        this.globalPosition = new Position();
+        this.deltaPosition = new Position();
+
+        this.velocity = new Vector2(0,0);
+        this.oldVelocity = new Vector2(0,0);
+        this.acceleration = new Vector2(0,0);
+
+        runtime = new ElapsedTime();
+        dt = new double[4];
+        oldTime = new double[4];
+
+        for (int i = 0; i < 4; i++)
+        {
+            dt[i] = 0;
+            oldTime[i] = 0;
+        }
+    }
+
 
     @Override
     public void init() {

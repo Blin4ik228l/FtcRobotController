@@ -1,0 +1,54 @@
+package org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.Node.TaskNodes.TaskNode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.Game.Programms.Robot;
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.States;
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.Node.Node;
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.TaskUtils.Tasks.OrdinaryTask;
+
+public abstract class TaskNode extends Node {
+    public TaskNode(Robot robot,  LinearOpMode lin) {
+        this.robot = robot;
+        this.lin = lin;
+    }
+
+    public LinearOpMode lin;
+    public OrdinaryTask task;
+
+    public boolean isAdded = false;
+
+    public boolean isProgrammDisabled = false;
+
+    public boolean isParallel = false;
+
+
+    @Override
+    public void programm() {
+        if (!isParallel) {
+            if (!isProgrammDisabled) {
+                if (!isAdded) {
+                    robot.taskManager.addTaskToStack(task);
+//                robot.robotStatusHandler.tasksToDo.add(task);
+                    isAdded = true;
+                }
+
+                while ((task.state == States.TODO || task.state == States.RUNNING) && !lin.isStopRequested() && lin.opModeIsActive()) {
+                    robot.taskManager.permanentlyExecute();
+                }
+
+                nodeState = task.state;
+            }
+        }else{
+            if (!isProgrammDisabled) {
+                if (!isAdded) {
+                    robot.taskManager.addTaskToStack(task);
+//                robot.robotStatusHandler.tasksToDo.add(task);
+                    isAdded = true;
+                }
+
+                nodeState = task.state;
+            }
+        }
+    }
+}

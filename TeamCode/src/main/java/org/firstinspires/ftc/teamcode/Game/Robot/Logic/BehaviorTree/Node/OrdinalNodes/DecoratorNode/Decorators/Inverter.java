@@ -1,0 +1,20 @@
+package org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorators;
+
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.Node.OrdinalNodes.DecoratorNode.Decorator;
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.States;
+import org.firstinspires.ftc.teamcode.Game.Robot.Logic.BehaviorTree.Node.Node;
+
+public class Inverter extends Decorator {
+    public Inverter(Node node) {
+        super(node);
+    }
+
+    @Override
+    public void programm() {
+        nodeToWork.tickMe();
+
+        if(nodeToWork.nodeState == States.FAILURE) nodeState = States.SUCCESS;
+
+        if (nodeToWork.nodeState == States.SUCCESS) nodeState = States.FAILURE;
+    }
+}

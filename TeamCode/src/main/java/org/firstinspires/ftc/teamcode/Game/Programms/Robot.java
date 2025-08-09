@@ -77,7 +77,6 @@ public class Robot extends RobotCore implements Consts, ConstsTeleskope {
         odometry.interrupt();
 //        taskManager.tele1.interrupt();
 //        taskManager.tele2.interrupt();
-        taskManager.interrupt();
     }
 
 

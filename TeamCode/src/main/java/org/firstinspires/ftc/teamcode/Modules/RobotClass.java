@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MecanumDriveTrain;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.TeleSkope;
 
+import java.util.Deque;
+import java.util.Stack;
+
 public class RobotClass {
    /* Основная идея данного класса:
     Робот - это как конструктор, он состоит из разных частей
@@ -18,7 +21,4 @@ public class RobotClass {
     }
     public MecanumDriveTrain driveTrain;
     public TeleSkope teleSkope;
-    public void start(){
-
-    }
 }

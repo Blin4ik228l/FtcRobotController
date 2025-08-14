@@ -51,6 +51,10 @@ public class TeleSkope extends Module {
                 if(selfData.curHeight != height){
                     double dir = Math.signum(selfData.getCurHeight() - height);
 
+                    if(power == 0){//Данная строчка нужно чтобы поддерживать телескоп на определённом уровне, даже когда по аргумантам не задано
+                        power = 0.05;
+                    }
+
                     left.setPower(power * dir);
                     right.setPower(-power * dir);
                 }
@@ -74,7 +78,7 @@ public class TeleSkope extends Module {
             private double leftEncOld;
             private double rightEncOld;
 
-            private double getCurHeight(){//Чтобы высота всегда была вовремя высчитана нужно потсоянно вызывать её подсчёт
+            public double getCurHeight(){//Чтобы высота всегда была вовремя высчитана нужно потсоянно вызывать её подсчёт
                 calculateHeight();
 
                 return curHeight;
@@ -114,6 +118,18 @@ public class TeleSkope extends Module {
         private final Servo horizontal;
         private final Servo hook;
         private final Servo flip;
+
+        public Servo getFlip() {
+            return flip;
+        }
+
+        public Servo getHook() {
+            return hook;
+        }
+
+        public Servo getHorizontal() {
+            return horizontal;
+        }
 
         private void setHorizontal(double pos){
             horizontal.setPosition(pos);

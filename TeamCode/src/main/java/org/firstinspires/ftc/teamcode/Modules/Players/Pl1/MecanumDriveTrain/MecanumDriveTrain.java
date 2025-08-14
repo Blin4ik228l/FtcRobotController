@@ -147,11 +147,11 @@ public class MecanumDriveTrain extends Module {
             return maxAcceleration;
         }
 
-        private Position getGlobalPosition(){                           // создаем метод для получения глобальных координат
+        public Position getGlobalPosition(){                           // создаем метод для получения глобальных координат
             return globalPosition;
         }
 
-        private Vector2 getVelocity(){                                  // создаем метод для получения вектора скорости
+        public Vector2 getVelocity(){                                  // создаем метод для получения вектора скорости
             return velocity;
         }
 

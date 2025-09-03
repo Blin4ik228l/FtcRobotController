@@ -28,8 +28,8 @@ public class TeleSkope extends Module {
     public class Lift{
        public Lift(OpMode op){
            selfData = new SelfData();
-           left = op.hardwareMap.get(DcMotor.class, "left");
-           right = op.hardwareMap.get(DcMotor.class, "right");
+           left = op.hardwareMap.get(DcMotor.class, "leftTele");
+           right = op.hardwareMap.get(DcMotor.class, "rightTele");
 
            left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
            right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -47,30 +47,32 @@ public class TeleSkope extends Module {
         public final SelfData selfData;
 
         public void setPower(double power, boolean isToPos, double height){
-            if(isToPos){//Если у нас телескоп в режиме "доезда" до точки (этот режим нужен по идее только для автономки)
-                if(selfData.curHeight != height){
-                    double dir = Math.signum(selfData.getCurHeight() - height);
-
-                    if(power == 0){//Данная строчка нужно чтобы поддерживать телескоп на определённом уровне, даже когда по аргумантам не задано
-                        power = 0.05;
-                    }
-
-                    left.setPower(power * dir);
-                    right.setPower(-power * dir);
-                }
-            }
-
-            if(!isToPos && height > OFFSET_FROM_LAND) {//Это режим телескопа позволяет поднимать его по уровням, как-бы создавая границы (практиковался в упраляемом режиме)
-                if(power >= 0 && selfData.curHeight != height || power <= 0 && selfData.curHeight != OFFSET_FROM_LAND){
-                    left.setPower(power);
-                    right.setPower(-power);
-                }
-            }
-
-            if(!isToPos && height == 0){//Обычная подача напряжение на моторы телескопа
-                left.setPower(power);
-                right.setPower(-power);
-            }
+//            if(isToPos){//Если у нас телескоп в режиме "доезда" до точки (этот режим нужен по идее только для автономки)
+//                if(selfData.curHeight != height){
+//                    double dir = Math.signum(selfData.getCurHeight() - height);
+//
+//                    if(power == 0){//Данная строчка нужно чтобы поддерживать телескоп на определённом уровне, даже когда по аргумантам не задано
+//                        power = 0.05;
+//                    }
+//
+//                    left.setPower(power * dir);
+//                    right.setPower(-power * dir);
+//                }
+//            }
+//
+//            if(!isToPos && height > OFFSET_FROM_LAND) {//Это режим телескопа позволяет поднимать его по уровням, как-бы создавая границы (практиковался в упраляемом режиме)
+//                if(power >= 0 && selfData.curHeight != height || power <= 0 && selfData.curHeight != OFFSET_FROM_LAND){
+//                    left.setPower(power);
+//                    right.setPower(-power);
+//                }
+//            }
+//
+//            if(!isToPos && height == 0){//Обычная подача напряжение на моторы телескопа
+//                left.setPower(power);
+//                right.setPower(-power);
+//            }
+            left.setPower(power);
+            right.setPower(-power);
         }
 
         public class SelfData{

@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.Player1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.Player2;
 import org.firstinspires.ftc.teamcode.Modules.RobotClass;
 
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "teleop")
 public class TeleOp extends OpMode {
     Thread parallelStream;
     Player2 dimas;

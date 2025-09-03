@@ -50,7 +50,7 @@ public class Player1 extends Player {
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
-        showData();
+//        showData();
     }
 
     @Override

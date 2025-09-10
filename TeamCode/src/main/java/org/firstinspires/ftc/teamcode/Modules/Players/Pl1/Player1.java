@@ -20,6 +20,7 @@ public class Player1 extends Player {
     @Override
     public void play() {
         joystickActivity.checkActivity();
+
         double max_speed = 0.8;
         double accelLinear = 1.3, accelAngle = 1.3;
 

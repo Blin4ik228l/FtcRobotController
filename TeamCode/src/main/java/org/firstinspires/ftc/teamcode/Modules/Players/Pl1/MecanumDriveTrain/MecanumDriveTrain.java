@@ -257,9 +257,9 @@ public class MecanumDriveTrain extends Module {
 
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
-            double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / Consts.DIST_BETWEEN_ENC_X);
+            double deltaRad = (-(deltaRightEncoderX + deltaLeftEncoderX) / DIST_BETWEEN_ENC_X);
             double deltaX = (deltaLeftEncoderX - deltaRightEncoderX ) / 2.0;
-            double deltaY = (deltaEncoderY) - deltaRad * Consts.OFFSET_ENC_M_FROM_CENTER;
+            double deltaY = (deltaEncoderY) - deltaRad * OFFSET_ENC_M_FROM_CENTER;
 
             deltaPosition.setHeading(deltaRad);
             deltaPosition.setX(deltaX);

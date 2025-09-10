@@ -19,7 +19,9 @@ public class Player2 extends Player implements Runnable {
 
     @Override
     public void run() {
-        play();
+        while(true){
+            play();
+        }
     }
 
     @Override
@@ -86,14 +88,14 @@ public class Player2 extends Player implements Runnable {
                 break;
         }
 
-        if(joystickActivity.buttonY) {
-            flipPos = HANG_POS_FLIP;
-            joystickActivity.buttonB = false;
-        }
-
         if (joystickActivity.buttonB ) {
             flipPos = TAKE_POS_FLIP;
             joystickActivity.buttonY = false;
+        }
+
+        if(joystickActivity.buttonY) {
+            flipPos = HANG_POS_FLIP;
+            joystickActivity.buttonB = false;
         }
 
         if (!joystickActivity.buttonY && !joystickActivity.buttonY)
@@ -107,9 +109,10 @@ public class Player2 extends Player implements Runnable {
             hookPos = OPEN_POS_HOOK;
         }
 
-        if(playersGamepad.x) {
+        if(playersGamepad.x ) {
             upStandingVel = -0.7;
-        }else{
+            hookPos = CLOSE_POS_HOOK;
+        }else if(joystickActivity.buttonA){
             hookPos = OPEN_POS_HOOK;
             targetHeight = 17;
             joystickActivity.tLeftTriggerPressed = 1;

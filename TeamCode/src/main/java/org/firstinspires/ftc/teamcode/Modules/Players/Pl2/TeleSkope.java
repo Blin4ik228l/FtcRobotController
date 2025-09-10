@@ -72,7 +72,7 @@ public class TeleSkope extends Module {
 //                right.setPower(-power);
 //            }
             left.setPower(power);
-            right.setPower(-power);
+            right.setPower(power);
         }
 
         public class SelfData{
@@ -111,9 +111,9 @@ public class TeleSkope extends Module {
             flip = op.hardwareMap.get(Servo.class, "rotate");
             horizontal = op.hardwareMap.get(Servo.class, "zahvat");
 
-            setHook(1);//Устанавливаем в начальное положение
-            setHorizontal(1);
-            setFlip(1);
+            setHook(OPEN_POS_HOOK);//Устанавливаем в начальное положение
+            setHorizontal(OPEN_POS_HORIZONTAL);
+            setFlip(MIDLE_POS_FLIP);
 
             telemetry.addLine("Servos inited");
         }

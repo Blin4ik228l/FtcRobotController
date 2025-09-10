@@ -20,7 +20,7 @@ public class TeleOp extends OpMode {
         dimas = new Player2(gamepad2, robot.teleSkope, this);
 
         parallelStream = new Thread(dimas);
-        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
+        //parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
     }
 
     @Override
@@ -42,4 +42,5 @@ public class TeleOp extends OpMode {
     public void stop() {
 
     }
+
 }

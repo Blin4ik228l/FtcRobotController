@@ -77,7 +77,7 @@ public class Vector2 {
             return;
         }
 
-        x /= mag;
+        x /= mag;//приводим в значения от -1 до 1
         y /= mag;
         vectorLength = 1;
     }
@@ -102,17 +102,21 @@ public class Vector2 {
         vectorLength = length();
     }
 
-    public void rotate(double Rad) {
+    public void toGlobal(double Rad) {
         double oldX = x;
         double oldY = y;
         x = oldX*Math.cos(Rad) - oldY*Math.sin(Rad);
         y = oldX*Math.sin(Rad) + oldY*Math.cos(Rad);
     }
 
-    public static Vector2 rotate(Vector2 vector, double Rad) {
+    public static Vector2 toGlobalVector(Vector2 vector, double Rad) {
         double x = vector.x * Math.cos(Rad) - vector.y * Math.sin(Rad);
         double y = vector.x * Math.sin(Rad) + vector.y * Math.cos(Rad);
         return new Vector2(x, y);
+
+
+        // double x = vector.lenght * Math.cos(Rad)
+        //double y = vector.lenght * Math.sin(Rad)
     }
 
 //    public void rotateAround(double angle, double x, double y) {

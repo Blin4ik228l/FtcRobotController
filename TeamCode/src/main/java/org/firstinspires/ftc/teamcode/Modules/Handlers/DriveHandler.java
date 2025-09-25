@@ -44,14 +44,14 @@ public class DriveHandler extends Handler {
         errorPos = new Vector2();
 
         // Находим ошибку положения
-        errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();
-        errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();
-        errorHeading = driveArgs.position.getHeading() - driveTrain.odometry.getGlobalPosition().getHeading();
+        errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();//Forward
+        errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();//Side
+        errorHeading = driveArgs.position.getHeading() - driveTrain.odometry.getGlobalPosition().getHeading();//Turn
 
         // Направление движения
         targetVel = new Vector2(errorPos);
         targetVel.normalize();
-        targetVel.rotate(-driveTrain.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        targetVel.toGlobal(-driveTrain.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
         // Выбираем скорости в зависимости от величины ошибки
         linearVel = errorPos.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;

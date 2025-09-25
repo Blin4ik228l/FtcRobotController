@@ -34,14 +34,25 @@ public class Player1 extends Player {
             accelAngle = 0.25;
         }
 
-        double forward = -1*playersGamepad.left_stick_y;
-        double side = playersGamepad.left_stick_x;
+        double forward;
+        double side;
+
+        if(!joystickActivity.buttonA){
+            forward = -1*playersGamepad.left_stick_y;
+            side = playersGamepad.left_stick_x;
+        }else{
+            double[] globalVector = moveHeadless();
+
+            forward = globalVector[0];
+            side = globalVector[1];
+        }
+
         double turn = playersGamepad.right_stick_x;
 
-        if (Math.abs(forward) < 0.1 && forward != 0){
+        if (Math.abs(forward) < 0.1 && forward != 0 && !joystickActivity.buttonA){
             forward += 0.1 * Math.signum(forward);
         }
-        if (Math.abs(side) < 0.1 && side != 0){
+        if (Math.abs(side) < 0.1 && side != 0 && !joystickActivity.buttonA){
             side += 0.15 * Math.signum(side);
         }
 
@@ -60,6 +71,25 @@ public class Player1 extends Player {
         driveTrain.odometry.getRobotPos();
     }
 
+    public double[] moveHeadless(){
+        double forward = -1*playersGamepad.left_stick_y;
+        double side = playersGamepad.left_stick_x;
+
+        double heading = driveTrain.odometry.getGlobalPosition().getHeading();
+
+        double cosAngle = Math.cos((Math.PI/2) - heading);
+        double sinAngle = Math.sin((Math.PI/2) - heading);// нам важен знак
+
+        double globalSide = side * cosAngle - forward * sinAngle;
+        double globalForward = forward * cosAngle + side * sinAngle;
+
+        double[] globalVector = new double[2];
+
+        globalVector[0] = globalForward;//Y
+        globalVector[1] = globalSide;//X
+
+        return globalVector;
+    }
 
 }
 

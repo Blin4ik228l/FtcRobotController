@@ -54,6 +54,11 @@ public class Position {
     public double getY(){
         return this.y;
     }
+    public void add(double X, double Y, double Rad){
+        this.x += X;
+        this.y += Y;
+        this.heading += Rad;
+    }
 
     public double getHeading(){
         // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется

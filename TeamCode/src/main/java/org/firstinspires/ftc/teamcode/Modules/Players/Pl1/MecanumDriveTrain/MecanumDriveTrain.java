@@ -2,10 +2,12 @@ package org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Func;
@@ -66,7 +68,6 @@ public class MecanumDriveTrain extends Module {
         //движение по y - это вперёд - назад
         //движение по x - это влево - вправо
         //angVol поворот
-        hyro.update();
         odometry.updateAll();//Обноволяем одометрию постоянно когда вызываем метод setPower
 
         leftF.setPower(yVol + xVol + angVol);
@@ -76,54 +77,66 @@ public class MecanumDriveTrain extends Module {
     }
    public class HyroSkope{
        public HyroSkope(OpMode op){
-           BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-           parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-           parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-           parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample OpMode
-           parameters.loggingEnabled      = true;
-           parameters.loggingTag          = "IMU";
-           parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+//           BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//           parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+//           parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//           parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample OpMode
+//           parameters.loggingEnabled      = true;
+//           parameters.loggingTag          = "IMU";
+//           parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
 
            // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
            // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
            // and named "imu".
-           imu = op.hardwareMap.get(BNO055IMU.class, "imu");
+           imu = op.hardwareMap.get(IMU.class, "imu");
+           parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                   RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                   RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+           ));
+
            imu.initialize(parameters);
 
-           composeTelemetry();
+//           composeTelemetry();
        }
-       public BNO055IMU imu;
+       IMU.Parameters parameters;
+       public IMU imu;
        public Orientation angles;
        public Acceleration gravity;
 
-       public void update(){
-           imu.startAccelerationIntegration(new org.firstinspires.ftc.robotcore.external.navigation.Position(), new Velocity(), 1000);
+//       public void update(){
+//           imu.startAccelerationIntegration(new org.firstinspires.ftc.robotcore.external.navigation.Position(), new Velocity(), 1000);
+//       }
+
+       public void getYaw(){
+           telemetry.addLine("Gyro")
+                   .addData("Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+           telemetry.addLine();
        }
        public void composeTelemetry() {
 
-           // В начале каждого обновления телеметрии соберирает набор данных
-           // из IMU, которые мы затем отобразим в отдельных строках.
-           telemetry.addAction(new Runnable() { @Override public void run()
-           {
-               // Acquiring the angles is relatively expensive; we don't want
-               // to do that in each of the three items that need that info, as that's
-               // three times the necessary expense.
-               angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-               gravity  = imu.getGravity();
-           }
-           });
-
-           telemetry.addLine()
-                   .addData("status", new Func<String>() {
-                       @Override public String value() {
-                           return imu.getSystemStatus().toShortString();
-                       }
-                   })
-                   .addData("calib", new Func<String>() {
-                       @Override public String value() {
-                           return imu.getCalibrationStatus().toString();
-                       }
-                   });
+//           // В начале каждого обновления телеметрии соберирает набор данных
+//           // из IMU, которые мы затем отобразим в отдельных строках.
+//           telemetry.addAction(new Runnable() { @Override public void run()
+//           {
+//               // Acquiring the angles is relatively expensive; we don't want
+//               // to do that in each of the three items that need that info, as that's
+//               // three times the necessary expense.
+//               angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//               gravity  = imu.getGravity();
+//           }
+//           });
+//
+//           telemetry.addLine()
+//                   .addData("status", new Func<String>() {
+//                       @Override public String value() {
+//                           return imu.getSystemStatus().toShortString();
+//                       }
+//                   })
+//                   .addData("calib", new Func<String>() {
+//                       @Override public String value() {
+//                           return imu.getCalibrationStatus().toString();
+//                       }
+//                   });
 
            telemetry.addLine()
                    .addData("heading", new Func<String>() {
@@ -368,18 +381,20 @@ public class MecanumDriveTrain extends Module {
 
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
-            double deltaRad = (deltaRightEncoderY + deltaLeftEncoderY) / DIST_BETWEEN_ENC_X;
-            double deltaY = (deltaLeftEncoderY + deltaRightEncoderY ) / 2.0;
-            double deltaX = (deltaEncoderX) - deltaRad * OFFSET_ENC_M_FROM_CENTER;
+            double deltaRad = -(deltaRightEncoderY - deltaLeftEncoderY) / DIST_BETWEEN_ENC_X;
+            double deltaY = -(deltaLeftEncoderY + deltaRightEncoderY ) / 2.0;
+            double deltaX = -deltaEncoderX - deltaRad * OFFSET_ENC_M_FROM_CENTER;
 
-            deltaPosition.setHeading(deltaRad);
+
+//            deltaPosition.add(deltaX, deltaY, deltaRad);
+
             deltaPosition.setX(deltaX);
             deltaPosition.setY(deltaY);
+            deltaPosition.setHeading(deltaRad);
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            globalPosition.add(Vector2.toGlobalVector(deltaPosition.toVector(), globalPosition.getHeading()) , deltaPosition.getHeading());
+            globalPosition.add(deltaPosition.toVector(), deltaPosition.getHeading());
 
-            globalPosition.setHeading(globalPosition.getHeading());
             return true;
         }
 
@@ -391,6 +406,14 @@ public class MecanumDriveTrain extends Module {
                     .addData("\nHeading", globalPosition.getHeading() * (180/Math.PI));
             telemetry.addLine();
         }
+
+//        public void getRobotPos(){
+//            telemetry.addLine("Robot position")
+//                    .addData("\nX:", deltaPosition.getX())
+//                    .addData("\nY", deltaPosition.getY())
+//                    .addData("\nHeading", deltaPosition.getHeading() * (180/Math.PI));
+//            telemetry.addLine();
+//        }
         // Вывод позиции энкодеров
         public void getEncPos(){
             telemetry.addLine("Encoders statements")

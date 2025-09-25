@@ -120,7 +120,7 @@ public class Player2 extends Player implements Runnable {
 
         teleSkope.setTeleskope(upStandingVel, false, targetHeight, horizontalPos, hookPos, flipPos);
 
-        showData();
+//        showData();
     }
 
     @Override

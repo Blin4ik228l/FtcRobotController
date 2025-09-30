@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,18 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Func;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Position;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.Modules.Module;
 
-import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class MecanumDriveTrain extends Module {
     //Телега робота(моторы + колёса) с энкодерами.
@@ -29,7 +22,7 @@ public class MecanumDriveTrain extends Module {
     public MecanumDriveTrain(OpMode op){
         super(op.telemetry);
 
-        hyro = new HyroSkope(op);
+        gyro = new GyroSkope(op);
         odometry = new Odometry(op);
 
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
@@ -62,7 +55,7 @@ public class MecanumDriveTrain extends Module {
    public DcMotor rightB;
    public DcMotor rightF;
    public Odometry odometry;
-   public HyroSkope hyro;
+   public GyroSkope gyro;
 
     public void setPower(double yVol, double xVol, double angVol){
         //движение по y - это вперёд - назад
@@ -75,16 +68,8 @@ public class MecanumDriveTrain extends Module {
         rightF.setPower(yVol - xVol - angVol);
         rightB.setPower(yVol + xVol - angVol);
     }
-   public class HyroSkope{
-       public HyroSkope(OpMode op){
-//           BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-//           parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-//           parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-//           parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample OpMode
-//           parameters.loggingEnabled      = true;
-//           parameters.loggingTag          = "IMU";
-//           parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
-
+   public class GyroSkope {
+       public GyroSkope(OpMode op){
            // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
            // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
            // and named "imu".
@@ -96,12 +81,11 @@ public class MecanumDriveTrain extends Module {
 
            imu.initialize(parameters);
 
-//           composeTelemetry();
+
        }
+       public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
        IMU.Parameters parameters;
        public IMU imu;
-       public Orientation angles;
-       public Acceleration gravity;
 
 //       public void update(){
 //           imu.startAccelerationIntegration(new org.firstinspires.ftc.robotcore.external.navigation.Position(), new Velocity(), 1000);
@@ -138,50 +122,50 @@ public class MecanumDriveTrain extends Module {
 //                       }
 //                   });
 
-           telemetry.addLine()
-                   .addData("heading", new Func<String>() {
-                       @Override public String value() {
-                           return formatAngle(angles.angleUnit, angles.firstAngle);
-                       }
-                   })
-                   .addData("roll", new Func<String>() {
-                       @Override public String value() {
-                           return formatAngle(angles.angleUnit, angles.secondAngle);
-                       }
-                   })
-                   .addData("pitch", new Func<String>() {
-                       @Override public String value() {
-                           return formatAngle(angles.angleUnit, angles.thirdAngle);
-                       }
-                   });
-
-           telemetry.addLine()
-                   .addData("grvty", new Func<String>() {
-                       @Override public String value() {
-                           return gravity.toString();
-                       }
-                   })
-                   .addData("mag", new Func<String>() {
-                       @Override public String value() {
-                           return String.format(Locale.getDefault(), "%.3f",
-                                   Math.sqrt(gravity.xAccel*gravity.xAccel
-                                           + gravity.yAccel*gravity.yAccel
-                                           + gravity.zAccel*gravity.zAccel));
-                       }
-                   });
+//           telemetry.addLine()
+//                   .addData("heading", new Func<String>() {
+//                       @Override public String value() {
+//                           return formatAngle(angles.angleUnit, angles.firstAngle);
+//                       }
+//                   })
+//                   .addData("roll", new Func<String>() {
+//                       @Override public String value() {
+//                           return formatAngle(angles.angleUnit, angles.secondAngle);
+//                       }
+//                   })
+//                   .addData("pitch", new Func<String>() {
+//                       @Override public String value() {
+//                           return formatAngle(angles.angleUnit, angles.thirdAngle);
+//                       }
+//                   });
+//
+//           telemetry.addLine()
+//                   .addData("grvty", new Func<String>() {
+//                       @Override public String value() {
+//                           return gravity.toString();
+//                       }
+//                   })
+//                   .addData("mag", new Func<String>() {
+//                       @Override public String value() {
+//                           return String.format(Locale.getDefault(), "%.3f",
+//                                   Math.sqrt(gravity.xAccel*gravity.xAccel
+//                                           + gravity.yAccel*gravity.yAccel
+//                                           + gravity.zAccel*gravity.zAccel));
+//                       }
+//                   });
        }
 
        //----------------------------------------------------------------------------------------------
        // Formatting
        //----------------------------------------------------------------------------------------------
-
-       String formatAngle(AngleUnit angleUnit, double angle) {
-           return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
-       }
-
-       String formatDegrees(double degrees){
-           return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
-       }
+//
+//       String formatAngle(AngleUnit angleUnit, double angle) {
+//           return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+//       }
+//
+//       String formatDegrees(double degrees){
+//           return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+//       }
    }
 
     public class Odometry{

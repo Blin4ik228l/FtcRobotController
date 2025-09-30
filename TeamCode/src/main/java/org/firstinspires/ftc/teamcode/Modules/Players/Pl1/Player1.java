@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode.Modules.Players.Pl1;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MecanumDriveTrain;
 import org.firstinspires.ftc.teamcode.Modules.Players.Player;
-import org.opencv.core.Mat;
+
+import java.util.concurrent.TimeUnit;
 
 public class Player1 extends Player {
    public Player1(Gamepad gamepad, MecanumDriveTrain driveTrain, OpMode op){
@@ -18,57 +20,44 @@ public class Player1 extends Player {
     }
    public MecanumDriveTrain driveTrain;
    public JoystickActivity joystickActivity;
+
+
     @Override
     public void play() {
         joystickActivity.checkActivity();
 
         double max_speed = 0.8;
-        double accelLinear = 1.3, accelAngle = 1.3;
+        double acceleration = 1;
 
-        if(playersGamepad.left_trigger > 0.05 && playersGamepad.right_trigger < 0.05){//Ускорение робота
-            accelLinear = 1.8;
-            accelAngle = 1.8;
+        double rightTrigga = playersGamepad.right_trigger;
+        double leftTrigga = playersGamepad.left_trigger;
+
+        if(leftTrigga > 0.05 && rightTrigga < 0.05){//Ускорение робота
+            acceleration = 2;
         }
 
-        if(playersGamepad.right_trigger > 0.05 && playersGamepad.left_trigger < 0.05){//Замедление робота
-            accelLinear = 0.25;
-            accelAngle = 0.25;
+        if(rightTrigga > 0.05 && leftTrigga < 0.05){//Замедление робота
+            acceleration = 0.5;
         }
 
-        double forward;
-        double side;
+        double cosA = playersGamepad.left_stick_x;
+        double sinA = -1*playersGamepad.left_stick_y;
         double turn = playersGamepad.right_stick_x;
 
-        double denom ;
+        if(joystickActivity.buttonA){
+            double[] globalVector = moveHeadless(cosA, sinA);
 
-        if(!joystickActivity.buttonA){
-            forward = -1*playersGamepad.left_stick_y;
-            side = playersGamepad.left_stick_x;
-        }else{
+            cosA = globalVector[0];//X
+            sinA = globalVector[1];//Y
 
-            double[] globalVector = moveHeadless();
-
-            forward = globalVector[0];
-            side = globalVector[1];
+            cosA *= 1.1;  // Counteract imperfect strafing
         }
 
-        denom = Math.max(Math.abs(-1*playersGamepad.left_stick_y) + Math.abs(playersGamepad.left_stick_x) + Math.abs(playersGamepad.right_stick_x), 1);
+        double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
 
-
-//        if (Math.abs(forward) < 0.1 && forward != 0 && !joystickActivity.buttonA){
-//            forward += 0.1 * Math.signum(forward);
-//        }
-//        if (Math.abs(side) < 0.1 && side != 0 && !joystickActivity.buttonA){
-//            side += 0.15 * Math.signum(side);
-//        }
-
-//        double forwardVoltage = Range.clip(forward * accelLinear , -max_speed, max_speed);
-//        double sideVoltage    = Range.clip(side * accelLinear ,  -max_speed, max_speed);
-//        double angleVoltage   = Range.clip(turn * accelAngle, -max_speed, max_speed);
-
-        double forwardVoltage = forward/denom;
-        double sideVoltage    = side/denom;
-        double angleVoltage   = turn/denom;
+        double forwardVoltage = sinA/(denominator * (1.0 / acceleration));
+        double sideVoltage    = cosA/(denominator * (1.0 / acceleration));
+        double angleVoltage   = turn/(denominator * (1.0 / acceleration));
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
@@ -79,25 +68,22 @@ public class Player1 extends Player {
     public void showData() {
         driveTrain.odometry.getEncPos();
         driveTrain.odometry.getRobotPos();
-        driveTrain.hyro.getYaw();
+        driveTrain.gyro.getYaw();
     }
 
-    public double[] moveHeadless(){
-        double forwardY = -1*playersGamepad.left_stick_y;
-        double sideX = playersGamepad.left_stick_x;
+    public double[] moveHeadless(double cosA, double sinA){//FieldCentric
+        double heading = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
 
-        double heading = driveTrain.odometry.getGlobalPosition().getHeading();
+        double cosB = Math.cos((Math.PI/2) + heading);// где угол B это 90 +- угол робота относитеольно поля
+        double sinB = Math.sin((Math.PI/2) + heading);
 
-        double cosAngle = Math.cos((Math.PI/2) - heading);
-        double sinAngle = Math.sin((Math.PI/2) - heading);// нам важен знак
-
-        double globalSideX = -forwardY * sinAngle +  sideX * cosAngle ;
-        double globalForwardY = forwardY * cosAngle + sideX * sinAngle;
+        double globalX = cosA * cosB - sinA * sinB;
+        double globalY = sinA * cosB + cosA * sinB;
 
         double[] globalVector = new double[2];
 
-        globalVector[0] = globalForwardY;//Y
-        globalVector[1] = globalSideX;//X
+        globalVector[0] = globalX;
+        globalVector[1] = globalY;
 
         return globalVector;
     }

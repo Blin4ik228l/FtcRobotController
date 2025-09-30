@@ -66,16 +66,17 @@ public class Player1 extends Player {
 
     @Override
     public void showData() {
+        telemetry.addData("A",joystickActivity.buttonA);
         driveTrain.odometry.getEncPos();
         driveTrain.odometry.getRobotPos();
         driveTrain.gyro.getYaw();
     }
 
     public double[] moveHeadless(double cosA, double sinA){//FieldCentric
-        double heading = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
+        double heading = -driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
 
-        double cosB = Math.cos((Math.PI/2) + heading);// где угол B это 90 +- угол робота относитеольно поля
-        double sinB = Math.sin((Math.PI/2) + heading);
+        double cosB = Math.cos(heading);// где угол B это 90 +- угол робота относитеольно поля
+        double sinB = Math.sin(heading);
 
         double globalX = cosA * cosB - sinA * sinB;
         double globalY = sinA * cosB + cosA * sinB;

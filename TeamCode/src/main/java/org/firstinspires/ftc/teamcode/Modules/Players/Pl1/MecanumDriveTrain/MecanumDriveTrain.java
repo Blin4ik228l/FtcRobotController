@@ -81,7 +81,7 @@ public class MecanumDriveTrain extends Module {
 
            imu.initialize(parameters);
 
-
+           imu.resetYaw();
        }
        public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
        IMU.Parameters parameters;

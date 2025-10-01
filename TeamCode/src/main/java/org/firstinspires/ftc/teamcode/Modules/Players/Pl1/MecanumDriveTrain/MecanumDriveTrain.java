@@ -57,16 +57,16 @@ public class MecanumDriveTrain extends Module {
    public Odometry odometry;
    public GyroSkope gyro;
 
-    public void setPower(double yVol, double xVol, double angVol){
+    public void setPower(double yVol, double xVol, double angVol, double vyrVol){
         //движение по y - это вперёд - назад
         //движение по x - это влево - вправо
         //angVol поворот
         odometry.updateAll();//Обноволяем одометрию постоянно когда вызываем метод setPower
 
-        leftF.setPower(yVol + xVol + angVol);
-        leftB.setPower(yVol - xVol + angVol);
-        rightF.setPower(yVol - xVol - angVol);
-        rightB.setPower(yVol + xVol - angVol);
+        leftF.setPower(yVol + xVol + angVol + vyrVol);
+        leftB.setPower(yVol - xVol + angVol + vyrVol);
+        rightF.setPower(yVol - xVol - angVol - vyrVol);
+        rightB.setPower(yVol + xVol - angVol - vyrVol);
     }
    public class GyroSkope {
        public GyroSkope(OpMode op){

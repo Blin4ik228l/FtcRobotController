@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Modules.Handlers;
 
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.PID;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Vector2;
@@ -46,12 +47,12 @@ public class DriveHandler extends Handler {
         // Находим ошибку положения
         errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();//Forward
         errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();//Side
-        errorHeading = driveArgs.position.getHeading() - driveTrain.odometry.getGlobalPosition().getHeading();//Turn
+        errorHeading = driveArgs.position.getHeading() - driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);//Turn
 
         // Направление движения
         targetVel = new Vector2(errorPos);
         targetVel.normalize();
-        targetVel.toGlobal(-driveTrain.odometry.getGlobalPosition().getHeading()); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        targetVel.rotateToGlobal(-driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
         // Выбираем скорости в зависимости от величины ошибки
         linearVel = errorPos.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;
@@ -97,7 +98,7 @@ public class DriveHandler extends Handler {
             isDone = true;
         }
 
-        driveTrain.setPower(speedPIDY, speedPIDX, angularPID);
+        driveTrain.setPower(speedPIDY, speedPIDX, angularPID, 0);
 
         showData();
     }

@@ -102,14 +102,14 @@ public class Vector2 {
         vectorLength = length();
     }
 
-    public void toGlobal(double Rad) {
+    public void rotateToGlobal(double Rad) {
         double oldX = x;
         double oldY = y;
         x = oldX*Math.cos(Rad) - oldY*Math.sin(Rad);
         y = oldX*Math.sin(Rad) + oldY*Math.cos(Rad);
     }
 
-    public static Vector2 toGlobalVector(Vector2 vector, double Rad) {
+    public static Vector2 rotateToGlobalVector(Vector2 vector, double Rad) {
         double x = vector.x * Math.cos(Rad) - vector.y * Math.sin(Rad);
         double y = vector.x * Math.sin(Rad) + vector.y * Math.cos(Rad);
         return new Vector2(x, y);

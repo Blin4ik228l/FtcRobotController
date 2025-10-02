@@ -23,8 +23,10 @@ public class Player1 extends Player {
    public JoystickActivity joystickActivity;
 
    public double constAngle = 0;
+    public double constAngleDpad = 0;
+    public double constAngleStick = 0;
    public double vyr = 0;
-
+    double max_vel = 0;
    public boolean isRotateStarting = false;
    public boolean isRotateEnding = false;
     @Override
@@ -52,6 +54,11 @@ public class Player1 extends Player {
 
 
         if (joystickActivity.buttonB){
+            if(joystickActivity.tDpadUpPressed == 1){
+                constAngle = 0;
+                joystickActivity.tDpadUpPressed = 0;
+            }
+
             if(turn != 0){
                 isRotateStarting = true;
                 isRotateEnding = false;
@@ -62,15 +69,82 @@ public class Player1 extends Player {
             }
 
             if(isRotateEnding){
-                constAngle = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+                constAngleStick = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 isRotateEnding = false;
                 isRotateStarting = false;
+                constAngle = constAngleStick;
             }
+
+//            if(joystickActivity.tDpadUpPressed == 1){
+//                joystickActivity.tDpadRightPressed = 0;
+//                joystickActivity.tDpadLeftPressed = 0;
+//                joystickActivity.tDpadUpPressed = 0;
+//            }
+//
+//            if(joystickActivity.tDpadLeftPressed == 0) {
+//                switch (joystickActivity.tDpadRightPressed) {
+//                    case 0:
+//                        constAngleDpad = 0;
+//                        break;
+//                    case 1:
+//                        constAngleDpad = Math.toRadians(-15);
+//                        break;
+//                    case 2:
+//                        constAngleDpad = Math.toRadians(-30);
+//                        break;
+//                    case 3:
+//                        constAngleDpad = Math.toRadians(-45);
+//                        break;
+//                    case 4:
+//                        constAngleDpad = Math.toRadians(-60);
+//                        break;
+//                    case 5:
+//                        constAngleDpad = Math.toRadians(-75);
+//                        break;
+//                    case 6:
+//                        constAngleDpad = Math.toRadians(-90);
+//                        break;
+//                }
+//            }
+//            if(joystickActivity.tDpadRightPressed == 0) {
+//                switch (joystickActivity.tDpadLeftPressed) {
+//                    case 0:
+//                        constAngleDpad = 0;
+//                        break;
+//                    case 1:
+//                        constAngleDpad = Math.toRadians(15);
+//                        break;
+//                    case 2:
+//                        constAngleDpad = Math.toRadians(30);
+//                        break;
+//                    case 3:
+//                        constAngleDpad = Math.toRadians(45);
+//                        break;
+//                    case 4:
+//                        constAngleDpad = Math.toRadians(60);
+//                        break;
+//                    case 5:
+//                        constAngleDpad = Math.toRadians(75);
+//                        break;
+//                    case 6:
+//                        constAngleDpad = Math.toRadians(90);
+//                        break;
+//                }
+//            }
+//
+//            if(joystickActivity.tDpadRightPressed == 0 && joystickActivity.tDpadLeftPressed == 0 && joystickActivity.tDpadDownPressed == 1){
+//                constAngle = constAngleStick;
+//                joystickActivity.tDpadDownPressed = 0;
+//            }else {
+//                constAngle = constAngleDpad;
+//            }
+
         }else {
             constAngle = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         }
 
-        vyr = -(driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
+
+        vyr = (driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
 
 
         if(joystickActivity.buttonA){
@@ -89,18 +163,26 @@ public class Player1 extends Player {
         double angleVoltage   = turn/(denominator * (1.0 / acceleration));
         double vyrVoltage = Math.signum(vyr) * 0.2;
 
-        if(Math.abs(vyr) < Math.toRadians(3)){
+        if(Math.abs(vyr) < Math.toRadians(1)){
             vyrVoltage = 0;
+        }
+
+
+        if((Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI > max_vel){
+            max_vel = (Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI;
         }
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
+        telemetry.addData("Max Vel", max_vel);
         showData();
     }
 
     @Override
     public void showData() {
         telemetry.addData("A",joystickActivity.buttonA);
+//        telemetry.addData("encLVel", driveTrain.odometry.encL.getVelocity());
+//        telemetry.addData("encRVel", driveTrain.odometry.encR.getVelocity());
         driveTrain.odometry.getEncPos();
         driveTrain.odometry.getRobotPos();
         driveTrain.gyro.getYaw();

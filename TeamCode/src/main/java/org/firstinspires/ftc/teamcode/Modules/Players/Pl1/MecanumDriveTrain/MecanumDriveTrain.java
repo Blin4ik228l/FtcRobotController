@@ -213,9 +213,9 @@ public class MecanumDriveTrain extends Module {
         private final double[] dt;                                              // Разница во времени
         private double encLOld, encROld, encMOld;                               // Значения энкодера на предыдущем шаге
         private double angularVelocity, angularAcceleration, oldAngularVelocity;
-        private DcMotorEx encM;                                                 // Объекты энкодеров
-        private DcMotorEx encL;                                                 //
-        private DcMotorEx encR;                                                 //
+        public DcMotorEx encM;                                                 // Объекты энкодеров
+        public DcMotorEx encL;                                                 //
+        public DcMotorEx encR;                                                 //
         private final Position deltaPosition;                                   // Относительное перемещение
         private final Position globalPosition;                                  // Глобальное положение
         private Position startGlobalPosition = new Position();

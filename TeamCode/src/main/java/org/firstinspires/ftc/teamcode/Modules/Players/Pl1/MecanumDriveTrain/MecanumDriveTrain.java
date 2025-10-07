@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Position;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Vector2;
@@ -295,18 +297,6 @@ public class MecanumDriveTrain extends Module {
             globalPosition.setHeading(position.getHeading());
         }
 
-        private void updateMaxAcceleration(){
-            if(Math.abs(acceleration.length()) > Math.abs(maxAcceleration)){
-                maxAcceleration = acceleration.length();
-            }
-        }
-
-        private void updateMaxVel(){
-            if(Math.abs(velocity.length()) > Math.abs(maxVel)){
-                maxVel = velocity.length();
-            }
-        }
-
         // Обновление вектора скорости робота
         private void updateVelocity(){
             dt[0] = (runtime.milliseconds() - oldTime[0])/1000.0;// считаем время одного цикла
@@ -404,6 +394,98 @@ public class MecanumDriveTrain extends Module {
                     .addData("\nEncL", encL.getCurrentPosition())
                     .addData("\nEncM", encM.getCurrentPosition())
                     .addData("\nEncR", encR.getCurrentPosition());
+            telemetry.addLine();
+        }
+    }
+    public class ExOdometry{
+        public ExOdometry(OpMode op){
+            voltageSensor = op.hardwareMap.get(VoltageSensor.class, "");
+
+            encLeft = op.hardwareMap.get(DcMotorEx.class, "leftB");
+            encRight = op.hardwareMap.get(DcMotorEx.class, "rightB");
+            encMid = op.hardwareMap.get(DcMotorEx.class, "rightF" );
+        }
+
+        public double COUNTS_PER_ENCODER_REV = 2000;
+        public double DRIVE_GEAR_REDUCTION = 1;
+        public double ENC_WHEEL_DIAM_CM = 4.8;
+        public double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
+                (ENC_WHEEL_DIAM_CM * Math.PI);
+        public VoltageSensor voltageSensor;
+        public DcMotorEx encLeft;
+        public DcMotorEx encMid;
+        public DcMotorEx encRight;
+
+        private double ticksToCm(double ticks){
+            return ticks / COUNTS_PER_CM;
+        }
+
+        public Vector2 getEncLeftVelocity(boolean inTicks){
+            return new Vector2(
+                    Math.abs(encLeft.getVelocity()) * Math.cos(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                    Math.abs(encLeft.getVelocity()) * Math.sin(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
+        }
+
+        public Vector2 getEncMidVelocity(boolean inTicks){
+            double vel = Math.abs(encMid.getVelocity());
+
+            if(!inTicks){
+                vel = (vel / COUNTS_PER_ENCODER_REV) * Math.PI * ENC_WHEEL_DIAM_CM;
+            }
+
+            return new Vector2(
+                    vel * Math.cos(gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                    vel * Math.sin(gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
+        }
+        public Vector2 getEncRightVelocity(boolean inTicks){
+            return new Vector2(
+                    Math.abs(encRight.getVelocity()) * Math.cos(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                    Math.abs(encRight.getVelocity()) * Math.sin(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)));
+        }
+
+        private boolean updateGlobalPosition(){
+            double leftEncoderYNow = ticksToCm(encL.getCurrentPosition() );
+            double deltaLeftEncoderY = leftEncoderYNow - encLOld;
+            encLOld = leftEncoderYNow;
+
+            double rightEncoderYNow = ticksToCm(encR.getCurrentPosition() );
+            double deltaRightEncoderY = rightEncoderYNow - encROld;
+            encROld = rightEncoderYNow;
+
+            double encoderXNow = ticksToCm(encM.getCurrentPosition());
+            double deltaEncoderX = encoderXNow - encMOld;
+            encMOld = encoderXNow;
+
+            // Если перемещения не было - выходим из метода
+            if(deltaLeftEncoderY == 0 && deltaRightEncoderY == 0 && deltaEncoderX == 0 ) {
+                return false;
+            }
+
+            // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
+            // Для корректной работы этот метод должен работать в непрерывном цикле
+            double deltaRad = -(deltaRightEncoderY - deltaLeftEncoderY) / DIST_BETWEEN_ENC_X;
+            double deltaY = -(deltaLeftEncoderY + deltaRightEncoderY ) / 2.0;
+            double deltaX = -deltaEncoderX - deltaRad * OFFSET_ENC_M_FROM_CENTER;
+
+
+//            deltaPosition.add(deltaX, deltaY, deltaRad);
+
+            deltaPosition.setX(deltaX);
+            deltaPosition.setY(deltaY);
+            deltaPosition.setHeading(deltaRad);
+
+            // Векторный поворот и добавление глобального перемещения к глобальным координатам
+            globalPosition.add(deltaPosition.toVector(), deltaPosition.getHeading());
+
+            return true;
+        }
+
+
+        public void showEncodersVelocityComponents(){
+            telemetry.addLine("Encoders Velo:")
+                    .addData("\nLeft encoder", this::getEncLeftVelocity)
+                    .addData("\nMid encoder", this::getEncMidVelocity)
+                    .addData("\nRight encoder", this::getEncRightVelocity);
             telemetry.addLine();
         }
     }

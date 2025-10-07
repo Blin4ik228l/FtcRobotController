@@ -161,16 +161,16 @@ public class Player1 extends Player {
         double forwardVoltage = sinA/(denominator * (1.0 / acceleration));
         double sideVoltage    = cosA/(denominator * (1.0 / acceleration));
         double angleVoltage   = turn/(denominator * (1.0 / acceleration));
-        double vyrVoltage = Math.signum(vyr) * 0.2;
+        double vyrVoltage = Math.signum(vyr) * 0.1;
 
-        if(Math.abs(vyr) < Math.toRadians(1)){
+        if(Math.abs(vyr) < Math.toRadians(2)){
             vyrVoltage = 0;
         }
 
 
-        if((Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI > max_vel){
-            max_vel = (Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI;
-        }
+//        if((Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI > max_vel){
+//            max_vel = (Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI;
+//        }
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
@@ -180,12 +180,18 @@ public class Player1 extends Player {
 
     @Override
     public void showData() {
-        telemetry.addData("A",joystickActivity.buttonA);
+        driveTrain.exOdometry.showMaxVelLeft();
+        driveTrain.exOdometry.showMaxVelMid();
+        driveTrain.exOdometry.showMaxVelRight();
+        driveTrain.exOdometry.showMaxAccelLeft();
+        driveTrain.exOdometry.showMaxAccelMid();
+        driveTrain.exOdometry.showMaxAccelRight();
+//        telemetry.addData("A",joystickActivity.buttonA);
 //        telemetry.addData("encLVel", driveTrain.odometry.encL.getVelocity());
 //        telemetry.addData("encRVel", driveTrain.odometry.encR.getVelocity());
-        driveTrain.odometry.getEncPos();
-        driveTrain.odometry.getRobotPos();
-        driveTrain.gyro.getYaw();
+//        driveTrain.odometry.getEncPos();
+//        driveTrain.odometry.getRobotPos();
+//        driveTrain.gyro.getYaw();
     }
 
     public double[] moveHeadless(double cosA, double sinA){//FieldCentric

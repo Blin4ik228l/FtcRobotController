@@ -45,8 +45,8 @@ public class DriveHandler extends Handler {
         errorPos = new Vector2();
 
         // Находим ошибку положения
-        errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();//Forward
-        errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();//Side
+//        errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();//Forward
+//        errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();//Side
         errorHeading = driveArgs.position.getHeading() - driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);//Turn
 
         // Направление движения
@@ -86,9 +86,9 @@ public class DriveHandler extends Handler {
         targetVel.multyplie(linearVel);
 
         // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
-        speedPIDX = pidLinearX.calculate(targetVel.x, driveTrain.odometry.getVelocity().x);
-        speedPIDY = pidLinearY.calculate(targetVel.y, driveTrain.odometry.getVelocity().y);
-        angularPID = pidAngular.calculate(driveArgs.position.getHeading(), driveTrain.odometry.getGlobalPosition().getHeading());
+//        speedPIDX = pidLinearX.calculate(targetVel.x, driveTrain.odometry.getVelocity().x);
+//        speedPIDY = pidLinearY.calculate(targetVel.y, driveTrain.odometry.getVelocity().y);
+//        angularPID = pidAngular.calculate(driveArgs.position.getHeading(), driveTrain.odometry.getGlobalPosition().getHeading());
 
         if(errorPosDone && errorHeadingDone){
             speedPIDY = 0;
@@ -120,8 +120,8 @@ public class DriveHandler extends Handler {
                 .addData("\nisDone", isDone);
 
 
-        driveTrain.odometry.getEncPos();
-        driveTrain.odometry.getRobotPos();
+//        driveTrain.odometry.getEncPos();
+//        driveTrain.odometry.getRobotPos();
 
         telemetry.update();
     }

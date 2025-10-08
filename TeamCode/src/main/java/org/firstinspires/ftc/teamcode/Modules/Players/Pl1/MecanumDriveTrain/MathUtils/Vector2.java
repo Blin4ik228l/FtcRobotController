@@ -102,11 +102,12 @@ public class Vector2 {
         vectorLength = length();
     }
 
-    public void rotateToGlobal(double Rad) {
+    public Vector2 rotateToGlobal(double Rad) {
         double oldX = x;
         double oldY = y;
         x = oldX*Math.cos(Rad) - oldY*Math.sin(Rad);
         y = oldX*Math.sin(Rad) + oldY*Math.cos(Rad);
+        return new Vector2(x, y);
     }
 
     public static Vector2 rotateToGlobalVector(Vector2 vector, double Rad) {

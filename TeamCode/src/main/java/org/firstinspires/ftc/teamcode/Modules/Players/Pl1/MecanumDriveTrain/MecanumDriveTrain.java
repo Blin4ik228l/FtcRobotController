@@ -152,6 +152,8 @@ public class MecanumDriveTrain extends Module {
         public Vector2 maxVelRight = new Vector2();
         public Vector2 maxVelMid = new Vector2();
 
+        public Vector2[] maxVels = new Vector2[3];
+
         public Vector2 maxAccelLeft = new Vector2();
         public Vector2 maxAccelRight = new Vector2();
         public Vector2 maxAccelMid = new Vector2();
@@ -224,6 +226,58 @@ public class MecanumDriveTrain extends Module {
             return maxAccelMid;
         }
 
+        public Vector2[] getEncodersVelocityNotCentric(boolean inTicks){
+            double velLeft = -encLeft.getVelocity();
+            double velMid = -encMid.getVelocity();
+            double velRight = -encRight.getVelocity();
+
+            if(!inTicks){
+                velLeft = (velLeft / COUNTS_PER_ENCODER_REV) * Math.PI * ENC_WHEEL_DIAM_CM;
+                velMid = (velMid / COUNTS_PER_ENCODER_REV) * Math.PI * ENC_WHEEL_DIAM_CM;
+                velRight = (velRight / COUNTS_PER_ENCODER_REV) * Math.PI * ENC_WHEEL_DIAM_CM;
+            }
+
+            return new Vector2[]{
+                    new Vector2(
+                            0,
+                            velLeft * 1),//0 - элемент - значение скорости для левого энкодера.
+                    new Vector2(
+                            velMid * 1,
+                            0),          //1 - элемент - значение скорости для среднего энкодера.
+                    new Vector2(
+                            0,
+                            velRight * 1)//2 - элемент - значение скорости для правого энкодера.
+            };
+
+        }
+        public Vector2[] getEncodersVelocityCentric(boolean inTicks){
+
+            return new Vector2[]{
+                    new Vector2(
+                            getEncodersVelocityNotCentric(inTicks)[0].length() * Math.cos(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                            getEncodersVelocityNotCentric(inTicks)[0].length() * Math.sin(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)))//0 - элемент - значение скорости для левого энкодера.
+                    ,
+                    new Vector2(
+                            getEncodersVelocityNotCentric(inTicks)[1].length() * Math.cos(gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                            getEncodersVelocityNotCentric(inTicks)[1].length() * Math.sin(gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)))//1 - элемент - значение скорости для среднего энкодера.
+                    ,
+                    new Vector2(
+                            getEncodersVelocityNotCentric(inTicks)[2].length() * Math.cos(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)),
+                            getEncodersVelocityNotCentric(inTicks)[2].length() * Math.sin(Math.toRadians(90) + gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)))//2 - элемент - значение скорости для правого энкодера.
+            };
+
+        }
+
+        public Vector2 getRobotVelocityNotCentric(boolean inTicks){
+            return new Vector2(
+                     getEncodersVelocityNotCentric(inTicks)[1].x * 1,
+                    getEncodersVelocityNotCentric(inTicks)[0].y / 2.0 + getEncodersVelocityNotCentric(inTicks)[2].y / 2.0);
+        }
+        public Vector2 getRobotVelocityCentric(boolean inTicks){
+            return new Vector2(
+                    getEncodersVelocityCentric(inTicks)[0].x / 2.0 + getEncodersVelocityCentric(inTicks)[1].x + getEncodersVelocityCentric(inTicks)[2].x / 2.0,
+                    getEncodersVelocityCentric(inTicks)[0].y / 2.0 + getEncodersVelocityCentric(inTicks)[1].y + getEncodersVelocityCentric(inTicks)[2].y / 2.0);
+        }
         public Vector2 getEncLeftVelocity(boolean inTicks){
             double vel = -encLeft.getVelocity();
 

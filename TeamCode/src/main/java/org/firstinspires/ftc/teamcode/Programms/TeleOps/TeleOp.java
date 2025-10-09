@@ -20,9 +20,9 @@ public class TeleOp extends OpMode {
     public void init() {
         robot = new RobotClass(this);
         leva = new Player1(gamepad1, robot.driveTrain, this);
-        dimas = new Player2(gamepad2, robot.teleSkope, this);
+//        dimas = new Player2(gamepad2, robot.teleSkope, this);
 
-//        cameraClass = new CameraClass(this, telemetry);
+        cameraClass = new CameraClass(this, telemetry);
 
         parallelStream = new Thread(dimas);
         parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
@@ -35,14 +35,14 @@ public class TeleOp extends OpMode {
 
     @Override
     public void start() {
-        parallelStream.start();
+//        parallelStream.start();
     }
 
     @Override
     public void loop() {
         leva.play();
 
-//        cameraClass.execute();
+        cameraClass.execute();
     }
 
     @Override

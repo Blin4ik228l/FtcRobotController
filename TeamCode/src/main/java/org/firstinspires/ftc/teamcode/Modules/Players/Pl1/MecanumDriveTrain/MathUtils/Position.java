@@ -72,6 +72,7 @@ public class Position {
         this.heading += heading;
     }
 
+
     @NonNull
     public Position clone(){
         return new Position(this);

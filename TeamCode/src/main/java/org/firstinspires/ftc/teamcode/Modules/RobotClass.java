@@ -17,7 +17,7 @@ public class RobotClass {
 
     public RobotClass(OpMode op){
         driveTrain = new MecanumDriveTrain(op);
-        teleSkope = new TeleSkope(op);
+//        teleSkope = new TeleSkope(op);
     }
     public MecanumDriveTrain driveTrain;
     public TeleSkope teleSkope;

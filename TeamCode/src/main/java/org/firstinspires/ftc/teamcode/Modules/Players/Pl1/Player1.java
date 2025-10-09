@@ -180,12 +180,13 @@ public class Player1 extends Player {
 
     @Override
     public void showData() {
-        driveTrain.exOdometry.showMaxVelLeft();
-        driveTrain.exOdometry.showMaxVelMid();
-        driveTrain.exOdometry.showMaxVelRight();
-        driveTrain.exOdometry.showMaxAccelLeft();
-        driveTrain.exOdometry.showMaxAccelMid();
-        driveTrain.exOdometry.showMaxAccelRight();
+//        driveTrain.exOdometry.showEncodersVel();
+//        driveTrain.exOdometry.showRobotVel();
+//        driveTrain.exOdometry.showEncodersAccel();
+//        driveTrain.exOdometry.showRobotAccel();
+//        driveTrain.exOdometry.showRobotPositionEnc();
+//        driveTrain.exOdometry.showRobotPositionGyro();
+
 //        telemetry.addData("A",joystickActivity.buttonA);
 //        telemetry.addData("encLVel", driveTrain.odometry.encL.getVelocity());
 //        telemetry.addData("encRVel", driveTrain.odometry.encR.getVelocity());

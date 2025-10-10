@@ -204,6 +204,13 @@ public class MecanumDriveTrain extends Module {
                     .addData("AccelY", robotSelfCentricAccel.y);
             telemetry.addLine();
         }
+        public void showEncPositions(){
+            telemetry.addLine("Encoders position")
+                    .addData("\nLeft", selfMath.encCurPositions[0])
+                    .addData("\nMid", selfMath.encCurPositions[1])
+                    .addData("Right", selfMath.encCurPositions[2]);
+            telemetry.addLine();
+        }
 
         public void showRobotPositionEnc(){
             telemetry.addLine("Robot pos with encAngle")
@@ -338,7 +345,7 @@ public class MecanumDriveTrain extends Module {
 
             private void updateGlobalAngle(){
                 deltaRadGyro = deltaYaw;
-                deltaRadEnc = (encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+                deltaRadEnc = -(encDeltaPositions[0] + encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
 
                 encGlobalPosition.add(0, 0, deltaRadEnc * 1);
                 gyroGlobalPosition.add(0, 0, deltaRadGyro * 1);

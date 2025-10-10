@@ -184,8 +184,9 @@ public class Player1 extends Player {
 //        driveTrain.exOdometry.showRobotVel();
 //        driveTrain.exOdometry.showEncodersAccel();
 //        driveTrain.exOdometry.showRobotAccel();
-//        driveTrain.exOdometry.showRobotPositionEnc();
-//        driveTrain.exOdometry.showRobotPositionGyro();
+        driveTrain.exOdometry.showEncPositions();
+        driveTrain.exOdometry.showRobotPositionEnc();
+        driveTrain.exOdometry.showRobotPositionGyro();
 
 //        telemetry.addData("A",joystickActivity.buttonA);
 //        telemetry.addData("encLVel", driveTrain.odometry.encL.getVelocity());

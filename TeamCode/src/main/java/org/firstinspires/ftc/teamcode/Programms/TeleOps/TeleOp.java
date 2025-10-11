@@ -18,8 +18,8 @@ public class TeleOp extends OpMode {
 
     @Override
     public void init() {
-        robot = new RobotClass(this);
-        leva = new Player1(gamepad1, robot.driveTrain, this);
+//        robot = new RobotClass(this);
+//        leva = new Player1(gamepad1, robot.driveTrain, this);
 //        dimas = new Player2(gamepad2, robot.teleSkope, this);
 
         cameraClass = new CameraClass(this, telemetry);
@@ -40,7 +40,7 @@ public class TeleOp extends OpMode {
 
     @Override
     public void loop() {
-        leva.play();
+//        leva.play();
 
         cameraClass.execute();
     }

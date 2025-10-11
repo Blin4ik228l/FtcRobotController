@@ -6,11 +6,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.CameraControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Module;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -27,6 +31,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CameraClass {
     public AprilTagProcessor aprilTagProcessor;
@@ -45,19 +50,31 @@ public class CameraClass {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
+                .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                 .build();
 
         visionPortal = new VisionPortal.Builder()
-                .setCamera(webcamName)
                 .addProcessor(aprilTagProcessor)
+                .setCamera(webcamName)
                 .setCameraResolution(new Size(640, 480))
-                .setStreamFormat(VisionPortal.StreamFormat.YUY2)
-                .enableLiveView(true)
-                .setAutoStopLiveView(true)
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
     }
 
     public void execute() {
+        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING){}
+
+        ExposureControl exposure = visionPortal.getCameraControl(ExposureControl.class);
+        exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
+        exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
+
+        GainControl gain = visionPortal.getCameraControl(GainControl.class);
+        gain.setGain(255);//яркость
+
+
+
+//        CameraControl cameraControl = visionPortal.getCameraControl()
+        aprilTagProcessor.setDecimation(3);
         if (!aprilTagProcessor.getDetections().isEmpty()) {
 
             AprilTagDetection aprilTagDetection = aprilTagProcessor.getDetections().get(0);

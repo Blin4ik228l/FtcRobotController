@@ -204,14 +204,14 @@ public class MecanumDriveTrain extends Module {
                     .addData("AccelY", robotSelfCentricAccel.y);
             telemetry.addLine();
         }
+
         public void showEncPositions(){
             telemetry.addLine("Encoders position")
                     .addData("\nLeft", selfMath.encCurPositions[0])
-                    .addData("\nMid", selfMath.encCurPositions[1])
-                    .addData("Right", selfMath.encCurPositions[2]);
+                    .addData("\nMid",  selfMath.encCurPositions[1])
+                    .addData("Right",  selfMath.encCurPositions[2]);
             telemetry.addLine();
         }
-
         public void showRobotPositionEnc(){
             telemetry.addLine("Robot pos with encAngle")
                     .addData("\nX", encGlobalPosition.getX())
@@ -288,12 +288,10 @@ public class MecanumDriveTrain extends Module {
             public double g_X = 0;
             public double g_Y = 0;
             public double g_Heading = 0;
-
-            public double deltaRadEnc = 0;
+            public double deltaHeadingEnc = 0;
             public double deltaX = 0;
             public double deltaY = 0;
-
-            public double deltaRadGyro = 0;
+            public double deltaHeadingGyro = 0;
             private final double[] encCurVelocities = new double[3];
             private double leftVelCur = 0;
             private double midVelCur = 0;
@@ -344,11 +342,11 @@ public class MecanumDriveTrain extends Module {
             }
 
             private void updateGlobalAngle(){
-                deltaRadGyro = deltaYaw;
-                deltaRadEnc = -(encDeltaPositions[0] + encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+                deltaHeadingGyro = deltaYaw;
+                deltaHeadingEnc = -(encDeltaPositions[0] + encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
 
-                encGlobalPosition.add(0, 0, deltaRadEnc * 1);
-                gyroGlobalPosition.add(0, 0, deltaRadGyro * 1);
+                encGlobalPosition.add(0, 0, deltaHeadingEnc * 1);
+                gyroGlobalPosition.add(0, 0, deltaHeadingGyro * 1);
             }
 
             private void updateGlobalPosition(){
@@ -361,7 +359,7 @@ public class MecanumDriveTrain extends Module {
                 // Для корректной работы этот метод должен работать в непрерывном цикле
 
                 deltaY = (encDeltaPositions[0] + encDeltaPositions[2] ) / 2.0;
-                deltaX = encDeltaPositions[1] - deltaRadEnc * OFFSET_ENC_M_FROM_CENTER;
+                deltaX = encDeltaPositions[1] - deltaHeadingEnc * OFFSET_ENC_M_FROM_CENTER;
 
                 // Векторный поворот и добавление глобального перемещения к глобальным координатам
                 encGlobalPosition.add(deltaX * 1, deltaY * 1, 0);

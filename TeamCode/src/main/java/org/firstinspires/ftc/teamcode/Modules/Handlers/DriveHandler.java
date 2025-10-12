@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.Modules.Handlers;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.PID;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MecanumDriveTrain;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.PID;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Vector2;
 
 public class DriveHandler extends Handler {
-    public DriveHandler(MecanumDriveTrain driveTrain, Telemetry telemetry) {
+    public DriveHandler(RobotClass.MecanumDrivetrain driveTrain, Telemetry telemetry) {
         super(telemetry);
         this.driveTrain = driveTrain;
 
@@ -17,7 +17,7 @@ public class DriveHandler extends Handler {
     public void setArgs(Args.DriveArgs driveArgs){
         this.driveArgs = driveArgs;
     }
-    public MecanumDriveTrain driveTrain;
+    public RobotClass.MecanumDrivetrain driveTrain;
     public Args.DriveArgs driveArgs;
     double speedPIDX;
     double speedPIDY;
@@ -47,12 +47,12 @@ public class DriveHandler extends Handler {
         // Находим ошибку положения
 //        errorPos.y = driveArgs.position.getY() - driveTrain.odometry.getGlobalPosition().getY();//Forward
 //        errorPos.x = driveArgs.position.getX() - driveTrain.odometry.getGlobalPosition().getX();//Side
-        errorHeading = driveArgs.position.getHeading() - driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);//Turn
+        errorHeading = driveArgs.position.getHeading() - driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);//Turn
 
         // Направление движения
         targetVel = new Vector2(errorPos);
         targetVel.normalize();
-        targetVel.rotateToGlobal(-driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        targetVel.rotateToGlobal(-driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS)); // Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
         // Выбираем скорости в зависимости от величины ошибки
         linearVel = errorPos.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;

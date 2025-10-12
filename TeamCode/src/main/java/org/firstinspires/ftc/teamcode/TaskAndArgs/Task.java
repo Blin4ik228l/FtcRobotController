@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.TaskAndArgs;
 
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Handlers.DriveHandler;
 import org.firstinspires.ftc.teamcode.Modules.Handlers.Handler;
-import org.firstinspires.ftc.teamcode.Modules.Handlers.TeleSkopeHandler;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MathUtils.Position;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MecanumDriveTrain;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.TeleSkope;
+import org.firstinspires.ftc.teamcode.Modules.Handlers.TelescopeHandler;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class Task {
-    public Task(double targetX, double targetY, double targetHeading, double targetSpeed, MecanumDriveTrain driveTrain, Telemetry telemetry, int queuePlace){
+    public Task(double targetX, double targetY, double targetHeading, double targetSpeed, RobotClass.MecanumDrivetrain driveTrain, Telemetry telemetry, int queuePlace){
         Position targetPosition = new Position(targetX, targetY, targetHeading);
         Args.DriveArgs driveArgs = new Args.DriveArgs(targetPosition, targetSpeed);
         DriveHandler driveHandler = new DriveHandler(driveTrain, telemetry);
@@ -20,9 +20,9 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, TeleSkope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
-        TeleSkopeHandler teleskopeHandler = new TeleSkopeHandler(teleSkope, telemetry);
+        TelescopeHandler teleskopeHandler = new TelescopeHandler(teleSkope, telemetry);
 
         teleskopeHandler.setArgs(liftArgs);
         handler = teleskopeHandler;
@@ -30,25 +30,25 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task( String targetName, double targetPos, TeleSkope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(String targetName, double targetPos, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
-        TeleSkopeHandler teleSkopeHandler = new TeleSkopeHandler(teleSkope, telemetry);
+        TelescopeHandler telescopeHandler = new TelescopeHandler(teleSkope, telemetry);
 
-        teleSkopeHandler.setArgs(servoArgs);
-        handler = teleSkopeHandler;
+        telescopeHandler.setArgs(servoArgs);
+        handler = telescopeHandler;
 
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, String targetName, double targetPos, TeleSkope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, String targetName, double targetPos, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
-        TeleSkopeHandler teleSkopeHandler = new TeleSkopeHandler(teleSkope, telemetry);
+        TelescopeHandler telescopeHandler = new TelescopeHandler(teleSkope, telemetry);
 
-        teleSkopeHandler.setArgs(liftArgs);
-        teleSkopeHandler.setArgs(servoArgs);
+        telescopeHandler.setArgs(liftArgs);
+        telescopeHandler.setArgs(servoArgs);
 
-        handler = teleSkopeHandler;
+        handler = telescopeHandler;
 
         this.queuePlace = queuePlace;
     }

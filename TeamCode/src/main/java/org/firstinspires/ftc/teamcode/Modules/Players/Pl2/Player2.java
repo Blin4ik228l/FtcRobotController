@@ -5,16 +5,17 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Modules.Players.Player;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class Player2 extends Player implements Runnable {
-   public Player2(Gamepad gamepad, TeleSkope teleSkope, OpMode op){
+   public Player2(Gamepad gamepad, RobotClass.Telescope teleSkope, OpMode op){
        super(op.telemetry);
 
         playersGamepad = gamepad;
         this.teleSkope = teleSkope;
         joystickActivity = new JoystickActivity();
     }
-    public TeleSkope teleSkope;
+    public RobotClass.Telescope teleSkope;
     public JoystickActivity joystickActivity;
 
     @Override
@@ -118,7 +119,7 @@ public class Player2 extends Player implements Runnable {
             joystickActivity.tLeftTriggerPressed = 1;
         }
 
-        teleSkope.setTeleskope(upStandingVel, false, targetHeight, horizontalPos, hookPos, flipPos);
+        teleSkope.setTelescope(upStandingVel, false, targetHeight, horizontalPos, hookPos, flipPos);
 
 //        showData();
     }

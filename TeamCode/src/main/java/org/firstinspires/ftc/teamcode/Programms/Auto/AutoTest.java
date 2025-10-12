@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.BehaviorTree.States;
 import org.firstinspires.ftc.teamcode.BehaviorTree.TaskNode;
-import org.firstinspires.ftc.teamcode.Modules.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Task;
 
 @Autonomous(name = "BlueLeft", group = "Blue", preselectTeleOp = "BlueMeow")
@@ -19,7 +19,7 @@ public class AutoTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new RobotClass(this);
+        robot = new RobotClass(this, "Blue");
 
         driveTree = new DriveTree(teleScopeTree);
         teleScopeTree = new TeleScopeTree(driveTree);
@@ -54,11 +54,11 @@ public class AutoTest extends LinearOpMode {
 
         private final DriveTree driveTree;
         private void loadProgram(){
-           Task second = new Task(100, 0.5, robot.teleSkope, telemetry, 2);
+           Task second = new Task(100, 0.5, robot.telescope, telemetry, 2);
 
-           Task third = new Task("hook", 0.5, robot.teleSkope, telemetry, 3);
-           Task fourth = new Task("flip", 0.5, robot.teleSkope, telemetry, 3);
-           Task fifth = new Task("horizontal", 0.5, robot.teleSkope, telemetry, 4);
+           Task third = new Task("hook", 0.5, robot.telescope, telemetry, 3);
+           Task fourth = new Task("flip", 0.5, robot.telescope, telemetry, 3);
+           Task fifth = new Task("horizontal", 0.5, robot.telescope, telemetry, 4);
 
            mainRoot.add(new TaskNode(second));
            mainRoot.add(new TaskNode(third));

@@ -4,22 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.internal.system.Deadline;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.MecanumDriveTrain.MecanumDriveTrain;
-import org.firstinspires.ftc.teamcode.Modules.Players.Player;
 
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+import org.firstinspires.ftc.teamcode.Modules.Players.Player;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class Player1 extends Player {
-   public Player1(Gamepad gamepad, MecanumDriveTrain driveTrain, OpMode op){
+   public Player1(Gamepad gamepad, RobotClass.MecanumDrivetrain driveTrain, OpMode op){
        super(op.telemetry);
 
        playersGamepad = gamepad;
        this.driveTrain = driveTrain;
        joystickActivity = new JoystickActivity();
     }
-   public MecanumDriveTrain driveTrain;
+   public RobotClass.MecanumDrivetrain driveTrain;
    public JoystickActivity joystickActivity;
 
    public double constAngle = 0;
@@ -69,7 +66,7 @@ public class Player1 extends Player {
             }
 
             if(isRotateEnding){
-                constAngleStick = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
                 isRotateEnding = false;
                 isRotateStarting = false;
                 constAngle = constAngleStick;
@@ -140,11 +137,11 @@ public class Player1 extends Player {
 //            }
 
         }else {
-            constAngle = driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            constAngle = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         }
 
 
-        vyr = (driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
+        vyr = (driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
 
 
         if(joystickActivity.buttonA){
@@ -197,7 +194,7 @@ public class Player1 extends Player {
     }
 
     public double[] moveHeadless(double cosA, double sinA){//FieldCentric
-        double heading = -driveTrain.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
+        double heading = -driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
 
         double cosB = Math.cos(heading);//  +- угол робота относитеольно поля
         double sinB = Math.sin(heading);

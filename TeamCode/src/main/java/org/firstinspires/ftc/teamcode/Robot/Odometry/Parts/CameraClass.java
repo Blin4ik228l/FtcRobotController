@@ -53,7 +53,7 @@ public class CameraClass extends Module{
         gain = visionPortal.getCameraControl(GainControl.class);
         gain.setGain(105);//яркость
 
-        aprilTagProcessor.setDecimation(3);
+        aprilTagProcessor.setDecimation(0);
     }
     public AprilTagProcessor aprilTagProcessor;
     public VisionPortal visionPortal;
@@ -84,11 +84,16 @@ public class CameraClass extends Module{
     double ftcPitch ;
     double ftcRoll ;
     double ftcYaw ;
+    int id;
+    AprilTagDetection detection;
     public void execute() {
-        if (!aprilTagProcessor.getDetections().isEmpty()) {
 
-            AprilTagDetection detection = aprilTagProcessor.getDetections().get(0);
-            int id = detection.id;
+
+        boolean isEmpty = aprilTagProcessor.getDetections().isEmpty();
+
+        if (!isEmpty) {
+            detection = aprilTagProcessor.getDetections().get(0);
+            id = detection.id;
 
             if(id == 21){
                 randomizedArtifact = new int[] {green, purple, purple};
@@ -105,15 +110,15 @@ public class CameraClass extends Module{
                 Position cameraPosition = new Position(DistanceUnit.CM, 0, 0, 0, 0);
                 YawPitchRollAngles cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-90), 0, 0);
 
-                telemetry.addLine(detection.robotPose.getPosition().unit.toString());
 
-                 myX = detection.robotPose.getPosition().x ;
-                 myY = detection.robotPose.getPosition().y ;
-                 myZ = detection.robotPose.getPosition().z ;
 
-                 myPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                 myRoll = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                 myYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+//                 myX = detection.robotPose.getPosition().x ;
+//                 myY = detection.robotPose.getPosition().y ;
+//                 myZ = detection.robotPose.getPosition().z ;
+//
+//                 myPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+//                 myRoll = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+//                 myYaw = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
                  ftcX = detection.ftcPose.x;
                  ftcY = detection.ftcPose.y;
@@ -133,13 +138,13 @@ public class CameraClass extends Module{
 
             telemetry.addData("isExposure supported", exposure.isExposureSupported());
 
-            telemetry.addData("\nroll", myPitch);
-            telemetry.addData("\npitch", myRoll);
-            telemetry.addData("\nyaw", myYaw);
+            telemetry.addData("\nroll", myPitch * 180/Math.PI);
+            telemetry.addData("\npitch", myRoll* 180/Math.PI);
+            telemetry.addData("\nyaw", myYaw* 180/Math.PI);
 
-            telemetry.addData("\nrollftc", ftcRoll);
-            telemetry.addData("\npitchftc", ftcPitch);
-            telemetry.addData("\nyawftc", ftcYaw);
+            telemetry.addData("\nrollftc", ftcRoll* 180/Math.PI);
+            telemetry.addData("\npitchftc", ftcPitch* 180/Math.PI);
+            telemetry.addData("\nyawftc", ftcYaw* 180/Math.PI);
             telemetry.addLine();
         }
     }

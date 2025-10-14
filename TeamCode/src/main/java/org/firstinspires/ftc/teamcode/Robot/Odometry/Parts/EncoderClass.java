@@ -8,17 +8,20 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class EncoderClass {
     public EncoderClass(@NonNull OpMode op){
-        encLeft = op.hardwareMap.get(DcMotorEx.class, "leftB");
-        encRight = op.hardwareMap.get(DcMotorEx.class, "rightB");
-        encMid = op.hardwareMap.get(DcMotorEx.class, "rightF" );
+        encLeft = op.hardwareMap.get(DcMotorEx.class, "leftF");
+        encMid = op.hardwareMap.get(DcMotorEx.class, "rightB" );
+        encRight = op.hardwareMap.get(DcMotorEx.class, "rightF");
 
         encRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем правый энкодер
         encLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем левый энкодер
         encMid.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем средний энкодер
 
-        encMid.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем средний энкодер
-        encRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем правый энкодер
-        encLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        encLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encMid.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        encRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        encMid.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем средний энкодер
+//        encRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем правый энкодер
+//        encLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
     public double COUNTS_PER_ENCODER_REV = 2000;
     public double DRIVE_GEAR_REDUCTION = 1;

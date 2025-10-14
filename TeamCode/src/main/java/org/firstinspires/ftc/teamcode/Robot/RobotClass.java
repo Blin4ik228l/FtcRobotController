@@ -29,28 +29,28 @@ public class RobotClass extends TeamColor {
 
         public MecanumDrivetrain(OpMode op, TeamColor teamColor){
             super(op.telemetry);
-//            rightB = op.hardwareMap.get(DcMotor.class, "rightB");
-//            rightF = op.hardwareMap.get(DcMotor.class, "rightF");
-//            leftB = op.hardwareMap.get(DcMotor.class, "leftB");
-//            leftF = op.hardwareMap.get(DcMotor.class, "leftF");
-//
-//            rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//            leftB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//            rightB.setDirection(DcMotorSimple.Direction.FORWARD);
-//            rightF.setDirection(DcMotorSimple.Direction.FORWARD);
-//            leftB.setDirection(DcMotorSimple.Direction.REVERSE);
-//            leftF.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-////        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-////        leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//            rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//            leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//            leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-//            rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            rightB = op.hardwareMap.get(DcMotor.class, "rightB");
+            rightF = op.hardwareMap.get(DcMotor.class, "rightF");
+            leftB = op.hardwareMap.get(DcMotor.class, "leftB");
+            leftF = op.hardwareMap.get(DcMotor.class, "leftF");
+
+            rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            leftB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            rightB.setDirection(DcMotorSimple.Direction.FORWARD);
+            rightF.setDirection(DcMotorSimple.Direction.FORWARD);
+            leftB.setDirection(DcMotorSimple.Direction.REVERSE);
+            leftF.setDirection(DcMotorSimple.Direction.REVERSE);
+
+//        leftF.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        leftF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             exOdometry = new ExOdometry(op,teamColor );
 
@@ -67,10 +67,10 @@ public class RobotClass extends TeamColor {
             //angVol поворот
             exOdometry.updateAll();//Обноволяем одометрию постоянно когда вызываем метод setPower
 
-            leftF.setPower(yVol + xVol + angVol + vyrVol);
-            leftB.setPower(yVol - xVol + angVol + vyrVol);
-            rightF.setPower(yVol - xVol - angVol - vyrVol);
-            rightB.setPower(yVol + xVol - angVol - vyrVol);
+            leftF.setPower(yVol - xVol + angVol + vyrVol);
+            leftB.setPower(yVol + xVol + angVol + vyrVol);
+            rightF.setPower(yVol + xVol - angVol - vyrVol);
+            rightB.setPower(yVol - xVol - angVol - vyrVol);
         }
     }
 

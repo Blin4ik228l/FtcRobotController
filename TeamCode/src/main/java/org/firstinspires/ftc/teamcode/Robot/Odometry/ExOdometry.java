@@ -20,7 +20,7 @@ public class ExOdometry extends Module {
 //            voltageSensor = op.hardwareMap.get(VoltageSensor.class, "");
 
         gyro = new GyroscopeClass(op);
-//        encoderClass = new EncoderClass(op);
+        encoderClass = new EncoderClass(op);
         selfMath = new SelfMath();
         selfMath.deltaTimes = new double[3];
         selfMath.oldTimes = new double[3];
@@ -246,7 +246,16 @@ public class ExOdometry extends Module {
 
         private void updateGlobalAngle(){
             deltaHeadingGyro = deltaYaw;
-            deltaHeadingEnc = -(encDeltaPositions[0] + encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+
+            if(encGlobalPosition.getHeading() < -Math.PI) {
+                encGlobalPosition.add(0,0, 2 * Math.PI);
+                }
+
+            if(encGlobalPosition.getHeading() > Math.PI) {
+                encGlobalPosition.add(0,0, -2 * Math.PI);
+                }
+            deltaHeadingEnc = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+
 
             encGlobalPosition.add(0, 0, deltaHeadingEnc * 1);
             gyroGlobalPosition.add(0, 0, deltaHeadingGyro * 1);
@@ -277,9 +286,9 @@ public class ExOdometry extends Module {
         }
 
         private void updatePosFromEncoders(boolean inTicks){//Обновляем позицию с датчиков
-            encCurPositions[0] = -encoderClass.getCurrentPosLeft();
-            encCurPositions[1] = -encoderClass.getCurrentPosMid();
-            encCurPositions[2] = -encoderClass.getCurrentPosRight();
+            encCurPositions[0] = encoderClass.getCurrentPosLeft();
+            encCurPositions[1] = encoderClass.getCurrentPosMid();
+            encCurPositions[2] = encoderClass.getCurrentPosRight();
 
             if(!inTicks){
                 encCurPositions[0] = ticksToCm(encCurPositions[0]);
@@ -303,9 +312,9 @@ public class ExOdometry extends Module {
             oldTimes[0] = currentTime;
         }
         private void updateVelFromEncoders(boolean inTicks){//Обновляем скорость с датчиков
-            encCurVelocities[0] = -encoderClass.getCurrentVelocityLeft();
-            encCurVelocities[1] = -encoderClass.getCurrentVelocityMid();
-            encCurVelocities[2] = -encoderClass.getCurrentVelocityRight();
+            encCurVelocities[0] = encoderClass.getCurrentVelocityLeft();
+            encCurVelocities[1] = encoderClass.getCurrentVelocityMid();
+            encCurVelocities[2] = encoderClass.getCurrentVelocityRight();
 
             if(!inTicks){
                 encCurVelocities[0] = encCurVelocities[0] / encoderClass.COUNTS_PER_CM;

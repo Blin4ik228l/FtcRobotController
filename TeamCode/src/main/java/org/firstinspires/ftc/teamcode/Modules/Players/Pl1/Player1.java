@@ -31,7 +31,7 @@ public class Player1 extends Player {
         joystickActivity.checkActivity();
 
         double max_speed = 0.8;
-        double acceleration = 1;
+        double acceleration = 0.6;
 
         double rightTrigga = playersGamepad.right_trigger;
         double leftTrigga = playersGamepad.left_trigger;
@@ -41,14 +41,12 @@ public class Player1 extends Player {
         }
 
         if(rightTrigga > 0.05 && leftTrigga < 0.05){//Замедление робота
-            acceleration = 0.5;
+            acceleration = 0.25;
         }
 
         double cosA = playersGamepad.left_stick_x;
         double sinA = -1*playersGamepad.left_stick_y;
         double turn = playersGamepad.right_stick_x;//для сохранения угла можно сделать её глобальной
-
-
 
         if (joystickActivity.buttonB){
             if(joystickActivity.tDpadUpPressed == 1){
@@ -159,7 +157,7 @@ public class Player1 extends Player {
         double sideVoltage    = cosA/(denominator * (1.0 / acceleration));
         double angleVoltage   = turn/(denominator * (1.0 / acceleration));
         double vyrVoltage = Math.signum(vyr) * 0.1;
-
+//        double vyrVoltage = 0;
         if(Math.abs(vyr) < Math.toRadians(2)){
             vyrVoltage = 0;
         }

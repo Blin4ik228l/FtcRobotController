@@ -51,9 +51,9 @@ public class CameraClass extends Module{
         exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
 
         gain = visionPortal.getCameraControl(GainControl.class);
-        gain.setGain(105);//яркость
+        gain.setGain(190);//яркость
 
-        aprilTagProcessor.setDecimation(0);
+        aprilTagProcessor.setDecimation(3);
     }
     public AprilTagProcessor aprilTagProcessor;
     public VisionPortal visionPortal;
@@ -82,8 +82,15 @@ public class CameraClass extends Module{
     double ftcZ ;
 
     double ftcPitch ;
-    double ftcRoll ;
-    double ftcYaw ;
+    public double ftcRoll ;
+   public double ftcYaw ;
+
+   public double bearing;
+   public double elevation;
+   public double range;
+
+    double lastFtcYaw = 0;
+    double deltaFtcYaw = 0;
     int id;
     AprilTagDetection detection;
     public void execute() {
@@ -127,25 +134,50 @@ public class CameraClass extends Module{
                  ftcPitch = detection.ftcPose.pitch;
                  ftcRoll = detection.ftcPose.roll;
                  ftcYaw = detection.ftcPose.yaw;
+
+                 bearing = detection.ftcPose.bearing;
+                elevation = detection.ftcPose.elevation;
+                range = detection.ftcPose.range;
             }
 //            randomizedArtifact[0] == green ? "Green" : "Purple"
-            telemetry.addData("Randomized Artifacts",  randomizedArtifact[0] == green ? "Green" : "Purple", "|");
-            telemetry.addData("Randomized Artifacts",  randomizedArtifact[1] == green ? "Green" : "Purple", "|");
-            telemetry.addData("Randomized Artifacts",  randomizedArtifact[2] == green ? "Green" : "Purple");
 
-            telemetry.addLine(String.format("\nXYZ %6.2f %6.2f %6.2f", myX, myY, myZ));
-            telemetry.addLine(String.format("\nXYZftc %6.2f %6.2f %6.2f",ftcX , ftcY, ftcZ));
-
-            telemetry.addData("isExposure supported", exposure.isExposureSupported());
-
-            telemetry.addData("\nroll", myPitch * 180/Math.PI);
-            telemetry.addData("\npitch", myRoll* 180/Math.PI);
-            telemetry.addData("\nyaw", myYaw* 180/Math.PI);
-
-            telemetry.addData("\nrollftc", ftcRoll* 180/Math.PI);
-            telemetry.addData("\npitchftc", ftcPitch* 180/Math.PI);
-            telemetry.addData("\nyawftc", ftcYaw* 180/Math.PI);
-            telemetry.addLine();
         }
+        deltaFtcYaw = ftcYaw - lastFtcYaw;
+        lastFtcYaw = ftcYaw;
+
+        telemetry.addData("Randomized Artifacts",  randomizedArtifact[0] == green ? "Green" : "Purple", "|");
+        telemetry.addData("Randomized Artifacts",  randomizedArtifact[1] == green ? "Green" : "Purple", "|");
+        telemetry.addData("Randomized Artifacts",  randomizedArtifact[2] == green ? "Green" : "Purple");
+
+//        telemetry.addLine(String.format("\nXYZ %6.2f %6.2f %6.2f", myX, myY, myZ));
+        telemetry.addLine(String.format("\nXYZftc %6.2f %6.2f %6.2f",ftcX , ftcY, ftcZ));
+
+        telemetry.addData("isExposure supported", exposure.isExposureSupported());
+
+//        telemetry.addData("\nroll", myPitch * 180/Math.PI);
+//        telemetry.addData("\npitch", myRoll* 180/Math.PI);
+//        telemetry.addData("\nyaw", myYaw* 180/Math.PI);
+
+        telemetry.addData("\nrollftc", ftcRoll* 180/Math.PI);
+        telemetry.addData("\npitchftc", ftcPitch* 180/Math.PI);
+        telemetry.addData("\nyawftc", ftcYaw* 180/Math.PI);
+
+        telemetry.addData("\nbearing", bearing* 180/Math.PI);
+        telemetry.addData("\nelevation", elevation* 180/Math.PI);
+        telemetry.addData("\nrange", range);
+        telemetry.addLine();
+    }
+
+    public double getYaw(){
+        return ftcYaw;
+    }
+    public double getRoll(){
+        return ftcRoll;
+    }
+    public double getPitch(){
+        return ftcPitch;
+    }
+    public double getDeltaFtcYaw(){
+        return deltaFtcYaw;
     }
 }

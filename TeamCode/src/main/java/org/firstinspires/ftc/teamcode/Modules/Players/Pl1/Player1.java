@@ -20,6 +20,10 @@ public class Player1 extends Player {
    public JoystickActivity joystickActivity;
 
    public double constAngle = 0;
+   public double constAngle2 = 0;
+   public boolean off1 = false;
+    public boolean off2 = false;
+   public boolean allowTurn = false;
     public double constAngleDpad = 0;
     public double constAngleStick = 0;
    public double vyr = 0;
@@ -135,12 +139,20 @@ public class Player1 extends Player {
 //            }
 
         }else {
-            constAngle = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            constAngle = driveTrain.exOdometry.encGlobalPosition.getHeading();
         }
-
-
-        vyr = (driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
-
+        if(joystickActivity.buttonY){
+            if(!(driveTrain.exOdometry.camera.getYaw() == 0)){
+                driveTrain.exOdometry.encGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw() );
+                driveTrain.exOdometry.gyroGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw() );
+                joystickActivity.buttonY = false;
+                allowTurn = true;
+            }
+        }
+        if (allowTurn) {
+            constAngle = driveTrain.exOdometry.camera.getPitch();
+        }
+        vyr = (driveTrain.exOdometry.encGlobalPosition.getHeading() - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
 
         if(joystickActivity.buttonA){
             double[] globalVector = moveHeadless(cosA, sinA);
@@ -151,12 +163,14 @@ public class Player1 extends Player {
             cosA *= 1.1;  // Counteract imperfect strafing
         }
 
+
+
         double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
 
         double forwardVoltage = sinA/(denominator * (1.0 / acceleration));
         double sideVoltage    = cosA/(denominator * (1.0 / acceleration));
         double angleVoltage   = turn/(denominator * (1.0 / acceleration));
-        double vyrVoltage = Math.signum(vyr) * 0.1;
+        double vyrVoltage = Math.signum(vyr) * 0.15;
 //        double vyrVoltage = 0;
         if(Math.abs(vyr) < Math.toRadians(2)){
             vyrVoltage = 0;
@@ -169,6 +183,8 @@ public class Player1 extends Player {
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
+
+        telemetry.addData("Vyr", vyr);
         telemetry.addData("Max Vel", max_vel);
         showData();
     }
@@ -179,6 +195,7 @@ public class Player1 extends Player {
 //        driveTrain.exOdometry.showRobotVel();
 //        driveTrain.exOdometry.showEncodersAccel();
 //        driveTrain.exOdometry.showRobotAccel();
+        telemetry.addData("DeltaYaw", driveTrain.exOdometry.camera.getDeltaFtcYaw());
         driveTrain.exOdometry.showEncPositions();
         driveTrain.exOdometry.showRobotPositionEnc();
         driveTrain.exOdometry.showRobotPositionGyro();

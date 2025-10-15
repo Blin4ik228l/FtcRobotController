@@ -33,7 +33,7 @@ public class ExOdometry extends Module {
     public GyroscopeClass gyro;
     public CameraClass camera;
     public EncoderClass encoderClass;
-    private final SelfMath selfMath;
+    public final SelfMath selfMath;
     public final Position gyroGlobalPosition;                                   // Относительное перемещение
     public final Position encGlobalPosition;
     public VoltageSensor voltageSensor;

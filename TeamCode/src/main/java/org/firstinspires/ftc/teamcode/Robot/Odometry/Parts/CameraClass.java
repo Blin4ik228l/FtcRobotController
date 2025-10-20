@@ -77,9 +77,9 @@ public class CameraClass extends Module{
     double myRoll ;
     double myYaw ;
 
-    double ftcX;
-    double ftcY ;
-    double ftcZ ;
+   public double ftcX;
+   public double ftcY ;
+   public double ftcZ ;
 
     double ftcPitch ;
     public double ftcRoll ;

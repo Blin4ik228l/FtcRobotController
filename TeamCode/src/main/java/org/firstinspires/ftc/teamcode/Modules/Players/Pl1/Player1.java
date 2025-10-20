@@ -30,6 +30,8 @@ public class Player1 extends Player {
     double max_vel = 0;
    public boolean isRotateStarting = false;
    public boolean isRotateEnding = false;
+double lastConstAngle = 0;
+   public double rangeToTag = 0;
     @Override
     public void play() {
         joystickActivity.checkActivity();
@@ -52,116 +54,57 @@ public class Player1 extends Player {
         double sinA = -1*playersGamepad.left_stick_y;
         double turn = playersGamepad.right_stick_x;//для сохранения угла можно сделать её глобальной
 
-        if (joystickActivity.buttonB){
-            if(joystickActivity.tDpadUpPressed == 1){
-                constAngle = 0;
-                joystickActivity.tDpadUpPressed = 0;
-            }
-
-            if(turn != 0){
-                isRotateStarting = true;
-                isRotateEnding = false;
-            }
-
-            if(turn == 0 && isRotateStarting){
-                isRotateEnding = true;
-            }
-
-            if(isRotateEnding){
-                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-                isRotateEnding = false;
-                isRotateStarting = false;
-                constAngle = constAngleStick;
-            }
-
+//        if (joystickActivity.buttonB){
 //            if(joystickActivity.tDpadUpPressed == 1){
-//                joystickActivity.tDpadRightPressed = 0;
-//                joystickActivity.tDpadLeftPressed = 0;
+//                constAngle = 0;
 //                joystickActivity.tDpadUpPressed = 0;
 //            }
 //
-//            if(joystickActivity.tDpadLeftPressed == 0) {
-//                switch (joystickActivity.tDpadRightPressed) {
-//                    case 0:
-//                        constAngleDpad = 0;
-//                        break;
-//                    case 1:
-//                        constAngleDpad = Math.toRadians(-15);
-//                        break;
-//                    case 2:
-//                        constAngleDpad = Math.toRadians(-30);
-//                        break;
-//                    case 3:
-//                        constAngleDpad = Math.toRadians(-45);
-//                        break;
-//                    case 4:
-//                        constAngleDpad = Math.toRadians(-60);
-//                        break;
-//                    case 5:
-//                        constAngleDpad = Math.toRadians(-75);
-//                        break;
-//                    case 6:
-//                        constAngleDpad = Math.toRadians(-90);
-//                        break;
-//                }
-//            }
-//            if(joystickActivity.tDpadRightPressed == 0) {
-//                switch (joystickActivity.tDpadLeftPressed) {
-//                    case 0:
-//                        constAngleDpad = 0;
-//                        break;
-//                    case 1:
-//                        constAngleDpad = Math.toRadians(15);
-//                        break;
-//                    case 2:
-//                        constAngleDpad = Math.toRadians(30);
-//                        break;
-//                    case 3:
-//                        constAngleDpad = Math.toRadians(45);
-//                        break;
-//                    case 4:
-//                        constAngleDpad = Math.toRadians(60);
-//                        break;
-//                    case 5:
-//                        constAngleDpad = Math.toRadians(75);
-//                        break;
-//                    case 6:
-//                        constAngleDpad = Math.toRadians(90);
-//                        break;
-//                }
+//            if(turn != 0){
+//                isRotateStarting = true;
+//                isRotateEnding = false;
 //            }
 //
-//            if(joystickActivity.tDpadRightPressed == 0 && joystickActivity.tDpadLeftPressed == 0 && joystickActivity.tDpadDownPressed == 1){
-//                constAngle = constAngleStick;
-//                joystickActivity.tDpadDownPressed = 0;
-//            }else {
-//                constAngle = constAngleDpad;
+//            if(turn == 0 && isRotateStarting){
+//                isRotateEnding = true;
 //            }
+//
+//            if(isRotateEnding){
+//                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+//                isRotateEnding = false;
+//                isRotateStarting = false;
+//                constAngle = constAngleStick;
+//            }
+//
+//        }else {
+//            constAngle = driveTrain.exOdometry.encGlobalPosition.getHeading();
+//        }
 
-        }else {
-            constAngle = driveTrain.exOdometry.encGlobalPosition.getHeading();
-        }
         if(joystickActivity.buttonY){
-            if(!(driveTrain.exOdometry.camera.getYaw() == 0)){
+            if(driveTrain.exOdometry.camera.getYaw() != 0){
+                rangeToTag = driveTrain.exOdometry.camera.ftcY;
+                driveTrain.exOdometry.encGlobalPosition.setY(rangeToTag);
                 driveTrain.exOdometry.encGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw() );
                 driveTrain.exOdometry.gyroGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw() );
                 joystickActivity.buttonY = false;
                 allowTurn = true;
+
             }
         }
         if (allowTurn) {
-            constAngle = driveTrain.exOdometry.camera.getPitch();
+            constAngle = Math.toRadians(((2 * rangeToTag * rangeToTag) - driveTrain.exOdometry.selfMath.deltaX)/ (2 * rangeToTag * rangeToTag));
+
         }
-        vyr = (driveTrain.exOdometry.encGlobalPosition.getHeading() - constAngle);//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
-
-        if(joystickActivity.buttonA){
-            double[] globalVector = moveHeadless(cosA, sinA);
-
-            cosA = globalVector[0];//X
-            sinA = globalVector[1];//Y
-
-            cosA *= 1.1;  // Counteract imperfect strafing
-        }
+//        vyr = constAngle - driveTrain.exOdometry.encGlobalPosition.getHeading();//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
+//
+//        if(joystickActivity.buttonA){
+//            double[] globalVector = moveHeadless(cosA, sinA);
+//
+//            cosA = globalVector[0];//X
+//            sinA = globalVector[1];//Y
+//
+//            cosA *= 1.1;  // Counteract imperfect strafing
+//        }
 
 
 
@@ -170,7 +113,7 @@ public class Player1 extends Player {
         double forwardVoltage = sinA/(denominator * (1.0 / acceleration));
         double sideVoltage    = cosA/(denominator * (1.0 / acceleration));
         double angleVoltage   = turn/(denominator * (1.0 / acceleration));
-        double vyrVoltage = Math.signum(vyr) * 0.15;
+        double vyrVoltage = Math.signum(vyr) * 0.1;
 //        double vyrVoltage = 0;
         if(Math.abs(vyr) < Math.toRadians(2)){
             vyrVoltage = 0;
@@ -183,7 +126,10 @@ public class Player1 extends Player {
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
-
+        telemetry.addData("deltaHeading", driveTrain.exOdometry.selfMath.deltaHeadingEnc);
+        telemetry.addData("constAngle", constAngle);
+        telemetry.addData("rangeToTag", rangeToTag);
+        telemetry.addData(" driveTrain.exOdometry.selfMath.deltaX",  driveTrain.exOdometry.selfMath.deltaX);
         telemetry.addData("Vyr", vyr);
         telemetry.addData("Max Vel", max_vel);
         showData();

@@ -204,6 +204,7 @@ public class ExOdometry extends Module {
         private final double[] encCurPositions = new double[3];
         private final double[] encDeltaPositions = new double[3];
         private final double[] encLastPositions = new double[3];
+        private boolean flag = false;
         public void calculateAll(){
             updateAngle(AngleUnit.RADIANS);
             updateTimeToUpdAngl();
@@ -263,7 +264,10 @@ public class ExOdometry extends Module {
 
         private void updateGlobalPosition(){
             // Если перемещения не было - выходим из метода
-            if(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0 ) {
+            if(!(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0)) {
+                flag = false;
+            }
+            if(flag) {
                 return;
             }
 
@@ -275,6 +279,10 @@ public class ExOdometry extends Module {
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
             encGlobalPosition.add(deltaX * 1, deltaY * 1, 0);
+
+            if(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
+                flag = true;
+            }
         }
 
         public void updateGlobalVel(){

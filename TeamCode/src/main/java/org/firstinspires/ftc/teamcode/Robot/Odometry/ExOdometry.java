@@ -187,7 +187,6 @@ public class ExOdometry extends Module {
         public double lastYaw = 0;
         public double angleVel = 0;
         public double angleAccel = 0;
-
         public double g_X = 0;
         public double g_Y = 0;
         public double g_Heading = 0;

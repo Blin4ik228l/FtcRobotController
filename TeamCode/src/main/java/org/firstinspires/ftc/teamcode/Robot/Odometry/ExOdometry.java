@@ -37,17 +37,21 @@ public class ExOdometry extends Module {
     public final Position gyroGlobalPosition;                                   // Относительное перемещение
     public final Position encGlobalPosition;
     public VoltageSensor voltageSensor;
-    public Vector2[] maxVels = new Vector2[3];
-    public Vector2[] maxAccels = new Vector2[3];
     public Vector2[] encodersVelNotCentric = new Vector2[3];
     public Vector2[] encodersVelCentric = new Vector2[3];
     public Vector2[] encodersAccelNotCentric = new Vector2[3];
     public Vector2[] encodersAccelCentric = new Vector2[3];
+    public Vector2[] encodersVelAngleNotCentric = new Vector2[3];
+    public Vector2[] encodersVelAngleCentric = new Vector2[3];
+    public Vector2[] encodersAccelAngleNotCentric = new Vector2[3];
+    public Vector2[] encodersAccelAngleCentric = new Vector2[3];
     public Vector2 robotSelfCentricVel = new Vector2();
     public Vector2 robotSelfNotCentricVel = new Vector2();
     public Vector2 robotSelfCentricAccel = new Vector2();
     public Vector2 robotSelfNotCentricAccel = new Vector2();
+    public Vector2 robotSelfAngleVelNotCentric = new Vector2();
     public Vector2 robotSelfAngleVelCentric = new Vector2();
+    public Vector2 robotSelfAngleAccelNotCentric = new Vector2();
     public Vector2 robotSelfAngleAccelCentric = new Vector2();
 
     private double ticksToCm(double ticks){
@@ -75,11 +79,44 @@ public class ExOdometry extends Module {
         telemetry.addLine();
     }
 
+    public void showEncodersAngleVel(){
+        telemetry.addLine("Encoders Vel Angle");
+        telemetry.addLine("\nLeftEncoder")
+                .addData("\nVel", encodersVelAngleCentric[0].length())
+                .addData("\nVelX", encodersVelAngleCentric[0].x)
+                .addData("\nVelY", encodersVelAngleCentric[0].y);
+        telemetry.addLine("\nMidEncoder")
+                .addData("\nVel", encodersVelAngleCentric[1].length())
+                .addData("\nVelX", encodersVelAngleCentric[1].x)
+                .addData("\nVelY", encodersVelAngleCentric[1].y);
+        telemetry.addLine("\nRightEncoder")
+                .addData("\nVel", encodersVelAngleCentric[2].length())
+                .addData("\nVelX", encodersVelAngleCentric[2].x)
+                .addData("VelY", encodersVelAngleCentric[2].y);
+        telemetry.addLine();
+    }
+
     public void showRobotVel(){
         telemetry.addLine("Robot Vel")
                 .addData("\nVel", robotSelfCentricVel.length())
                 .addData("\nVelX", robotSelfCentricVel.x)
                 .addData("VelY", robotSelfCentricVel.y);
+        telemetry.addLine();
+    }
+
+    public void showRobotNVel(){
+        telemetry.addLine("Robot Vel")
+                .addData("\nVel", robotSelfNotCentricVel.length())
+                .addData("\nVelX", robotSelfNotCentricVel.x)
+                .addData("VelY", robotSelfNotCentricVel.y);
+        telemetry.addLine();
+    }
+
+    public void showRobotAngleVel(){
+        telemetry.addLine("Robot Vel Angle")
+                .addData("\nVel", robotSelfAngleVelCentric.length())
+                .addData("\nVelX", robotSelfAngleVelCentric.x)
+                .addData("VelY", robotSelfAngleVelCentric.y);
         telemetry.addLine();
     }
 
@@ -100,11 +137,36 @@ public class ExOdometry extends Module {
         telemetry.addLine();
     }
 
+    public void showEncodersAngleAccel(){
+        telemetry.addLine("Encoders Accel Angle");
+        telemetry.addLine("\nLeftEncoder")
+                .addData("\nAccel", encodersAccelAngleCentric[0].length())
+                .addData("\nAccelX", encodersAccelAngleCentric[0].x)
+                .addData("\nAccelY", encodersAccelAngleCentric[0].y);
+        telemetry.addLine("\nMidEncoder")
+                .addData("\nAccel", encodersAccelAngleCentric[1].length())
+                .addData("\nAccelX", encodersAccelAngleCentric[1].x)
+                .addData("\nAccelY", encodersAccelAngleCentric[1].y);
+        telemetry.addLine("\nRightEncoder")
+                .addData("\nAccel", encodersAccelAngleCentric[2].length())
+                .addData("\nAccelX", encodersAccelAngleCentric[2].x)
+                .addData("AccelY", encodersAccelAngleCentric[2].y);
+        telemetry.addLine();
+    }
+
+
     public void showRobotAccel(){
         telemetry.addLine("Robot Accel")
                 .addData("\nAccel", robotSelfCentricAccel.length())
                 .addData("\nAccelX", robotSelfCentricAccel.x)
                 .addData("AccelY", robotSelfCentricAccel.y);
+        telemetry.addLine();
+    }
+    public void showRobotAngleAccel(){
+        telemetry.addLine("Robot Accel Angle")
+                .addData("\nAccel", robotSelfAngleAccelCentric.length())
+                .addData("\nAccelX", robotSelfAngleAccelCentric.x)
+                .addData("AccelY", robotSelfAngleAccelCentric.y);
         telemetry.addLine();
     }
 
@@ -123,6 +185,12 @@ public class ExOdometry extends Module {
         telemetry.addLine();
     }
 
+    public void showRobotHeadingVel(){
+        telemetry.addLine("Heading vel")
+                .addData("\nX", selfMath.headingVel);
+        telemetry.addLine();
+    }
+
     public void showRobotPositionGyro(){
         telemetry.addLine("Robot pos with gyroAngle")
                 .addData("\nX", gyroGlobalPosition.getX())
@@ -132,37 +200,6 @@ public class ExOdometry extends Module {
     }
 
 
-
-
-//        public Vector2 getMaxVelLeft() {
-//            if(maxVelLeft.length() < getEncLeftVelocity(false).length()) maxVelLeft = getEncLeftVelocity(false);
-//            return maxVelLeft;
-//        }
-//
-//        public Vector2 getMaxVelRight() {
-//            if(maxVelRight.length() < getEncRightVelocity(false).length()) maxVelRight = getEncRightVelocity(false);
-//            return maxVelRight;
-//        }
-//
-//        public Vector2 getMaxVelMid() {
-//            if(maxVelMid.length() < getEncMidVelocity(false).length()) maxVelMid = getEncMidVelocity(false);
-//            return maxVelMid;
-//        }
-//
-//        public Vector2 getMaxAccelLeft() {
-//            if(maxAccelLeft.length() < getEncLeftAccel(false).length()) maxAccelLeft = getEncLeftAccel(false);
-//            return maxAccelLeft;
-//        }
-//
-//        public Vector2 getMaxAccelRight() {
-//            if(maxAccelRight.length() < getEncRightAccel(false).length()) maxAccelRight = getEncRightAccel(false);
-//            return maxAccelRight;
-//        }
-//
-//        public Vector2 getMaxAccelMid() {
-//            if(maxAccelMid.length() < getEncMidAccel(false).length()) maxAccelMid = getEncMidAccel(false);
-//            return maxAccelMid;
-//        }
 
 
 
@@ -177,127 +214,144 @@ public class ExOdometry extends Module {
 //            telemetry.addLine();
 //        }
 
-    public class SelfMath{
+    public class SelfMath {
         public ElapsedTime runTime = new ElapsedTime();//Время с начала запуска программы
-        public double currentTime = 0;//В разных точках пограммы будет обозначать время когда брались значения с энкодеров
-        public double oldTimes[] = new double[3];                                         // Предыдущее время
-        public double deltaTimes[] = new double[3];
+        public double currentTime = 0;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
+        public double []oldTimes = new double[3];                                         // Предыдущее время
+        public double []deltaTimes = new double[3];
         public double yaw = 0;
         public double deltaYaw = 0;
         public double lastYaw = 0;
-        public double angleVel = 0;
-        public double angleAccel = 0;
-        public double g_X = 0;
-        public double g_Y = 0;
-        public double g_Heading = 0;
         public double deltaHeadingEnc = 0;
         public double deltaX = 0;
         public double deltaY = 0;
+        public double headingVel = 0;
         public double deltaHeadingGyro = 0;
         private final double[] encCurVelocities = new double[3];
-        private double leftVelCur = 0;
-        private double midVelCur = 0;
-        private double rightVelCur = 0;
+        private final double[] encCurAngleVelocities = new double[3];
+        private final double[] encDeltaAngleVelocities = new double[3];
+        private final double[] encLastAngleVelocities = new double[3];
+        private final double[] encCurAngleAccels = new double[3];
+        private final double[] encDeltaAngleAccels = new double[3];
+        private final double[] encLastAngleAccels = new double[3];
         private final double[] encDeltaVelocities = new double[3];
         private final double[] encLastVelocities = new double[3];
         private final double[] encCurPositions = new double[3];
         private final double[] encDeltaPositions = new double[3];
         private final double[] encLastPositions = new double[3];
         private boolean flag = false;
-        public void calculateAll(){
+
+        public void calculateAll() {
             updateAngle(AngleUnit.RADIANS);
             updateTimeToUpdAngl();
+
 
             updatePosFromEncoders(false);//в тиках или сантиметрах?
             updateTimeToUpdPosFrmEnc();
 
+
             updateVelFromEncoders(false);
+            updateAngleVelFromEncoders();
             updateTimeToUpdVelFrmEnc();
 
-            updateEncodersVelocityNotCentric();//Обновляем скорость
-            updateEncodersVelocityCentric();
+
+            updateVectorEncodersVelocityNotCentric();//Обновляем скорость
+            updateVectorEncodersAngleVelocityNotCentric();
+
+
+            updateVectorEncodersVelocityCentric();
+            updateVectorEncodersAngleVelocityCentric();
+
 
             updateRobotVelocityNotCentric();//Обновляем ускорение
+            updateRobotAngleVelocityNotCentric();
+
+
             updateRobotVelocityCentric();
+            updateRobotAngleVelocityCentric();
+
 
             updateEncodersAccelNotCentric();
+            updateEncodersAngleAccelNotCentric();
+
+
             updateEncodersAccelCentric();
+            updateEncodersAngleAccelCentric();
+
 
             updateRobotAccelNotCentric();
+            updateRobotAngleAccelNotCentric();
+
+
             updateRobotAccelCentric();
+            updateRobotAngleAccelCentric();
+
 
             updateGlobalAngle();
             updateGlobalPosition(); //затем обновляем позицию
         }
 
-        private void updateAngle(AngleUnit angleUnit){
+        private void updateAngle(AngleUnit angleUnit) {
             yaw = gyro.imu.getRobotYawPitchRollAngles().getYaw(angleUnit);
 
             currentTime = runTime.milliseconds();// Время в которое мы фиксируем показания с датчиков
         }
 
-        private void updateTimeToUpdAngl(){
+        private void updateTimeToUpdAngl() {
             deltaYaw = yaw - lastYaw;
             lastYaw = yaw;
 
-            deltaTimes[2] = (currentTime - oldTimes[2])/1000;//время за которое программа доходит до сюда(время обновление программы)
+            deltaTimes[2] = (currentTime - oldTimes[2]) / 1000;//время за которое программа доходит до сюда(время обновление программы)
             oldTimes[2] = currentTime;
         }
 
-        private void updateGlobalAngle(){
+        private void updateGlobalAngle() {
             deltaHeadingGyro = deltaYaw;
 
-            if(encGlobalPosition.getHeading() < -Math.PI) {
-                encGlobalPosition.add(0,0, 2 * Math.PI);
-                }
+            if (encGlobalPosition.getHeading() < -Math.PI) {
+                encGlobalPosition.add(0, 0, 2 * Math.PI);
+            }
 
-            if(encGlobalPosition.getHeading() > Math.PI) {
-                encGlobalPosition.add(0,0, -2 * Math.PI);
-                }
+            if (encGlobalPosition.getHeading() > Math.PI) {
+                encGlobalPosition.add(0, 0, -2 * Math.PI);
+            }
             deltaHeadingEnc = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
 
+            headingVel = deltaHeadingEnc / deltaTimes[0];
 
             encGlobalPosition.add(0, 0, deltaHeadingEnc * 1);
             gyroGlobalPosition.add(0, 0, deltaHeadingGyro * 1);
         }
 
-        private void updateGlobalPosition(){
+        private void updateGlobalPosition() {
             // Если перемещения не было - выходим из метода
-            if(!(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0)) {
+            if (!(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0)) {
                 flag = false;
             }
-            if(flag) {
+            if (flag) {
                 return;
             }
 
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
 
-            deltaY = (encDeltaPositions[0] + encDeltaPositions[2] ) / 2.0;
+            deltaY = (encDeltaPositions[0] + encDeltaPositions[2]) / 2.0;
             deltaX = encDeltaPositions[1] - deltaHeadingEnc * OFFSET_ENC_M_FROM_CENTER;
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
             encGlobalPosition.add(deltaX * 1, deltaY * 1, 0);
 
-            if(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
+            if (encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
                 flag = true;
             }
         }
 
-        public void updateGlobalVel(){
-
-        }
-
-        public void updateGlobalAccel(){
-
-        }
-
-        private void updatePosFromEncoders(boolean inTicks){//Обновляем позицию с датчиков
+        private void updatePosFromEncoders(boolean inTicks) {//Обновляем позицию с датчиков
             encCurPositions[0] = encoderClass.getCurrentPosLeft();
             encCurPositions[1] = encoderClass.getCurrentPosMid();
             encCurPositions[2] = encoderClass.getCurrentPosRight();
 
-            if(!inTicks){
+            if (!inTicks) {
                 encCurPositions[0] = ticksToCm(encCurPositions[0]);
                 encCurPositions[1] = ticksToCm(encCurPositions[1]);
                 encCurPositions[2] = ticksToCm(encCurPositions[2]);
@@ -305,7 +359,8 @@ public class ExOdometry extends Module {
             currentTime = runTime.milliseconds();// Время в которое мы фиксируем показания с датчиков
 
         }
-        private void updateTimeToUpdPosFrmEnc(){//Время привязанное к обновлению позиции
+
+        private void updateTimeToUpdPosFrmEnc() {//Время привязанное к обновлению позиции
             encDeltaPositions[0] = encCurPositions[0] - encLastPositions[0];
             encLastPositions[0] = encCurPositions[0];
 
@@ -315,15 +370,16 @@ public class ExOdometry extends Module {
             encDeltaPositions[2] = encCurPositions[2] - encLastPositions[2];
             encLastPositions[2] = encCurPositions[2];
 
-            deltaTimes[0] = (currentTime - oldTimes[0])/1000;//время за которое программа доходит до сюда(время обновление программы)
+            deltaTimes[0] = (currentTime - oldTimes[0]) / 1000;//время за которое программа доходит до сюда(время обновление программы)
             oldTimes[0] = currentTime;
         }
-        private void updateVelFromEncoders(boolean inTicks){//Обновляем скорость с датчиков
+
+        private void updateVelFromEncoders(boolean inTicks) {//Обновляем скорость с датчиков
             encCurVelocities[0] = encoderClass.getCurrentVelocityLeft();
             encCurVelocities[1] = encoderClass.getCurrentVelocityMid();
             encCurVelocities[2] = encoderClass.getCurrentVelocityRight();
 
-            if(!inTicks){
+            if (!inTicks) {
                 encCurVelocities[0] = encCurVelocities[0] / encoderClass.COUNTS_PER_CM;
                 encCurVelocities[1] = encCurVelocities[1] / encoderClass.COUNTS_PER_CM;
                 encCurVelocities[2] = encCurVelocities[2] / encoderClass.COUNTS_PER_CM;
@@ -331,7 +387,7 @@ public class ExOdometry extends Module {
             currentTime = runTime.milliseconds();// Время в которое мы фиксируем показания с датчиков
         }
 
-        private void updateTimeToUpdVelFrmEnc(){//Время привязанное к обновлению скорости
+        private void updateTimeToUpdVelFrmEnc() {//Время привязанное к обновлению скорости
             encDeltaVelocities[0] = encCurVelocities[0] - encLastVelocities[0];
             encLastVelocities[0] = encCurVelocities[0];
 
@@ -341,27 +397,83 @@ public class ExOdometry extends Module {
             encDeltaVelocities[2] = encCurVelocities[2] - encLastVelocities[2];
             encLastVelocities[2] = encCurVelocities[2];
 
-            deltaTimes[1] = (currentTime - oldTimes[1])/1000;//время за которое программа доходит до сюда(время обновление программы)
+            deltaTimes[1] = (currentTime - oldTimes[1]) / 1000;//время за которое программа доходит до сюда(время обновление программы)
             oldTimes[1] = currentTime;
+        }
+        public void updateAngleVelFromEncoders(){
+            encCurAngleVelocities[0] =  encCurVelocities[0] / (DIST_BETWEEN_ENC_X / 2);
+            encCurAngleVelocities[1] =  encCurVelocities[1] / OFFSET_ENC_M_FROM_CENTER;
+            encCurAngleVelocities[2] =  encCurVelocities[2] / (DIST_BETWEEN_ENC_X / 2);
+
+        }
+
+        public void updateDeltaAngleVelFromEncoders(){
+            encDeltaAngleAccels[0] = encCurAngleVelocities[0] - encLastAngleVelocities[0];
+            encLastAngleVelocities[0] = encCurAngleVelocities[0];
+
+            encDeltaAngleAccels[1] = encCurAngleVelocities[1] - encLastAngleVelocities[1];
+            encLastAngleVelocities[1] = encLastAngleVelocities[0];
+
+            encDeltaAngleAccels[2] = encCurAngleVelocities[2] - encLastAngleVelocities[2];
+            encLastAngleVelocities[2] = encCurAngleVelocities[2];
+
+            //Время обновления угловой скорости равно времени для обычной скорости, так как это всё должно одновремено вычисляться
+
+        }
+
+        public void updateAngleAccelFromEncoders(){
+            encCurAngleAccels[0] = encCurVelocities[0] / deltaTimes[1];
+            encCurAngleAccels[1] = encCurVelocities[1] / deltaTimes[1];
+            encCurAngleAccels[2] = encCurVelocities[2] / deltaTimes[1];
+
+        }
+
+        public void updateDeltaAngleAccelFromEncoders(){
+            encDeltaAngleAccels[0] = encCurVelocities[0] - encLastAngleAccels[0];
+            encLastAngleAccels[0] = encCurAngleAccels[0];
+
+            encDeltaAngleAccels[1] = encCurVelocities[1] - encLastAngleAccels[1];
+            encLastAngleAccels[1] = encCurAngleAccels[1];
+
+            encDeltaAngleAccels[2] = encCurVelocities[2] - encLastAngleAccels[2];
+            encLastAngleAccels[2] = encCurAngleAccels[2];
         }
 
 
-        private void updateEncodersVelocityNotCentric(){
+
+        private void updateVectorEncodersVelocityNotCentric() {
 
             encodersVelNotCentric = new Vector2[]{
                     new Vector2(
                             0,
-                            leftVelCur * 1),//0 - элемент - значение скорости для левого энкодера.
+                            encCurVelocities[0] * 1),//0 - элемент - значение скорости для левого энкодера.
                     new Vector2(
-                            midVelCur * 1,
+                            encCurVelocities[1] * 1,
                             0),          //1 - элемент - значение скорости для среднего энкодера.
                     new Vector2(
                             0,
-                            rightVelCur * 1)//2 - элемент - значение скорости для правого энкодера.
+                            encCurVelocities[2] * 1)//2 - элемент - значение скорости для правого энкодера.
             };
 
         }
-        private void updateEncodersVelocityCentric(){
+
+        private void updateVectorEncodersAngleVelocityNotCentric() {
+
+            encodersVelAngleNotCentric = new Vector2[]{
+                    new Vector2(
+                            0,
+                            encCurAngleVelocities[0] * 1),//0 - элемент - значение скорости для левого энкодера.
+                    new Vector2(
+                            encCurAngleVelocities[1] * 1,
+                            0),          //1 - элемент - значение скорости для среднего энкодера.
+                    new Vector2(
+                            0,
+                            encCurAngleVelocities[2] * 1)//2 - элемент - значение скорости для правого энкодера.
+            };
+
+        }
+
+        private void updateVectorEncodersVelocityCentric() {
 
             encodersVelCentric = new Vector2[]{
                     new Vector2(
@@ -379,20 +491,51 @@ public class ExOdometry extends Module {
 
         }
 
-        private void updateRobotVelocityNotCentric(){
+        private void updateVectorEncodersAngleVelocityCentric() {
+
+            encodersVelAngleCentric = new Vector2[]{
+                    new Vector2(
+                            encodersVelAngleNotCentric[0].length() * Math.cos(Math.toRadians(90) + yaw),
+                            encodersVelAngleNotCentric[0].length() * Math.sin(Math.toRadians(90) + yaw))//0 - элемент - значение скорости для левого энкодера.
+                    ,
+                    new Vector2(
+                            encodersVelAngleNotCentric[1].length() * Math.cos(yaw),
+                            encodersVelAngleNotCentric[1].length() * Math.sin(yaw))//1 - элемент - значение скорости для среднего энкодера.
+                    ,
+                    new Vector2(
+                            encodersVelAngleNotCentric[2].length() * Math.cos(Math.toRadians(90) + yaw),
+                            encodersVelAngleNotCentric[2].length() * Math.sin(Math.toRadians(90) + yaw))//2 - элемент - значение скорости для правого энкодера.
+            };
+
+        }
+
+        private void updateRobotVelocityNotCentric() {
             robotSelfNotCentricVel = new Vector2(
                     encodersVelNotCentric[1].x * 1,
                     encodersVelNotCentric[0].y / 2.0 + encodersVelNotCentric[2].y / 2.0);
         }
-        private void updateRobotVelocityCentric(){
-            robotSelfCentricVel =  new Vector2(
+
+        private void updateRobotAngleVelocityNotCentric() {
+            robotSelfAngleVelNotCentric = new Vector2(
+                    encodersVelNotCentric[1].x * 1,
+                    encodersVelNotCentric[0].y / 2.0 + encodersVelNotCentric[2].y / 2.0);
+        }
+
+        private void updateRobotVelocityCentric() {
+            robotSelfCentricVel = new Vector2(
                     encodersVelCentric[0].x / 2.0 + encodersVelCentric[1].x + encodersVelCentric[2].x / 2.0,
                     encodersVelCentric[0].y / 2.0 + encodersVelCentric[1].y + encodersVelCentric[2].y / 2.0);
         }
 
-        private void updateEncodersAccelNotCentric(){
+        private void updateRobotAngleVelocityCentric() {
+            robotSelfAngleVelCentric = new Vector2(
+                    encodersVelAngleCentric[0].x / 2.0 + encodersVelAngleCentric[1].x + encodersVelAngleCentric[2].x / 2.0,
+                    encodersVelAngleCentric[0].y / 2.0 + encodersVelAngleCentric[1].y + encodersVelAngleCentric[2].y / 2.0);
+        }
 
-            encodersAccelNotCentric =  new Vector2[]{
+        private void updateEncodersAccelNotCentric() {
+
+            encodersAccelNotCentric = new Vector2[]{
                     new Vector2(0,
                             encodersVelNotCentric[0].y / deltaTimes[1]),
 
@@ -405,13 +548,28 @@ public class ExOdometry extends Module {
             };
         }
 
-        private void updateEncodersAccelCentric(){
-            encodersAccelCentric =  new Vector2[]{
+        private void updateEncodersAngleAccelNotCentric() {
+
+            encodersAccelAngleNotCentric = new Vector2[]{
+                    new Vector2(0,
+                            encodersVelAngleNotCentric[0].y/ deltaTimes[1]),
+
+                    new Vector2(encodersVelAngleNotCentric[1].x/ deltaTimes[1],
+                            0),
+
+                    new Vector2(0,
+                            encodersVelAngleNotCentric[2].y/ deltaTimes[1])
+
+            };
+        }
+
+        private void updateEncodersAccelCentric() {
+            encodersAccelCentric = new Vector2[]{
                     new Vector2(encodersVelCentric[0].x / deltaTimes[1],
                             encodersVelCentric[0].y / deltaTimes[1]),
 
-                    new Vector2(encodersVelCentric[1].x/ deltaTimes[1],
-                            encodersVelCentric[1].y/ deltaTimes[1]),
+                    new Vector2(encodersVelCentric[1].x / deltaTimes[1],
+                            encodersVelCentric[1].y / deltaTimes[1]),
 
                     new Vector2(encodersVelCentric[2].x / deltaTimes[1],
                             encodersVelCentric[2].x / deltaTimes[1])
@@ -419,65 +577,42 @@ public class ExOdometry extends Module {
             };
         }
 
-        private void updateRobotAccelNotCentric(){
+        private void updateEncodersAngleAccelCentric() {
+            encodersAccelAngleCentric = new Vector2[]{
+                    new Vector2(encodersVelAngleCentric[0].x / deltaTimes[1],
+                            encodersVelAngleCentric[0].y / deltaTimes[1]),
+
+                    new Vector2(encodersVelAngleCentric[1].x / deltaTimes[1],
+                            encodersVelAngleCentric[1].y / deltaTimes[1]),
+
+                    new Vector2(encodersVelAngleCentric[2].x / deltaTimes[1],
+                            encodersVelAngleCentric[2].x / deltaTimes[1])
+
+            };
+        }
+
+        private void updateRobotAccelNotCentric() {
             robotSelfNotCentricAccel = new Vector2(
                     encodersAccelNotCentric[1].x * 1,
                     encodersAccelNotCentric[0].y / 2.0 + encodersVelNotCentric[2].y / 2.0);
         }
-        private void updateRobotAccelCentric(){
+        private void updateRobotAngleAccelNotCentric() {
+            robotSelfAngleAccelNotCentric = new Vector2(
+                    encodersAccelAngleNotCentric[1].x * 1,
+                    encodersAccelAngleNotCentric[0].y / 2.0 + encodersAccelAngleNotCentric[2].y / 2.0);
+        }
+
+        private void updateRobotAccelCentric() {
             robotSelfCentricAccel = new Vector2(
                     encodersAccelCentric[0].x / 2.0 + encodersAccelCentric[1].x + encodersAccelCentric[2].x / 2.0,
                     encodersAccelCentric[0].y / 2.0 + encodersAccelCentric[1].y + encodersAccelCentric[2].y / 2.0);
         }
 
-        private void updateRobotAngleVelCentric(){
-            robotSelfAngleVelCentric = new Vector2(
-                    gyro.imu.getRobotAngularVelocity(AngleUnit.RADIANS).xRotationRate * 1,
-                    gyro.imu.getRobotAngularVelocity(AngleUnit.RADIANS).yRotationRate * 1);
+        private void updateRobotAngleAccelCentric() {
+            robotSelfAngleAccelCentric = new Vector2(
+                    encodersAccelAngleCentric[1].x * 1,
+                    encodersAccelAngleCentric[0].y / 2.0 + encodersAccelAngleCentric[2].y / 2.0);
         }
 
-        private void updateRobotAngleAccelCentric(){
-            robotSelfAngleVelCentric = new Vector2(
-                    gyro.imu.getRobotAngularVelocity(AngleUnit.RADIANS).xRotationRate * 1,
-                    gyro.imu.getRobotAngularVelocity(AngleUnit.RADIANS).yRotationRate * 1);
-        }
     }
-
-//        public void showMaxVelLeft(){
-//            getMaxVelLeft();
-//            telemetry.addLine("EncoderLeftMaxVel:")
-//                    .addData("\nX", maxVelLeft.x)
-//                    .addData("Y", maxVelLeft.y);
-//        }
-//        public void showMaxVelMid(){
-//            getMaxVelMid();
-//            telemetry.addLine("EncoderMidMaxVel:")
-//                    .addData("\nX", maxVelMid.x)
-//                    .addData("Y", maxVelMid.y);
-//        }
-//        public void showMaxVelRight(){
-//            getMaxVelRight();
-//            telemetry.addLine("EncoderRightMaxVel:")
-//                    .addData("\nX", maxVelRight.x)
-//                    .addData("Y", maxVelRight.y);
-//        }
-//
-//        public void showMaxAccelLeft(){
-//            getMaxAccelLeft();
-//            telemetry.addLine("EncoderLeftMaxAccel:")
-//                    .addData("\nX", maxAccelLeft.x)
-//                    .addData("Y", maxAccelLeft.y);
-//        }
-//        public void showMaxAccelMid(){
-//            getMaxAccelMid();
-//            telemetry.addLine("EncoderMidMaxAccel:")
-//                    .addData("\nX", maxAccelMid.x)
-//                    .addData("Y", maxAccelMid.y);
-//        }
-//        public void showMaxAccelRight(){
-//            getMaxAccelRight();
-//            telemetry.addLine("EncoderRightMaxAccel:")
-//                    .addData("\nX", maxAccelRight.x)
-//                    .addData("Y", maxAccelRight.y);
-//        }
 }

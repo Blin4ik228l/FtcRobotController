@@ -45,6 +45,14 @@ double lastConstAngle = 0;
    double lastTime = 0;
    double deltaTime = 0;
     double circleLeng;
+
+    double rho;
+    double alpha;
+    double delta;
+
+    double radius;
+    double center_x;
+    double center_y;
     @Override
     public void play() {
         joystickActivity.checkActivity();
@@ -65,44 +73,44 @@ double lastConstAngle = 0;
 
         double cosA = playersGamepad.left_stick_x;
         double sinA = -1*playersGamepad.left_stick_y;
-        double turn = playersGamepad.right_stick_x;//для сохранения угла можно сделать её глобальной
+        double speed = -playersGamepad.right_stick_y;
+        double turn = playersGamepad.right_stick_x;
 
         currentAngle = driveTrain.exOdometry.encGlobalPosition.getHeading();
         currentTime = runtime.seconds();
 
-//        if (joystickActivity.buttonB){
-//            if(joystickActivity.tDpadUpPressed == 1){
+        if (joystickActivity.buttonB){
+            if(joystickActivity.tDpadUpPressed == 1){
 //                constAngle = 0;
-//                joystickActivity.tDpadUpPressed = 0;
-//            }
-//
-//            if(turn != 0){
-//                isRotateStarting = true;
-//                isRotateEnding = false;
-//            }
-//
-//            if(turn == 0 && isRotateStarting){
-//                isRotateEnding = true;
-//            }
-//
-//            if(isRotateEnding){
-//                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-//                isRotateEnding = false;
-//                isRotateStarting = false;
+                joystickActivity.tDpadUpPressed = 0;
+            }
+
+            if(turn != 0){
+                isRotateStarting = true;
+                isRotateEnding = false;
+            }
+
+            if(turn == 0 && isRotateStarting){
+                isRotateEnding = true;
+            }
+
+            if(isRotateEnding){
+                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+                isRotateEnding = false;
+                isRotateStarting = false;
 //                constAngle = constAngleStick;
-//            }
-//
-//        }else {
+            }
+
+        }else {
             vyr = 0;
-//        }
+        }
 
         if(joystickActivity.buttonY){
             if(driveTrain.exOdometry.camera.getYaw() != 0){
-                rangeToTag = driveTrain.exOdometry.camera.range;
-                driveTrain.exOdometry.encGlobalPosition.setY(driveTrain.exOdometry.camera.ftcY);
-                driveTrain.exOdometry.encGlobalPosition.setX(driveTrain.exOdometry.camera.ftcX);
-                driveTrain.exOdometry.encGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw());
-                driveTrain.exOdometry.gyroGlobalPosition.setHeading(driveTrain.exOdometry.camera.getYaw());
+                radius = driveTrain.exOdometry.camera.range;
+                center_x = driveTrain.exOdometry.camera.ftcX;
+                center_y = driveTrain.exOdometry.camera.ftcY;
+
                 joystickActivity.buttonY = false;
                 allowTurn = true;
 
@@ -110,34 +118,15 @@ double lastConstAngle = 0;
         }
 
         if (allowTurn) {
+            double dx = center_x - driveTrain.exOdometry.encGlobalPosition.getX();
+            double dy = center_y - driveTrain.exOdometry.encGlobalPosition.getY();
 
-            double velY = sinA * 200;
-            double velX = cosA * 200;
+            rho = Math.sqrt(dx*dx + dy*dy);
+            alpha = Math.atan2(dy, dx) - driveTrain.exOdometry.encGlobalPosition.getHeading();
 
-            double y = driveTrain.exOdometry.encGlobalPosition.getY();
-            double x = driveTrain.exOdometry.encGlobalPosition.getX();
+//                alpha = Math.atan2(Math.sin(alpha), Math.cos(alpha));
 
-            rangeToTag = Math.sqrt(Math.pow(y - rangeToTag * sinA, 2) + Math.pow(x - rangeToTag * cosA, 2));
-
-            circleLeng = rangeToTag * 2 * Math.PI;
-
-            x0 += driveTrain.exOdometry.selfMath.deltaX;
-            y0 += driveTrain.exOdometry.selfMath.deltaY;
-
-//            if(cosA != 0){
-//                currentTime = runtime.seconds() - lastTime;
-//                flag = false;
-//            }
-
-
-            if(cosA != 0){
-                deltaConstAngle = (velX / circleLeng);
-            }
-             else{
-                 deltaConstAngle = 0 ;
-            }
-
-            vyr = -driveTrain.exOdometry.selfMath.deltaHeadingEnc;
+        }
 
 //            if(cosA == 0 && !flag){
 //                lastTime = currentTime;
@@ -153,7 +142,7 @@ double lastConstAngle = 0;
 //                vyr = constAngle2;
 //            }
 
-        }
+//        }
 
 //        if(driveTrain.exOdometry.encGlobalPosition.getHeading() == Math.toRadians(-50) && allowTurn){
 //            vyr = Math.toRadians(-50) - driveTrain.exOdometry.encGlobalPosition.getHeading();
@@ -165,45 +154,41 @@ double lastConstAngle = 0;
 
 //        vyr = constAngle - driveTrain.exOdometry.encGlobalPosition.getHeading();//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
 //
-//        if(joystickActivity.buttonA){
-//            double[] globalVector = moveHeadless(cosA, sinA);
-//
-//            cosA = globalVector[0];//X
-//            sinA = globalVector[1];//Y
-//
-//            cosA *= 1.1;  // Counteract imperfect strafing
-//        }
+        if(joystickActivity.buttonA){
+            double[] globalVector = moveHeadless(cosA, sinA);
 
+            cosA = globalVector[0];//X
+            sinA = globalVector[1];//Y
 
+            cosA *= 1.1;  // Counteract imperfect strafing
+        }
+
+        double v = cosA * (radius - rho);
+        double omega = alpha;
 
         double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
+
+//        double forwardSpeed = (Math.abs(speed) * 300) * Math.signum(sinA);
+//        double sideSpeed = (Math.abs(speed) * 300) * Math.signum(cosA);
+//        double angleSpeed = turn * 6.28;
+//
+//        double forwardVoltage =   forwardSpeed / 300;
+//        double sideVoltage    =   sideSpeed / 300;
+//        double angleVoltage   =   angleSpeed / 6.28;
 
         double forwardVoltage =   sinA/(denominator * (1.0 / acceleration));
         double sideVoltage    =   cosA/(denominator * (1.0 / acceleration));
         double angleVoltage   =   turn/(denominator * (1.0 / acceleration));
-        double vyrVoltage = Math.signum(vyr) * 0.1;
+        double vyrVoltage = 0;
 
         vyrVoltage = 0;
-//        double vyrVoltage = 0;
-//        if(Math.abs(vyr) < Math.toRadians(2)){
-//            vyrVoltage = 0;
-//        }
 
-
-//        if((Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI > max_vel){
-//            max_vel = (Math.abs(driveTrain.odometry.encL.getVelocity()) / 2000) * 0.096 * Math.PI;
-//        }
-        deltaAngle = currentAngle - lastAngle;
-        lastAngle = currentAngle;
-
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
 
-        telemetry.addData("deltaHeadingEnc", driveTrain.exOdometry.selfMath.deltaHeadingEnc);
-        telemetry.addData("constAngle", deltaConstAngle);
+//        telemetry.addData("alpha", alpha);
+//        telemetry.addData("constAngle", deltaConstAngle);
 //        telemetry.addData("rangeToTag", rangeToTag);
 //        telemetry.addData(" driveTrain.exOdometry.selfMath.deltaX",  driveTrain.exOdometry.selfMath.deltaX);
 //        telemetry.addData("Vyr", vyr);
@@ -220,6 +205,10 @@ double lastConstAngle = 0;
 //        telemetry.addData("DeltaYaw", driveTrain.exOdometry.camera.getDeltaFtcYaw());
         driveTrain.exOdometry.showEncPositions();
         driveTrain.exOdometry.showRobotPositionEnc();
+        driveTrain.exOdometry.showRobotNVel();
+        driveTrain.exOdometry.showRobotVel();
+        driveTrain.exOdometry.showRobotHeadingVel();
+        driveTrain.exOdometry.showRobotAngleVel();
 //        driveTrain.exOdometry.showRobotPositionGyro();
 
 //        telemetry.addData("A",joystickActivity.buttonA);

@@ -106,25 +106,21 @@ double lastConstAngle = 0;
         }
 
         if(joystickActivity.buttonY){
-            if(driveTrain.exOdometry.camera.getYaw() != 0){
-                radius = driveTrain.exOdometry.camera.range;
-                center_x = driveTrain.exOdometry.camera.ftcX;
-                center_y = driveTrain.exOdometry.camera.ftcY;
-
+            if(driveTrain.exOdometry.camera.myYaw != 0){
+                driveTrain.exOdometry.encGlobalPosition.setHeading(driveTrain.exOdometry.camera.myYaw);
+                driveTrain.exOdometry.encGlobalPosition.setX(driveTrain.exOdometry.camera.myX);
+                driveTrain.exOdometry.encGlobalPosition.setY(driveTrain.exOdometry.camera.myY);
                 joystickActivity.buttonY = false;
                 allowTurn = true;
-
             }
         }
 
         if (allowTurn) {
-            double dx = center_x - driveTrain.exOdometry.encGlobalPosition.getX();
-            double dy = center_y - driveTrain.exOdometry.encGlobalPosition.getY();
+            double dx = driveTrain.exOdometry.camera.blueWallCoord[0] - driveTrain.exOdometry.encGlobalPosition.getX();
+            double dy = driveTrain.exOdometry.camera.blueWallCoord[2] - driveTrain.exOdometry.encGlobalPosition.getY();
 
-            rho = Math.sqrt(dx*dx + dy*dy);
-            alpha = Math.atan2(dy, dx) - driveTrain.exOdometry.encGlobalPosition.getHeading();
-
-//                alpha = Math.atan2(Math.sin(alpha), Math.cos(alpha));
+            alpha = Math.atan2(dy, dx) + driveTrain.exOdometry.encGlobalPosition.getHeading();
+            alpha = Math.atan2(Math.sin(alpha), Math.cos(alpha));
 
         }
 
@@ -166,7 +162,7 @@ double lastConstAngle = 0;
         double v = cosA * (radius - rho);
         double omega = alpha;
 
-        double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
+        double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn + alpha/6.28), 1);//Denominator is the largest motor power (absolute value) or 1
 
 //        double forwardSpeed = (Math.abs(speed) * 300) * Math.signum(sinA);
 //        double sideSpeed = (Math.abs(speed) * 300) * Math.signum(cosA);
@@ -177,17 +173,13 @@ double lastConstAngle = 0;
 //        double angleVoltage   =   angleSpeed / 6.28;
 
         double forwardVoltage =   sinA/(denominator * (1.0 / acceleration));
-        double sideVoltage    =   cosA/(denominator * (1.0 / acceleration));
-        double angleVoltage   =   turn/(denominator * (1.0 / acceleration));
+        double sideVoltage    =   (cosA)/(denominator * (1.0 / acceleration));
+        double angleVoltage   =   (turn * (alpha / 6.28))/(denominator * (1.0 / acceleration));
         double vyrVoltage = 0;
-
-        vyrVoltage = 0;
-
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
 
-
-//        telemetry.addData("alpha", alpha);
+        telemetry.addData("alpha", alpha);
 //        telemetry.addData("constAngle", deltaConstAngle);
 //        telemetry.addData("rangeToTag", rangeToTag);
 //        telemetry.addData(" driveTrain.exOdometry.selfMath.deltaX",  driveTrain.exOdometry.selfMath.deltaX);

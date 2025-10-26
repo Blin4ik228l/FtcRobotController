@@ -125,8 +125,6 @@ double lastConstAngle = 0;
             cosA *= 1.1;  // Counteract imperfect strafing
         }
 
-
-
         double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
 
         double vyrVoltage   = angleSpeed/ DIST_BETWEEN_ENC_X;
@@ -140,36 +138,18 @@ double lastConstAngle = 0;
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
-        telemetry.addData("alpha", alpha);
-//        telemetry.addData("constAngle", deltaConstAngle);
-//        telemetry.addData("rangeToTag", rangeToTag);
-//        telemetry.addData(" driveTrain.exOdometry.selfMath.deltaX",  driveTrain.exOdometry.selfMath.deltaX);
-//        telemetry.addData("Vyr", vyr);
-//        telemetry.addData("Max Vel", max_vel);
+        telemetry.addData("targetHeading", targetHeading);
         showData();
     }
 
     @Override
     public void showData() {
-//        driveTrain.exOdometry.showEncodersVel();
-//        driveTrain.exOdometry.showRobotVel();
-//        driveTrain.exOdometry.showEncodersAccel();
-//        driveTrain.exOdometry.showRobotAccel();
-//        telemetry.addData("DeltaYaw", driveTrain.exOdometry.camera.getDeltaFtcYaw());
         driveTrain.exOdometry.showEncPositions();
         driveTrain.exOdometry.showRobotPositionEnc();
         driveTrain.exOdometry.showRobotNVel();
         driveTrain.exOdometry.showRobotVel();
         driveTrain.exOdometry.showRobotHeadingVel();
         driveTrain.exOdometry.showRobotAngleVel();
-//        driveTrain.exOdometry.showRobotPositionGyro();
-
-//        telemetry.addData("A",joystickActivity.buttonA);
-//        telemetry.addData("encLVel", driveTrain.odometry.encL.getVelocity());
-//        telemetry.addData("encRVel", driveTrain.odometry.encR.getVelocity());
-//        driveTrain.odometry.getEncPos();
-//        driveTrain.odometry.getRobotPos();
-//        driveTrain.gyro.getYaw();
     }
 
     public double[] moveHeadless(double cosA, double sinA){//FieldCentric

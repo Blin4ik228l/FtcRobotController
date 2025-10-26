@@ -27,7 +27,6 @@ public class TeamColor {
     private final int[] aprilTagRedIds = {24};
 
     public int[] getTagIds(){
-
         return aprilTagIds;
     }
     public double[] getWallCoord(){

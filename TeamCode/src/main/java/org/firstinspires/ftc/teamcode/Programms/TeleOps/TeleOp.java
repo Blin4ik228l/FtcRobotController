@@ -38,8 +38,6 @@ public class TeleOp extends OpMode {
     @Override
     public void loop() {
         leva.play();
-
-        robot.driveTrain.exOdometry.camera.execute();
     }
 
     @Override

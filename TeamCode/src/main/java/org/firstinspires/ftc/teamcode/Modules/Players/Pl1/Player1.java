@@ -5,9 +5,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 import org.firstinspires.ftc.teamcode.Modules.Players.Player;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class Player1 extends Player {
@@ -73,11 +72,15 @@ double lastConstAngle = 0;
 
         double cosA = playersGamepad.left_stick_x;
         double sinA = -1*playersGamepad.left_stick_y;
-        double speed = -playersGamepad.right_stick_y;
+        double speed = -1*playersGamepad.right_stick_y;
         double turn = playersGamepad.right_stick_x;
 
-        currentAngle = driveTrain.exOdometry.encGlobalPosition.getHeading();
-        currentTime = runtime.seconds();
+        double robotHeading = driveTrain.exOdometry.encGlobalPosition.getHeading();
+        double targetHeading = 0;
+
+        double angleSpeed = 0;
+        double sideSpeed = 0;
+        double forwardSpeed = 0;
 
         if (joystickActivity.buttonB){
             if(joystickActivity.tDpadUpPressed == 1){
@@ -95,7 +98,7 @@ double lastConstAngle = 0;
             }
 
             if(isRotateEnding){
-                constAngleStick = driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+                constAngleStick = driveTrain.exOdometry.encGlobalPosition.getHeading();
                 isRotateEnding = false;
                 isRotateStarting = false;
 //                constAngle = constAngleStick;
@@ -106,50 +109,13 @@ double lastConstAngle = 0;
         }
 
         if(joystickActivity.buttonY){
-            if(driveTrain.exOdometry.camera.myYaw != 0){
-                driveTrain.exOdometry.encGlobalPosition.setHeading(driveTrain.exOdometry.camera.myYaw);
-                driveTrain.exOdometry.encGlobalPosition.setX(driveTrain.exOdometry.camera.myX);
-                driveTrain.exOdometry.encGlobalPosition.setY(driveTrain.exOdometry.camera.myY);
-                joystickActivity.buttonY = false;
-                allowTurn = true;
-            }
+            targetHeading = driveTrain.exOdometry.getFoundedRobotAngle() - robotHeading;
+
+            angleSpeed = driveTrain.exOdometry.getAngleVelToTarget(targetHeading, cosA);
+            sideSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2() ,cosA).x;
+            forwardSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2(), sinA).y;
         }
 
-        if (allowTurn) {
-            double dx = driveTrain.exOdometry.camera.blueWallCoord[0] - driveTrain.exOdometry.encGlobalPosition.getX();
-            double dy = driveTrain.exOdometry.camera.blueWallCoord[2] - driveTrain.exOdometry.encGlobalPosition.getY();
-
-            alpha = Math.atan2(dy, dx) + driveTrain.exOdometry.encGlobalPosition.getHeading();
-            alpha = Math.atan2(Math.sin(alpha), Math.cos(alpha));
-
-        }
-
-//            if(cosA == 0 && !flag){
-//                lastTime = currentTime;
-//                constAngle2 += deltaConstAngle;
-//                flag = true;
-//            }
-//
-//            if(deltaConstAngle != 0){
-//                vyr = deltaConstAngle;
-//            }
-//            else{
-//                constAngle2 -= driveTrain.exOdometry.encGlobalPosition.getHeading();
-//                vyr = constAngle2;
-//            }
-
-//        }
-
-//        if(driveTrain.exOdometry.encGlobalPosition.getHeading() == Math.toRadians(-50) && allowTurn){
-//            vyr = Math.toRadians(-50) - driveTrain.exOdometry.encGlobalPosition.getHeading();
-//        }
-//
-//        if(driveTrain.exOdometry.encGlobalPosition.getHeading() == Math.toRadians(45) && allowTurn){
-//            vyr = Math.toRadians(45) - driveTrain.exOdometry.encGlobalPosition.getHeading();
-//        }
-
-//        vyr = constAngle - driveTrain.exOdometry.encGlobalPosition.getHeading();//текущий угол - угол постояный, минус так как нужно провернутьсяв обратную сторону
-//
         if(joystickActivity.buttonA){
             double[] globalVector = moveHeadless(cosA, sinA);
 
@@ -159,25 +125,20 @@ double lastConstAngle = 0;
             cosA *= 1.1;  // Counteract imperfect strafing
         }
 
-        double v = cosA * (radius - rho);
-        double omega = alpha;
 
-        double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn + alpha/6.28), 1);//Denominator is the largest motor power (absolute value) or 1
 
-//        double forwardSpeed = (Math.abs(speed) * 300) * Math.signum(sinA);
-//        double sideSpeed = (Math.abs(speed) * 300) * Math.signum(cosA);
-//        double angleSpeed = turn * 6.28;
-//
-//        double forwardVoltage =   forwardSpeed / 300;
-//        double sideVoltage    =   sideSpeed / 300;
-//        double angleVoltage   =   angleSpeed / 6.28;
+        double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
 
-        double forwardVoltage =   sinA/(denominator * (1.0 / acceleration));
-        double sideVoltage    =   (cosA)/(denominator * (1.0 / acceleration));
-        double angleVoltage   =   (turn * (alpha / 6.28))/(denominator * (1.0 / acceleration));
-        double vyrVoltage = 0;
+        double vyrVoltage   = angleSpeed/ DIST_BETWEEN_ENC_X;
+        double vyrYVoltage = forwardSpeed / 400;
+        double vyrXVoltage = sideSpeed / 400;
 
-        driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage, vyrVoltage);
+        double forwardVoltage = (sinA + vyrYVoltage)/(denominator * (1.0 / acceleration));
+        double sideVoltage    = (cosA + vyrXVoltage)/(denominator * (1.0 / acceleration));
+        double angleVoltage   = (turn + vyrVoltage)/(denominator * (1.0 / acceleration));
+
+
+        driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
         telemetry.addData("alpha", alpha);
 //        telemetry.addData("constAngle", deltaConstAngle);
@@ -212,7 +173,7 @@ double lastConstAngle = 0;
     }
 
     public double[] moveHeadless(double cosA, double sinA){//FieldCentric
-        double heading = -driveTrain.exOdometry.gyro.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);// "+" против часовой, "-" по часовой
+        double heading = -driveTrain.exOdometry.encGlobalPosition.getHeading();// "+" против часовой, "-" по часовой
 
         double cosB = Math.cos(heading);//  +- угол робота относитеольно поля
         double sinB = Math.sin(heading);

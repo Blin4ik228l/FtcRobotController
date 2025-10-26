@@ -30,12 +30,13 @@ public class ExOdometry extends Module {
 
         camera = new CameraClass(op, teamColor);//Ждём пока камера не начнёт стримить
     }
-    public GyroscopeClass gyro;
-    public CameraClass camera;
+    private GyroscopeClass gyro;
+    private CameraClass camera;
     public EncoderClass encoderClass;
     public final SelfMath selfMath;
     public final Position gyroGlobalPosition;                                   // Относительное перемещение
     public final Position encGlobalPosition;
+    public Position targetPos;
     public VoltageSensor voltageSensor;
     public Vector2[] encodersVelNotCentric = new Vector2[3];
     public Vector2[] encodersVelCentric = new Vector2[3];
@@ -53,13 +54,53 @@ public class ExOdometry extends Module {
     public Vector2 robotSelfAngleVelCentric = new Vector2();
     public Vector2 robotSelfAngleAccelNotCentric = new Vector2();
     public Vector2 robotSelfAngleAccelCentric = new Vector2();
-
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
 
     public void updateAll(){
-        selfMath.calculateAll();
+        camera.execute();
+
+        if(camera.isTagOutOfRange()){
+            selfMath.calculateAll(false);
+            camera.setRobotPosFromOdometry(encGlobalPosition);
+        }else {
+            encGlobalPosition.setX(camera.robotFieldX);
+            encGlobalPosition.setY(camera.robotFieldY);
+            encGlobalPosition.setHeading(camera.robotFieldYaw);
+
+            selfMath.calculateAll(true);
+        }
+    }
+    public double getFoundedRobotAngle(){
+        double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
+        double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
+
+        return Math.atan2(targY, targX);
+    }
+    public void findClosestArtifact(){
+        double artefactX;
+        if(encGlobalPosition.getX() > -180 && encGlobalPosition.getX() < -40){
+            artefactX = camera.teamColor.getClosestArtifacts()[0][0];
+        }
+        if(encGlobalPosition.getX() < 180 && encGlobalPosition.getX() > 90){
+            artefactX = camera.teamColor.getClosestArtifacts()[6][0];
+        }
+
+    }
+
+    public double getAngleVelToTarget(double targetAngle, double a){
+        return Math.signum(a)*Math.signum(targetAngle)*Math.sqrt(Math.abs(targetAngle) * 2 * Math.abs(a));
+    }
+
+    public Vector2 getVelToTarget(Vector2 targetPos, double a){
+
+        double cos = Math.cos(targetPos.x / targetPos.length());
+        double sin = Math.sin(targetPos.y / targetPos.length());
+
+        return new Vector2(
+                Math.signum(targetPos.x)*Math.signum(a * cos)*Math.sqrt(Math.abs(targetPos.x) * 2 * Math.abs(a * cos)), //Скорость по X
+                 Math.signum(targetPos.y)*Math.signum(a * sin)*Math.sqrt(Math.abs(targetPos.y) * 2 * Math.abs(a * sin)));//Скорость по Y
     }
 
     public void showEncodersVel(){
@@ -199,10 +240,6 @@ public class ExOdometry extends Module {
         telemetry.addLine();
     }
 
-
-
-
-
 //        public void showEncodersVelocityComponents(){
 //            telemetry.addLine("Encoders Velo:")
 //                    .addData("\nLeft encoder X", getEncLeftVelocity(false).x)
@@ -241,7 +278,7 @@ public class ExOdometry extends Module {
         private final double[] encLastPositions = new double[3];
         private boolean flag = false;
 
-        public void calculateAll() {
+        public void calculateAll(boolean stopUpdGlobalCoord) {
             updateAngle(AngleUnit.RADIANS);
             updateTimeToUpdAngl();
 
@@ -286,9 +323,10 @@ public class ExOdometry extends Module {
             updateRobotAccelCentric();
             updateRobotAngleAccelCentric();
 
-
-            updateGlobalAngle();
-            updateGlobalPosition(); //затем обновляем позицию
+            if(!stopUpdGlobalCoord){//Пока камера видит таг берём позицию с него
+                updateGlobalAngle();
+                updateGlobalPosition(); //затем обновляем позицию
+            }
         }
 
         private void updateAngle(AngleUnit angleUnit) {

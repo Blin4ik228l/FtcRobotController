@@ -96,9 +96,9 @@ public class Player1 extends Player {
         }
 
         if(joystickActivity.buttonY){
-            targetHeading = driveTrain.exOdometry.getFoundedRobotAngle() - robotHeading;
+            targetHeading = driveTrain.exOdometry.getFoundedRobotAngle();
 
-            angleSpeed = driveTrain.exOdometry.getAngleVelToTarget(targetHeading, 5);
+            angleSpeed = driveTrain.exOdometry.getAngleVelToTarget(targetHeading, 10);
 //            sideSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2() ,cosA).x;
 //            forwardSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2(), sinA).y;
         }
@@ -114,23 +114,25 @@ public class Player1 extends Player {
 
         double denominator = Math.max(Math.abs(sinA) + Math.abs(cosA) + Math.abs(turn), 1);//Denominator is the largest motor power (absolute value) or 1
 
-        double vyrVoltage   = angleSpeed/ DIST_BETWEEN_ENC_X;
+        double vyrVoltage   = (angleSpeed)/(3*Math.PI);
         double vyrYVoltage = forwardSpeed / 400;
         double vyrXVoltage = sideSpeed / 400;
 
         double forwardVoltage = (sinA + vyrYVoltage)/(denominator * (1.0 / acceleration));
         double sideVoltage    = (cosA + vyrXVoltage)/(denominator * (1.0 / acceleration));
-        double angleVoltage   = (turn - vyrVoltage)/(denominator * (1.0 / acceleration));
+        double angleVoltage   = (turn + vyrVoltage)/(denominator * (1.0 / acceleration));
 
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
-        telemetry.addData("targetHeading", targetHeading);
-        telemetry.addData("forwardVoltage", forwardVoltage);
-        telemetry.addData("sideVoltage", sideVoltage);
-        telemetry.addData("angleVoltage", angleVoltage);
+        telemetry.addData("driveTrain.exOdometry.getFoundedRobotAngle()", driveTrain.exOdometry.getFoundedRobotAngle() *(180/Math.PI) );
+        telemetry.addData("Wall Heading", driveTrain.exOdometry.camera.teamColor.getWallCoord()[3]* (180 /Math.PI));
+        telemetry.addData("targetHeading", targetHeading * (180 /Math.PI));
+//        telemetry.addData("forwardVoltage", forwardVoltage);
+//        telemetry.addData("sideVoltage", sideVoltage);
+//        telemetry.addData("angleVoltage", angleVoltage);
         telemetry.addData("vyrVoltage", vyrVoltage);
-        telemetry.addData("turn", turn);
+//        telemetry.addData("turn", turn);
         showData();
     }
 

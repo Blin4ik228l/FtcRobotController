@@ -31,7 +31,7 @@ public class ExOdometry extends Module {
         camera = new CameraClass(op, teamColor);//Ждём пока камера не начнёт стримить
     }
     private GyroscopeClass gyro;
-    private CameraClass camera;
+    public CameraClass camera;
     public EncoderClass encoderClass;
     public final SelfMath selfMath;
     public final Position gyroGlobalPosition;                                   // Относительное перемещение
@@ -86,7 +86,7 @@ public class ExOdometry extends Module {
         double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
         double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
 
-        return Math.atan2(targY, targX);
+        return Math.atan2(-targX, targY);
     }
     public void findClosestArtifact(){
         double artefactX;
@@ -100,7 +100,8 @@ public class ExOdometry extends Module {
     }
 
     public double getAngleVelToTarget(double targetAngle, double a){
-        return Math.signum(a)*Math.signum(targetAngle)*Math.sqrt(Math.abs(targetAngle) * 2 * Math.abs(a));
+        double target = targetAngle - encGlobalPosition.getHeading();
+        return Math.signum(a)*Math.signum(target)*Math.sqrt(Math.abs(target) * 2 * Math.abs(a));
     }
 
     public Vector2 getVelToTarget(Vector2 targetPos, double a){

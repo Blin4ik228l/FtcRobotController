@@ -62,9 +62,9 @@ public class RobotClass extends TeamColor {
         public DcMotor rightF;
         public ExOdometry exOdometry;
         public void setPower(double yVol, double xVol, double angVol){
-            if(Math.abs(yVol) < 0.07) yVol = 0.07 * Math.signum(yVol);
-            if(Math.abs(xVol) < 0.07) xVol = 0.07 * Math.signum(xVol);
-            if(Math.abs(angVol) < 0.07) angVol = 0.07 * Math.signum(angVol);
+            if(Math.abs(yVol) < 0.1) yVol = 0.1 * Math.signum(yVol);
+            if(Math.abs(xVol) < 0.1) xVol = 0.1 * Math.signum(xVol);
+            if(Math.abs(angVol) < 0.1) angVol = 0.1 * Math.signum(angVol);
 
             //движение по y - это вперёд - назад
             //движение по x - это влево - вправо

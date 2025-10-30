@@ -12,31 +12,46 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.TeamColor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class CameraClass extends Module{
-    public CameraClass(OpMode op, TeamColor teamColor) {
+    public CameraClass(OpMode op, TeamColor teamColor)  {
         super(op.telemetry);
 
         this.teamColor = teamColor;
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
-
-        cameraPosition = new Position(DistanceUnit.CM, 0, 11, 5, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-45), 0, 0);//На сколько камера повёрнута относительно неё же
-
+//        -9,-13,-20
+        cameraPosition = new Position(DistanceUnit.CM,0 ,10,5, 0);//Позиция камеры относительно координат робота
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-60), Math.toRadians(1), 0);//На сколько камера повёрнута относительно неё же
+//        694.068,694.068,313.099, 236.335
+//        1426.5,1426.5,627.916, 353.73
+//        1505.6234281835175, 1453.6892287156643, 656.9498728834548, 326.8476937970202
+//        820.147f, 820.147f, 311.822f, 268.136f
+//        708.013f, 708.013f, 311.973, 253.313f 190
+//        814.732f, 814.732f, 385.096f, 312.409f 120
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
                 .setDrawCubeProjection(false)
                 .setDrawTagID(true)
-                .setDrawTagOutline(true)
+                .setDrawTagOutline(false)
+                .setLensIntrinsics(708.013f, 708.013f, 311.973, 253.313f)
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
@@ -59,7 +74,7 @@ public class CameraClass extends Module{
         gain = visionPortal.getCameraControl(GainControl.class);
         gain.setGain(190);//яркость
 
-        aprilTagProcessor.setDecimation(3);
+        aprilTagProcessor.setDecimation(2);
     }
     private final Position cameraPosition;
     private final YawPitchRollAngles cameraOrientation;
@@ -91,16 +106,39 @@ public class CameraClass extends Module{
     private boolean tagOutOfRange = true;
     private boolean isTagOutOfFov = true;
     private boolean isTagWasSeen = false;
+    private boolean isPosWasTaken = false;
     private boolean isObeliskWasSeen = false;
+    private boolean isStopStreaming = false;
+
+    private boolean isRobotStoped = true;
+    private boolean offTakingPos = false;
     public double rad = 180 / Math.PI;
     public double cameraFov = Math.toRadians(60);
 
+    public int countTag = 0;
+
+    public org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position lastRecordedPos = null;
     private org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position robotPosition;
     public void execute() {
         boolean isEmpty = aprilTagProcessor.getDetections().isEmpty();
 
+        int numTags = aprilTagProcessor.getDetections().size();
+
+        if(countTag == numTags){
+            countTag = 0;
+        }
+
+        if(isStopStreaming){
+            return;
+        }
+        if(isObeliskWasSeen && offTakingPos && isRobotStoped){
+            stopStreaming();
+            isStopStreaming = true;
+        }
         if(!isEmpty) {
-            detection = aprilTagProcessor.getDetections().get(0);
+            detection = aprilTagProcessor.getDetections().get(countTag);
+
+
 
             id = detection.id;
 
@@ -118,39 +156,56 @@ public class CameraClass extends Module{
                     isObeliskWasSeen = true;
                 }
             }
-            if(id == 20 || id == 24 ){
+            if (lastRecordedPos != null){
+                offTakingPos  = true;
+            }
+            if(id == 20 || id == 24){
                 isTagWasSeen = true;
                 tagOutOfRange = false;
+                isPosWasTaken = true;
 
                 robotFieldX = detection.robotPose.getPosition().x;
                 robotFieldY = detection.robotPose.getPosition().y;
                 robotFieldZ = detection.robotPose.getPosition().z;
 
+//                robotFieldX = detection.ftcPose.x;
+//                robotFieldY = detection.ftcPose.y;
+//                robotFieldZ = detection.ftcPose.z;
+
                 robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                 robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
                 robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+
+//                robotFieldPitch = detection.ftcPose.pitch;
+//                robotFieldRoll  = detection.ftcPose.roll;
+//                robotFieldYaw   = detection.ftcPose.yaw;
 
                 tagXFromRobot = teamColor.getWallCoord(id)[0] - robotFieldX;
                 tagYFromRobot = teamColor.getWallCoord(id)[1] - robotFieldY;
                 tagZFromRobot = teamColor.getWallCoord(id)[2] - robotFieldZ;
 
+                lastRecordedPos = new org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position(robotFieldX, robotFieldY, robotFieldYaw);
+
                 robotRangeToTag = Math.hypot(tagZFromRobot, Math.hypot(tagXFromRobot, tagYFromRobot));
                 cameraElevation = Math.acos(tagZFromRobot / robotRangeToTag);
                 cameraBearing   = Math.acos(tagYFromRobot / robotRangeToTag);
-            }else {
-                tagOutOfRange = true;
-                activityCentre();
             }
+            countTag += 1;
         }
+
+
+    }
+    public boolean isStopStreaming(){
+        return isStopStreaming;
     }
     public void activityCentre(){
-        if(tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
-            stopStreaming();
-            isTagShouldBeInFov();
-        }
-        if(!tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
-            resumeStreaming();
-        }
+//        if(tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
+//            stopStreaming();
+//            isTagShouldBeInFov();
+//        }
+//        if(!tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
+//            resumeStreaming();
+//        }
     }
 
     public void isTagShouldBeInFov(){
@@ -163,6 +218,9 @@ public class CameraClass extends Module{
     public void setRobotPosFromOdometry(org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position robotPos){
         robotPosition = robotPos;
     }
+    public void setRobotVeloFromOdometry(Vector2 robotVel){
+        isRobotStoped = robotVel.length() == 0;
+    }
 
     public void stopStreaming(){
         visionPortal.stopStreaming();
@@ -173,6 +231,10 @@ public class CameraClass extends Module{
 
     public boolean isTagOutOfRange(){
         return tagOutOfRange;
+    }
+
+    public boolean isPosWasTaken(){
+        return isPosWasTaken;
     }
 
     public void showFoundTagId(){
@@ -192,7 +254,7 @@ public class CameraClass extends Module{
 
     @SuppressLint("DefaultLocale")
     public void showRobotPosition(){
-        telemetry.addLine(String.format("\nXYZ %6.2f %6.2f ", robotFieldX, robotFieldY, 0));
+        telemetry.addLine(String.format("\nXYZ %6.2f %6.2f %6.2f", robotFieldX, robotFieldY, robotFieldZ));
 
         telemetry.addLine("Robot angle on field")
                 .addData("\nroll", robotFieldRoll * rad)//Угол вокруг Н

@@ -61,16 +61,26 @@ public class ExOdometry extends Module {
     public void updateAll(){
         camera.execute();
 
-        if(camera.isTagOutOfRange()){
-            selfMath.calculateAll(false);
-            camera.setRobotPosFromOdometry(encGlobalPosition);
-        }else {
+        if(!camera.isStopStreaming()){
             encGlobalPosition.setX(camera.robotFieldX);
             encGlobalPosition.setY(camera.robotFieldY);
             encGlobalPosition.setHeading(camera.robotFieldYaw);
-
             selfMath.calculateAll(true);
+
+            camera.setRobotVeloFromOdometry(robotSelfCentricVel);
+        }else {
+            selfMath.calculateAll(false);
         }
+
+//        if(camera.isTagOutOfRange()){
+//            selfMath.calculateAll(false);
+//            camera.setRobotPosFromOdometry(encGlobalPosition);
+//        }else {
+//            encGlobalPosition.setX(camera.robotFieldX);
+//            encGlobalPosition.setY(camera.robotFieldY);
+//            encGlobalPosition.setHeading(camera.robotFieldYaw);
+//            selfMath.calculateAll(true);
+//        }
     }
     public double getFoundedRobotAngle(){
         double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
@@ -94,15 +104,31 @@ public class ExOdometry extends Module {
     }
 
     public Vector2 getVelToTarget(Vector2 targetPos, double a){
+        Vector2 targetPos2 = new Vector2(camera.tagXFromRobot, camera.tagYFromRobot);
+        double cos;
+        double sin;
 
-        double cos = Math.cos(targetPos.x / targetPos.length());
-        double sin = Math.sin(targetPos.y / targetPos.length());
+        if(targetPos2.length() == 0){
+             cos = 0;
+             sin = 0;
+        }else{
+            cos = Math.cos(targetPos2.x / targetPos2.length());
+            sin = Math.sin(targetPos2.y / targetPos2.length());
+        }
+
 
         return new Vector2(
-                Math.signum(targetPos.x)*Math.signum(a * cos)*Math.sqrt(Math.abs(targetPos.x) * 2 * Math.abs(a * cos)), //Скорость по X
-                 Math.signum(targetPos.y)*Math.signum(a * sin)*Math.sqrt(Math.abs(targetPos.y) * 2 * Math.abs(a * sin)));//Скорость по Y
+                Math.signum(targetPos2.x)*Math.signum(a * cos)*Math.sqrt(Math.abs(targetPos2.x) * 2 * Math.abs(a * cos)), //Скорость по X
+                   Math.signum(targetPos2.y)*Math.signum(a * sin)*Math.sqrt(Math.abs(targetPos2.y) * 2 * Math.abs(a * sin)));//Скорость по Y
     }
 
+    public void showCameraCoord(){
+        camera.showRobotPosition();
+    }
+
+    public void showFoundedArtifacts(){
+        camera.showRandomizedArtifacts();
+    }
     public void showEncodersVel(){
         telemetry.addLine("Encoders Vel");
         telemetry.addLine("\nLeftEncoder")
@@ -326,6 +352,11 @@ public class ExOdometry extends Module {
             if(!stopUpdGlobalCoord){//Пока камера видит таг берём позицию с него
                 updateGlobalAngle();
                 updateGlobalPosition(); //затем обновляем позицию
+            }else{
+                deltaTimes[0] = 0;
+                deltaTimes[2] = 0;
+                oldTimes[0] = 0;
+                oldTimes[2] = 0;
             }
         }
 

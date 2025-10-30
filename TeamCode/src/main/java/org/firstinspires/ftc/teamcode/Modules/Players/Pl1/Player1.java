@@ -35,23 +35,6 @@ public class Player1 extends Player {
     public boolean flag = false;
    public boolean isRotateStarting = false;
    public boolean isRotateEnding = false;
-double lastConstAngle = 0;
-    public double x0 = 0;
-    public double y0 = 0;
-   public double rangeToTag = 0;
-   public ElapsedTime runtime = new ElapsedTime();
-   double currentTime = 0;
-   double lastTime = 0;
-   double deltaTime = 0;
-    double circleLeng;
-
-    double rho;
-    double alpha;
-    double delta;
-
-    double radius;
-    double center_x;
-    double center_y;
     @Override
     public void play() {
         joystickActivity.checkActivity();
@@ -72,11 +55,15 @@ double lastConstAngle = 0;
 
         double cosA = playersGamepad.left_stick_x;
         double sinA = -1*playersGamepad.left_stick_y;
-        double speed = -1*playersGamepad.right_stick_y;
         double turn = playersGamepad.right_stick_x;
+        double speed = -1*playersGamepad.right_stick_y;
+
 
         double robotHeading = driveTrain.exOdometry.encGlobalPosition.getHeading();
+        Vector2 robotPos = driveTrain.exOdometry.encGlobalPosition.toVector();
+
         double targetHeading = 0;
+        Vector2 targetPos = new Vector2();
 
         double angleSpeed = 0;
         double sideSpeed = 0;
@@ -111,9 +98,9 @@ double lastConstAngle = 0;
         if(joystickActivity.buttonY){
             targetHeading = driveTrain.exOdometry.getFoundedRobotAngle() - robotHeading;
 
-            angleSpeed = driveTrain.exOdometry.getAngleVelToTarget(targetHeading, cosA);
-            sideSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2() ,cosA).x;
-            forwardSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2(), sinA).y;
+            angleSpeed = driveTrain.exOdometry.getAngleVelToTarget(targetHeading, 5);
+//            sideSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2() ,cosA).x;
+//            forwardSpeed = driveTrain.exOdometry.getVelToTarget(new Vector2(), sinA).y;
         }
 
         if(joystickActivity.buttonA){
@@ -133,17 +120,24 @@ double lastConstAngle = 0;
 
         double forwardVoltage = (sinA + vyrYVoltage)/(denominator * (1.0 / acceleration));
         double sideVoltage    = (cosA + vyrXVoltage)/(denominator * (1.0 / acceleration));
-        double angleVoltage   = (turn + vyrVoltage)/(denominator * (1.0 / acceleration));
+        double angleVoltage   = (turn - vyrVoltage)/(denominator * (1.0 / acceleration));
 
 
         driveTrain.setPower(forwardVoltage, sideVoltage, angleVoltage);
 
         telemetry.addData("targetHeading", targetHeading);
+        telemetry.addData("forwardVoltage", forwardVoltage);
+        telemetry.addData("sideVoltage", sideVoltage);
+        telemetry.addData("angleVoltage", angleVoltage);
+        telemetry.addData("vyrVoltage", vyrVoltage);
+        telemetry.addData("turn", turn);
         showData();
     }
 
     @Override
     public void showData() {
+        driveTrain.exOdometry.showFoundedArtifacts();
+        driveTrain.exOdometry.showCameraCoord();
         driveTrain.exOdometry.showEncPositions();
         driveTrain.exOdometry.showRobotPositionEnc();
         driveTrain.exOdometry.showRobotNVel();

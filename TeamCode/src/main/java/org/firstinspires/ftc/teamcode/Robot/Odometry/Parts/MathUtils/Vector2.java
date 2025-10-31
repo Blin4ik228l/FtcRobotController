@@ -105,8 +105,10 @@ public class Vector2 {
     public Vector2 rotateToGlobal(double Rad) {
         double oldX = x;
         double oldY = y;
+
         x = oldX*Math.cos(Rad) - oldY*Math.sin(Rad);
         y = oldX*Math.sin(Rad) + oldY*Math.cos(Rad);
+
         return new Vector2(x, y);
     }
 

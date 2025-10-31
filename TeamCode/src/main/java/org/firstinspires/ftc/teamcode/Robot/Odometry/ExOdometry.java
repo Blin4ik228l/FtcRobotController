@@ -101,7 +101,10 @@ public class ExOdometry extends Module {
 
     public double getAngleVelToTarget(double targetAngle, double a){
         double target = targetAngle - encGlobalPosition.getHeading();
-        return Math.signum(a)*Math.signum(target)*Math.sqrt(Math.abs(target) * 2 * Math.abs(a));
+
+        target = (target + Math.PI) % (2 * Math.PI) - Math.PI;
+
+        return target;
     }
 
     public Vector2 getVelToTarget(Vector2 targetPos, double a){
@@ -410,6 +413,8 @@ public class ExOdometry extends Module {
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
             encGlobalPosition.add(deltaX * 1, deltaY * 1, 0);
+
+            encGlobalPosition.toVector().rotateToGlobal(encGlobalPosition.getHeading());
 
             if (encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
                 flag = true;

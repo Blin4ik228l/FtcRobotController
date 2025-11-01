@@ -39,7 +39,7 @@ public class CameraClass extends Module{
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 //        -9,-13,-20
         cameraPosition = new Position(DistanceUnit.CM,0 ,10,5, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-60), Math.toRadians(1), 0);//На сколько камера повёрнута относительно неё же
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-75), Math.toRadians(1), 0);//На сколько камера повёрнута относительно неё же
 //        694.068,694.068,313.099, 236.335
 //        1426.5,1426.5,627.916, 353.73
 //        1505.6234281835175, 1453.6892287156643, 656.9498728834548, 326.8476937970202
@@ -124,6 +124,9 @@ public class CameraClass extends Module{
 
         int numTags = aprilTagProcessor.getDetections().size();
 
+        if(!isRobotStoped){
+            countTag = 0;
+        }
         if(countTag == numTags){
             countTag = 0;
         }
@@ -137,8 +140,6 @@ public class CameraClass extends Module{
         }
         if(!isEmpty) {
             detection = aprilTagProcessor.getDetections().get(countTag);
-
-
 
             id = detection.id;
 

@@ -86,7 +86,7 @@ public class ExOdometry extends Module {
         double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
         double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
 
-        return Math.atan2(-targX, targY);
+        return  (Math.atan2(targY, -targX) - Math.PI/2);
     }
     public void findClosestArtifact(){
         double artefactX;
@@ -99,10 +99,19 @@ public class ExOdometry extends Module {
 
     }
 
-    public double getAngleVelToTarget(double targetAngle, double a){
-        double target = targetAngle - encGlobalPosition.getHeading();
+    public double getDeltaAngle(double targetAngle){
+        double target = (Math.signum(encGlobalPosition.getHeading())*targetAngle + encGlobalPosition.getHeading()) % Math.PI;
 
-        target = (target + Math.PI) % (2 * Math.PI) - Math.PI;
+        if(Math.abs(target) < Math.toRadians(1)) target = 0;
+//        if (target < -Math.PI) {
+//            target += 2 * Math.PI;
+//        }
+//
+//        if (target > Math.PI) {
+//            target += -2 * Math.PI;
+//        }
+//
+//        target %= Math.PI / 2;
 
         return target;
     }
@@ -357,10 +366,10 @@ public class ExOdometry extends Module {
                 updateGlobalAngle();
                 updateGlobalPosition(); //затем обновляем позицию
             }else{
-                deltaTimes[0] = 0;
-                deltaTimes[2] = 0;
-                oldTimes[0] = 0;
-                oldTimes[2] = 0;
+//                deltaTimes[0] = 0;
+//                deltaTimes[2] = 0;
+//                oldTimes[0] = 0;
+//                oldTimes[2] = 0;
             }
         }
 
@@ -412,9 +421,11 @@ public class ExOdometry extends Module {
             deltaX = encDeltaPositions[1] - deltaHeadingEnc * OFFSET_ENC_M_FROM_CENTER;
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            encGlobalPosition.add(deltaX * 1, deltaY * 1, 0);
+            Position deltaPos = new Position(deltaX * 1, deltaY * 1, 0);
 
-            encGlobalPosition.toVector().rotateToGlobal(encGlobalPosition.getHeading());
+            Vector2 rotatedVector = deltaPos.toVector().rotateToGlobal(encGlobalPosition.getHeading());
+
+            encGlobalPosition.add(rotatedVector.x * 1, rotatedVector.y * 1, 0);
 
             if (encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
                 flag = true;

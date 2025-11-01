@@ -62,19 +62,23 @@ public class RobotClass extends TeamColor {
         public DcMotor rightF;
         public ExOdometry exOdometry;
         public void setPower(double yVol, double xVol, double angVol){
-            if(Math.abs(yVol) < 0.1) yVol = 0.1 * Math.signum(yVol);
-            if(Math.abs(xVol) < 0.1) xVol = 0.1 * Math.signum(xVol);
-            if(Math.abs(angVol) < 0.1) angVol = 0.1 * Math.signum(angVol);
+            if(Math.abs(yVol) < 0.10) yVol = 0.10 * Math.signum(yVol);
+            if(Math.abs(xVol) < 0.10) xVol = 0.10 * Math.signum(xVol);
+            if(Math.abs(angVol) < 0.10) angVol = 0.10 * Math.signum(angVol);
+
+            yVol *= 1;
+            xVol *= 1.1;
+            angVol *= 1.3;
 
             //движение по y - это вперёд - назад
             //движение по x - это влево - вправо
             //angVol поворот
             exOdometry.updateAll();//Обноволяем одометрию постоянно когда вызываем метод setPower
 
-            leftF.setPower( yVol - xVol + angVol);
-            leftB.setPower( yVol + xVol + angVol);
-            rightF.setPower(yVol + xVol - angVol);
-            rightB.setPower(yVol - xVol - angVol);
+            leftF.setPower( yVol - xVol - angVol);
+            leftB.setPower( yVol + xVol - angVol);
+            rightF.setPower(yVol + xVol + angVol);
+            rightB.setPower(yVol - xVol + angVol);
         }
     }
 

@@ -18,7 +18,7 @@ public class TeleOp extends OpMode {
     public void init() {
         robot = new RobotClass(this, "Blue");
         leva = new Player1(gamepad1, robot.driveTrain, this);
-//        dimas = new Player2(gamepad2, robot.teleSkope, this);
+        dimas = new Player2(gamepad2, robot.telescope, this);
 
 
         parallelStream = new Thread(dimas);
@@ -32,7 +32,7 @@ public class TeleOp extends OpMode {
 
     @Override
     public void start() {
-//        parallelStream.start();
+        parallelStream.start();
     }
 
     @Override

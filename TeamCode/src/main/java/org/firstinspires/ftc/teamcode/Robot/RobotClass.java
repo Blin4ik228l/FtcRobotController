@@ -85,7 +85,7 @@ public class RobotClass extends TeamColor {
     public static class Telescope extends Module{
         public Telescope(OpMode op) {
             super(op.telemetry);
-            lift = new Lift(op);
+            lift = new Lift();
             servos = new Servos(op);
 
             telemetry.addLine("Teleskope inited");
@@ -97,29 +97,29 @@ public class RobotClass extends TeamColor {
             lift.setPower(power, isToPos, height);
 
             servos.setFlip(sPosFlip);
-            servos.setHorizontal(sPosHorizontal);
+//            servos.setHorizontal(sPosHorizontal);
             servos.setHook(sPosHook);
         }
         public class Lift{
-            public Lift(OpMode op){
-                selfData = new SelfData();
-                left = op.hardwareMap.get(DcMotor.class, "leftTele");
-                right = op.hardwareMap.get(DcMotor.class, "rightTele");
-
-                left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                left.setDirection(DcMotorSimple.Direction.FORWARD);
-                right.setDirection(DcMotorSimple.Direction.REVERSE);
-
-                left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-                telemetry.addLine("Lift inited");
-            }
-            private final DcMotor left;
-            private final DcMotor right;
-            public final SelfData selfData;
+//            public Lift(OpMode op){
+//                selfData = new SelfData();
+//                left = op.hardwareMap.get(DcMotor.class, "leftTele");
+//                right = op.hardwareMap.get(DcMotor.class, "rightTele");
+//
+//                left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//                left.setDirection(DcMotorSimple.Direction.FORWARD);
+//                right.setDirection(DcMotorSimple.Direction.REVERSE);
+//
+//                left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//                right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//
+//                telemetry.addLine("Lift inited");
+//            }
+            private  DcMotor left;
+            private  DcMotor right;
+            public  SelfData selfData;
             public void setPower(double power, boolean isToPos, double height){
 //            if(isToPos){//Если у нас телескоп в режиме "доезда" до точки (этот режим нужен по идее только для автономки)
 //                if(selfData.curHeight != height){
@@ -181,17 +181,17 @@ public class RobotClass extends TeamColor {
         }
         public class Servos{
             public Servos(OpMode op){
-                hook = op.hardwareMap.get(Servo.class, "hook");
-                flip = op.hardwareMap.get(Servo.class, "rotate");
-                horizontal = op.hardwareMap.get(Servo.class, "zahvat");
+                hook = op.hardwareMap.get(Servo.class, "s0");
+                flip = op.hardwareMap.get(Servo.class, "s1");
 
-                setHook(OPEN_POS_HOOK);//Устанавливаем в начальное положение
-                setHorizontal(OPEN_POS_HORIZONTAL);
-                setFlip(MIDLE_POS_FLIP);
+
+//                setHook(OPEN_POS_HOOK);//Устанавливаем в начальное положение
+//                setHorizontal(OPEN_POS_HORIZONTAL);
+//                setFlip(MIDLE_POS_FLIP);
 
                 telemetry.addLine("Servos inited");
             }
-            private final Servo horizontal;
+            private  Servo horizontal;
             private final Servo hook;
             private final Servo flip;
 

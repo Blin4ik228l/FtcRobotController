@@ -12,9 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.Odometry.ExOdometry;
 import org.firstinspires.ftc.teamcode.TeamColor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -22,24 +21,20 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class CameraClass extends Module{
-    public CameraClass(OpMode op, TeamColor teamColor)  {
+    public CameraClass(OpMode op, TeamColor teamColor, ExOdometry exOdometry)  {
         super(op.telemetry);
 
+        this.exOdometry = exOdometry;
         this.teamColor = teamColor;
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 //        -9,-13,-20
-        cameraPosition = new Position(DistanceUnit.CM,0 ,10,5, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, 0, Math.toRadians(-75), Math.toRadians(1), 0);//На сколько камера повёрнута относительно неё же
+//        0 ,10,5
+        cameraPosition = new Position(DistanceUnit.CM,0 ,20.1628,26.086, 0);//Позиция камеры относительно координат робота
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180), 0, 0, 0);//На сколько камера повёрнута относительно неё же
 //        694.068,694.068,313.099, 236.335
 //        1426.5,1426.5,627.916, 353.73
 //        1505.6234281835175, 1453.6892287156643, 656.9498728834548, 326.8476937970202
@@ -76,6 +71,7 @@ public class CameraClass extends Module{
 
         aprilTagProcessor.setDecimation(2);
     }
+    private final ExOdometry exOdometry;
     private final Position cameraPosition;
     private final YawPitchRollAngles cameraOrientation;
     private final AprilTagProcessor aprilTagProcessor;
@@ -103,41 +99,49 @@ public class CameraClass extends Module{
     public double cameraElevation;
     public double cameraBearing;
     public AprilTagDetection detection;
-    private boolean tagOutOfRange = true;
-    private boolean isTagOutOfFov = true;
-    private boolean isTagWasSeen = false;
-    private boolean isPosWasTaken = false;
+    private boolean isAllianceTagWasSeen = false;
     private boolean isObeliskWasSeen = false;
-    private boolean isStopStreaming = false;
-
-    private boolean isRobotStoped = true;
-    private boolean offTakingPos = false;
+    private boolean isRobotHaveMinVel = true;
+    private boolean isPosWasWritten = false;
     public double rad = 180 / Math.PI;
     public double cameraFov = Math.toRadians(60);
-
     public int countTag = 0;
 
-    public org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position lastRecordedPos = null;
-    private org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position robotPosition;
     public void execute() {
+        if(!isPosWasWritten){
+            updatePos();
+        }
+
+        if(isPosShouldBeTaken() && isPosWasWritten){
+//            resumeStreaming();
+            updatePos();
+            writePos();
+        }else{
+//            stopStreaming();
+        }
+
+        if(isAllianceTagWasSeen && !isPosWasWritten && isObeliskWasSeen) {
+            isPosWasWritten = true;
+            writePos();
+//            stopStreaming();
+        }
+
+    }
+    public boolean isPosShouldBeTaken(){
+        return isRobotHaveMinVel() &&  isTagShouldBeInFov() && isRobotInNeededRange() ;
+    }
+    public void updatePos(){
         boolean isEmpty = aprilTagProcessor.getDetections().isEmpty();
 
         int numTags = aprilTagProcessor.getDetections().size();
 
-        if(!isRobotStoped){
+        if(!isRobotHaveMinVel){
             countTag = 0;
         }
         if(countTag == numTags){
             countTag = 0;
         }
 
-        if(isStopStreaming){
-            return;
-        }
-        if(isObeliskWasSeen && offTakingPos && isRobotStoped){
-            stopStreaming();
-            isStopStreaming = true;
-        }
         if(!isEmpty) {
             detection = aprilTagProcessor.getDetections().get(countTag);
 
@@ -157,35 +161,21 @@ public class CameraClass extends Module{
                     isObeliskWasSeen = true;
                 }
             }
-            if (lastRecordedPos != null){
-                offTakingPos  = true;
-            }
+
             if(id == 20 || id == 24){
-                isTagWasSeen = true;
-                tagOutOfRange = false;
-                isPosWasTaken = true;
+                isAllianceTagWasSeen = true;
 
                 robotFieldX = detection.robotPose.getPosition().x;
                 robotFieldY = detection.robotPose.getPosition().y;
                 robotFieldZ = detection.robotPose.getPosition().z;
 
-//                robotFieldX = detection.ftcPose.x;
-//                robotFieldY = detection.ftcPose.y;
-//                robotFieldZ = detection.ftcPose.z;
-
                 robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                 robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
                 robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-//                robotFieldPitch = detection.ftcPose.pitch;
-//                robotFieldRoll  = detection.ftcPose.roll;
-//                robotFieldYaw   = detection.ftcPose.yaw;
-
                 tagXFromRobot = teamColor.getWallCoord(id)[0] - robotFieldX;
                 tagYFromRobot = teamColor.getWallCoord(id)[1] - robotFieldY;
                 tagZFromRobot = teamColor.getWallCoord(id)[2] - robotFieldZ;
-
-                lastRecordedPos = new org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position(robotFieldX, robotFieldY, robotFieldYaw);
 
                 robotRangeToTag = Math.hypot(tagZFromRobot, Math.hypot(tagXFromRobot, tagYFromRobot));
                 cameraElevation = Math.acos(tagZFromRobot / robotRangeToTag);
@@ -193,34 +183,30 @@ public class CameraClass extends Module{
             }
             countTag += 1;
         }
+    }
+    public void writePos(){
+        exOdometry.encGlobalPosition.setX(robotFieldX);
+        exOdometry.encGlobalPosition.setY(robotFieldY);
+        exOdometry.encGlobalPosition.setHeading(robotFieldYaw);
+    }
+    public boolean isTagShouldBeInFov(){
+        double leftBorder = exOdometry.encGlobalPosition.getHeading() + (Math.signum(exOdometry.encGlobalPosition.getHeading()) * cameraFov / 4.0);
+        double rightBorder = exOdometry.encGlobalPosition.getHeading() - (Math.signum(exOdometry.encGlobalPosition.getHeading()) * cameraFov / 4.0);
 
+        return !((Math.toRadians(44) < leftBorder && rightBorder < Math.toRadians(44) && exOdometry.encGlobalPosition.getY() > 0)
+                        ||
+                (Math.toRadians(136) < (leftBorder) && (rightBorder) < Math.toRadians(136)) && exOdometry.encGlobalPosition.getY() < 0);
+    }
+    public boolean isRobotInNeededRange(){
+        double targX = -(2.54 * 58.3727) - exOdometry.encGlobalPosition.getX();
+        double targY = Math.signum(exOdometry.encGlobalPosition.getY()) * (2.54 * 55.6425) - exOdometry.encGlobalPosition.getY();
 
-    }
-    public boolean isStopStreaming(){
-        return isStopStreaming;
-    }
-    public void activityCentre(){
-//        if(tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
-//            stopStreaming();
-//            isTagShouldBeInFov();
-//        }
-//        if(!tagOutOfRange && isTagWasSeen && isObeliskWasSeen ){
-//            resumeStreaming();
-//        }
-    }
+        double range = Math.hypot(targY, targX);
 
-    public void isTagShouldBeInFov(){
-        tagOutOfRange = !(robotPosition.getHeading() + Math.signum(robotPosition.getHeading()) * (cameraFov / 2.0) >= teamColor.getWallCoord(24)[3] && robotPosition.getHeading() - Math.signum(robotPosition.getHeading()) * (cameraFov / 2.0) <= teamColor.getWallCoord(24)[3]);
-        if(tagOutOfRange){
-            tagOutOfRange = !(robotPosition.getHeading() + Math.signum(robotPosition.getHeading()) * (cameraFov / 2.0) <= teamColor.getWallCoord(20)[3] && robotPosition.getHeading() - Math.signum(robotPosition.getHeading()) * (cameraFov / 2.0) >= teamColor.getWallCoord(20)[3]);
-        }
+        return range <= 200 && range >= 40;
     }
-
-    public void setRobotPosFromOdometry(org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position robotPos){
-        robotPosition = robotPos;
-    }
-    public void setRobotVeloFromOdometry(Vector2 robotVel){
-        isRobotStoped = robotVel.length() == 0;
+    public boolean isRobotHaveMinVel(){
+       return isRobotHaveMinVel = exOdometry.robotSelfCentricVel.length() <= 5;
     }
 
     public void stopStreaming(){
@@ -228,14 +214,6 @@ public class CameraClass extends Module{
     }
     public void resumeStreaming(){
         visionPortal.resumeStreaming();
-    }
-
-    public boolean isTagOutOfRange(){
-        return tagOutOfRange;
-    }
-
-    public boolean isPosWasTaken(){
-        return isPosWasTaken;
     }
 
     public void showFoundTagId(){

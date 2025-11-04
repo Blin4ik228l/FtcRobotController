@@ -5,9 +5,9 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
 public class TelescopeHandler extends Handler {
-    public TelescopeHandler(RobotClass.Telescope telescope, Telemetry telemetry) {
+    public TelescopeHandler(RobotClass.Collector collector, Telemetry telemetry) {
         super(telemetry);
-        this.telescope = telescope;
+        this.collector = collector;
     }
     public void setArgs(Args.LiftArgs liftArgs){
         this.liftArgs = liftArgs;
@@ -15,7 +15,7 @@ public class TelescopeHandler extends Handler {
     public void setArgs(Args.ServoArgs servoArgs){
         this.servoArgs = servoArgs;
     }
-    public RobotClass.Telescope telescope;
+    public RobotClass.Collector collector;
     public Args.LiftArgs liftArgs = null;
     public Args.ServoArgs servoArgs = null;
 
@@ -32,46 +32,46 @@ public class TelescopeHandler extends Handler {
             targetHeight = liftArgs.height;
         }
 
-        if(servoArgs != null){
-            if(servoArgs.servoName.equals("hook")){
-                hookPos = servoArgs.servoPos;
-                horizontalPos = telescope.servos.getHorizontal().getPosition();
-                flipPos = telescope.servos.getFlip().getPosition();
-            }
-            if(servoArgs.servoName.equals("flip")){
-                flipPos = servoArgs.servoPos;
-                horizontalPos = telescope.servos.getHorizontal().getPosition();
-                hookPos = telescope.servos.getHook().getPosition();
-            }
-            if(servoArgs.servoName.equals("horizontal")){
-                horizontalPos = servoArgs.servoPos;
-                hookPos = telescope.servos.getHook().getPosition();
-                flipPos = telescope.servos.getFlip().getPosition();
-            }
-        }else{
-            horizontalPos = telescope.servos.getHorizontal().getPosition();
-            hookPos = telescope.servos.getHook().getPosition();
-            flipPos = telescope.servos.getFlip().getPosition();
-        }
-
-        telescope.setTelescope(power, true, targetHeight, horizontalPos, hookPos, flipPos);
-
-        if(telescope.lift.selfData.getCurHeight() == liftArgs.height
-                && telescope.servos.getHorizontal().getPosition() == horizontalPos
-                && telescope.servos.getHook().getPosition() == hookPos
-                && telescope.servos.getFlip().getPosition() == flipPos  ||
-                power == 0 && targetHeight == 0 && telescope.servos.getHorizontal().getPosition() == horizontalPos
-                && telescope.servos.getHook().getPosition() == hookPos
-                && telescope.servos.getFlip().getPosition() == flipPos ){
-            isDone = true;
-        }
+//        if(servoArgs != null){
+//            if(servoArgs.servoName.equals("hook")){
+//                hookPos = servoArgs.servoPos;
+//                horizontalPos = collector.servos.getHorizontal().getPosition();
+//                flipPos = collector.servos.getBaraban().getPosition();
+//            }
+//            if(servoArgs.servoName.equals("flip")){
+//                flipPos = servoArgs.servoPos;
+//                horizontalPos = collector.servos.getHorizontal().getPosition();
+//                hookPos = collector.servos.getHook().getPosition();
+//            }
+//            if(servoArgs.servoName.equals("horizontal")){
+//                horizontalPos = servoArgs.servoPos;
+//                hookPos = collector.servos.getHook().getPosition();
+//                flipPos = collector.servos.getBaraban().getPosition();
+//            }
+//        }else{
+//            horizontalPos = collector.servos.getHorizontal().getPosition();
+//            hookPos = collector.servos.getHook().getPosition();
+//            flipPos = collector.servos.getBaraban().getPosition();
+//        }
+//
+//        collector.setTelescope(power, true, targetHeight, horizontalPos, hookPos, flipPos);
+//
+//        if(collector.motors.selfData.getCurHeight() == liftArgs.height
+//                && collector.servos.getHorizontal().getPosition() == horizontalPos
+//                && collector.servos.getHook().getPosition() == hookPos
+//                && collector.servos.getBaraban().getPosition() == flipPos  ||
+//                power == 0 && targetHeight == 0 && collector.servos.getHorizontal().getPosition() == horizontalPos
+//                && collector.servos.getHook().getPosition() == hookPos
+//                && collector.servos.getBaraban().getPosition() == flipPos ){
+//            isDone = true;
+//        }
 
         showData();
     }
 
     @Override
     public void showData() {
-        telescope.lift.selfData.showHeight();
-        telescope.servos.showServosPos();
+        collector.motors.selfData.showHeight();
+        collector.servos.showServosPos();
     }
 }

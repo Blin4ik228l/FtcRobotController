@@ -20,7 +20,7 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
         TelescopeHandler teleskopeHandler = new TelescopeHandler(teleSkope, telemetry);
 
@@ -30,7 +30,7 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task(String targetName, double targetPos, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(String targetName, double targetPos, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
         TelescopeHandler telescopeHandler = new TelescopeHandler(teleSkope, telemetry);
 
@@ -40,7 +40,7 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, String targetName, double targetPos, RobotClass.Telescope teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, String targetName, double targetPos, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
         TelescopeHandler telescopeHandler = new TelescopeHandler(teleSkope, telemetry);

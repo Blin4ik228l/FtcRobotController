@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.Player1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.Player2;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.TeamColor;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "teleopBlue", group = "Blue")
 public class TeleOp extends OpMode {
@@ -18,8 +17,7 @@ public class TeleOp extends OpMode {
     public void init() {
         robot = new RobotClass(this, "Blue");
         leva = new Player1(gamepad1, robot.driveTrain, this);
-        dimas = new Player2(gamepad2, robot.telescope, this);
-
+        dimas = new Player2(gamepad2, robot.collector, this);
 
         parallelStream = new Thread(dimas);
         parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы

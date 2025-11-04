@@ -7,8 +7,8 @@ public class TeamColor {
     public TeamColor(String chosenColor){
         this.chosenColor = chosenColor;
 
-        blueWallCoord[3] = Math.atan2(blueWallCoord[2], blueWallCoord[1]);
-        redWallCoord[3] = Math.atan2(redWallCoord[2], redWallCoord[1]);
+        blueWallCoord[3] = Math.atan2(blueWallCoord[1], blueWallCoord[0]);
+        redWallCoord[3] = Math.atan2(redWallCoord[1], redWallCoord[0]);
 
         aprilTagIds = chosenColor.equals(red) ? aprilTagRedIds : aprilTagBlueIds ;
         wallCoord = chosenColor.equals(red) ? redWallCoord : blueWallCoord;

@@ -23,7 +23,7 @@ public class RobotClass extends TeamColor {
 //        teleSkope = new TeleSkope(op);// Пока не на роботе
     }
     public MecanumDrivetrain driveTrain;
-    public Telescope telescope;
+    public Collector collector;
     public static class MecanumDrivetrain extends Module {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
@@ -82,71 +82,54 @@ public class RobotClass extends TeamColor {
         }
     }
 
-    public static class Telescope extends Module{
-        public Telescope(OpMode op) {
+    public static class Collector extends Module{
+        public Collector(OpMode op) {
             super(op.telemetry);
-            lift = new Lift();
+            motors = new Motors(op);
             servos = new Servos(op);
 
             telemetry.addLine("Teleskope inited");
         }
-        public Lift lift;
+        public Motors motors;
         public Servos servos;
 
-        public void setTelescope(double power, boolean isToPos, double height, double sPosHorizontal, double sPosHook, double sPosFlip){
-            lift.setPower(power, isToPos, height);
+        public void setTelescope(double power, double powerInTake, double sPosUlitka, double sPosRamp, double sPosBaraban){
+            motors.setPower(power, powerInTake);
 
-            servos.setFlip(sPosFlip);
-//            servos.setHorizontal(sPosHorizontal);
-            servos.setHook(sPosHook);
+            servos.setBaraban(sPosBaraban);
+            servos.setUlitka(sPosUlitka);
+            servos.setRamp(sPosRamp);
         }
-        public class Lift{
-//            public Lift(OpMode op){
-//                selfData = new SelfData();
-//                left = op.hardwareMap.get(DcMotor.class, "leftTele");
-//                right = op.hardwareMap.get(DcMotor.class, "rightTele");
-//
-//                left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//
-//                left.setDirection(DcMotorSimple.Direction.FORWARD);
-//                right.setDirection(DcMotorSimple.Direction.REVERSE);
-//
-//                left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//                right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//
-//                telemetry.addLine("Lift inited");
-//            }
-            private  DcMotor left;
-            private  DcMotor right;
+        public class Motors {
+            public Motors(OpMode op){
+                selfData = new SelfData();
+
+                inTake = op.hardwareMap.get(DcMotor.class, "inTake");
+                flyWheelRight = op.hardwareMap.get(DcMotor.class, "flyWheelRight");
+                flyWheelLeft = op.hardwareMap.get(DcMotor.class, "flyWheelLeft");
+
+                inTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                flyWheelRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                flyWheelLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+//                inTake.setDirection(DcMotorSimple.Direction.FORWARD);
+//                flyWheelRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+                inTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                flyWheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                flyWheelLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+                telemetry.addLine("Motors on collector inited");
+            }
+            private  DcMotor inTake;
+            private  DcMotor flyWheelRight;
+            private  DcMotor flyWheelLeft;
             public  SelfData selfData;
-            public void setPower(double power, boolean isToPos, double height){
-//            if(isToPos){//Если у нас телескоп в режиме "доезда" до точки (этот режим нужен по идее только для автономки)
-//                if(selfData.curHeight != height){
-//                    double dir = Math.signum(selfData.getCurHeight() - height);
-//
-//                    if(power == 0){//Данная строчка нужно чтобы поддерживать телескоп на определённом уровне, даже когда по аргумантам не задано
-//                        power = 0.05;
-//                    }
-//
-//                    left.setPower(power * dir);
-//                    right.setPower(-power * dir);
-//                }
-//            }
-//
-//            if(!isToPos && height > OFFSET_FROM_LAND) {//Это режим телескопа позволяет поднимать его по уровням, как-бы создавая границы (практиковался в упраляемом режиме)
-//                if(power >= 0 && selfData.curHeight != height || power <= 0 && selfData.curHeight != OFFSET_FROM_LAND){
-//                    left.setPower(power);
-//                    right.setPower(-power);
-//                }
-//            }
-//
-//            if(!isToPos && height == 0){//Обычная подача напряжение на моторы телескопа
-//                left.setPower(power);
-//                right.setPower(-power);
-//            }
-                left.setPower(power);
-                right.setPower(power);
+            public void setPower(double power1, double powerInTake){
+                inTake.setPower(powerInTake);
+
+                flyWheelLeft.setPower(power1 * (-1));
+                flyWheelRight.setPower(power1 * 1);
             }
 
             public class SelfData{
@@ -160,15 +143,7 @@ public class RobotClass extends TeamColor {
                     return curHeight;
                 }
                 private void calculateHeight(){
-                    double leftEnc = ticksToCM(left.getCurrentPosition());
-                    double deltaLeftEnc = leftEnc - leftEncOld;
-                    leftEncOld = leftEnc;
 
-                    double rightEnc = ticksToCM(right.getCurrentPosition());
-                    double deltaRightEnc = rightEnc - rightEncOld;
-                    rightEncOld = rightEnc;
-
-                    curHeight += (deltaRightEnc + deltaLeftEnc)/2.0;
                 }
                 private double ticksToCM(double ticks){
                     return ticks / TICK_PER_CM_BARABAN;
@@ -178,51 +153,67 @@ public class RobotClass extends TeamColor {
                     telemetry.addData("Height", getCurHeight() + " " + "См");
                 }
             }
+            double getAngle(double length){
+                double velMahovik = (6000 * 8 * Math.PI) / 60;
+
+                double velBall = 2500;
+                //580
+
+                return ((length * 981) / (Math.pow(velBall, 2)));
+            }
+
+            double getLength(double angle){
+                double velMahovik = (6000 * 8 * Math.PI) / 60;
+
+                double velBall = 2500;
+
+                return (Math.pow(velBall, 2) * Math.sin(angle * 2)) / 981;
+            }
         }
         public class Servos{
             public Servos(OpMode op){
-                hook = op.hardwareMap.get(Servo.class, "s0");
-                flip = op.hardwareMap.get(Servo.class, "s1");
+                ramp = op.hardwareMap.get(Servo.class, "s0");
+                baraban = op.hardwareMap.get(Servo.class, "s1");
+                ulitka = op.hardwareMap.get(Servo.class, "s2");
 
-
-//                setHook(OPEN_POS_HOOK);//Устанавливаем в начальное положение
-//                setHorizontal(OPEN_POS_HORIZONTAL);
-//                setFlip(MIDLE_POS_FLIP);
+                setRamp(0);//Устанавливаем в начальное положение
+                setBaraban(0);
+                setUlitka(0);
 
                 telemetry.addLine("Servos inited");
             }
-            private  Servo horizontal;
-            private final Servo hook;
-            private final Servo flip;
+            private final Servo ulitka;
+            private final Servo ramp;
+            private final Servo baraban;
 
-            public Servo getFlip() {
-                return flip;
+            public Servo getBaraban() {
+                return baraban;
             }
 
-            public Servo getHook() {
-                return hook;
+            public Servo getRamp() {
+                return ramp;
             }
 
-            public Servo getHorizontal() {
-                return horizontal;
+            public Servo getUlitka() {
+                return ulitka;
             }
 
-            private void setHorizontal(double pos){
-                horizontal.setPosition(pos);
+            private void setUlitka(double pos){
+                ulitka.setPosition(pos);
             }
-            private void setHook(double pos){
-                hook.setPosition(pos);
+            private void setRamp(double pos){
+                ramp.setPosition(pos);
             }
 
-            private void setFlip(double pos){
-                flip.setPosition(pos);
+            private void setBaraban(double pos){
+                baraban.setPosition(pos);
             }
 
             public void showServosPos(){
                 telemetry.addLine("Servos statements")
-                        .addData("\nzahvat", horizontal.getPosition())
-                        .addData("\nhook", hook.getPosition())
-                        .addData("\nrotate", flip.getPosition());
+                        .addData("\nzahvat", ulitka.getPosition())
+                        .addData("\nhook", ramp.getPosition())
+                        .addData("\nrotate", baraban.getPosition());
                 telemetry.addLine();
             }
         }

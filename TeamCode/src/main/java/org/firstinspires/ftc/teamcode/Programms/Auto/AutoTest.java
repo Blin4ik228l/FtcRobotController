@@ -54,11 +54,11 @@ public class AutoTest extends LinearOpMode {
 
         private final DriveTree driveTree;
         private void loadProgram(){
-           Task second = new Task(100, 0.5, robot.telescope, telemetry, 2);
+           Task second = new Task(100, 0.5, robot.collector, telemetry, 2);
 
-           Task third = new Task("hook", 0.5, robot.telescope, telemetry, 3);
-           Task fourth = new Task("flip", 0.5, robot.telescope, telemetry, 3);
-           Task fifth = new Task("horizontal", 0.5, robot.telescope, telemetry, 4);
+           Task third = new Task("hook", 0.5, robot.collector, telemetry, 3);
+           Task fourth = new Task("flip", 0.5, robot.collector, telemetry, 3);
+           Task fifth = new Task("horizontal", 0.5, robot.collector, telemetry, 4);
 
            mainRoot.add(new TaskNode(second));
            mainRoot.add(new TaskNode(third));

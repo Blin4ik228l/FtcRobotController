@@ -28,7 +28,7 @@ public class ExOdometry extends Module {
         encGlobalPosition = new Position();
         gyroGlobalPosition = new Position();
 
-        camera = new CameraClass(op, teamColor);//Ждём пока камера не начнёт стримить
+        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить
     }
     private GyroscopeClass gyro;
     public CameraClass camera;
@@ -61,16 +61,19 @@ public class ExOdometry extends Module {
     public void updateAll(){
         camera.execute();
 
-        if(!camera.isStopStreaming()){
-            encGlobalPosition.setX(camera.robotFieldX);
-            encGlobalPosition.setY(camera.robotFieldY);
-            encGlobalPosition.setHeading(camera.robotFieldYaw);
-            selfMath.calculateAll(true);
 
-            camera.setRobotVeloFromOdometry(robotSelfCentricVel);
-        }else {
-            selfMath.calculateAll(false);
-        }
+        selfMath.calculateAll(false);
+
+//        if(!camera.isStopStreaming()){
+//            encGlobalPosition.setX(camera.robotFieldX);
+//            encGlobalPosition.setY(camera.robotFieldY);
+//            encGlobalPosition.setHeading(camera.robotFieldYaw);
+//            selfMath.calculateAll(true);
+//
+//            camera.setRobotVeloFromOdometry(robotSelfCentricVel);
+//        }else {
+//            selfMath.calculateAll(false);
+//        }
 
 //        if(camera.isTagOutOfRange()){
 //            selfMath.calculateAll(false);

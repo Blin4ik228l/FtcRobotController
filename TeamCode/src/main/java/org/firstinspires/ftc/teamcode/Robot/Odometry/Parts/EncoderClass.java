@@ -6,8 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class EncoderClass {
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Modules.Module;
+
+public class EncoderClass extends Module{
     public EncoderClass(@NonNull OpMode op){
+        super(op.telemetry);
+
         encLeft = op.hardwareMap.get(DcMotorEx.class, "leftF");
         encMid = op.hardwareMap.get(DcMotorEx.class, "rightB" );
         encRight = op.hardwareMap.get(DcMotorEx.class, "rightF");
@@ -17,11 +22,10 @@ public class EncoderClass {
         encMid.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем средний энкодер
 
         encLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encMid.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        encMid.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем средний энкодер
-//        encRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);                     // запускаем правый энкодер
-//        encLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        encMid.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // запускаем средний энкодер
+        encRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // запускаем правый энкодер
+
+        telemetry.addLine("Encoders Inited");
     }
     public double COUNTS_PER_ENCODER_REV = 2000;
     public double DRIVE_GEAR_REDUCTION = 1;

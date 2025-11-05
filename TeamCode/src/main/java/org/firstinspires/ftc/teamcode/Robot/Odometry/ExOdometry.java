@@ -21,6 +21,7 @@ public class ExOdometry extends Module {
 
         gyro = new GyroscopeClass(op);
         encoderClass = new EncoderClass(op);
+
         selfMath = new SelfMath();
         selfMath.deltaTimes = new double[3];
         selfMath.oldTimes = new double[3];
@@ -28,7 +29,7 @@ public class ExOdometry extends Module {
         encGlobalPosition = new Position();
         gyroGlobalPosition = new Position();
 
-        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить
+        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить, отключить если камера не подключена к роботу, иначе зациклится
     }
     private GyroscopeClass gyro;
     public CameraClass camera;
@@ -60,7 +61,6 @@ public class ExOdometry extends Module {
 
     public void updateAll(){
         camera.execute();
-
 
         selfMath.calculateAll(false);
 

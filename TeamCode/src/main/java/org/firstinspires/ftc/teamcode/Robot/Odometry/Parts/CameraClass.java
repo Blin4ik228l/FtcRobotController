@@ -31,16 +31,10 @@ public class CameraClass extends Module{
         this.teamColor = teamColor;
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
-//        -9,-13,-20
-//        0 ,10,5
+
         cameraPosition = new Position(DistanceUnit.CM,0 ,20.1628,26.086, 0);//Позиция камеры относительно координат робота
         cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180), 0, 0, 0);//На сколько камера повёрнута относительно неё же
-//        694.068,694.068,313.099, 236.335
-//        1426.5,1426.5,627.916, 353.73
-//        1505.6234281835175, 1453.6892287156643, 656.9498728834548, 326.8476937970202
-//        820.147f, 820.147f, 311.822f, 268.136f
-//        708.013f, 708.013f, 311.973, 253.313f 190
-//        814.732f, 814.732f, 385.096f, 312.409f 120
+
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
                 .setDrawCubeProjection(false)
@@ -70,18 +64,21 @@ public class CameraClass extends Module{
         gain.setGain(190);//яркость
 
         aprilTagProcessor.setDecimation(2);
+
+        telemetry.addLine("Camera Inited");
     }
-    private final ExOdometry exOdometry;
     private final Position cameraPosition;
     private final YawPitchRollAngles cameraOrientation;
+    private final ExOdometry exOdometry;
     private final AprilTagProcessor aprilTagProcessor;
     private final VisionPortal visionPortal;
+    public AprilTagDetection detection;
     private final WebcamName webcamName;
     private final ExposureControl exposure;
     private final GainControl gain;
     public final TeamColor teamColor;
-    private final int green = 0;
-    private final int purple = 1;
+    private final int green = 1;
+    private final int purple = 2;
     private int id;
     public int[] randomizedArtifact = new int[3];
     /*0 - в массиве это зелёный шар
@@ -98,7 +95,6 @@ public class CameraClass extends Module{
     public double robotRangeToTag;
     public double cameraElevation;
     public double cameraBearing;
-    public AprilTagDetection detection;
     private boolean isAllianceTagWasSeen = false;
     private boolean isObeliskWasSeen = false;
     private boolean isRobotHaveMinVel = true;
@@ -106,7 +102,6 @@ public class CameraClass extends Module{
     public double rad = 180 / Math.PI;
     public double cameraFov = Math.toRadians(60);
     public int countTag = 0;
-
     public void execute() {
         if(!isPosWasWritten){
             updatePos();

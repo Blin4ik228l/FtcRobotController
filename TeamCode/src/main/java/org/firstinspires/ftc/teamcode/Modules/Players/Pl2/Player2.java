@@ -11,10 +11,10 @@ public class Player2 extends Player implements Runnable {
        super(op.telemetry);
 
         playersGamepad = gamepad;
-        this.teleSkope = teleSkope;
+        this.collector = teleSkope;
         joystickActivity = new JoystickActivity();
     }
-    public RobotClass.Collector teleSkope;
+    public RobotClass.Collector collector;
     public JoystickActivity joystickActivity;
 
     @Override
@@ -26,32 +26,13 @@ public class Player2 extends Player implements Runnable {
     public void play() {
         joystickActivity.checkActivity();
 
-        double leftStickY = -playersGamepad.left_stick_y;
-
-        double upStandingVel = -playersGamepad.right_stick_y;
-
-        double ulitkaPos = 0;
-        double rampPos = 0;
-        double barabanPos = 0;
-
-
-        if(joystickActivity.buttonA){
-            barabanPos = 0.5;
-        }
-        if(joystickActivity.buttonB){
-            rampPos = 0.43;
-        }
-        if(joystickActivity.buttonY){
-            ulitkaPos = 0.65;
-        }
-        teleSkope.setTelescope(upStandingVel, leftStickY, ulitkaPos, rampPos, barabanPos);
+        collector.startLoading(joystickActivity.buttonA);
 
 //        showData();
     }
 
     @Override
     public void showData() {
-        teleSkope.motors.selfData.showHeight();
-        teleSkope.servos.showServosPos();
+        collector.servos.showServosPos();
     }
 }

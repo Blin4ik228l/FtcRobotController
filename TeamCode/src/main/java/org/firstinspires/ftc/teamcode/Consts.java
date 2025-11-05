@@ -62,7 +62,7 @@ public interface Consts {
     double MIN_LINEAR_ACCEL = 1;
     double MIN_ANGULAR_ACCEL = 1;
 
-    // COLOR SENSER
+    // COLOR SENSOR
     double KpRed = 1.76;
     double KpGreen = 1.001;
     double KpBlue = 1.08;

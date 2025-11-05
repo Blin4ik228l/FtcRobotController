@@ -25,6 +25,8 @@ public class GyroscopeClass extends Module {
         imu.initialize(parameters);
 
         imu.resetYaw();
+
+        telemetry.addLine("Gyroscope Inited");
     }
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
     IMU.Parameters parameters;

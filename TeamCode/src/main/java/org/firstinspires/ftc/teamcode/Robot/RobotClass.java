@@ -19,8 +19,8 @@ public class RobotClass extends TeamColor {
     public RobotClass(OpMode op, String teamColor){
         super(teamColor);
 
-        driveTrain = new MecanumDrivetrain(op, this);
-//        teleSkope = new TeleSkope(op);// Пока не на роботе
+//        driveTrain = new MecanumDrivetrain(op, this);
+        collector = new Collector(op);// Пока не на роботе
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
@@ -85,7 +85,7 @@ public class RobotClass extends TeamColor {
     public static class Collector extends Module{
         public Collector(OpMode op) {
             super(op.telemetry);
-            motors = new Motors(op);
+//            motors = new Motors(op);
             servos = new Servos(op);
 
             telemetry.addLine("Teleskope inited");
@@ -94,7 +94,7 @@ public class RobotClass extends TeamColor {
         public Servos servos;
 
         public void setTelescope(double power, double powerInTake, double sPosUlitka, double sPosRamp, double sPosBaraban){
-            motors.setPower(power, powerInTake);
+//            motors.setPower(power, powerInTake);
 
             servos.setBaraban(sPosBaraban);
             servos.setUlitka(sPosUlitka);
@@ -102,22 +102,22 @@ public class RobotClass extends TeamColor {
         }
         public class Motors {
             public Motors(OpMode op){
-                selfData = new SelfData();
-
-                inTake = op.hardwareMap.get(DcMotor.class, "inTake");
-                flyWheelRight = op.hardwareMap.get(DcMotor.class, "flyWheelRight");
-                flyWheelLeft = op.hardwareMap.get(DcMotor.class, "flyWheelLeft");
-
-                inTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                flyWheelRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                flyWheelLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-//                inTake.setDirection(DcMotorSimple.Direction.FORWARD);
-//                flyWheelRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-                inTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                flyWheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                flyWheelLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//                selfData = new SelfData();
+//
+////                inTake = op.hardwareMap.get(DcMotor.class, "inTake");
+////                flyWheelRight = op.hardwareMap.get(DcMotor.class, "flyWheelRight");
+////                flyWheelLeft = op.hardwareMap.get(DcMotor.class, "flyWheelLeft");
+//
+//                inTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                flyWheelRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                flyWheelLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+////                inTake.setDirection(DcMotorSimple.Direction.FORWARD);
+////                flyWheelRight.setDirection(DcMotorSimple.Direction.REVERSE);
+//
+//                inTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//                flyWheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//                flyWheelLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
                 telemetry.addLine("Motors on collector inited");
             }

@@ -18,9 +18,9 @@ public class TeleOp extends OpMode {
         robot = new RobotClass(this, "Blue");
         leva = new Player1(gamepad1, robot.driveTrain, this);
         dimas = new Player2(gamepad2, robot.collector, this);
-
-        parallelStream = new Thread(dimas);
-        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
+//
+//        parallelStream = new Thread(dimas);
+//        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
     }
 
     @Override
@@ -30,12 +30,12 @@ public class TeleOp extends OpMode {
 
     @Override
     public void start() {
-        parallelStream.start();
+//        parallelStream.start();
     }
 
     @Override
     public void loop() {
-        leva.play();
+        dimas.play();
     }
 
     @Override

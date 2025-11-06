@@ -102,7 +102,9 @@ public class RobotClass extends TeamColor {
         public ColorSensor colorSensor;
         public void startLoading(boolean isTurnOn){
             if(isTurnOn) {
-                if(servos.selfData.valueOfCell.size() == 3) motors.turnOnFlyWheel(true);
+
+                //Другое условие
+                if(servos.selfData.loadedArtifacts.size() == 3) startFiring();
                 else motors.turnOnInTake(true);
 
                 colorSensor.update();
@@ -115,7 +117,10 @@ public class RobotClass extends TeamColor {
         }
 
         public void startFiring(){
-
+            motors.turnOnFlyWheel(true);
+            servos.findNeededArtifact();
+//            servos.setAngle(ANGLE_ENDING_POS);
+//            servos.setPusher(PUSHER_ENDING_POS);
         }
         public class Motors {
             public Motors(OpMode op){
@@ -200,11 +205,17 @@ public class RobotClass extends TeamColor {
             public class SelfData{
                 public SelfData(){
                     loadedArtifacts = new HashMap<>();
-                    valueOfCell = new HashMap<>();
                 }
-                HashMap<Integer, HashMap<Integer, Double>> loadedArtifacts;
-                HashMap<Integer, Double> valueOfCell;
+                HashMap<Integer, Table> loadedArtifacts;
 
+                public class Table{
+                    int color;
+                    double pos;
+                   public Table(int color, double pos){
+                        this.color = color;
+                        this.pos = pos;
+                    }
+                }
                 int currentArtifact;
                 double barabanNextPos;
 
@@ -214,23 +225,35 @@ public class RobotClass extends TeamColor {
                 int count2;
                 int count;
                 boolean isRobotFiring = false;
+                boolean isFounded;
+                boolean isCurCellEmpty = false;
                 public void calculate(){
                     if(currentArtifact != 0 && loadedArtifacts.size() != 3 && !isRobotFiring) {
 
-                        valueOfCell.put(currentArtifact, baraban.getPosition());
-                        loadedArtifacts.put(numOfCell, valueOfCell);
+                        loadedArtifacts.put(numOfCell, new Table(currentArtifact, baraban.getPosition()));
 
-                        numOfCell += 1;
+                        numOfCell ++;
                         currentArtifact = 0;
                         barabanNextPos += 0.22;
 
-                        count2 = numOfCell;
+                        count2 = loadedArtifacts.size() - 1;
+
                     }
                     if(isRobotFiring){
-                        if(loadedArtifacts.get(count2).get(driveTrain.exOdometry.camera.randomizedArtifact[0]) != null){
-                            barabanTargetPos = loadedArtifacts.get(count2).get(driveTrain.exOdometry.camera.randomizedArtifact[0]);
+                        if(loadedArtifacts.get(count2) != null && count2 != -1){
+                            isFounded = loadedArtifacts.get(count2).color == driveTrain.exOdometry.camera.randomizedArtifact[0] ? true : false;
+                            if(!isFounded){
+                                count2--;
+                            }else {
+                                barabanTargetPos = loadedArtifacts.get(count2).pos;
+
+                                if(isCurCellEmpty){
+                                    loadedArtifacts.remove(count2);
+                                    count2 = loadedArtifacts.size() - 1;
+                                }
+                            }
                         }
-                        count -= 1;
+
 
                        
                     }
@@ -275,6 +298,7 @@ public class RobotClass extends TeamColor {
 
             public void findNeededArtifact(){
                 selfData.calculate();
+                baraban.setPosition(selfData.barabanTargetPos);
             }
 
             public void showServosPos(){
@@ -315,6 +339,8 @@ public class RobotClass extends TeamColor {
                 colors = colorSensor.getNormalizedColors();
 
                 Color.colorToHSV(colors.toColor(), hsvValues);
+
+                relativeLayout.setBackgroundColor(Color.HSVToColor(hsvValues));
 
                 red = colors.red;
                 blue = colors.blue;

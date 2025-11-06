@@ -19,7 +19,9 @@ public class Player2 extends Player implements Runnable {
 
     @Override
     public void run() {
-        play();
+        while (true){
+            play();
+        }
     }
 
     @Override
@@ -28,11 +30,14 @@ public class Player2 extends Player implements Runnable {
 
         collector.startLoading(joystickActivity.buttonA);
 
-//        showData();
+        showData();
     }
 
     @Override
     public void showData() {
         collector.servos.showServosPos();
+        collector.colorSensor.showData();
+        collector.colorSensor.showDominantColor();
+        collector.showSizeAndPos();
     }
 }

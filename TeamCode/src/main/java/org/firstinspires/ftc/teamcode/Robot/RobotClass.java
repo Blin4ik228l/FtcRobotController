@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Modules.Module;
 import org.firstinspires.ftc.teamcode.Robot.Odometry.ExOdometry;
@@ -32,6 +33,7 @@ public class RobotClass extends TeamColor {
     }
     public static MecanumDrivetrain driveTrain;
     public static Collector collector;
+
     public static class MecanumDrivetrain extends Module {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
@@ -91,6 +93,7 @@ public class RobotClass extends TeamColor {
     public static class Collector extends Module{
         public Collector(OpMode op) {
             super(op.telemetry);
+
             motors = new Motors(op);
             servos = new Servos(op);
             colorSensor = new ColorSensor(op);
@@ -100,25 +103,43 @@ public class RobotClass extends TeamColor {
         public Motors motors;
         public Servos servos;
         public ColorSensor colorSensor;
+
+        boolean isStartFiring = false;
+        boolean isFullyLoaded = false;
         public void startLoading(boolean isTurnOn){
             if(isTurnOn) {
-
-                //Другое условие
-                if(servos.selfData.loadedArtifacts.size() == 3) startFiring();
-                else motors.turnOnInTake(true);
-
-                colorSensor.update();
-                servos.barabanNextPos(colorSensor.currentArtifact);
+                if(!isStartFiring) {
+                    //Другое условие
+                    if (servos.selfData.loadedArtifacts.size() == 3) {
+                        isFullyLoaded = true;
+                        isStartFiring = true;
+                        servos.selfData.isRobotFiring = true;
+                    }
+                    motors.turnOnInTake(true);
+                    colorSensor.update();
+                    servos.barabanNextPos(colorSensor.currentArtifact);
+                }else{
+                    startFiring();
+                }
             }
 
-//            servos.setBaraban(sPosBaraban);
-//            servos.setAngle(sPosUlitka);
-//            servos.setPusher(sPosRamp);
+        }
+        public void showSizeAndPos(){
+            telemetry.addData("Size",servos.selfData.loadedArtifacts.size());
+//            if(isFullyLoaded){
+//            telemetry.addLine("Pos")
+//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(0).pos + " " + servos.selfData.loadedArtifacts.get(0).color)
+//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(1).pos + " " + servos.selfData.loadedArtifacts.get(1).color)
+//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(2).pos + " " + servos.selfData.loadedArtifacts.get(2).color);
+//            }
         }
 
         public void startFiring(){
+            motors.turnOnInTake(false);
             motors.turnOnFlyWheel(true);
-            servos.findNeededArtifact();
+
+            colorSensor.update();
+            servos.findNeededArtifact(colorSensor.currentArtifact);
 //            servos.setAngle(ANGLE_ENDING_POS);
 //            servos.setPusher(PUSHER_ENDING_POS);
         }
@@ -149,7 +170,7 @@ public class RobotClass extends TeamColor {
             public final SelfData selfData;
 
             public void turnOnInTake(boolean bol){
-                if(bol) inTake.setPower(1);
+                if(bol) inTake.setPower(-1);
                 else inTake.setPower(0);
             }
             public void turnOnFlyWheel(boolean bol){
@@ -223,51 +244,69 @@ public class RobotClass extends TeamColor {
                 int numOfCell = 0;
 
                 int count2;
-                int count;
+                int count = 0;
                 boolean isRobotFiring = false;
                 boolean isFounded;
                 boolean isCurCellEmpty = false;
+                ElapsedTime runtime = new ElapsedTime();
+
+                ElapsedTime runtime2 = new ElapsedTime();
                 public void calculate(){
-                    if(currentArtifact != 0 && loadedArtifacts.size() != 3 && !isRobotFiring) {
+                    if(currentArtifact != 0 && loadedArtifacts.size() != 3 && !isRobotFiring && runtime.seconds() > 1) {
 
                         loadedArtifacts.put(numOfCell, new Table(currentArtifact, baraban.getPosition()));
 
                         numOfCell ++;
                         currentArtifact = 0;
-                        barabanNextPos += 0.22;
+
+                        if(barabanNextPos != 1){
+                            barabanNextPos += 0.5;
+                        }
 
                         count2 = loadedArtifacts.size() - 1;
 
+                        barabanTargetPos = barabanNextPos;
+                        runtime.reset();
                     }
+
                     if(isRobotFiring){
                         if(loadedArtifacts.get(count2) != null && count2 != -1){
-                            isFounded = loadedArtifacts.get(count2).color == driveTrain.exOdometry.camera.randomizedArtifact[0] ? true : false;
+                            isFounded = loadedArtifacts.get(count2).color == driveTrain.exOdometry.camera.randomizedArtifact[count] ? true : false;
+
                             if(!isFounded){
                                 count2--;
                             }else {
                                 barabanTargetPos = loadedArtifacts.get(count2).pos;
 
-                                if(isCurCellEmpty){
+                                if(isCurCellIsEmpty() && runtime2.seconds() > 1){
                                     loadedArtifacts.remove(count2);
                                     count2 = loadedArtifacts.size() - 1;
+                                    count++;
+                                    runtime2.reset();
                                 }
+
                             }
                         }
 
 
-                       
+
                     }
+                }
+                public boolean isCurCellIsEmpty(){
+                    if(currentArtifact == 0) return true;
+                    return false;
                 }
 
                 public void setArtifact(int color){
                     currentArtifact = color;
                 }
             }
-            private final SelfData selfData;
+            public final SelfData selfData;
             private final Servo angle;
             private final Servo pusher;
             private final Servo baraban;
 
+            public boolean isRotating = false;
             public Servo getBaraban() {
                 return baraban;
             }
@@ -296,7 +335,8 @@ public class RobotClass extends TeamColor {
                 baraban.setPosition(selfData.barabanNextPos);
             }
 
-            public void findNeededArtifact(){
+            public void findNeededArtifact(int color){
+                selfData.setArtifact(color);
                 selfData.calculate();
                 baraban.setPosition(selfData.barabanTargetPos);
             }
@@ -324,9 +364,10 @@ public class RobotClass extends TeamColor {
             private final int relativeLayoutId;
             private final NormalizedColorSensor colorSensor;
             private final View relativeLayout;
-            private float gain = 2f;
+            private float gain = 3f;
             private final float[] hsvValues = new float[3];
             public NormalizedRGBA colors;
+            boolean isArtifactInIt = false;
 
             public float red;
             public float blue;
@@ -340,21 +381,27 @@ public class RobotClass extends TeamColor {
 
                 Color.colorToHSV(colors.toColor(), hsvValues);
 
-                relativeLayout.setBackgroundColor(Color.HSVToColor(hsvValues));
+//                relativeLayout.setBackgroundColor(Color.HSVToColor(hsvValues));
 
                 red = colors.red;
                 blue = colors.blue;
                 green = colors.green;
                 alpha = colors.alpha;
 
-                if(getDominantColor() == green) currentArtifact = 1;
-                if(getDominantColor() == blue || getDominantColor() == red) currentArtifact = 2;
+                currentArtifact = getDominantColor();
+
             }
 
-            public float getDominantColor(){
-                if(red > blue && red > green) return red;
-                if(blue > red && blue > green) return blue;
-                if(green > red && green > blue) return green;
+            public int getDominantColor(){
+                if(red > blue && red > green && red > 0.02) {
+                    isArtifactInIt = true;
+                    return 2;}
+                if(blue > red && blue > green && blue > 0.02) {
+                    isArtifactInIt = true;
+                    return 2;}
+                if(green > red && green > blue && green > 0.02) {
+                    isArtifactInIt = true;
+                    return 1;}
 
                 return 0;
             }
@@ -369,6 +416,9 @@ public class RobotClass extends TeamColor {
                         .addData("Saturation", "%.3f", hsvValues[1])
                         .addData("Value", "%.3f", hsvValues[2]);
                 telemetry.addData("Alpha", "%.3f", alpha);
+            }
+            public void showDominantColor(){
+                telemetry.addData("color", getDominantColor());
             }
         }
 

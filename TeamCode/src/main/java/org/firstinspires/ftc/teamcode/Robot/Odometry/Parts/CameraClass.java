@@ -118,7 +118,7 @@ public class CameraClass extends Module{
         if(isAllianceTagWasSeen && !isPosWasWritten && isObeliskWasSeen) {
             isPosWasWritten = true;
             writePos();
-//            stopStreaming();
+            stopStreaming();
         }
 
     }

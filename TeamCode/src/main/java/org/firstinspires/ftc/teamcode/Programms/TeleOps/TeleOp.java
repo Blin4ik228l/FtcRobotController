@@ -35,10 +35,10 @@ public class TeleOp extends OpMode {
 
     @Override
     public void loop() {
-//        leva.play();
+        dimas.collector.automaticClass.setRandomizedArtifacts(leva.driveTrain.exOdometry.camera.randomizedArtifact);
+
+        leva.play();
         dimas.play();
-        leva.driveTrain.exOdometry.camera.execute();
-        leva.driveTrain.exOdometry.camera.showRandomizedArtifacts();
     }
 
     @Override

@@ -55,4 +55,7 @@ public class EncodersInMotors extends Module {
 
         }
     }
+    public void showFLyWheelSpeed(){
+        telemetry.addData("FlyWheelSpeed", encLeft.getVelocity(AngleUnit.RADIANS));
+    }
 }

@@ -45,9 +45,11 @@ public class Player2 extends Player implements Runnable {
 
     @Override
     public void showData() {
-        collector.servos.showServosPos();
-        collector.colorSensor.showData();
+        collector.automaticClass.showCells();
+        collector.encoders.showFLyWheelSpeed();
         collector.colorSensor.showDominantColor();
-        collector.showSizeAndPos();
+        collector.servos.showServosPos();
+        collector.automaticClass.showCount();
+//        collector.colorSensor.showData();
     }
 }

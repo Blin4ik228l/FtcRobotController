@@ -83,6 +83,7 @@ public class RobotClass extends TeamColor {
         boolean isStartFiring = false;
         boolean isFullyLoaded = false;
         public AutomaticClass automaticClass;
+
         public void setAll(boolean isTurnOn, boolean isFlyWheelOn, double velocity){
             automaticClass.setAll(isTurnOn, isFlyWheelOn, velocity);
         }

@@ -20,6 +20,8 @@ public class AutomaticClass extends Module {
     public RobotClass.Collector collector;
     private int loadedArtifactColor;
     private int numberOfLoadedArtifacts = 0;
+    private int[] randomizedArtifacts;
+    private int count;
     private final Cells cells;
     private final ElapsedTime runtime;
     private final ElapsedTime runtime2;
@@ -27,8 +29,13 @@ public class AutomaticClass extends Module {
     public boolean isTurnOn;
     public boolean isFlyWheelOn;
     public double barabanPos;
+    public double lastPos;
     public boolean isArtifactsLoading = true;
     public boolean isArtifactFiring = false;
+    public boolean isNowFiring;
+    public boolean isStopFiring = false;
+    public boolean isWasCount = false;
+
     public void setAll(boolean isTurnOn, boolean isFlyWheelOn, double velocity){
         collector.motors.turnOnInTake(isTurnOn);
 //        collector.motors.turnOnFlyWheel(isFlyWheelOn);
@@ -44,8 +51,8 @@ public class AutomaticClass extends Module {
         loadedArtifactColor = collector.colorSensor.currentArtifact;
     }
     public void calculate(){
-        if(loadedArtifactColor != 0 && numberOfLoadedArtifacts != 3 && runtime.seconds() > 1) {
-
+        if(loadedArtifactColor != 0 && numberOfLoadedArtifacts != 3 && runtime.seconds() > 1 && !isArtifactFiring) {
+            isArtifactFiring = false;
             numberOfLoadedArtifacts++;
 
             if(numberOfLoadedArtifacts == 1){
@@ -66,39 +73,74 @@ public class AutomaticClass extends Module {
             if(barabanPos != 1)barabanPos += 0.5;
 
             runtime.reset();
+            runtime2.reset();
         }
 
-//        if(isRobotFiring){
-//            if(loadedArtifacts.get(count2) != null && count2 != -1){
-//                isFounded = loadedArtifacts.get(count2).color == driveTrain.exOdometry.camera.randomizedArtifact[count] ? true : false;
-//
-//                if(!isFounded){
-//                    count2--;
-//                }else {
-//                    barabanTargetPos = loadedArtifacts.get(count2).pos;
-//
-//                    if(isCurCellIsEmpty() && runtime2.seconds() > 1){
-//                        loadedArtifacts.remove(count2);
-//                        count2 = loadedArtifacts.size() - 1;
-//                        count++;
-//                        runtime2.reset();
-//                    }
-//
-//                }
-//            }
-//        }
+        if(runtime2.seconds() > 1 && count != 3 && !isArtifactsLoading){
+            isArtifactFiring = true;
+            lastPos = barabanPos;
+
+            if(randomizedArtifacts[0] == 0 && randomizedArtifacts[1] == 0 && randomizedArtifacts[2] == 0) {
+                runtime2.reset();
+                isStopFiring = true;
+                return;}
+
+            if(cells.cell0.table.color == randomizedArtifacts[count]){
+                barabanPos = cells.cell0.table.pos;
+            }
+            if(cells.cell1.table.color == randomizedArtifacts[count]){
+                barabanPos = cells.cell1.table.pos;
+            }
+            if(cells.cell2.table.color == randomizedArtifacts[count]){
+                barabanPos = cells.cell2.table.pos;
+            }
+        }if(count == numberOfLoadedArtifacts){
+            count = 0;
+            numberOfLoadedArtifacts = 0;
+            isArtifactFiring = false;
+            isArtifactsLoading = true;
+        }
+    }
+
+    public void deleteArtifact(){
+        if(loadedArtifactColor == 0 && isArtifactFiring){
+            cells.cell0.table.color = cells.cell0.table.pos == barabanPos ? 0 : cells.cell0.table.color;
+            cells.cell1.table.color = cells.cell1.table.pos == barabanPos ? 0 : cells.cell1.table.color;
+            cells.cell2.table.color = cells.cell2.table.pos == barabanPos ? 0 : cells.cell2.table.color;
+
+            count++;
+            isNowFiring = false;
+            isWasCount = false;
+        }
     }
 
     public void action(){
         if(isArtifactsLoading){
-            collector.encoders.setVelocities(0);
+            collector.servos.getPusher().setPosition(PUSHER_START_POS);
+            collector.encoders.setVelocities(-2);
             collector.servos.getBaraban().setPosition(barabanPos);
-        }else {
-            //Добавить задержку
-            collector.encoders.setVelocities(300);
-            collector.servos.getPusher().setPosition(0.3);
+            runtime2.reset();
+            return;
         }
+        if(isArtifactFiring) {
 
+            //Добавить задержку
+            collector.servos.getBaraban().setPosition(barabanPos);
+            collector.encoders.setVelocities(6);
+
+            if(runtime2.seconds() > 2  && loadedArtifactColor != 0) {
+                collector.servos.getPusher().setPosition(0.8);
+            }
+            if(runtime2.seconds() > 3 && loadedArtifactColor == 0){
+                deleteArtifact();
+                collector.servos.getPusher().setPosition(0.45);
+                runtime2.reset();
+            }
+        }
+    }
+
+    public void setRandomizedArtifacts(int[] artifacts){
+        randomizedArtifacts = artifacts;
     }
     public static class Cells {
         public Cells(){
@@ -124,5 +166,16 @@ public class AutomaticClass extends Module {
                 double pos;
             }
         }
+    }
+    public void showCells(){
+        telemetry.addData("cell0", cells.cell0.table.color + " " + cells.cell0.table.pos);
+        telemetry.addData("cell1", cells.cell1.table.color + " " + cells.cell1.table.pos);
+        telemetry.addData("cell2", cells.cell2.table.color + " " + cells.cell2.table.pos);
+    }
+
+    public void showCount(){
+        telemetry.addData("count", count);
+        telemetry.addData("runtime2.seconds() >", runtime2.seconds());
+        telemetry.addData("isArtifactsLoading", isArtifactsLoading);
     }
 }

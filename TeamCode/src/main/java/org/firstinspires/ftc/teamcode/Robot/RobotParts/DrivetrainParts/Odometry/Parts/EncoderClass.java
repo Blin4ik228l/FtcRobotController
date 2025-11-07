@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Odometry.Parts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts;
 
 import androidx.annotation.NonNull;
 
@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Module;
 
 public class EncoderClass extends Module{

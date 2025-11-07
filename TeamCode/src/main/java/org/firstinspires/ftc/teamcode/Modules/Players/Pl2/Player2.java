@@ -28,7 +28,17 @@ public class Player2 extends Player implements Runnable {
     public void play() {
         joystickActivity.checkActivity();
 
-        collector.startLoading(joystickActivity.buttonA);
+        boolean onInTake = false;
+        boolean onFlyWheel = false;
+        double flyWheelVelocity = 0;
+
+        if(joystickActivity.buttonA){
+            onInTake = true;
+//            onFlyWheel = true;
+            flyWheelVelocity = 628;
+        }
+
+        collector.setAll(onInTake, onFlyWheel, flyWheelVelocity);
 
         showData();
     }

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Odometry;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.CameraClass;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.EncoderClass;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.GyroscopeClass;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.CameraClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.EncoderClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.TeamColor;
 
 public class ExOdometry extends Module {
@@ -22,14 +22,14 @@ public class ExOdometry extends Module {
         gyro = new GyroscopeClass(op);
         encoderClass = new EncoderClass(op);
 
+        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить, отключить если камера не подключена к роботу, иначе зациклится
+
         selfMath = new SelfMath();
         selfMath.deltaTimes = new double[3];
         selfMath.oldTimes = new double[3];
 
         encGlobalPosition = new Position();
         gyroGlobalPosition = new Position();
-
-        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить, отключить если камера не подключена к роботу, иначе зациклится
     }
     private GyroscopeClass gyro;
     public CameraClass camera;

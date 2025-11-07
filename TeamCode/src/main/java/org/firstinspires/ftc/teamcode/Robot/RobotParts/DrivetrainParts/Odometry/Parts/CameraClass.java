@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Odometry.Parts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts;
 
 import android.annotation.SuppressLint;
 import android.util.Size;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Robot.Odometry.ExOdometry;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
 import org.firstinspires.ftc.teamcode.TeamColor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;

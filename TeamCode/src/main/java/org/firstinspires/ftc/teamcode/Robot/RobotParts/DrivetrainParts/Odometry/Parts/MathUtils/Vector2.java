@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils;
 
 public class Vector2 {
     public double x;

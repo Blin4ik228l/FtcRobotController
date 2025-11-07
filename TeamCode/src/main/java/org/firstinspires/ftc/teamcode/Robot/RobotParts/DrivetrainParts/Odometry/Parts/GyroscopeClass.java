@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.Odometry.Parts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;

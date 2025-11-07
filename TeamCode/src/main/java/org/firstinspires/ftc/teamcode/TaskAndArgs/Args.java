@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.TaskAndArgs;
 
-import org.firstinspires.ftc.teamcode.Robot.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
 
 public class Args {
     public static class DriveArgs extends Args{

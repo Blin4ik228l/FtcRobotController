@@ -5,9 +5,11 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Module;
 
 public class ColorSensor extends Module {
@@ -34,6 +36,7 @@ public class ColorSensor extends Module {
     public float green;
     public float alpha;
     public int currentArtifact;
+    public double curDistance = 0;
     public void update(){
         colors = colorSensor.getNormalizedColors();
 
@@ -47,6 +50,7 @@ public class ColorSensor extends Module {
         alpha = colors.alpha;
 
         currentArtifact = getDominantColor();
+        curDistance = getDistance();
     }
     public int getDominantColor(){
         if(red > blue && red > green && red > 0.02) {
@@ -61,6 +65,9 @@ public class ColorSensor extends Module {
 
 
         return 0;
+    }
+    public double getDistance(){
+        return ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
     }
     public void showData(){
         telemetry.addLine("Values from sensor")

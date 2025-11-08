@@ -7,5 +7,5 @@ public interface ConstsTeleskope {
 
     double PUSHER_ENDING_POS = 0.43;
     double BARABAN_ENDING_POS = 0.66;
-    double ANGLE_ENDING_POS = 0.65;
+    double ANGLE_ENDING_POS = 0;
 }

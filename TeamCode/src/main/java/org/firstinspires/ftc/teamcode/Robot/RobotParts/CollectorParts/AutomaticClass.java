@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.Module;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts.Servos;
@@ -19,6 +20,7 @@ public class AutomaticClass extends Module {
     }
     public RobotClass.Collector collector;
     private int loadedArtifactColor;
+    private double curDistance;
     private int numberOfLoadedArtifacts = 0;
     private int[] randomizedArtifacts;
     private int count;
@@ -37,22 +39,21 @@ public class AutomaticClass extends Module {
     public boolean isWasCount = false;
 
     public void setAll(boolean isTurnOn, boolean isFlyWheelOn, double velocity){
-        collector.motors.turnOnInTake(isTurnOn);
-//        collector.motors.turnOnFlyWheel(isFlyWheelOn);
-//        collector.encoders.setVelocities(velocity);
-
-        update();
-        calculate();
-        action();
+        if(isTurnOn){
+            update();
+            calculate();
+            action();
+        }
     }
     public void update(){
         collector.colorSensor.update();
+        collector.encoders.updateAll();
 
         loadedArtifactColor = collector.colorSensor.currentArtifact;
+        curDistance = collector.colorSensor.curDistance;
     }
     public void calculate(){
-        if(loadedArtifactColor != 0 && numberOfLoadedArtifacts != 3 && runtime.seconds() > 1 && !isArtifactFiring) {
-            isArtifactFiring = false;
+        if(loadedArtifactColor != 0 && numberOfLoadedArtifacts != 3 && runtime.seconds() > 1 && !isArtifactFiring && isArtifactsLoading) {
             numberOfLoadedArtifacts++;
 
             if(numberOfLoadedArtifacts == 1){
@@ -67,22 +68,21 @@ public class AutomaticClass extends Module {
             if(numberOfLoadedArtifacts == 3){
                 cells.cell2.table.color = loadedArtifactColor;
                 cells.cell2.table.pos = collector.servos.getBaraban().getPosition();
+
                 isArtifactsLoading = false;
+                isArtifactFiring = true;
             }
 
             if(barabanPos != 1)barabanPos += 0.5;
 
             runtime.reset();
-            runtime2.reset();
         }
 
-        if(runtime2.seconds() > 1 && count != 3 && !isArtifactsLoading){
-            isArtifactFiring = true;
+        if(runtime2.seconds() > 1 && count != 3 && !isArtifactsLoading && isArtifactFiring){
+
             lastPos = barabanPos;
 
             if(randomizedArtifacts[0] == 0 && randomizedArtifacts[1] == 0 && randomizedArtifacts[2] == 0) {
-                runtime2.reset();
-                isStopFiring = true;
                 return;}
 
             if(cells.cell0.table.color == randomizedArtifacts[count]){
@@ -94,11 +94,7 @@ public class AutomaticClass extends Module {
             if(cells.cell2.table.color == randomizedArtifacts[count]){
                 barabanPos = cells.cell2.table.pos;
             }
-        }if(count == numberOfLoadedArtifacts){
-            count = 0;
-            numberOfLoadedArtifacts = 0;
-            isArtifactFiring = false;
-            isArtifactsLoading = true;
+            runtime2.reset();
         }
     }
 
@@ -108,34 +104,55 @@ public class AutomaticClass extends Module {
             cells.cell1.table.color = cells.cell1.table.pos == barabanPos ? 0 : cells.cell1.table.color;
             cells.cell2.table.color = cells.cell2.table.pos == barabanPos ? 0 : cells.cell2.table.color;
 
-            count++;
-            isNowFiring = false;
-            isWasCount = false;
+            if(count != 3)count++;
+            else {
+                isArtifactsLoading = false;
+                isArtifactFiring = false;
+            }
         }
     }
 
     public void action(){
         if(isArtifactsLoading){
-            collector.servos.getPusher().setPosition(PUSHER_START_POS);
-            collector.encoders.setVelocities(-2);
+            collector.motors.turnOnInTake(true);
+            collector.encoders.setVelocities(-1);
             collector.servos.getBaraban().setPosition(barabanPos);
-            runtime2.reset();
-            return;
         }
+
         if(isArtifactFiring) {
-
             //Добавить задержку
+            collector.motors.turnOnInTake(false);
             collector.servos.getBaraban().setPosition(barabanPos);
-            collector.encoders.setVelocities(6);
+            collector.encoders.setVelocities(5);
 
-            if(runtime2.seconds() > 2  && loadedArtifactColor != 0) {
-                collector.servos.getPusher().setPosition(0.8);
+
+            if (runtime.seconds() > 2 && loadedArtifactColor != 0 && curDistance < 10) {
+                collector.servos.getPusher().setPosition(0.7);
             }
-            if(runtime2.seconds() > 3 && loadedArtifactColor == 0){
+
+            if(runtime.seconds() > 4 && loadedArtifactColor == 0 && curDistance >= 10){
                 deleteArtifact();
                 collector.servos.getPusher().setPosition(0.45);
-                runtime2.reset();
+                runtime.reset();
             }
+        }
+
+        if(!isArtifactFiring && !isArtifactsLoading){
+            collector.servos.getPusher().setPosition(PUSHER_START_POS);
+            collector.servos.getBaraban().setPosition(0);
+            collector.encoders.setVelocities(0);
+
+            cells.cell0.table.pos = collector.servos.getBaraban().getPosition();
+            cells.cell1.table.pos = collector.servos.getBaraban().getPosition();
+            cells.cell2.table.pos = collector.servos.getBaraban().getPosition();
+
+            count = 0;
+            numberOfLoadedArtifacts = 0;
+            isArtifactFiring = false;
+            isArtifactsLoading = true;
+
+            runtime.reset();
+            runtime2.reset();
         }
     }
 
@@ -177,5 +194,8 @@ public class AutomaticClass extends Module {
         telemetry.addData("count", count);
         telemetry.addData("runtime2.seconds() >", runtime2.seconds());
         telemetry.addData("isArtifactsLoading", isArtifactsLoading);
+        telemetry.addData("runtime.seconds()", runtime.seconds());
+        telemetry.addData("numberOfLoadedArtifacts", numberOfLoadedArtifacts);
+        telemetry.addData("curDistance", curDistance);
     }
 }

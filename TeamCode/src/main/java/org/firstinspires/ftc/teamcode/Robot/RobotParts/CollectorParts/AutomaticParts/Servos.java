@@ -19,7 +19,7 @@ public class Servos extends Module {
 
         //Устанавливаем в начальное положение
         setPusher(PUSHER_START_POS);
-        setAngle(ANGLE_START_POS);
+        setAngle(ANGLE_ENDING_POS);
 
         while (runtime.seconds() < 1) {}
         setBaraban(BARABAN_START_POS);

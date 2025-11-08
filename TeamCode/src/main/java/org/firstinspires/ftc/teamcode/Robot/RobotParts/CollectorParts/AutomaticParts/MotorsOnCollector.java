@@ -47,7 +47,7 @@ public class MotorsOnCollector extends Module {
     }
 
     public void turnOnInTake(boolean bol){
-        if(bol) inTake.setPower(-1);
+        if(bol) inTake.setPower(-0.8);
         else inTake.setPower(0);
     }
     public void turnOnFlyWheel(boolean bol){

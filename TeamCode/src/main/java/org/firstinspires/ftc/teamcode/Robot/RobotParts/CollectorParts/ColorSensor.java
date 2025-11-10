@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -36,6 +36,7 @@ public class ColorSensor extends Module {
     public float green;
     public float alpha;
     public int currentArtifact;
+    public int lastSeenArtifact;
     public double curDistance = 0;
     public void update(){
         colors = colorSensor.getNormalizedColors();
@@ -50,6 +51,9 @@ public class ColorSensor extends Module {
         alpha = colors.alpha;
 
         currentArtifact = getDominantColor();
+
+        if(currentArtifact != 0) currentArtifact = lastSeenArtifact;
+
         curDistance = getDistance();
     }
     public int getDominantColor(){
@@ -63,24 +67,25 @@ public class ColorSensor extends Module {
 
             return 1;}
 
-
         return 0;
     }
     public double getDistance(){
         return ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
     }
+    public String getColorFromNumber(int number){
+        return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
+    }
     public void showData(){
+        telemetry.addLine("Color-sensor data")
+                .addData("Current see color", "%s", getColorFromNumber(currentArtifact))
+                .addData("Last seen color", "%s", getColorFromNumber(lastSeenArtifact))
+                .addData("Distance in CM", "%.1f", getDistance());
         telemetry.addLine("Values from sensor")
                 .addData("Red", "%.3f", red)
                 .addData("Green", "%.3f", green)
                 .addData("Blue", "%.3f", blue);
-        telemetry.addLine()
-                .addData("Hue", "%.3f", hsvValues[0])
-                .addData("Saturation", "%.3f", hsvValues[1])
-                .addData("Value", "%.3f", hsvValues[2]);
-        telemetry.addData("Alpha", "%.3f", alpha);
+        telemetry.addLine();
+
     }
-    public void showDominantColor(){
-        telemetry.addData("color", getDominantColor());
-    }
+
 }

@@ -91,59 +91,30 @@ public class ExOdometry extends Module {
 
         return  (Math.atan2(targY, -targX) - Math.PI/2);
     }
-    public void findClosestArtifact(){
-        double artefactX;
-        if(encGlobalPosition.getX() > -180 && encGlobalPosition.getX() < -40){
-            artefactX = camera.teamColor.getClosestArtifacts()[0][0];
-        }
-        if(encGlobalPosition.getX() < 180 && encGlobalPosition.getX() > 90){
-            artefactX = camera.teamColor.getClosestArtifacts()[6][0];
-        }
-
-    }
 
     public double getDeltaAngle(double targetAngle){
         double target = (Math.signum(encGlobalPosition.getHeading())*targetAngle + encGlobalPosition.getHeading()) % Math.PI;
-
         if(Math.abs(target) < Math.toRadians(1)) target = 0;
-//        if (target < -Math.PI) {
-//            target += 2 * Math.PI;
-//        }
-//
-//        if (target > Math.PI) {
-//            target += -2 * Math.PI;
-//        }
-//
-//        target %= Math.PI / 2;
 
         return target;
     }
 
-    public Vector2 getVelToTarget(Vector2 targetPos, double a){
-        Vector2 targetPos2 = new Vector2(camera.tagXFromRobot, camera.tagYFromRobot);
-        double cos;
-        double sin;
+    public double getRange(){
+        double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
+        double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
 
-        if(targetPos2.length() == 0){
-             cos = 0;
-             sin = 0;
-        }else{
-            cos = Math.cos(targetPos2.x / targetPos2.length());
-            sin = Math.sin(targetPos2.y / targetPos2.length());
-        }
+        Vector2 range = new Vector2(targX, targY);
 
-
-        return new Vector2(
-                Math.signum(targetPos2.x)*Math.signum(a * cos)*Math.sqrt(Math.abs(targetPos2.x) * 2 * Math.abs(a * cos)), //Скорость по X
-                   Math.signum(targetPos2.y)*Math.signum(a * sin)*Math.sqrt(Math.abs(targetPos2.y) * 2 * Math.abs(a * sin)));//Скорость по Y
+        return range.length();
     }
 
-    public void showCameraCoord(){
-        camera.showRobotPosition();
-    }
-
-    public void showFoundedArtifacts(){
-        camera.showRandomizedArtifacts();
+    public void showData(){
+        camera.showData();
+        telemetry.addLine("ExOdometry data")
+                .addData("Robot pos:", "X - %.1f | Y - %.1f | H - %.1f", encGlobalPosition.getX(), encGlobalPosition.getY(), encGlobalPosition.getHeading() * 180/Math.PI)
+                .addData("Robot vel:","X - %.1f | Y - %.1f | H - %.1f", robotSelfCentricVel.x, robotSelfCentricVel.y, selfMath.headingVel)
+                .addData("Robot accel:","X - %.1f | Y - %.1f | H - %.1f",0,0,0);
+        telemetry.addLine();
     }
     public void showEncodersVel(){
         telemetry.addLine("Encoders Vel");
@@ -581,7 +552,6 @@ public class ExOdometry extends Module {
         }
 
         private void updateVectorEncodersAngleVelocityCentric() {
-
             encodersVelAngleCentric = new Vector2[]{
                     new Vector2(
                             encodersVelAngleNotCentric[0].length() * Math.cos(Math.toRadians(90) + yaw),

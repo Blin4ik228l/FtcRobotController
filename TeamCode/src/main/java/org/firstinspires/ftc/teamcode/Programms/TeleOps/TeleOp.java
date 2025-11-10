@@ -4,23 +4,28 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.Player1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.Player2;
+import org.firstinspires.ftc.teamcode.Robot.AutomaticClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "teleopBlue", group = "Blue")
 public class TeleOp extends OpMode {
     Thread parallelStream;
-    Player2 dimas;
-    Player1 leva;
+    Player2 player2;
+    Player1 player1;
     RobotClass robot;
+
+    AutomaticClass automaticClass;
 
     @Override
     public void init() {
         robot = new RobotClass(this, "Blue");
-        leva = new Player1(gamepad1, robot.driveTrain, this);
-        dimas = new Player2(gamepad2, robot.collector, this);
+        player1 = new Player1(gamepad1, robot.driveTrain, this);
+        player2 = new Player2(gamepad2, robot.collector, this);
+
+        automaticClass = new AutomaticClass(player1, player2,this);
 //
-        parallelStream = new Thread(dimas);
-        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
+//        parallelStream = new Thread(player2);
+//        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
     }
 
     @Override
@@ -35,10 +40,10 @@ public class TeleOp extends OpMode {
 
     @Override
     public void loop() {
-        dimas.collector.automaticClass.setRandomizedArtifacts(leva.driveTrain.exOdometry.camera.randomizedArtifact);
-
-        leva.play();
-        dimas.play();
+        player1.play();
+        player2.play();
+        automaticClass.execute();
+        automaticClass.showData();
     }
 
     @Override

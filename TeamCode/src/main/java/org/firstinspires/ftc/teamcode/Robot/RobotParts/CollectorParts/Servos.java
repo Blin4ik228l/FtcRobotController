@@ -1,12 +1,10 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Modules.Module;
-
-import java.util.HashMap;
 
 public class Servos extends Module {
     public Servos(OpMode op){
@@ -21,20 +19,19 @@ public class Servos extends Module {
         setPusher(PUSHER_START_POS);
         setAngle(ANGLE_ENDING_POS);
 
-        while (runtime.seconds() < 1) {}
+        while (true) {
+            if (!(runtime.seconds() < 1)) break;
+        }
+
         setBaraban(BARABAN_START_POS);
 
         telemetry.addLine("Servos inited");
     }
-
-    ElapsedTime runtime;
+    private final ElapsedTime runtime;
     private final Servo angle;
     private final Servo pusher;
     private final Servo baraban;
 
-    public int loadedArtifactColor = 0;
-
-    public boolean isRotating = false;
     public Servo getBaraban() {
         return baraban;
     }
@@ -57,13 +54,11 @@ public class Servos extends Module {
         baraban.setPosition(pos);
     }
 
-    public void showServosPos(){
-        telemetry.addLine("Servos statements")
-                .addData("\nangle", angle.getPosition())
-                .addData("\npusher", pusher.getPosition())
-                .addData("\nbaraban", baraban.getPosition());
+    public void showData(){
+        telemetry.addLine("Servos data")
+                .addData("angle","[%s]",  angle.getPosition())
+                .addData("pusher","[%s]", pusher.getPosition())
+                .addData("baraban","[%s]", baraban.getPosition());
         telemetry.addLine();
     }
-
-
 }

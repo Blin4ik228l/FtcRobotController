@@ -71,6 +71,6 @@ public class TelescopeHandler extends Handler {
 
     @Override
     public void showData() {
-        collector.servos.showServosPos();
+        collector.servos.showData();
     }
 }

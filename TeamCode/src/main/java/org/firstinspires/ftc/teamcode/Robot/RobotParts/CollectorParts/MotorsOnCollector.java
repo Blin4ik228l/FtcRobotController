@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -21,65 +21,34 @@ public class MotorsOnCollector extends Module {
         flyWheelRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         flyWheelLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        selfData = new SelfData();
+        encoders = new EncodersInMotors(op);
 
         telemetry.addLine("Motors on collector inited");
     }
     private final DcMotor inTake;
     private final DcMotor flyWheelRight;
     private final DcMotor flyWheelLeft;
-    private final SelfData selfData;
 
+    public final EncodersInMotors encoders;
     public DcMotor getFlyWheelLeft() {
         return flyWheelLeft;
     }
-
     public DcMotor getFlyWheelRight() {
         return flyWheelRight;
     }
-
     public DcMotor getInTake() {
         return inTake;
     }
 
-    public SelfData getSelfData() {
-        return selfData;
+    public void turnOnInTake(double pow){
+        inTake.setPower(pow);
+    }
+    public void turnOnFlyWheel(int pow){
+        flyWheelLeft.setPower(-1 * pow);
+        flyWheelRight.setPower(1 * pow);
+    }
+    public void setSpeedOnFlyWheel(double radians){
+        encoders.setVelocities(radians);
     }
 
-    public void turnOnInTake(boolean bol){
-        if(bol) inTake.setPower(-0.8);
-        else inTake.setPower(0);
-    }
-    public void turnOnFlyWheel(boolean bol){
-        if(bol){
-            flyWheelLeft.setPower(-1);
-            flyWheelRight.setPower(1);
-        }else{
-            flyWheelLeft.setPower(0);
-            flyWheelRight.setPower(0);
-        }
-    }
-    public void setSpeedOnFlyWheel(double contTicks){
-
-    }
-
-    public class SelfData{
-
-    }
-    double getAngle(double length){
-        double velMahovik = (6000 * 8 * Math.PI) / 60;
-
-        double velBall = 2500;
-        //580
-
-        return ((length * 981) / (Math.pow(velBall, 2)));
-    }
-
-    double getLength(double angle){
-        double velMahovik = (6000 * 8 * Math.PI) / 60;
-
-        double velBall = 2500;
-
-        return (Math.pow(velBall, 2) * Math.sin(angle * 2)) / 981;
-    }
 }

@@ -19,37 +19,33 @@ public class Player2 extends Player implements Runnable {
 
     @Override
     public void run() {
-        while (true){
-            play();
-        }
+
     }
 
     @Override
     public void play() {
         joystickActivity.checkActivity();
 
-        boolean onInTake = false;
-        boolean onFlyWheel = false;
-        double flyWheelVelocity = 0;
-
-        if(joystickActivity.buttonA){
-            onInTake = true;
-//            onFlyWheel = true;
-            flyWheelVelocity = 628;
-        }
-
-        collector.setAll(onInTake, onFlyWheel, flyWheelVelocity);
+//        double inTakePower = 0;
+//        double flyWheelVelocity = 0;
+//        double barabanPos = BARABAN_START_POS;
+//        double pusherPos = PUSHER_START_POS;
+//        double anglePos = ANGLE_START_POS;
+//
+//        if(joystickActivity.buttonA){
+////            onFlyWheel = true;
+//            flyWheelVelocity = 5;
+//        }
+//
+//        collector.setPowerAndPos(inTakePower, flyWheelVelocity, barabanPos, pusherPos, anglePos);
 
         showData();
     }
 
     @Override
     public void showData() {
-        collector.automaticClass.showCells();
-        collector.encoders.showFLyWheelSpeed();
-        collector.colorSensor.showDominantColor();
-        collector.servos.showServosPos();
-        collector.automaticClass.showCount();
-//        collector.colorSensor.showData();
+        collector.colorSensor.showData();
+        collector.servos.showData();
+        collector.encoders.showData();
     }
 }

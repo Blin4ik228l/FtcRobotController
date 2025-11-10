@@ -54,7 +54,11 @@ public class CameraClass extends Module{
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        while (visionPortal.getCameraState() != VisionPortal.CameraState.STREAMING){}
+        while (true){
+            if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                isCameraStreaming = true;
+                break;}
+        }
 
         exposure = visionPortal.getCameraControl(ExposureControl.class);
         exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
@@ -99,6 +103,7 @@ public class CameraClass extends Module{
     private boolean isObeliskWasSeen = false;
     private boolean isRobotHaveMinVel = true;
     private boolean isPosWasWritten = false;
+    private boolean isCameraStreaming;
     public double rad = 180 / Math.PI;
     public double cameraFov = Math.toRadians(60);
     public int countTag = 0;
@@ -130,9 +135,8 @@ public class CameraClass extends Module{
 
         int numTags = aprilTagProcessor.getDetections().size();
 
-        if(!isRobotHaveMinVel){
-            countTag = 0;
-        }
+        if(!isRobotHaveMinVel()) return;
+
         if(countTag == numTags){
             countTag = 0;
         }
@@ -201,47 +205,41 @@ public class CameraClass extends Module{
         return range <= 200 && range >= 40;
     }
     public boolean isRobotHaveMinVel(){
-       return isRobotHaveMinVel = exOdometry.robotSelfCentricVel.length() <= 5;
+       return isRobotHaveMinVel = exOdometry.robotSelfCentricVel.length() <= 30;
     }
 
     public void stopStreaming(){
+        isCameraStreaming = false;
         visionPortal.stopStreaming();
     }
     public void resumeStreaming(){
+        isCameraStreaming = true;
         visionPortal.resumeStreaming();
     }
 
-    public void showFoundTagId(){
-        telemetry.addData("Tag ID", id);
+    public void showData(){
+        telemetry.addLine("Camera data")
+                .addData("Is camera streaming?", isCameraStreaming)
+                .addData("Is exposure supported?", exposure.isExposureSupported())
+                .addData("Tags id", getFoundedIds())
+                .addData("Randomized artifact", "cell0[%s] cell1[%s] cell2[%s]", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]))
+                .addData("Robot pos:", "X - %.2f | Y - %.2f | Z - %.2f", robotFieldX, robotFieldY, robotFieldZ)
+                .addData("Robot angles:", "R - %.2f | P - %.2f | Y - %.2f",robotFieldRoll * rad , robotFieldPitch * rad, robotFieldYaw * rad)
+                .addData("Camera pos:", "R - %.1f | E - %.2f | B -  %.2f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);
+        telemetry.addLine("Key: R - Roll, P - Pitch, Y - Yaw");
+        telemetry.addLine("Key: R - Range, E - Elevation, B - Bearing");
     }
 
-    public void showExposureSupport(){
-        telemetry.addData("isExposure supported", exposure.isExposureSupported());
+    public String getColorFromNumber(int number){
+        return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
     }
-    public void showRandomizedArtifacts(){
-        telemetry.addLine("Randomized Artifacts")
-                .addData("",  randomizedArtifact[0] == green ? "Green" : "Purple", "|")
-                .addData("",  randomizedArtifact[1] == green ? "Green" : "Purple", "|")
-                .addData("",  randomizedArtifact[2] == green ? "Green" : "Purple");
-        telemetry.addLine();
-    }
-
-    @SuppressLint("DefaultLocale")
-    public void showRobotPosition(){
-        telemetry.addLine(String.format("\nXYZ %6.2f %6.2f %6.2f", robotFieldX, robotFieldY, robotFieldZ));
-
-        telemetry.addLine("Robot angle on field")
-                .addData("\nroll", robotFieldRoll * rad)//Угол вокруг Н
-                .addData("\npitch", robotFieldPitch * rad)//Угол вокруг X
-                .addData("yaw", robotFieldYaw * rad); //Угол вокруг Z
-        telemetry.addLine();
-    }
-
-    public void showCameraREB(){
-        telemetry.addLine("Camera REB")
-                .addData("\nR", robotRangeToTag)
-                .addData("\nE", cameraElevation * rad)//Угол наклонёности камеры
-                .addData("B", cameraBearing * rad); //Угол отклонёности камеры
-        telemetry.addLine("R - Range, E - Elevation, B - Bearing");
+    public String getFoundedIds(){
+        String s = "";
+        if(!aprilTagProcessor.getDetections().isEmpty()){
+            for(AprilTagDetection detection1: aprilTagProcessor.getDetections()){
+                s += detection1.id + " ";
+            }
+        }
+        return s;
     }
 }

@@ -3,13 +3,12 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts.EncodersInMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.EncodersInMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts.ColorSensor;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts.Servos;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.MotorsOnDrivetrain;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.AutomaticParts.MotorsOnCollector;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.MotorsOnCollector;
 import org.firstinspires.ftc.teamcode.TeamColor;
 
 public class RobotClass extends TeamColor {
@@ -25,8 +24,8 @@ public class RobotClass extends TeamColor {
         driveTrain = new MecanumDrivetrain(op, this);
         collector = new Collector(op);
     }
-    public static MecanumDrivetrain driveTrain;
-    public static Collector collector;
+    public MecanumDrivetrain driveTrain;
+    public Collector collector;
 
     public static class MecanumDrivetrain extends Module {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
@@ -73,28 +72,22 @@ public class RobotClass extends TeamColor {
             servos = new Servos(op);
             colorSensor = new ColorSensor(op);
 
-            automaticClass = new AutomaticClass(op, this);
             telemetry.addLine("Collector inited");
         }
         public MotorsOnCollector motors;
         public Servos servos;
         public ColorSensor colorSensor;
         public EncodersInMotors encoders;
-        boolean isStartFiring = false;
-        boolean isFullyLoaded = false;
-        public AutomaticClass automaticClass;
 
-        public void setAll(boolean isTurnOn, boolean isFlyWheelOn, double velocity){
-            automaticClass.setAll(isTurnOn, isFlyWheelOn, velocity);
-        }
-        public void showSizeAndPos(){
-//            telemetry.addData("Size",servos.selfMath.loadedArtifacts.size());
-//            if(isFullyLoaded){
-//            telemetry.addLine("Pos")
-//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(0).pos + " " + servos.selfData.loadedArtifacts.get(0).color)
-//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(1).pos + " " + servos.selfData.loadedArtifacts.get(1).color)
-//                    .addData("Pos/Color", servos.selfData.loadedArtifacts.get(2).pos + " " + servos.selfData.loadedArtifacts.get(2).color);
-//            }
+        public void setPowerAndPos(double power, double speed, double barabanPos, double pusherPos, double anglePos){
+            colorSensor.update();
+
+            motors.turnOnInTake(power);
+            motors.setSpeedOnFlyWheel(speed);
+
+            servos.getBaraban().setPosition(barabanPos);
+            servos.getPusher().setPosition(pusherPos);
+            servos.getAngle().setPosition(anglePos);
         }
     }
 }

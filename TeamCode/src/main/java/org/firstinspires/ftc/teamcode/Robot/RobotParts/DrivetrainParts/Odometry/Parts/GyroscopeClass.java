@@ -31,7 +31,7 @@ public class GyroscopeClass extends Module {
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
     IMU.Parameters parameters;
     public IMU imu;
-    public void getYaw(){
+    public void showData(){
         telemetry.addLine("Gyro")
                 .addData("Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         telemetry.addLine();

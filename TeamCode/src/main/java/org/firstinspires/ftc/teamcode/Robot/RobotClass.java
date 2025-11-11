@@ -79,7 +79,7 @@ public class RobotClass extends TeamColor {
         public ColorSensor colorSensor;
         public EncodersInMotors encoders;
 
-        public void setPowerAndPos(double power, double speed, double barabanPos, double pusherPos, double anglePos){
+        public void setPowerAndPos(double power, int speed, double barabanPos, double pusherPos, double anglePos){
             colorSensor.update();
 
             motors.turnOnInTake(power);

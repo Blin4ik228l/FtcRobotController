@@ -27,9 +27,11 @@ public class AutomaticClass extends Module {
     public Player2 player2;
     public RobotClass.MecanumDrivetrain drivetrain;
     public RobotClass.Collector collector;
-    private int loadedArtifactColor;
-    private int lastArtifactColor;
+    private double loadedArtifactColor;
+    private double loadedArtifactColor2;
+    private double lastArtifactColor;
     private double curDistance;
+    private double curDistance2;
     private final Cells cells;
     private final ElapsedTime runtime;
     public boolean isWhileFiring = false;
@@ -43,34 +45,43 @@ public class AutomaticClass extends Module {
     public double anglePos = ANGLE_START_POS;
     public double lastAnglePos;
     public double inTakePower;
-    public double radianSpeed;
+    public int radianSpeed;
     public double curRange;
     public double curRadians;
 
     public void execute(){
-        update();
+//        update();
         calculate();
-        action();
+//        action();
     }
     public void update(){
-        isButtonY = player1.joystickActivity.buttonY;
         isArtifactsWasDetected = drivetrain.exOdometry.camera.randomizedArtifact[0] != 0;
-        isAllowFire = Math.abs(drivetrain.exOdometry.getDeltaAngle(drivetrain.exOdometry.getFoundedRobotAngle())) < Math.abs(2);
         curRange = drivetrain.exOdometry.getRange();
 
         collector.colorSensor.update();
 
         loadedArtifactColor = collector.colorSensor.currentArtifact;
-        lastArtifactColor = collector.colorSensor.lastSeenArtifact;
+        loadedArtifactColor2 = collector.colorSensor.currentArtifact1;
+//        lastArtifactColor = collector.colorSensor.lastSeenArtifact;
         curDistance = collector.colorSensor.curDistance;
+        curDistance2 = collector.colorSensor.curDistance1;
     }
     public void calculate(){
         if(!isWhileFiring){
             switch (checkNumberOfArtifacts()){
                 case 0:
+                    action();
+                    if (runtime.seconds() < 0.5) return;
+
+                    if(!player1.joystickActivity.buttonB) {
+                        inTakePower = 0;
+                        radianSpeed = 0;
+                        return;}
+
                     barabanPos = 0;
                     inTakePower = -1;
                     radianSpeed = -1;
+                    action();
 
                     if(runtime.seconds() < 1) return;
                     //Если по датчику дистанци меньше 10 см, то значит что - то, есть, смотрим на переменую которая обновляется постояно,
@@ -81,37 +92,113 @@ public class AutomaticClass extends Module {
                     //   else if(lastArtifactColor != 0) return lastArtifactColor;
                     //   else return 0;
                     // }
-                    cells.cell0.table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+                    action();
+                    update();
+                    if(curDistance < 10 || curDistance2 < 10){
+                        if(loadedArtifactColor != 0) {
+                            cells.cell0.table.color = loadedArtifactColor;
+                            cells.cell0.table.pos = barabanPos;
+                            runtime.reset();
+                            break;}
+                        else {
+                            if(loadedArtifactColor2 != 0)  {
+                                cells.cell0.table.color = loadedArtifactColor2;
+                                cells.cell0.table.pos = barabanPos;
+                                runtime.reset();
+                                break;}
+                            else {cells.cell0.table.color = 0;}
+                        }
+                    }else {cells.cell0.table.color = 0;}
+
                     cells.cell0.table.pos = barabanPos;
+                    action();
                     runtime.reset();
                     break;
                 case 1:
+                    action();
+                    if (runtime.seconds()< 0.5) return;
+                    if(!player1.joystickActivity.buttonB) {
+                        inTakePower = 0;
+                        radianSpeed = 0;
+                        return;}
                     inTakePower = -1;
                     radianSpeed = -1;
                     barabanPos = 0.5;
+                    action();
 
                     if(runtime.seconds() < 1) return;
-                    cells.cell1.table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+                    update();
+                    action();
+                    if(curDistance < 10 || curDistance2 < 10){
+                        if(loadedArtifactColor != 0) {
+                            cells.cell1.table.color = loadedArtifactColor;
+                            cells.cell1.table.pos = barabanPos;
+                            runtime.reset();
+                            break;}
+                        else {
+                            if(loadedArtifactColor2 != 0)  {
+                                cells.cell1.table.color = loadedArtifactColor2;
+                                cells.cell1.table.pos = barabanPos;
+                                runtime.reset();
+                                break;}
+                            else {cells.cell1.table.color = 0;}
+                        }
+                    }else {cells.cell1.table.color = 0;}
+
                     cells.cell1.table.pos = barabanPos;
+                    action();
 
                     runtime.reset();
                     break;
                 case 2:
+                    action();
+                    if(runtime.seconds() < 0.5) return;
+
+                    if(!player1.joystickActivity.buttonB) {
+                        inTakePower = 0;
+                        radianSpeed = 0;
+                        return;}
+
                     inTakePower = -1;
                     radianSpeed = -1;
                     barabanPos = 1;
+                    action();
 
                     if(runtime.seconds() < 1) return;
-                    cells.cell2.table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+
+                    update();
+                    if(curDistance < 10 || curDistance2 < 10){
+                        if(loadedArtifactColor != 0) {
+                            cells.cell2.table.color = loadedArtifactColor;
+                            cells.cell2.table.pos = barabanPos;
+                            runtime.reset();
+                            break;}
+                        else {
+                            if(loadedArtifactColor2 != 0) {
+                                cells.cell2.table.color = loadedArtifactColor2;
+                                cells.cell2.table.pos = barabanPos;
+                                runtime.reset();
+                                break;}
+                            else {cells.cell2.table.color = 0;}
+                        }
+                    }else {cells.cell2.table.color = 0;}
+
                     cells.cell2.table.pos = barabanPos;
 
+                    action();
                     runtime.reset();
                     break;
-                default:
+                case 3:
+                    action();
+                    if(runtime.seconds() < 0.5) return;
+
                     inTakePower = 1;
                     radianSpeed = 0;
-                    if(runtime.seconds() < 1.5) return;
+                    action();
 
+                    if(runtime.seconds() < 1.5) return;
+                    inTakePower = 0;
+                    action();
                     isWhileFiring = true;
                     runtime.reset();
                     break;
@@ -121,57 +208,147 @@ public class AutomaticClass extends Module {
             if(isArtifactsWasDetected) {
                 switch (checkNumberOfArtifacts()) {
                     case 3:
+                        action();
+                        if(runtime.seconds() < 0.8) return;
+
+                        if(!player1.joystickActivity.buttonB) {
+                            inTakePower = 0;
+                            radianSpeed = 0;
+                            return;}
+
                         pusherPos = 0.45;
                         anglePos = findNeededPosAngle(curRange);
 
-                        if (runtime.seconds() < 0.3) return;
+                        action();
+                        if (runtime.seconds() < 1.5) return;
+
                         radianSpeed = 5;
                         barabanPos = findNeededArtifactPos(drivetrain.exOdometry.camera.randomizedArtifact[0]);
-                        if (runtime.seconds() < 1) return;
-                        findNeededCell().table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+                        action();
 
-                        if(!isRobotHaveMinVel() && isAllowFire && isButtonY) return;
+                        if (runtime.seconds() < 2.5) return;
+
+                        update();
+                        if(curDistance < 10 || curDistance2 < 10){
+                            if(loadedArtifactColor != 0)findNeededCell().table.color = loadedArtifactColor;
+                            else {
+                                if(loadedArtifactColor2 != 0) findNeededCell().table.color = loadedArtifactColor2;
+                                else {
+                                    findNeededCell().table.color = 0;
+                                    runtime.reset();
+                                    break;}
+                            }
+                        }else {
+                            findNeededCell().table.color = 0;
+                            runtime.reset();
+                            break;
+                        }
+
+                        if(!(isRobotHaveMinVel() && isAllowFire() && isButtonY())) {
+                            return;}
+
                         pusherPos = 0.9;
+                        action();
 
                         runtime.reset();
                         break;
                     case 2:
+                        action();
+                        if(runtime.seconds() < 0.8) return;
+
+                        if(!player1.joystickActivity.buttonB) {
+                            inTakePower = 0;
+                            radianSpeed = 0;
+                            break;}
+
                         pusherPos = 0.45;
                         anglePos = findNeededPosAngle(curRange);
 
-                        if (runtime.seconds() < 0.3) return;
+                        action();
+                        if (runtime.seconds() < 1.5) return;
+
                         radianSpeed = 5;
                         barabanPos = findNeededArtifactPos(drivetrain.exOdometry.camera.randomizedArtifact[1]);
+                        action();
 
-                        if (runtime.seconds() < 1 ) return;
-                        findNeededCell().table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+                        if (runtime.seconds() < 2.5 ) return;
 
-                        if(!isRobotHaveMinVel() && isAllowFire && isButtonY) return;
+                        update();
+                        if(curDistance < 10 || curDistance2 < 10){
+                            if(loadedArtifactColor != 0)findNeededCell().table.color = loadedArtifactColor;
+                            else {
+                                if(loadedArtifactColor2 != 0) findNeededCell().table.color = loadedArtifactColor2;
+                                else {
+                                    findNeededCell().table.color = 0;
+                                    runtime.reset();
+                                    break;}
+                            }
+                        }else {
+                            findNeededCell().table.color = 0;
+                            runtime.reset();
+                            break;}
+
+                        if(!(isRobotHaveMinVel() && isAllowFire() && isButtonY())) {
+                            return;}
+
                         pusherPos = 0.9;
+                        action();
 
                         runtime.reset();
                         break;
                     case 1:
+                        action();
+                        if(runtime.seconds() < 0.8) return;
+
+                        if(!player1.joystickActivity.buttonB) {
+                            inTakePower = 0;
+                            radianSpeed = 0;
+                            break;}
+
                         pusherPos = 0.45;
                         anglePos = findNeededPosAngle(curRange);
+                        action();
 
-                        if (runtime.seconds() < 0.3) return;
+                        if (runtime.seconds() < 1.5) return;
                         radianSpeed = 5;
                         barabanPos = findNeededArtifactPos(drivetrain.exOdometry.camera.randomizedArtifact[2]);
+                        action();
 
-                        if (runtime.seconds() < 1) return;
-                        findNeededCell().table.color = curDistance < 10 ? (loadedArtifactColor != 0 ? (loadedArtifactColor) : lastArtifactColor != 0 ? (lastArtifactColor) : 0) : 0;
+                        if (runtime.seconds() < 2.5) return;
+                        update();
+                        if(curDistance < 10 || curDistance2 < 10){
+                            if(loadedArtifactColor != 0)findNeededCell().table.color = loadedArtifactColor;
+                            else {
+                                if(loadedArtifactColor2 != 0) findNeededCell().table.color = loadedArtifactColor2;
+                                else {
+                                    findNeededCell().table.color = 0;
+                                    runtime.reset();
+                                    break;}
+                            }
+                        }else {
+                            findNeededCell().table.color = 0;
+                            runtime.reset();
+                            break;}
 
-                        if(!isRobotHaveMinVel() && isAllowFire && isButtonY) return;
+                        if(!(isRobotHaveMinVel() && isAllowFire() && isButtonY())){
+                            runtime.reset();
+                        return;}
+
                         pusherPos = 0.9;
+                        action();
 
                         runtime.reset();
                         break;
-                    default:
+                    case 0:
+                        action();
+                        if(runtime.seconds() < 0.8) return;
+
                         radianSpeed = 0;
                         pusherPos = PUSHER_START_POS;
+                        action();
 
-                        if(runtime.seconds() < 0.3) return;
+                        if(runtime.seconds() < 1.5) break;
+
                         isWhileFiring = false;
                         runtime.reset();
                         break;
@@ -201,9 +378,9 @@ public class AutomaticClass extends Module {
     public double findNeededPosAngle(double length){
         double neededPos = 0;
 
-        if(getHeight(getAngle(length)) >= 94){
-            return getAngle(length)/Math.toRadians(30);
-        }
+//        if(getHeight(getAngle(length)) >= 94){
+//            return getAngle(length)/Math.toRadians(30);
+//        }
 
         return collector.servos.getAngle().getPosition();
     }
@@ -223,7 +400,14 @@ public class AutomaticClass extends Module {
     public double getCurFlyWheelVel(){
         return collector.encoders.getVelocity();
     }
+    public boolean isButtonY(){
+        return player1.joystickActivity.buttonY;
+    }
+    public boolean isAllowFire(){
+        return Math.abs(drivetrain.exOdometry.getDeltaAngle(drivetrain.exOdometry.getFoundedRobotAngle())) < Math.abs(2);
+    }
     public void action(){
+
         collector.setPowerAndPos(inTakePower, radianSpeed, barabanPos, pusherPos, anglePos);
     }
     public static class Cells {
@@ -246,7 +430,7 @@ public class AutomaticClass extends Module {
                     this.color = color;
                     this.pos = pos;
                 }
-                int color;
+                double color;
                 double pos;
             }
         }
@@ -254,12 +438,13 @@ public class AutomaticClass extends Module {
     public void showData(){
         telemetry.addLine("Automatic class caption")
                 .addData("Time in seconds", "%.1f %n", runtime.seconds())
+                .addData("Artifacts number", checkNumberOfArtifacts())
                 .addData("cell0", "pos[%s] color[%s]%n", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color))
                 .addData("cell1", "pos[%s] color[%s]%n", cells.cell1.table.pos, getColorFromNumber(cells.cell1.table.color))
                 .addData("cell2", "pos[%s] color[%s]%n", cells.cell2.table.pos, getColorFromNumber(cells.cell2.table.color));
         telemetry.addLine();
     }
-    public String getColorFromNumber(int number){
+    public String getColorFromNumber(double number){
         return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
     }
 }

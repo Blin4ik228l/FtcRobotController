@@ -24,10 +24,14 @@ public class EncodersInMotors extends Module {
     private final DcMotorEx encRight;
     private final DcMotorEx encLeft;
     private final double COUNTS_PER_ROUND = 28;
-    public void setVelocities(double velocities){
-        encLeft.setVelocity(-velocities, AngleUnit.RADIANS);
-        encRight.setVelocity(velocities, AngleUnit.RADIANS);
+    public double velocities;
+
+
+    public void setVelocities(double speed){
+        encLeft.setVelocity(-speed, AngleUnit.RADIANS);
+        encRight.setVelocity(speed, AngleUnit.RADIANS);
     }
+
     public double getVelocity(){
         return (encLeft.getVelocity(AngleUnit.RADIANS) - encRight.getVelocity(AngleUnit.RADIANS)) / 2.0;
     }

@@ -113,7 +113,7 @@ public class ExOdometry extends Module {
         telemetry.addLine("ExOdometry data")
                 .addData("Robot pos:", "X - %.1f | Y - %.1f | H - %.1f", encGlobalPosition.getX(), encGlobalPosition.getY(), encGlobalPosition.getHeading() * 180/Math.PI)
                 .addData("Robot vel:","X - %.1f | Y - %.1f | H - %.1f", robotSelfCentricVel.x, robotSelfCentricVel.y, selfMath.headingVel)
-                .addData("Robot accel:","X - %.1f | Y - %.1f | H - %.1f",0,0,0);
+                .addData("Robot accel:","X - %.1f | Y - %.1f | H - %.1f",0.0,0.0,0.0);
         telemetry.addLine();
     }
     public void showEncodersVel(){

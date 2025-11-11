@@ -39,6 +39,8 @@ public class Player2 extends Player implements Runnable {
 //
 //        collector.setPowerAndPos(inTakePower, flyWheelVelocity, barabanPos, pusherPos, anglePos);
 
+        if(joystickActivity.buttonY)collector.encoders.setVelocities(5);
+        else collector.encoders.setVelocities(0);
         showData();
     }
 

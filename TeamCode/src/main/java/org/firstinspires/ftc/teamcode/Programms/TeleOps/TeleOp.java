@@ -41,9 +41,10 @@ public class TeleOp extends OpMode {
     @Override
     public void loop() {
         player1.play();
-        player2.play();
         automaticClass.execute();
+        player2.play();
         automaticClass.showData();
+
     }
 
     @Override

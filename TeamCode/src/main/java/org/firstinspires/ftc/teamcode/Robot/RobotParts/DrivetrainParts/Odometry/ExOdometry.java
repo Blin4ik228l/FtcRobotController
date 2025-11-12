@@ -59,6 +59,7 @@ public class ExOdometry extends Module {
         return ticks / encoderClass.COUNTS_PER_CM;
     }
 
+    public boolean isVyrCompleted;
     public void updateAll(){
         camera.execute();
 
@@ -93,8 +94,14 @@ public class ExOdometry extends Module {
     }
 
     public double getDeltaAngle(double targetAngle){
-        double target = (Math.signum(encGlobalPosition.getHeading())*targetAngle + encGlobalPosition.getHeading()) % Math.PI;
-        if(Math.abs(target) < Math.toRadians(1)) target = 0;
+        double target = (Math.signum(encGlobalPosition.getHeading()) * targetAngle + encGlobalPosition.getHeading()) % Math.PI;
+
+        if(Math.abs(target) < Math.toRadians(1)) {
+            target = 0;
+            isVyrCompleted = true;
+        }else {
+            isVyrCompleted = false;
+        }
 
         return target;
     }

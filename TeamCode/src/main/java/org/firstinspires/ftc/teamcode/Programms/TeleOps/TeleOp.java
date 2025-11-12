@@ -9,23 +9,24 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "teleopBlue", group = "Blue")
 public class TeleOp extends OpMode {
-    Thread parallelStream;
+    Thread parallelStream, parallelStream2;
     Player2 player2;
     Player1 player1;
     RobotClass robot;
-
     AutomaticClass automaticClass;
 
     @Override
     public void init() {
         robot = new RobotClass(this, "Blue");
-        player1 = new Player1(gamepad1, robot.driveTrain, this);
-        player2 = new Player2(gamepad2, robot.collector, this);
 
-        automaticClass = new AutomaticClass(player1, player2,this);
-//
-//        parallelStream = new Thread(player2);
-//        parallelStream.setDaemon(true);// Эта строчка позволяет "убить" поток после завершения программы
+        player1 = new Player1(gamepad1, robot.driveTrain, this);
+        automaticClass = new AutomaticClass(robot.collector , player1.joystickActivity,this);
+
+        parallelStream = new Thread(player1);
+        parallelStream.setDaemon(true);// Эта строчка мнгновено позволяет "убить" поток после завершения программы
+
+        parallelStream2 = new Thread(automaticClass);
+        parallelStream2.setDaemon(true);
     }
 
     @Override
@@ -35,21 +36,24 @@ public class TeleOp extends OpMode {
 
     @Override
     public void start() {
-//        parallelStream.start();
+        parallelStream.start();
+        parallelStream2.start();
     }
 
     @Override
     public void loop() {
-        player1.play();
-        automaticClass.execute();
-        player2.play();
-        automaticClass.showData();
+        if(automaticClass.randomizedArtifact[0] == 0) automaticClass.randomizedArtifact = player1.driveTrain.exOdometry.camera.randomizedArtifact;
+        automaticClass.isVyrCompleted = player1.driveTrain.exOdometry.isVyrCompleted;
+        if(automaticClass.range != player1.driveTrain.exOdometry.getRange()) automaticClass.range = player1.driveTrain.exOdometry.getRange();
 
+        player1.showData();
+        automaticClass.showData();
     }
 
     @Override
     public void stop() {
-
+        parallelStream.interrupt();
+        parallelStream2.interrupt();
     }
 
 }

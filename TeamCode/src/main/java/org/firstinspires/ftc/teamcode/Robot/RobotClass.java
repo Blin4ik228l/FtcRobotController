@@ -48,7 +48,7 @@ public class RobotClass extends TeamColor {
 
             yVol *= 1;
             xVol *= 1.1;
-            angVol *= 1.3;
+            angVol *= 1.4;
 
             //движение по y - это вперёд - назад
             //движение по x - это влево - вправо

@@ -62,9 +62,7 @@ public class AutomaticClass extends Module implements Runnable{
         }
     }
     public void execute(){
-        if(checkNumberOfArtifacts() != 3 && !isWhileFiring) {
-            setFieldsInMotor(-1, -1, 0);
-
+        if(checkNumberOfArtifacts() != 3 && !isWhileFiring ) {
             if (checkNumberOfArtifacts() == 0) {
                 actionLOAD(0);
             }else if (checkNumberOfArtifacts() == 1) {
@@ -77,9 +75,7 @@ public class AutomaticClass extends Module implements Runnable{
                 isWhileFiring = true;
             }
         }else{
-            if(isRandomizeWasDetected() && isAllowFire()){
-                setFieldsInMotor(0, 5,0);
-
+            if(isRandomizeWasDetected() && isButtonY()){
                 if(checkNumberOfArtifacts() == 3){
                     actionFIRE(0);
                 }else if(checkNumberOfArtifacts() == 2){
@@ -148,6 +144,8 @@ public class AutomaticClass extends Module implements Runnable{
         }
     }
     public void setFieldsInMotor(double inTake, double radianSpeed, double time){
+        if(motorsController.radianSpeed == radianSpeed && motorsController.inTakePower == inTake) return;
+
         motorsController.inTakePower = inTake;
         motorsController.radianSpeed = radianSpeed;
 
@@ -212,7 +210,15 @@ public class AutomaticClass extends Module implements Runnable{
     public boolean isRandomizeWasDetected(){
         return randomizedArtifact[0] != 0;
     }
+    public boolean isButtonX(){
+        return joystickActivityPl1.buttonX;
+    }
     public void actionFIRE(int num){
+        if(!isButtonX()) {
+            setFieldsInMotor(0, 0, 0);
+            return;}
+
+        setFieldsInMotor(0, 5,0);
         push(0.45);
         update();
         if(!isArtifactInIt()){
@@ -227,6 +233,11 @@ public class AutomaticClass extends Module implements Runnable{
         }
     }
     public void actionLOAD(int num){
+        if(!isButtonX()) {
+            setFieldsInMotor(0, 0, 0);
+            return;}
+
+        setFieldsInMotor(-1, -1, 0);
         update();
         if (isArtifactInIt()) {
             loadArtifactInCell(num);

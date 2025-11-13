@@ -45,6 +45,7 @@ public class TeleOp extends OpMode {
         if(automaticClass.randomizedArtifact[0] == 0) automaticClass.randomizedArtifact = player1.driveTrain.exOdometry.camera.randomizedArtifact;
         automaticClass.isVyrCompleted = player1.driveTrain.exOdometry.isVyrCompleted;
         if(automaticClass.range != player1.driveTrain.exOdometry.getRange()) automaticClass.range = player1.driveTrain.exOdometry.getRange();
+        automaticClass.minVel = player1.driveTrain.exOdometry.robotSelfCentricVel.length();
 
         player1.showData();
         automaticClass.showData();
@@ -54,6 +55,23 @@ public class TeleOp extends OpMode {
     public void stop() {
         parallelStream.interrupt();
         parallelStream2.interrupt();
+
+        while (true) {
+            if (parallelStream.isInterrupted() && parallelStream2.isInterrupted()) break;
+        }
+
+        player1.isInterrupted = parallelStream.isInterrupted();
+        automaticClass.isInterrupted = parallelStream2.isInterrupted();
+
+        while (true) {
+            if (player1.isKilled) break;
+        }
+        while (true){
+            if (automaticClass.motorsController.isKilled) break;
+        }
+        while (true){
+            if (automaticClass.isKilled) break;
+        }
     }
 
 }

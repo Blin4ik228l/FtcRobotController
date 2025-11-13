@@ -32,7 +32,7 @@ public class CameraClass extends Module{
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,0 ,20.1628,26.086, 0);//Позиция камеры относительно координат робота
+        cameraPosition = new Position(DistanceUnit.CM,-25 ,20.1628,26.086, 0);//Позиция камеры относительно координат робота
         cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180), 0, 0, 0);//На сколько камера повёрнута относительно неё же
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
@@ -114,8 +114,8 @@ public class CameraClass extends Module{
 
         if(isPosShouldBeTaken() && isPosWasWritten){
 //            resumeStreaming();
-            updatePos();
-            writePos();
+//            updatePos();
+//            writePos();
         }else{
 //            stopStreaming();
         }

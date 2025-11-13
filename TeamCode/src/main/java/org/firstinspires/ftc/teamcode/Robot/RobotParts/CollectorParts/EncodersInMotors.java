@@ -27,13 +27,17 @@ public class EncodersInMotors extends Module {
     public double velocities;
 
 
-    public void setVelocities(double speed){
-        encLeft.setVelocity(-speed, AngleUnit.RADIANS);
-        encRight.setVelocity(speed, AngleUnit.RADIANS);
+    public void setVelocities(double speed) {
+        encLeft.setVelocity(speed, AngleUnit.RADIANS);
+        encRight.setVelocity(-speed, AngleUnit.RADIANS);
     }
 
     public double getVelocity(){
-        return (encLeft.getVelocity(AngleUnit.RADIANS) - encRight.getVelocity(AngleUnit.RADIANS)) / 2.0;
+        double speed = Math.signum(encLeft.getVelocity()) * (Math.abs(encLeft.getVelocity(AngleUnit.RADIANS) + Math.abs(encRight.getVelocity(AngleUnit.RADIANS)))) / 2.0;
+
+        return encLeft.getVelocity() != 0 ?
+                encRight.getVelocity() != 0  ? speed : encLeft.getVelocity(AngleUnit.RADIANS) :
+                encRight.getVelocity() != 0 ? encRight.getVelocity(AngleUnit.RADIANS) : 0;
     }
     public DcMotorEx getEncLeft() {
         return encLeft;

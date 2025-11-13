@@ -41,6 +41,7 @@ public class RobotClass extends TeamColor {
         }
         public MotorsOnDrivetrain motors;
         public ExOdometry exOdometry;
+
         public void setPower(double yVol, double xVol, double angVol){
             if(Math.abs(yVol) < 0.10) yVol = 0.10 * Math.signum(yVol);
             if(Math.abs(xVol) < 0.10) xVol = 0.10 * Math.signum(xVol);

@@ -1,32 +1,38 @@
 package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.Player1;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.Player2;
-import org.firstinspires.ftc.teamcode.Robot.AutomaticClass;
+import org.firstinspires.ftc.teamcode.Modules.InnerWardenClass;
+import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
+import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "teleopBlue", group = "Blue")
-public class TeleOp extends OpMode {
-    Thread parallelStream, parallelStream2;
-    Player2 player2;
-    Player1 player1;
-    RobotClass robot;
+public class TeleOp extends TeleOpModernized {
+    PlayerClass1 player1;
     AutomaticClass automaticClass;
+    RobotClass robot;
+
+    InnerWardenClass innerWarden;
 
     @Override
     public void init() {
         robot = new RobotClass(this, "Blue");
 
-        player1 = new Player1(gamepad1, robot.driveTrain, this);
-        automaticClass = new AutomaticClass(robot.collector , player1.joystickActivity,this);
+        player1 = new PlayerClass1(gamepad1, robot.driveTrain, this);
+        automaticClass = new AutomaticClass(gamepad1, robot.collector, this);
 
-        parallelStream = new Thread(player1);
-        parallelStream.setDaemon(true);// Эта строчка мнгновено позволяет "убить" поток после завершения программы
+        innerWarden = new InnerWardenClass(robot, player1, automaticClass, this);
 
-        parallelStream2 = new Thread(automaticClass);
-        parallelStream2.setDaemon(true);
+        moduleJoystickActivity = new ExecuteModule(player1.joystickActivity);
+
+        moduleCamera = new ExecuteModule(robot.cameraClass);
+
+        modulePlayer1 = new ExecuteModule(player1);
+
+        moduleAutomaticClass = new ExecuteModule(automaticClass);
+        moduleMotorsController = new ExecuteModule(automaticClass.motorsController);
+        moduleColorSensor = new ExecuteModule(automaticClass.collector.colorSensor);
+
+        moduleInnerWarden = new ExecuteModule(innerWarden);
     }
 
     @Override
@@ -36,42 +42,17 @@ public class TeleOp extends OpMode {
 
     @Override
     public void start() {
-        parallelStream.start();
-        parallelStream2.start();
+        startExecute();
     }
 
     @Override
     public void loop() {
-        if(automaticClass.randomizedArtifact[0] == 0) automaticClass.randomizedArtifact = player1.driveTrain.exOdometry.camera.randomizedArtifact;
-        automaticClass.isVyrCompleted = player1.driveTrain.exOdometry.isVyrCompleted;
-        if(automaticClass.range != player1.driveTrain.exOdometry.getRange()) automaticClass.range = player1.driveTrain.exOdometry.getRange();
-        automaticClass.minVel = player1.driveTrain.exOdometry.robotSelfCentricVel.length();
-
         player1.showData();
         automaticClass.showData();
     }
 
     @Override
     public void stop() {
-        parallelStream.interrupt();
-        parallelStream2.interrupt();
-
-        while (true) {
-            if (parallelStream.isInterrupted() && parallelStream2.isInterrupted()) break;
-        }
-
-        player1.isInterrupted = parallelStream.isInterrupted();
-        automaticClass.isInterrupted = parallelStream2.isInterrupted();
-
-        while (true) {
-            if (player1.isKilled) break;
-        }
-        while (true){
-            if (automaticClass.motorsController.isKilled) break;
-        }
-        while (true){
-            if (automaticClass.isKilled) break;
-        }
+        interruptAll();
     }
-
 }

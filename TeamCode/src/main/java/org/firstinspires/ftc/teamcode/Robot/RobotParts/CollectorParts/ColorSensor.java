@@ -46,7 +46,7 @@ public class ColorSensor extends Module {
     public double curDistance,curDistance1;
     int count;
 
-    public void update(){
+    public void execute(){
         colors = colorSensor.getNormalizedColors();
         colors1 = colorSensor1.getNormalizedColors();
 

@@ -10,4 +10,6 @@ public abstract class Module implements ConstsTeleskope, Consts {
         this.telemetry = telemetry;
     }
     public Telemetry telemetry;
+    public void execute(){};//Основной метод, где программа будет выполняться
+    public void showData(){};
 }

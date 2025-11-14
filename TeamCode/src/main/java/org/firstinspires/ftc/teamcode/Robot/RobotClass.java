@@ -2,10 +2,14 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
+import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
+import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.PlayerClass2;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.EncodersInMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.MotorsOnDrivetrain;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.MotorsOnCollector;
@@ -22,12 +26,14 @@ public class RobotClass extends TeamColor {
         super(teamColor);
 
         driveTrain = new MecanumDrivetrain(op, this);
+        cameraClass = new CameraClass(op, this, driveTrain.exOdometry);
         collector = new Collector(op);
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
+    public CameraClass cameraClass;
 
-    public static class MecanumDrivetrain extends Module {
+   public static class MecanumDrivetrain extends Module {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
         public MecanumDrivetrain(OpMode op, TeamColor teamColor){
@@ -63,7 +69,7 @@ public class RobotClass extends TeamColor {
         }
     }
 
-    public static class Collector extends Module{
+   public static class Collector extends Module{
         public Collector(OpMode op) {
             super(op.telemetry);
 
@@ -81,8 +87,6 @@ public class RobotClass extends TeamColor {
         public EncodersInMotors encoders;
 
         public void setPowerAndPos(double power, int speed, double barabanPos, double pusherPos, double anglePos){
-            colorSensor.update();
-
             motors.turnOnInTake(power);
             motors.setSpeedOnFlyWheel(speed);
 
@@ -91,5 +95,7 @@ public class RobotClass extends TeamColor {
             servos.getAngle().setPosition(anglePos);
         }
     }
+
 }
+
 

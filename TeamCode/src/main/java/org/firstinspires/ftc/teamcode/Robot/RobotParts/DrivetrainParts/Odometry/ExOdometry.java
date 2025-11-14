@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.EncoderClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
@@ -18,11 +17,9 @@ public class ExOdometry extends Module {
     public ExOdometry(OpMode op, TeamColor teamColor){
         super(op.telemetry);
 //            voltageSensor = op.hardwareMap.get(VoltageSensor.class, "");
-
         gyro = new GyroscopeClass(op);
         encoderClass = new EncoderClass(op);
-
-        camera = new CameraClass(op, teamColor, this);//Ждём пока камера не начнёт стримить, отключить если камера не подключена к роботу, иначе зациклится
+        this.teamColor = teamColor;
 
         selfMath = new SelfMath();
         selfMath.deltaTimes = new double[3];
@@ -32,7 +29,7 @@ public class ExOdometry extends Module {
         gyroGlobalPosition = new Position();
     }
     private GyroscopeClass gyro;
-    public CameraClass camera;
+    public TeamColor teamColor;
     public EncoderClass encoderClass;
     public final SelfMath selfMath;
     public final Position gyroGlobalPosition;                                   // Относительное перемещение
@@ -61,8 +58,6 @@ public class ExOdometry extends Module {
 
     public boolean isVyrCompleted;
     public void updateAll(){
-        camera.execute();
-
         selfMath.calculateAll(false);
 
 //        if(!camera.isStopStreaming()){
@@ -87,8 +82,8 @@ public class ExOdometry extends Module {
 //        }
     }
     public double getFoundedRobotAngle(){
-        double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
-        double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
+        double targX = teamColor.getWallCoord()[0] - encGlobalPosition.getX();
+        double targY = teamColor.getWallCoord()[1] - encGlobalPosition.getY();
 
         return  (Math.atan2(targY, -targX) - Math.PI/2);
     }
@@ -107,8 +102,8 @@ public class ExOdometry extends Module {
     }
 
     public double getRange(){
-        double targX = camera.teamColor.getWallCoord()[0] - encGlobalPosition.getX();
-        double targY = camera.teamColor.getWallCoord()[1] - encGlobalPosition.getY();
+        double targX = teamColor.getWallCoord()[0] - encGlobalPosition.getX();
+        double targY = teamColor.getWallCoord()[1] - encGlobalPosition.getY();
 
         Vector2 range = new Vector2(targX, targY);
 
@@ -116,11 +111,10 @@ public class ExOdometry extends Module {
     }
 
     public void showData(){
-        camera.showData();
         telemetry.addLine("ExOdometry data")
-                .addData("Robot pos:", "X - %.1f | Y - %.1f | H - %.1f", encGlobalPosition.getX(), encGlobalPosition.getY(), encGlobalPosition.getHeading() * 180/Math.PI)
-                .addData("Robot vel:","X - %.1f | Y - %.1f | H - %.1f", robotSelfCentricVel.x, robotSelfCentricVel.y, selfMath.headingVel)
-                .addData("Robot accel:","X - %.1f | Y - %.1f | H - %.1f",0.0,0.0,0.0);
+                .addData("Robot pos:", "X: %.1f | Y: %.1f | H: %.1f", encGlobalPosition.getX(), encGlobalPosition.getY(), encGlobalPosition.getHeading() * 180/Math.PI)
+                .addData("Robot vel:","X: %.1f | Y: %.1f | H: %.1f", robotSelfCentricVel.x, robotSelfCentricVel.y, selfMath.headingVel)
+                .addData("Robot accel:","X: %.1f | Y: %.1f | H: %.1f",0.0,0.0,0.0);
         telemetry.addLine();
     }
     public void showEncodersVel(){

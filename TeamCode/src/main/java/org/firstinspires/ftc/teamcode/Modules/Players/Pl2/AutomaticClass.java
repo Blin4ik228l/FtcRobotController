@@ -1,29 +1,25 @@
-package org.firstinspires.ftc.teamcode.Robot;
+package org.firstinspires.ftc.teamcode.Modules.Players.Pl2;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.Player1;
-import org.firstinspires.ftc.teamcode.Modules.Players.Player;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.MotorsOnCollector;
+import org.firstinspires.ftc.teamcode.Modules.Players.JoystickActivity;
+import org.firstinspires.ftc.teamcode.Modules.Players.PlayerClass;
+import org.firstinspires.ftc.teamcode.Robot.MotorsControllerClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
-public class AutomaticClass extends Module implements Runnable{
-    public AutomaticClass(RobotClass.Collector collector, Player.JoystickActivity joystickActivity1, OpMode op) {
-        super(op.telemetry);
+public class AutomaticClass extends PlayerClass {
+    public AutomaticClass(Gamepad gamepad, RobotClass.Collector collector, OpMode op) {
+        super(new JoystickActivity(gamepad, op.telemetry), op.telemetry);
+        this.collector = collector;
 
         cells = new Cells();
         runtime = new ElapsedTime();
 
-        this.collector = collector;
-        joystickActivityPl1 = joystickActivity1;
-
-        motorsController = new MotorsController(collector.motors);
-        motorsController.setDaemon(true);
-        motorsController.start();
+        motorsController = new MotorsControllerClass(collector.motors, telemetry);
     }
-    public Player.JoystickActivity joystickActivityPl1;
-    public RobotClass.MecanumDrivetrain drivetrain;
+    public final MotorsControllerClass motorsController;
     public RobotClass.Collector collector;
     private double loadedArtifactColor;
     private double loadedArtifactColor2;
@@ -32,86 +28,64 @@ public class AutomaticClass extends Module implements Runnable{
     private final Cells cells;
     private final ElapsedTime runtime;
     public boolean isWhileFiring = false;
-    public int[] randomizedArtifact = new int[3];
+
+    public int[] randomizedArtifacts = new int[3];
     public boolean isVyrCompleted;
     public double range;
-    public double minVel;
+    public double curVel;
+    public int artifactCount;
 
-    public boolean isInterrupted;
-    public boolean isKilled;
-
-    public final MotorsController motorsController;
-
-    public static class MotorsController extends Thread{
-        private final MotorsOnCollector motors;
-
-        public double inTakePower;
-        public double radianSpeed;
-
-        public MotorsController(MotorsOnCollector motorsOnCollector){
-            motors = motorsOnCollector;
-        }
-        public boolean isKilled;
-        @Override
-        public void run() {
-            while (!isInterrupted()){
-                execute();
-            }
-            inTakePower = 0;
-            radianSpeed = 0;
-            execute();
-            isKilled = true;
-        }
-        public void execute(){
-            motors.turnOnInTake(inTakePower);
-            motors.setSpeedOnFlyWheel(radianSpeed);
-        }
+    public void setFields(boolean isVyrCompleted, double range, double curVel){
+        this.isVyrCompleted = isVyrCompleted;
+        this.range = range;
+        this.curVel = curVel;
+    }
+    public void setRandomizedArtifacts(int[] randomizedArtifacts){
+        this.randomizedArtifacts = randomizedArtifacts;
     }
 
-    @Override
-    public void run() {
-        while (!isInterrupted){
-            execute();
-        }
-        motorsController.interrupt();
-        isKilled = true;
-    }
     public void execute(){
-        if(checkNumberOfArtifacts() != 3 && !isWhileFiring && !isInterrupted) {
-            if (checkNumberOfArtifacts() == 0 && !isInterrupted) {
+        if(!joystickActivity.buttonX) {
+            setFieldsInMotor(0,0,0);
+        }
+        checkNumberOfArtifacts();
+
+        if(!isWhileFiring) {
+            if (artifactCount == 0) {
                 actionLOAD(0);
-            }else if (checkNumberOfArtifacts() == 1 && !isInterrupted) {
+            }else if (artifactCount == 1) {
                 actionLOAD(1);
-            }else if (checkNumberOfArtifacts() == 2 && !isInterrupted) {
+            }else if (artifactCount == 2) {
                 actionLOAD(2);
+            }else {
+                setFieldsInMotor(1, 0, 1.5);
+                setFieldsInMotor(0, 0, 0);
+                isWhileFiring = true;
             }
         }
-        if(checkNumberOfArtifacts() == 3 && !isWhileFiring && !isInterrupted){
-            setFieldsInMotor(1, 0, 1.5);
-            setFieldsInMotor(0, 0, 0);
-            isWhileFiring = true;
-        }
-        if(isWhileFiring){
-            if(isRandomizeWasDetected() && isButtonY() && !isInterrupted){
-                if(checkNumberOfArtifacts() == 3 && !isInterrupted){
+        else{
+            if(isRandomizeWasDetected() && joystickActivity.buttonY ){
+                if(artifactCount == 3 ){
                     actionFIRE(0);
-                }else if(checkNumberOfArtifacts() == 2 && !isInterrupted){
+                }else if(artifactCount == 2){
                     actionFIRE(1);
-                }else if(checkNumberOfArtifacts() == 1 && !isInterrupted){
+                }else if(artifactCount == 1 ){
                     actionFIRE(2);
                 }else {
-                    if(checkNumberOfArtifacts() == 0 && !isInterrupted){
-                        setFieldsInMotor(0,0,0.5);
-                        push(PUSHER_START_POS, 0.3);
-                        next(BARABAN_START_POS);
-                        isWhileFiring = false;
-                    }
+                    setFieldsInMotor(0,0,0.5);
+                    push(PUSHER_START_POS, 0.3);
+                    next(BARABAN_START_POS, 0.8);
+                    isWhileFiring = false;
                 }
             }
         }
-        if(!isButtonX() && !isInterrupted) {
-            setFieldsInMotor(0,0,0);
-        }
+    }
+    public void setFieldsFromColorSensor(){
+        loadedArtifactColor = collector.colorSensor.currentArtifact;
+        loadedArtifactColor2 = collector.colorSensor.currentArtifact1;
+
+        curDistance = collector.colorSensor.curDistance;
+        curDistance2 = collector.colorSensor.curDistance1;
     }
     public void loadArtifactInCell(int cell){
         if(cell == 0){
@@ -130,50 +104,6 @@ public class AutomaticClass extends Module implements Runnable{
             return;
         }
     }
-    public void update(){
-        collector.colorSensor.update();
-
-        loadedArtifactColor = collector.colorSensor.currentArtifact;
-        loadedArtifactColor2 = collector.colorSensor.currentArtifact1;
-
-        curDistance = collector.colorSensor.curDistance;
-        curDistance2 = collector.colorSensor.curDistance1;
-    }
-    public void next(double pos){
-        if(collector.servos.getBaraban().getPosition() == pos && isInterrupted) return;
-
-        runtime.reset();
-        while (runtime.seconds() < 0.8 && !isInterrupted) collector.servos.getBaraban().setPosition(pos);
-    }
-    public void push(double pos, double time){
-        if(collector.servos.getPusher().getPosition() == pos && isInterrupted) return;
-
-        runtime.reset();
-        while (runtime.seconds() < time && !isInterrupted) collector.servos.getPusher().setPosition(pos);
-    }
-    public void setAngle(double pos){
-        if(collector.servos.getAngle().getPosition() == pos && isInterrupted) return;
-
-        runtime.reset();
-        while (runtime.seconds() < 0.2 && !isInterrupted) collector.servos.getAngle().setPosition(pos);
-    }
-    public void sleep(double seconds){
-        runtime.reset();
-        while (true){
-            if (!(runtime.seconds() < seconds)) break;
-        }
-    }
-    public void setFieldsInMotor(double inTake, double radianSpeed, double time){
-        if(motorsController.radianSpeed == radianSpeed && motorsController.inTakePower == inTake && time == 0 && isInterrupted) return;
-
-        motorsController.inTakePower = inTake;
-        motorsController.radianSpeed = radianSpeed;
-
-        runtime.reset();
-        while (isButtonX() && !isInterrupted){
-            if (!(runtime.seconds() < time)) break;
-        }
-    }
     public void deleteColorFromCell(){
         findNeededCell().table.color = 0;
     }
@@ -183,16 +113,17 @@ public class AutomaticClass extends Module implements Runnable{
         else return cells.cell2.table.color == color ? cells.cell2.table.pos  : (cells.cell1.table.color == color ? cells.cell1.table.pos : (cells.cell0.table.color == color ?  cells.cell0.table.pos: collector.servos.getBaraban().getPosition()));
     }
 
-    public int checkNumberOfArtifacts(){
+    public void checkNumberOfArtifacts(){
         int artifactNumber = 0;
 
         artifactNumber += cells.cell0.table.color != 0 ? 1 : 0;
         artifactNumber += cells.cell1.table.color != 0 ? 1 : 0;
         artifactNumber += cells.cell2.table.color != 0 ? 1 : 0;
 
-        return artifactNumber;
+        artifactCount = artifactNumber;
     }
     public boolean isArtifactInIt(){
+        setFieldsFromColorSensor();
         return (loadedArtifactColor != 0 || loadedArtifactColor2 != 0) && (curDistance < 9);
     }
     public Cells.Cell findNeededCell(){
@@ -219,57 +150,77 @@ public class AutomaticClass extends Module implements Runnable{
     }
 
     public boolean isRobotHaveMinVel(){
-        return minVel < 25;
-    }
-    public boolean isButtonY(){
-        return joystickActivityPl1.buttonY;
+        return curVel < 25;
     }
     public boolean isAllowFire(){
         return isVyrCompleted;
     }
     public boolean isRandomizeWasDetected(){
-        return randomizedArtifact[0] != 0;
-    }
-    public boolean isButtonX(){
-        return joystickActivityPl1.buttonX;
+        return randomizedArtifacts[0] != 0;
     }
     public void actionFIRE(int num){
-        if(!isButtonX() && !isInterrupted) {
-            setFieldsInMotor(0, 0, 0);
-            return;}
+        angle(findNeededPosAngle(range), 0);
+        next(findNeededArtifactPos(randomizedArtifacts[num]), 0.8);
 
-        setAngle(findNeededPosAngle(range));
-        next(findNeededArtifactPos(randomizedArtifact[num]));
-
-        if(isRobotHaveMinVel() && isButtonY() && !isInterrupted) {
+        if(isRobotHaveMinVel() && joystickActivity.buttonY) {
             waitWhile(4.5);
             push(0.9, 0.6);
             push(0.45, 0.4);
         }else{return;}
 
-        update();
-        if(!isArtifactInIt() && !isInterrupted){
+        if(!isArtifactInIt()){
             deleteColorFromCell();
         }
     }
     public void actionLOAD(int num){
-        if(!isButtonX()) {
-            setFieldsInMotor(0, 0, 0);
-            return;}
-
         setFieldsInMotor(-1, -1, 0);
 
-        update();
         if (isArtifactInIt()) {
             loadArtifactInCell(num);
-            if(num == 0)next(0.5);
-            else if (num == 1)next(1);
-            else {}
+
+            if(num == 0) next(0.5, 0.8);
+            else if (num == 1) next(1, 0.8);
+        }
+    }
+    public void next(double pos, double time){
+        if(collector.servos.getBaraban().getPosition() == pos && !joystickActivity.buttonX) return;
+
+        runtime.reset();
+        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getBaraban().setPosition(pos);
+    }
+    public void push(double pos, double time){
+        if(collector.servos.getPusher().getPosition() == pos && !joystickActivity.buttonX) return;
+
+        runtime.reset();
+        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getPusher().setPosition(pos);
+    }
+    public void angle(double pos, double time){
+        if(collector.servos.getAngle().getPosition() == pos && !joystickActivity.buttonX) return;
+
+        runtime.reset();
+        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getAngle().setPosition(pos);
+    }
+    public void sleep(double seconds){
+        runtime.reset();
+        while (true){
+            if (!(runtime.seconds() < seconds)) break;
+        }
+    }
+    public void setFieldsInMotor(double inTake, double radianSpeed, double time){
+        if(motorsController.radianSpeed == radianSpeed && motorsController.inTakePower == inTake && time == 0 && !joystickActivity.buttonX) return;
+
+        motorsController.inTakePower = inTake;
+        motorsController.radianSpeed = radianSpeed;
+
+        runtime.reset();
+        while (joystickActivity.buttonX){
+            if (!(runtime.seconds() < time)) break;
         }
     }
     public void waitWhile(double speed){
         setFieldsInMotor(0, speed, 0);
-        while(isButtonX() && !isInterrupted){
+
+        while(joystickActivity.buttonX){
             if(Math.abs(collector.encoders.getVelocity()) >= speed) break;
         }
     }
@@ -299,11 +250,11 @@ public class AutomaticClass extends Module implements Runnable{
         }
     }
     public void showData(){
-        telemetry.addData("Y", isButtonY());
-        telemetry.addData("X", isButtonX());
+        telemetry.addData("Y", joystickActivity.buttonY);
+        telemetry.addData("X", joystickActivity.buttonX);
         telemetry.addLine("Automatic class caption")
                 .addData("Time in seconds", "%.1f %n", runtime.seconds())
-                .addData("Artifacts number", checkNumberOfArtifacts())
+                .addData("Artifacts number", artifactCount)
                 .addData("cell0", "pos[%s] color[%s]%n", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color))
                 .addData("cell1", "pos[%s] color[%s]%n", cells.cell1.table.pos, getColorFromNumber(cells.cell1.table.color))
                 .addData("cell2", "pos[%s] color[%s]%n", cells.cell2.table.pos, getColorFromNumber(cells.cell2.table.color));

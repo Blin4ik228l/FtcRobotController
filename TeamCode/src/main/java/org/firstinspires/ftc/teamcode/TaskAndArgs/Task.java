@@ -5,13 +5,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Handlers.DriveHandler;
 import org.firstinspires.ftc.teamcode.Modules.Handlers.Handler;
 import org.firstinspires.ftc.teamcode.Modules.Handlers.TelescopeHandler;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class Task {
     public Task(double targetX, double targetY, double targetHeading, double targetSpeed, RobotClass.MecanumDrivetrain driveTrain, Telemetry telemetry, int queuePlace){
-        Position targetPosition = new Position(targetX, targetY, targetHeading);
-        Args.DriveArgs driveArgs = new Args.DriveArgs(targetPosition, targetSpeed);
+        Position2D targetPosition2D = new Position2D(targetX, targetY, targetHeading);
+        Args.DriveArgs driveArgs = new Args.DriveArgs(targetPosition2D, targetSpeed);
         DriveHandler driveHandler = new DriveHandler(driveTrain, telemetry);
 
         driveHandler.setArgs(driveArgs);

@@ -67,7 +67,7 @@ The readme.md file located in the [/TeamCode/src/main/java/org/firstinspires/ftc
 
 ### Bug Fixes
 
-* Fix an internal bug where if the RUN_TO_POSITION run mode was specified before a target position, recovery would require a power cycle. A side effect of this fix is that a stack trace identifying the location of the error is always produced in the log. Fixes issue [1345](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/1345).
+* Fix an internal bug where if the RUN_TO_POSITION run mode was specified before a target position2D, recovery would require a power cycle. A side effect of this fix is that a stack trace identifying the location of the error is always produced in the log. Fixes issue [1345](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/1345).
 * Throws a helpful exception if region of interest is set to null when building a PredominantColorProcessor. Also sets the default RoI to the full frame. Addresses issue [1076](FIRST-Tech-Challenge/FtcRobotController#1076)
 * Throws a helpful exception if user tries to construct an ImageRegion with malformed boundaries.  Addresses issue [1078](FIRST-Tech-Challenge/FtcRobotController#1078)
 
@@ -320,7 +320,7 @@ The readme.md file located in the [/TeamCode/src/main/java/org/firstinspires/ftc
   * The Expansion Hub Address Change screen now has an Apply button that changes the addresses without leaving the screen.
   * Addresses that are assigned to other hubs connected to the same USB connection or Control Hub are no longer able to be selected.
 * Increases maximum size of Blocks inline comments to 100 characters
-* Saves position of open Blocks comment balloons
+* Saves position2D of open Blocks comment balloons
 * Adds new AprilTag Driving samples:  RobotDriveToAprilTagTank & RobotDriveToAprilTagOmni
 * Adds Sample to illustrate optimizing camera exposure for AprilTags: ConceptAprilTagOptimizeExposure
 
@@ -391,7 +391,7 @@ This is a bug fix only release to address the following four issues.
     * Slow `OpMode`s can no longer increase the amount of time it takes to process network commands, and vice versa.
     * The `init()`, `init_loop()`, `start()` and `loop()` methods no longer need to return within a certain time frame.
 * BNO055 IMU legacy driver: restores the ability to initialize in one OpMode, and then have another OpMode re-use that
-  initialization. This allows you to maintain the 0-yaw position between OpModes, if desired.
+  initialization. This allows you to maintain the 0-yaw position2D between OpModes, if desired.
 * Allows customized versions of device drivers in the FTC SDK to use the same XML tag.
   * Before, if you wanted to customize a device driver, you had to copy it to a new class _and_ give
     it a new XML tag. Giving it a new XML tag meant that to switch which driver was being used, you
@@ -555,8 +555,8 @@ This is a bug fix only release to address the following four issues.
 * Adds fully custom userspace USB gamepad driver to Driver Station (see "Advanced Gamepad Features" menu in DS settings).
     * Allows gamepads to work on devices without native Linux kernel support (e.g. some Romanian Motorola devices).
     * Allows the DS to read the unique serial number of each gamepad, enabling auto-recovery of dropped gamepads even if two gamepads of the same model drop. *(NOTE: unfortunately this does not apply to Etpark gamepads, because they do not have a unique serial)*.
-    * Reading the unique serial number also provides the ability to configure the DS to assign gamepads to a certain position by default (so no need to do start+a/b at all).
-    * The LED ring on the Xbox360 gamepad and the RGB LED bar on the PS4 gamepad is used to indicate the driver position the gamepad is bound to.
+    * Reading the unique serial number also provides the ability to configure the DS to assign gamepads to a certain position2D by default (so no need to do start+a/b at all).
+    * The LED ring on the Xbox360 gamepad and the RGB LED bar on the PS4 gamepad is used to indicate the driver position2D the gamepad is bound to.
     * The rumble motors on the Xbox360, PS4, and Etpark gamepads can be controlled from OpModes.
     * The 2-point touchpad on the PS4 gamepad can be read from OpModes.
     * The "back" and "guide" buttons on the gamepad can now be safely bound to robot controls (Previously, on many devices, Android would intercept these buttons as home button presses and close the app).
@@ -724,17 +724,17 @@ Version 5.5 requires Android Studio 4.0 or later.
     * Unnecessary 2.4 GHz Wi-Fi usage warning
     * REV Hub is running outdated firmware (older than version 1.8.2)
 * Adds support for Sony PS4 gamepad, and reworks how gamepads work on the Driver Station
-    * Removes preference which sets gamepad type based on driver position. Replaced with menu which allows specifying type for gamepads with unknown VID and PID
+    * Removes preference which sets gamepad type based on driver position2D. Replaced with menu which allows specifying type for gamepads with unknown VID and PID
 	* Attempts to auto-detect gamepad type based on USB VID and PID
 	* If gamepad VID and PID is not known, use type specified by user for that VID and PID
 	* If gamepad VID and PID is not known AND the user has not specified a type for that VID and PID, an educated guess is made about how to map the gamepad
-* Driver Station will now attempt to automatically recover from a gamepad disconnecting, and re-assign it to the position it was assigned to when it dropped
+* Driver Station will now attempt to automatically recover from a gamepad disconnecting, and re-assign it to the position2D it was assigned to when it dropped
     * If only one gamepad is assigned and it drops: it can be recovered
     * If two gamepads are assigned, and have **different** VID/PID signatures, and only one drops: it will be recovered
     * If two gamepads are assigned, and have **different** VID/PID signatures, and BOTH drop: both will be recovered
     * If two gamepads are assigned, and have **the same** VID/PID signatures, and only one drops: it will be recovered
     * If two gamepads are assigned, and have **the same** VID/PID signatures, and BOTH drop: **neither** will be recovered, because of the ambiguity of the gamepads when they re-appear on the USB bus.
-    * There is currently one known edge case: if there are **two** gamepads with **the same** VID/PID signature plugged in, **but only one is assigned**, and they BOTH drop, it's a 50-50 chance of which one will be chosen for automatic recovery to the assigned position: it is determined by whichever one is re-enumerated first by the USB bus controller.
+    * There is currently one known edge case: if there are **two** gamepads with **the same** VID/PID signature plugged in, **but only one is assigned**, and they BOTH drop, it's a 50-50 chance of which one will be chosen for automatic recovery to the assigned position2D: it is determined by whichever one is re-enumerated first by the USB bus controller.
 * Adds landscape user interface to Driver Station
     * New feature: practice timer with audio cues
     * New feature (Control Hub only): wireless network connection strength indicator (0-5 bars)
@@ -981,7 +981,7 @@ Known issues:
      - Fixed the "Download image" feature so it will work if there are text blocks in the OpMode.
  * Introduce support for Google's TensorFlow Lite technology for object detetion for 2018-2019 game.
      - TensorFlow lite can recognize Gold Mineral and Silver Mineral from 2018-2019 game.
-     - Example Java and Block OpModes are included to show how to determine the relative position of the gold block (left, center, right).
+     - Example Java and Block OpModes are included to show how to determine the relative position2D of the gold block (left, center, right).
 
 ## Version 4.1 (released on 18.09.24)
 

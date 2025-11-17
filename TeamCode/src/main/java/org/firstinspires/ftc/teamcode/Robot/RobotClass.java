@@ -2,17 +2,14 @@ package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.PlayerClass2;
+import org.firstinspires.ftc.teamcode.Modules.MainModule;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CameraClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.EncodersInMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.MotorsOnDrivetrain;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.MotorsOnCollector;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.DrivetrainMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.TeamColor;
 
 public class RobotClass extends TeamColor {
@@ -23,78 +20,98 @@ public class RobotClass extends TeamColor {
     */
 
     public RobotClass(OpMode op, String teamColor){
-        super(teamColor);
+        super(teamColor, op);
 
         driveTrain = new MecanumDrivetrain(op, this);
-        cameraClass = new CameraClass(op, this, driveTrain.exOdometry);
+        cameraClass = new CameraClass(op, this);
         collector = new Collector(op);
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
     public CameraClass cameraClass;
 
-   public static class MecanumDrivetrain extends Module {
+    @Override
+    public void update() {
+        driveTrain.update();
+        collector.update();
+        cameraClass.update();
+    }
+
+    @Override
+    public void showData(){
+        driveTrain.showData();
+        collector.showData();
+        cameraClass.showData();
+    }
+
+    public static class MecanumDrivetrain extends MainModule {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
         public MecanumDrivetrain(OpMode op, TeamColor teamColor){
             super(op.telemetry);
 
-            motors = new MotorsOnDrivetrain(op);
+            motors = new DrivetrainMotors(op);
 
             exOdometry = new ExOdometry(op,teamColor );
 
             telemetry.addLine("Drivetrain Inited");
         }
-        public MotorsOnDrivetrain motors;
+        public DrivetrainMotors motors;
         public ExOdometry exOdometry;
 
-        public void setPower(double yVol, double xVol, double angVol){
-            if(Math.abs(yVol) < 0.10) yVol = 0.10 * Math.signum(yVol);
-            if(Math.abs(xVol) < 0.10) xVol = 0.10 * Math.signum(xVol);
-            if(Math.abs(angVol) < 0.10) angVol = 0.10 * Math.signum(angVol);
+        @Override
+        public void update() {
+            exOdometry.update();
+        }
 
-            yVol *= 1;
-            xVol *= 1.1;
-            angVol *= 1.4;
+        @Override
+        public void execute() {
+            motors.execute();
+        }
 
-            //движение по y - это вперёд - назад
-            //движение по x - это влево - вправо
-            //angVol поворот
-            exOdometry.updateAll();//Обноволяем одометрию постоянно когда вызываем метод setPower
-
-            motors.getLeftF().setPower( yVol - xVol - angVol);
-            motors.getLeftB().setPower( yVol + xVol - angVol);
-            motors.getRightF().setPower(yVol + xVol + angVol);
-            motors.getRightB().setPower(yVol - xVol + angVol);
+        @Override
+        public void showData() {
+            motors.showData();
+            exOdometry.showData();
         }
     }
 
-   public static class Collector extends Module{
+   public static class Collector extends MainModule {
         public Collector(OpMode op) {
             super(op.telemetry);
 
-            motors = new MotorsOnCollector(op);
-            encoders = new EncodersInMotors(op);
+            motors = new CollectorMotors(op);
 
             servos = new Servos(op);
             colorSensor = new ColorSensor(op);
+            buttonClass = new ButtonClass(op);
 
             telemetry.addLine("Collector inited");
         }
-        public MotorsOnCollector motors;
+        public CollectorMotors motors;
         public Servos servos;
         public ColorSensor colorSensor;
-        public EncodersInMotors encoders;
+        public ButtonClass buttonClass;
 
-        public void setPowerAndPos(double power, int speed, double barabanPos, double pusherPos, double anglePos){
-            motors.turnOnInTake(power);
-            motors.setSpeedOnFlyWheel(speed);
+       @Override
+       public void update() {
+           colorSensor.update();
+           buttonClass.update();
+       }
 
-            servos.getBaraban().setPosition(barabanPos);
-            servos.getPusher().setPosition(pusherPos);
-            servos.getAngle().setPosition(anglePos);
-        }
-    }
+       @Override
+       public void execute() {
+           motors.execute();
+           servos.execute();
+       }
+
+       @Override
+       public void showData() {
+           motors.showData();
+           servos.showData();
+           colorSensor.showData();
+       }
+   }
 
 }
 

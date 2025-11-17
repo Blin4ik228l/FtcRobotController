@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 
-public class JoystickActivity extends Module implements JoystickButtons {
+public class JoystickActivity extends UpdatableModule implements JoystickButtons {
     public Gamepad playersGamepad;
     public boolean buttonX = false, buttonA = false, buttonB = false, buttonY = false,
             buttonBack = false, buttonStart = false,
@@ -28,7 +29,7 @@ public class JoystickActivity extends Module implements JoystickButtons {
     }
 
     @Override
-    public void execute() {
+    public void update() {
         isA_Button();
         isB_Button();
         isX_Button();
@@ -239,5 +240,15 @@ public class JoystickActivity extends Module implements JoystickButtons {
         if(!playersGamepad.start && switchStart){
             switchStart = false;
         }
+    }
+
+    @Override
+    public void showData() {
+        telemetry.addLine("=== JOYSTICK ===");
+        telemetry.addData("Buttons", "A:%s B:%s X:%s Y:%s", buttonA, buttonB, buttonX, buttonY);
+        telemetry.addData("Bumpers", "L:%s R:%s", bumperLeft, bumperRight);
+        telemetry.addData("Triggers", "L:%s R:%s", triggerLeft, triggerRight);
+        telemetry.addData("DPad", "U:%s D:%s L:%s R:%s", dpad_Up, dpad_Down, dpad_Left, dpad_Right);
+        telemetry.addLine();
     }
 }

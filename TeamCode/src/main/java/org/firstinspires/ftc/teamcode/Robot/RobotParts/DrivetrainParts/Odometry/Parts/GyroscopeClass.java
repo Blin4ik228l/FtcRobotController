@@ -29,11 +29,12 @@ public class GyroscopeClass extends Module {
         telemetry.addLine("Gyroscope Inited");
     }
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
-    IMU.Parameters parameters;
+    public IMU.Parameters parameters;
     public IMU imu;
+
     public void showData(){
-        telemetry.addLine("Gyro")
-                .addData("Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        telemetry.addLine("===GYRO===");
+        telemetry.addData("Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         telemetry.addLine();
     }
 }

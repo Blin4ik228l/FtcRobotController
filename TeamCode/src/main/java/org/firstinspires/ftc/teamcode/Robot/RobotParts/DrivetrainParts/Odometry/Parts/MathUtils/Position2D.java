@@ -2,30 +2,30 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry
 
 import androidx.annotation.NonNull;
 
-public class Position {
+public class Position2D {
     private double x;
     private double y;
     private double heading;
 
-    public Position(double x ,double y, double heading){
+    public Position2D(double x , double y, double heading){
         this.x = x;
         this.y = y;
         this.heading = Math.toRadians(heading);
     }
 
-    public Position(Position position){
-        this.x = position.x;
-        this.y = position.y;
-        this.heading = position.heading;
+    public Position2D(Position2D position2D){
+        this.x = position2D.x;
+        this.y = position2D.y;
+        this.heading = position2D.heading;
     }
 
-    public Position(Vector2 vector2, double heading){
+    public Position2D(Vector2 vector2, double heading){
         this.x = vector2.x;
         this.y = vector2.y;
         this.heading = heading;
     }
 
-    public Position(){
+    public Position2D(){
         this.x = 0;
         this.y = 0;
         this.heading = 0;
@@ -74,8 +74,8 @@ public class Position {
 
 
     @NonNull
-    public Position clone(){
-        return new Position(this);
+    public Position2D clone(){
+        return new Position2D(this);
     }
 
 }

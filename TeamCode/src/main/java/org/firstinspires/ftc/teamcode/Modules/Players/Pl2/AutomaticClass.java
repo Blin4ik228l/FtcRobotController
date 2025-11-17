@@ -4,12 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Modules.MainModule;
 import org.firstinspires.ftc.teamcode.Modules.Players.JoystickActivity;
 import org.firstinspires.ftc.teamcode.Modules.Players.PlayerClass;
-import org.firstinspires.ftc.teamcode.Robot.MotorsControllerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 
-public class AutomaticClass extends PlayerClass {
+public class AutomaticClass extends PlayerClass{
     public AutomaticClass(Gamepad gamepad, RobotClass.Collector collector, OpMode op) {
         super(new JoystickActivity(gamepad, op.telemetry), op.telemetry);
         this.collector = collector;
@@ -17,18 +21,13 @@ public class AutomaticClass extends PlayerClass {
         cells = new Cells();
         runtime = new ElapsedTime();
 
-        motorsController = new MotorsControllerClass(collector.motors, telemetry);
+        automaticState = CollectorState.Load;
+        loadState = LoadState.Baraban_moving_to_0;
+        fireState = FireState.Find_Color;
     }
-    public final MotorsControllerClass motorsController;
     public RobotClass.Collector collector;
-    private double loadedArtifactColor;
-    private double loadedArtifactColor2;
-    private double curDistance;
-    private double curDistance2;
     private final Cells cells;
     private final ElapsedTime runtime;
-    public boolean isWhileFiring = false;
-
     public int[] randomizedArtifacts = new int[3];
     public boolean isVyrCompleted;
     public double range;
@@ -44,61 +43,191 @@ public class AutomaticClass extends PlayerClass {
         this.randomizedArtifacts = randomizedArtifacts;
     }
 
+    public CollectorState automaticState;
+    public LoadState loadState;
+    public FireState fireState;
+    public enum CollectorState{
+        Load,
+        Fire
+    }
+    public enum LoadState{
+        Idle,
+        Baraban_moving_to_0,
+        Baraban_at_0,
+        Baraban_moving_to_05,
+        Baraban_at_05,
+        Baraban_moving_to_1,
+        Baraban_at_1,
+        Check_Cells;
+
+    }
+    public enum FireState{
+        Baraban_moving_to_0,
+        Baraban_moving_to_05,
+        Baraban_moving_to_1,
+        Baraban_at_pos,
+        Pusher_back,
+        Find_Color,
+    }
+    @Override
     public void execute(){
         if(!joystickActivity.buttonX) {
-            setFieldsInMotor(0,0,0);
-        }
-        checkNumberOfArtifacts();
+            collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
+        }else{
+            checkNumberOfArtifacts();
 
-        if(!isWhileFiring) {
-            if (artifactCount == 0) {
-                actionLOAD(0);
-            }else if (artifactCount == 1) {
-                actionLOAD(1);
-            }else if (artifactCount == 2) {
-                actionLOAD(2);
-            }else {
-                setFieldsInMotor(1, 0, 1.5);
-                setFieldsInMotor(0, 0, 0);
-                isWhileFiring = true;
+            switch (automaticState){
+                case Load:
+                    collector.motors.targetMotorState = CollectorMotors.MotorsState.OnIntake;
+                    if(collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready) return;
+
+                    switch (loadState){
+                        case Baraban_moving_to_0:
+                            collector.servos.barabanPos = 0.0;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_0;
+                            }
+                            break;
+                        case Baraban_at_0:
+                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
+                                    loadArtifactInCell(0);
+                                    loadState = LoadState.Baraban_moving_to_05;
+                                }
+                                break;
+                        case Baraban_moving_to_05:
+                            collector.servos.barabanPos = 0.5;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_05;
+                            }
+                            break;
+                        case Baraban_at_05:
+                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
+                                loadArtifactInCell(1);
+                                loadState = LoadState.Baraban_moving_to_1;
+                            }
+                            break;
+                        case Baraban_moving_to_1:
+                            collector.servos.barabanPos = 1;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_1;
+                            }
+                            break;
+                        case Baraban_at_1:
+                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
+                                loadArtifactInCell(2);
+                                loadState = LoadState.Idle;
+                                runtime.reset();
+                            }
+                            break;
+                        case Idle:
+                            collector.motors.targetMotorState = CollectorMotors.MotorsState.ReverseForWhile;
+                            if(collector.motors.runTimeAll.seconds() > 1 && collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Ready) {
+
+                                collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
+                                automaticState = CollectorState.Fire;
+                                runtime.reset();}
+                            break;
+                    }
+                    break;
+                case Fire:
+                    collector.motors.targetMotorState = CollectorMotors.MotorsState.OffFlyWheel;
+                    if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()) return;
+
+                    collector.motors.targetMotorState = CollectorMotors.MotorsState.OnFlyWheel;
+                    if(collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready) return;
+
+                    switch (fireState){
+                        case Find_Color:
+                            if (artifactCount == 0) {
+                                collector.motors.targetMotorState = CollectorMotors.MotorsState.OnIntake;
+                                automaticState = CollectorState.Load;
+                                break;
+                            }
+
+                            // Определяем целевую ячейку (0, 1 или 2)
+                            int targetCellIndex = 3 - artifactCount; // 3→0, 2→1, 1→2
+                            int targetColor = randomizedArtifacts[targetCellIndex];
+
+                            double targetPos = findNeededArtifactPos(targetColor);
+
+                            // Выбираем состояние движения
+                            if (targetPos == 1.0) {
+                                fireState = FireState.Baraban_moving_to_1;
+                            } else if (targetPos == 0.5) {
+                                fireState = FireState.Baraban_moving_to_05;
+                            } else {
+                                fireState = FireState.Baraban_moving_to_0;
+                            }
+                            break;
+
+                        case Baraban_moving_to_0:
+                            collector.servos.barabanPos = 0.0;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                fireState = FireState.Baraban_at_pos;
+                            }
+                            break;
+                        case Baraban_moving_to_05:
+                            collector.servos.barabanPos = 0.5;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                fireState = FireState.Baraban_at_pos;
+                            }
+                            break;
+
+                        case Baraban_moving_to_1:
+                            collector.servos.barabanPos = 1;
+                            collector.servos.execute();
+                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                fireState = FireState.Baraban_at_pos;
+                            }
+                            break;
+
+                        case Baraban_at_pos:
+                            collector.servos.pusherPos = 0.9;
+                            collector.servos.execute();
+                            if(collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos){
+                                fireState = FireState.Pusher_back;
+                            }
+                            break;
+
+                        case Pusher_back:
+                            collector.servos.pusherPos = 0.45;
+                            collector.servos.execute();
+                            if(collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos){
+                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
+                                    deleteColorFromCell();
+                                    fireState = FireState.Find_Color;
+                                }else {
+                                    fireState = FireState.Baraban_at_pos;
+                                }
+                            }
+                            break;
+                    }
+                    break;
             }
         }
-        else{
-            if(isRandomizeWasDetected() && joystickActivity.buttonY ){
-                if(artifactCount == 3 ){
-                    actionFIRE(0);
-                }else if(artifactCount == 2){
-                    actionFIRE(1);
-                }else if(artifactCount == 1 ){
-                    actionFIRE(2);
-                }else {
-                    setFieldsInMotor(0,0,0.5);
-                    push(PUSHER_START_POS, 0.3);
-                    next(BARABAN_START_POS, 0.8);
-                    isWhileFiring = false;
-                }
-            }
-        }
+        collector.motors.execute();
     }
-    public void setFieldsFromColorSensor(){
-        loadedArtifactColor = collector.colorSensor.currentArtifact;
-        loadedArtifactColor2 = collector.colorSensor.currentArtifact1;
 
-        curDistance = collector.colorSensor.curDistance;
-        curDistance2 = collector.colorSensor.curDistance1;
-    }
     public void loadArtifactInCell(int cell){
         if(cell == 0){
-            cells.cell0.table.color = loadedArtifactColor;
-            if (cells.cell0.table.color == 0) cells.cell0.table.color = loadedArtifactColor2;
+            cells.cell0.table.color = collector.colorSensor.artifactColor;
             cells.cell0.table.pos = 0.0;
         } else if (cell == 1) {
-            cells.cell1.table.color = loadedArtifactColor;
-            if (cells.cell1.table.color == 0) cells.cell1.table.color = loadedArtifactColor2;
+            cells.cell1.table.color = collector.colorSensor.artifactColor;
             cells.cell1.table.pos = 0.5;
         } else if (cell == 2) {
-            cells.cell2.table.color = loadedArtifactColor;
-            if (cells.cell2.table.color == 0) cells.cell2.table.color = loadedArtifactColor2;
+            cells.cell2.table.color = collector.colorSensor.artifactColor;
             cells.cell2.table.pos = 1.0;
         }else {
             return;
@@ -108,9 +237,26 @@ public class AutomaticClass extends PlayerClass {
         findNeededCell().table.color = 0;
     }
     public double findNeededArtifactPos(int color){
-        if(collector.servos.getBaraban().getPosition() == cells.cell0.table.pos) return cells.cell0.table.color == color ? cells.cell0.table.pos  : (cells.cell1.table.color == color ? cells.cell1.table.pos : (cells.cell2.table.color == color ?  cells.cell2.table.pos: collector.servos.getBaraban().getPosition()));
-        else if (collector.servos.getBaraban().getPosition() == cells.cell1.table.pos ) return cells.cell1.table.color == color ? cells.cell1.table.pos  : (cells.cell0.table.color == color ? cells.cell0.table.pos : (cells.cell2.table.color == color ?  cells.cell2.table.pos: collector.servos.getBaraban().getPosition()));
-        else return cells.cell2.table.color == color ? cells.cell2.table.pos  : (cells.cell1.table.color == color ? cells.cell1.table.pos : (cells.cell0.table.color == color ?  cells.cell0.table.pos: collector.servos.getBaraban().getPosition()));
+        double currentPos = collector.servos.curBarabanPos;
+
+        if(cells.cell2.table.color == color){
+
+            return cells.cell2.table.pos;
+        }
+        if(cells.cell1.table.color == color){
+            return cells.cell1.table.pos;
+        }
+
+        if(cells.cell0.table.color == color){
+            return cells.cell0.table.pos;
+        }
+
+
+        if(cells.cell2.table.color != 0) return cells.cell2.table.pos;
+        if(cells.cell1.table.color != 0) return cells.cell1.table.pos;
+        if(cells.cell0.table.color != 0) return cells.cell0.table.pos;
+
+        return currentPos;
     }
 
     public void checkNumberOfArtifacts(){
@@ -121,10 +267,6 @@ public class AutomaticClass extends PlayerClass {
         artifactNumber += cells.cell2.table.color != 0 ? 1 : 0;
 
         artifactCount = artifactNumber;
-    }
-    public boolean isArtifactInIt(){
-        setFieldsFromColorSensor();
-        return (loadedArtifactColor != 0 || loadedArtifactColor2 != 0) && (curDistance < 9);
     }
     public Cells.Cell findNeededCell(){
         return cells.cell0.table.pos == collector.servos.getBaraban().getPosition() ? cells.cell0 : (cells.cell1.table.pos == collector.servos.getBaraban().getPosition() ? cells.cell1 : cells.cell2);
@@ -150,79 +292,13 @@ public class AutomaticClass extends PlayerClass {
     }
 
     public boolean isRobotHaveMinVel(){
-        return curVel < 25;
+        return Math.abs(curVel) < 25;
     }
     public boolean isAllowFire(){
-        return isVyrCompleted;
+        return isVyrCompleted && joystickActivity.buttonY;
     }
     public boolean isRandomizeWasDetected(){
         return randomizedArtifacts[0] != 0;
-    }
-    public void actionFIRE(int num){
-        angle(findNeededPosAngle(range), 0);
-        next(findNeededArtifactPos(randomizedArtifacts[num]), 0.8);
-
-        if(isRobotHaveMinVel() && joystickActivity.buttonY) {
-            waitWhile(4.5);
-            push(0.9, 0.6);
-            push(0.45, 0.4);
-        }else{return;}
-
-        if(!isArtifactInIt()){
-            deleteColorFromCell();
-        }
-    }
-    public void actionLOAD(int num){
-        setFieldsInMotor(-1, -1, 0);
-
-        if (isArtifactInIt()) {
-            loadArtifactInCell(num);
-
-            if(num == 0) next(0.5, 0.8);
-            else if (num == 1) next(1, 0.8);
-        }
-    }
-    public void next(double pos, double time){
-        if(collector.servos.getBaraban().getPosition() == pos && !joystickActivity.buttonX) return;
-
-        runtime.reset();
-        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getBaraban().setPosition(pos);
-    }
-    public void push(double pos, double time){
-        if(collector.servos.getPusher().getPosition() == pos && !joystickActivity.buttonX) return;
-
-        runtime.reset();
-        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getPusher().setPosition(pos);
-    }
-    public void angle(double pos, double time){
-        if(collector.servos.getAngle().getPosition() == pos && !joystickActivity.buttonX) return;
-
-        runtime.reset();
-        while (runtime.seconds() < time && joystickActivity.buttonX) collector.servos.getAngle().setPosition(pos);
-    }
-    public void sleep(double seconds){
-        runtime.reset();
-        while (true){
-            if (!(runtime.seconds() < seconds)) break;
-        }
-    }
-    public void setFieldsInMotor(double inTake, double radianSpeed, double time){
-        if(motorsController.radianSpeed == radianSpeed && motorsController.inTakePower == inTake && time == 0 && !joystickActivity.buttonX) return;
-
-        motorsController.inTakePower = inTake;
-        motorsController.radianSpeed = radianSpeed;
-
-        runtime.reset();
-        while (joystickActivity.buttonX){
-            if (!(runtime.seconds() < time)) break;
-        }
-    }
-    public void waitWhile(double speed){
-        setFieldsInMotor(0, speed, 0);
-
-        while(joystickActivity.buttonX){
-            if(Math.abs(collector.encoders.getVelocity()) >= speed) break;
-        }
     }
     public static class Cells {
         public Cells(){
@@ -250,18 +326,12 @@ public class AutomaticClass extends PlayerClass {
         }
     }
     public void showData(){
-        telemetry.addData("Y", joystickActivity.buttonY);
-        telemetry.addData("X", joystickActivity.buttonX);
-        telemetry.addLine("Automatic class caption")
-                .addData("Time in seconds", "%.1f %n", runtime.seconds())
-                .addData("Artifacts number", artifactCount)
-                .addData("cell0", "pos[%s] color[%s]%n", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color))
-                .addData("cell1", "pos[%s] color[%s]%n", cells.cell1.table.pos, getColorFromNumber(cells.cell1.table.color))
-                .addData("cell2", "pos[%s] color[%s]%n", cells.cell2.table.pos, getColorFromNumber(cells.cell2.table.color));
-        telemetry.addLine();
-        collector.colorSensor.showData();
-        collector.servos.showData();
-        collector.encoders.showData();
+        telemetry.addLine("=== AUTOMATIC ===");
+        telemetry.addData("Runtime", "%.1fs", runtime.seconds());
+        telemetry.addData("Artifacts", artifactCount);
+        telemetry.addData("Cell0", "pos:%s color:%s", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color));
+        telemetry.addData("Cell1", "pos:%s color:%s", cells.cell1.table.pos, getColorFromNumber(cells.cell1.table.color));
+        telemetry.addData("Cell2", "pos:%s color:%s", cells.cell2.table.pos, getColorFromNumber(cells.cell2.table.color));
     }
     public String getColorFromNumber(double number){
         return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";

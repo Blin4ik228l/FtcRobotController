@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 
 public class Odometry{
@@ -18,8 +18,8 @@ public class Odometry{
     public double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
             (ENC_WHEEL_DIAM_CM * Math.PI);
     public  Odometry (OpMode op){
-        this.globalPosition = new Position();
-        this.deltaPosition = new Position();
+        this.globalPosition2D = new Position2D();
+        this.deltaPosition2D = new Position2D();
 
         this.velocity = new Vector2(0,0);
         this.oldVelocity = new Vector2(0,0);
@@ -57,9 +57,9 @@ public class Odometry{
     public DcMotorEx encM;                                                 // Объекты энкодеров
     public DcMotorEx encL;                                                 //
     public DcMotorEx encR;                                                 //
-    private final Position deltaPosition;                                   // Относительное перемещение
-    private final Position globalPosition;                                  // Глобальное положение
-    private Position startGlobalPosition = new Position();
+    private final Position2D deltaPosition2D;                                   // Относительное перемещение
+    private final Position2D globalPosition2D;                                  // Глобальное положение
+    private Position2D startGlobalPosition2D = new Position2D();
     private final Vector2 velocity, oldVelocity, acceleration;              // Вектора скорость и ускорение ОТНОСИТЕЛЬНО КООРДИНАТ РОБОТА
     private double maxAcceleration, maxVel;                                 // Максимальные скорость и ускорение
 
@@ -72,8 +72,8 @@ public class Odometry{
         }
     }
 
-    private Position getStartGlobalPosition() {
-        return startGlobalPosition;
+    private Position2D getStartGlobalPosition() {
+        return startGlobalPosition2D;
     }
     private DcMotorEx getEncL() {                                   // создаем метод для получения левого энкодера
         return encL;
@@ -96,8 +96,8 @@ public class Odometry{
         return maxAcceleration;
     }
 
-    public Position getGlobalPosition(){                           // создаем метод для получения глобальных координат
-        return globalPosition;
+    public Position2D getGlobalPosition(){                           // создаем метод для получения глобальных координат
+        return globalPosition2D;
     }
 
     public Vector2 getVelocity(){                                  // создаем метод для получения вектора скорости
@@ -130,10 +130,10 @@ public class Odometry{
         return cm * COUNTS_PER_CM;
     }
 
-    private void setGlobalPosition(Position position) {
-        globalPosition.setX(position.getX());
-        globalPosition.setY(position.getY());
-        globalPosition.setHeading(position.getHeading());
+    private void setGlobalPosition(Position2D position2D) {
+        globalPosition2D.setX(position2D.getX());
+        globalPosition2D.setY(position2D.getY());
+        globalPosition2D.setHeading(position2D.getHeading());
     }
 
     // Обновление вектора скорости робота
@@ -144,8 +144,8 @@ public class Odometry{
         oldVelocity.x = velocity.x;
         oldVelocity.y = velocity.y;
 
-        velocity.x = (deltaPosition.toVector().x)/dt[0];
-        velocity.y = (deltaPosition.toVector().y)/dt[0];
+        velocity.x = (deltaPosition2D.toVector().x)/dt[0];
+        velocity.y = (deltaPosition2D.toVector().y)/dt[0];
     }
     private double getDeltaVel(){
         return velocity.x - velocity.y;
@@ -164,7 +164,7 @@ public class Odometry{
         oldTime[3] = runtime.milliseconds();
 
         oldAngularVelocity = angularVelocity;
-        angularVelocity = deltaPosition.getHeading()/dt[3];
+        angularVelocity = deltaPosition2D.getHeading()/dt[3];
     }
     // Обновление вектора углового ускорения робота
     private void updateAngularAcceleration() {
@@ -201,12 +201,12 @@ public class Odometry{
 
 //            deltaPosition.add(deltaX, deltaY, deltaRad);
 
-        deltaPosition.setX(deltaX);
-        deltaPosition.setY(deltaY);
-        deltaPosition.setHeading(deltaRad);
+        deltaPosition2D.setX(deltaX);
+        deltaPosition2D.setY(deltaY);
+        deltaPosition2D.setHeading(deltaRad);
 
         // Векторный поворот и добавление глобального перемещения к глобальным координатам
-        globalPosition.add(deltaPosition.toVector(), deltaPosition.getHeading());
+        globalPosition2D.add(deltaPosition2D.toVector(), deltaPosition2D.getHeading());
 
         return true;
     }

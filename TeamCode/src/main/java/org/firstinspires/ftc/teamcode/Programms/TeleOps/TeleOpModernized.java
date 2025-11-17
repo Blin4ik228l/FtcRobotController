@@ -2,48 +2,26 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
+import org.firstinspires.ftc.teamcode.Modules.MainModule;
+import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 
 public abstract class TeleOpModernized extends OpMode {
-    public ExecuteModule moduleCamera, modulePlayer1, moduleAutomaticClass, moduleMotorsController, moduleColorSensor, moduleJoystickActivity, moduleInnerWarden;
-    public void startExecute() {
-        moduleJoystickActivity.start();
-
-        moduleCamera.start();
-
-        modulePlayer1.start();
-
-        moduleAutomaticClass.start();
-        moduleMotorsController.start();
-        moduleColorSensor.start();
-
-        moduleInnerWarden.start();
+    public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot;
+    public ExecutableModule modulePlayer1, moduleAutomatic, moduleInnerWarden;
+    public void updateAll() {
+        moduleJoystickActivityPlayer1.update();
+        moduleRobot.update();
     }
-    public void interruptAll(){
-        moduleJoystickActivity.interrupt();
-
-        moduleCamera.interrupt();
-
-        modulePlayer1.interrupt();
-
-        moduleAutomaticClass.interrupt();
-        moduleMotorsController.interrupt();
-        moduleColorSensor.interrupt();
-
-        moduleInnerWarden.interrupt();
+    public void executeAll(){
+        modulePlayer1.execute();
+        moduleInnerWarden.execute();
+        moduleAutomatic.execute();
     }
-  public static class ExecuteModule extends Thread{
-        public Module module;
-        public ExecuteModule(Module module){
-            this.module = module;
-        }
+    public void showAll(){
+        moduleRobot.showData();
 
-        @Override
-        public void run() {
-            while (!isInterrupted()){
-                module.execute();
-            }
-        }
+        moduleJoystickActivityPlayer1.showData();
     }
 }
 

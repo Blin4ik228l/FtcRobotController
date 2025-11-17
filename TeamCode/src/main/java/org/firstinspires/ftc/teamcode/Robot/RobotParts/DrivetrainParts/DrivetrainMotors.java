@@ -4,16 +4,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
 
-public class MotorsOnDrivetrain extends Module {
+public class DrivetrainMotors extends ExecutableModule {
 
-    public MotorsOnDrivetrain(OpMode op) {
+    public DrivetrainMotors(OpMode op) {
         super(op.telemetry);
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
         rightF = op.hardwareMap.get(DcMotor.class, "rightF");
-        leftB = op.hardwareMap.get(DcMotor.class, "leftB");
         leftF = op.hardwareMap.get(DcMotor.class, "leftF");
+        leftB = op.hardwareMap.get(DcMotor.class, "leftB");
 
         rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -22,13 +22,13 @@ public class MotorsOnDrivetrain extends Module {
 
         rightB.setDirection(DcMotorSimple.Direction.FORWARD);
         rightF.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftB.setDirection(DcMotorSimple.Direction.REVERSE);
         leftF.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftB.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         telemetry.addLine("Motors on drivetrain Inited");
     }
@@ -51,5 +51,28 @@ public class MotorsOnDrivetrain extends Module {
 
     public DcMotor getRightF() {
         return rightF;
+    }
+    private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
+    public double leftBPower, leftFPower, rightBPower, rightFPower;
+
+    @Override
+    public void execute() {
+        rightB.setPower(rightBPower);
+        rightF.setPower(rightFPower);
+        leftF.setPower(leftFPower);
+        leftB.setPower(leftBPower);
+
+        curRightBPower = rightB.getPower();
+        curRightFPower = rightF.getPower();
+        curLeftBPower = leftB.getPower();
+        curLeftFPower = leftB.getPower();
+    }
+
+    @Override
+    public void showData() {
+        telemetry.addLine("===DRIVETRAIN MOTORS===");
+        telemetry.addData("Powers right side", "RF:%s RB:%s",curRightFPower, curRightBPower);
+        telemetry.addData("Powers left side", "LF:%s LB:%s",curLeftFPower, curLeftBPower);
+        telemetry.addLine();
     }
 }

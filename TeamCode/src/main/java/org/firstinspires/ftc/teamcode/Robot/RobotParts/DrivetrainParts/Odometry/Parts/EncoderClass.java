@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Modules.Module;
 
-public class EncoderClass extends Module{
+public class EncoderClass extends Module {
     public EncoderClass(@NonNull OpMode op){
         super(op.telemetry);
 

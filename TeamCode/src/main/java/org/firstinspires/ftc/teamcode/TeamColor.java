@@ -1,10 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
-public class TeamColor {
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
+
+public class TeamColor extends UpdatableModule {
     public final String red = "Red";
     public final String blue = "Blue";
 
-    public TeamColor(String chosenColor){
+    public TeamColor(String chosenColor, OpMode op){
+        super(op.telemetry);
         this.chosenColor = chosenColor;
 
         blueWallCoord[3] = Math.atan2(blueWallCoord[1], blueWallCoord[0]);
@@ -53,9 +58,9 @@ public class TeamColor {
     };
 
     public final double[][]artifactsUnderBlueWallCoord = new double[][]{
-            new double[]{-30.401,-133.588,6.264 , Math.toRadians(-90)}, new double[]{-30.401,-122.888,6.264 , Math.toRadians(-90)}, new double[]{-30.401,-108.188,6.264 , Math.toRadians(-90)},
-            new double[]{ 29.607,-133.588,6.264 , Math.toRadians(-90)}, new double[]{29.607 ,-122.888,6.264 , Math.toRadians(-90)}, new double[]{29.607 ,-108.188,6.264 , Math.toRadians(-90)},
-            new double[]{ 89.614,-133.588,6.264 , Math.toRadians(-90)}, new double[]{89.614 ,-122.888,6.264 , Math.toRadians(-90)}, new double[]{89.614 ,-108.188,6.264 , Math.toRadians(-90)}
+            new double[]{-30.401,-133.588,6.264 , Math.toRadians(-180)}, new double[]{-30.401,-122.888,6.264 , Math.toRadians(-180)}, new double[]{-30.401,-108.188,6.264 , Math.toRadians(-180)},
+            new double[]{ 29.607,-133.588,6.264 , Math.toRadians(-180)}, new double[]{29.607 ,-122.888,6.264 , Math.toRadians(-180)}, new double[]{29.607 ,-108.188,6.264 , Math.toRadians(-180)},
+            new double[]{ 89.614,-133.588,6.264 , Math.toRadians(-180)}, new double[]{89.614 ,-122.888,6.264 , Math.toRadians(-180)}, new double[]{89.614 ,-108.188,6.264 , Math.toRadians(-180)}
     };
 
     public final double[][]artifactsUnderRedWallCoord = new double[][]{

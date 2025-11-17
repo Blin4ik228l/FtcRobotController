@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
-import org.firstinspires.ftc.teamcode.Modules.InnerWardenClass;
+import org.firstinspires.ftc.teamcode.Modules.Players.InnerWardenClass;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -10,7 +10,6 @@ public class TeleOp extends TeleOpModernized {
     PlayerClass1 player1;
     AutomaticClass automaticClass;
     RobotClass robot;
-
     InnerWardenClass innerWarden;
 
     @Override
@@ -19,20 +18,15 @@ public class TeleOp extends TeleOpModernized {
 
         player1 = new PlayerClass1(gamepad1, robot.driveTrain, this);
         automaticClass = new AutomaticClass(gamepad1, robot.collector, this);
-
         innerWarden = new InnerWardenClass(robot, player1, automaticClass, this);
 
-        moduleJoystickActivity = new ExecuteModule(player1.joystickActivity);
+        moduleRobot = robot;
 
-        moduleCamera = new ExecuteModule(robot.cameraClass);
+        moduleJoystickActivityPlayer1 = player1.joystickActivity;
 
-        modulePlayer1 = new ExecuteModule(player1);
-
-        moduleAutomaticClass = new ExecuteModule(automaticClass);
-        moduleMotorsController = new ExecuteModule(automaticClass.motorsController);
-        moduleColorSensor = new ExecuteModule(automaticClass.collector.colorSensor);
-
-        moduleInnerWarden = new ExecuteModule(innerWarden);
+        modulePlayer1 = player1;
+        moduleInnerWarden = innerWarden;
+        moduleAutomatic = automaticClass;
     }
 
     @Override
@@ -42,17 +36,20 @@ public class TeleOp extends TeleOpModernized {
 
     @Override
     public void start() {
-        startExecute();
+
     }
 
     @Override
     public void loop() {
-        player1.showData();
-        automaticClass.showData();
+        updateAll();
+
+        executeAll();
+
+        showAll();
     }
 
     @Override
     public void stop() {
-        interruptAll();
+
     }
 }

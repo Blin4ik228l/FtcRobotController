@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.TaskAndArgs;
 
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 
 public class Args {
     public static class DriveArgs extends Args{
-        public DriveArgs(Position targetPosition, double targetSpeed){
-            position = targetPosition;
+        public DriveArgs(Position2D targetPosition2D, double targetSpeed){
+            position2D = targetPosition2D;
             speed = targetSpeed;
         }
-        public Position position;
+        public Position2D position2D;
         public double speed;
     }
     public static class LiftArgs extends Args{

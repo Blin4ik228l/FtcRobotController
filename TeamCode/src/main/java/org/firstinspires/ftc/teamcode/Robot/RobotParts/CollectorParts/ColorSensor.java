@@ -120,6 +120,7 @@ public class ColorSensor extends UpdatableModule {
         telemetry.addData("Distance", "%.1fcm", sensor0Distance);
         telemetry.addData("RGB1", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);
         telemetry.addData("RGB2", "R:%.3f G:%.3f B:%.3f", red2, green2, blue2);
+        telemetry.addData("Color sensor state", colorState.toString());
         telemetry.addLine();
     }
 

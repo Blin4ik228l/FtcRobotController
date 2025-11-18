@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Modules.Players;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -23,8 +24,8 @@ public class JoystickActivity extends UpdatableModule implements JoystickButtons
             tDpadDownPressed = 0, tDpadUpPressed = 0, tDpadLeftPressed = 0, tDpadRightPressed = 0,
             tBackPressed, tStartPressed = 0;
 
-    public JoystickActivity(Gamepad gamepad, Telemetry telemetry) {
-        super(telemetry);
+    public JoystickActivity(Gamepad gamepad, OpMode op) {
+        super(op.telemetry);
         playersGamepad = gamepad;
     }
 

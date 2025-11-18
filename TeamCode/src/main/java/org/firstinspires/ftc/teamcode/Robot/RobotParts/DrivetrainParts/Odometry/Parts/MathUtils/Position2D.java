@@ -61,8 +61,6 @@ public class Position2D {
     }
 
     public double getHeading(){
-        // Если направление робота будет больше +-2pi радиан (+-360 градусов), то приравняется
-        // к остатку от деления на 2pi (360)
         return heading;
     }
 

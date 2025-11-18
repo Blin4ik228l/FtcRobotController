@@ -30,6 +30,7 @@ public class CollectorMotors extends MainModule {
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         encMotorLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
+        runTimeAll = new ElapsedTime();
 
         telemetry.addLine("Motors on collector inited");
     }
@@ -100,8 +101,11 @@ public class CollectorMotors extends MainModule {
 
         inTake.setPower(inTakePower);
 
-        encMotorLeft.setVelocity(-flyWheelVel);
-        encMotorRight.setVelocity(flyWheelVel);
+        encMotorLeft.setPower(flyWheelVel);
+        encMotorRight.setPower(-flyWheelVel);
+
+//        encMotorLeft.setVelocity(-flyWheelVel);
+//        encMotorRight.setVelocity(flyWheelVel);
 
         inTakeCurPower = inTake.getPower();
 
@@ -119,6 +123,8 @@ public class CollectorMotors extends MainModule {
         telemetry.addData("FlyWheelSpeed overall","%.2f", curOverallVel);
         telemetry.addData("Left motor speed","%.2f", curLeftVel);
         telemetry.addData("Right motor speed","%.2f", curRightVel);
+        telemetry.addData("Motors state", motorsState.toString());
+        telemetry.addData("collectorMotorsState state", collectorMotorsState.toString());
         telemetry.addLine();
     }
 }

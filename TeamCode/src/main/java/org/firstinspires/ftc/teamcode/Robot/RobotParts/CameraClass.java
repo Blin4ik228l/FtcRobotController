@@ -32,8 +32,8 @@ public class CameraClass extends UpdatableModule {
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,-25 ,20.1628,26.086, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180), 0, 0, 0);//На сколько камера повёрнута относительно неё же
+        cameraPosition = new Position(DistanceUnit.CM,-9 ,-15,26.086, 0);//Позиция камеры относительно координат робота
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0), Math.toRadians(87), Math.toRadians(180), 0);//На сколько камера повёрнута относительно неё же
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -158,7 +158,27 @@ public class CameraClass extends UpdatableModule {
 
                 if((id == 20 || id == 24) ){
                     isPosWasTakenFirstly = true;
-                    calculate();
+
+                    robotFieldX = detection1.robotPose.getPosition().x;
+                    robotFieldY = detection1.robotPose.getPosition().y;
+                    robotFieldZ = detection1.robotPose.getPosition().z;
+
+                    robotFieldPitch = detection1.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                    robotFieldRoll  = detection1.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                    robotFieldYaw   = detection1.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+
+                    tagXFromRobot = teamColor.getWallCoord(id)[0] - robotFieldX;
+                    tagYFromRobot = teamColor.getWallCoord(id)[1] - robotFieldY;
+                    tagZFromRobot = teamColor.getWallCoord(id)[2] - robotFieldZ;
+
+//                    robotRangeToTag = Math.hypot(tagZFromRobot, Math.hypot(tagXFromRobot, tagYFromRobot));
+//                    cameraElevation = Math.acos(tagZFromRobot / robotRangeToTag);
+//                    cameraBearing   = Math.acos(tagYFromRobot / robotRangeToTag);
+
+                    robotRangeToTag = detection1.ftcPose.range;
+                    cameraElevation = detection1.ftcPose.elevation;
+                    cameraBearing   = detection1.ftcPose.bearing;
+
                     cameraState = CameraState.hasDetected;
                     lastPosWasTaked.reset();
                 }
@@ -167,7 +187,7 @@ public class CameraClass extends UpdatableModule {
         }
     }
     public Position2D returnWritedPos(){
-        if(cameraState == CameraState.noDetected) return new Position2D();
+//        if(cameraState == CameraState.noDetected) return new Position2D();
 
         return new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
     }
@@ -188,21 +208,7 @@ public class CameraClass extends UpdatableModule {
         }
     }
     public void calculate(){
-        robotFieldX = detection.robotPose.getPosition().x;
-        robotFieldY = detection.robotPose.getPosition().y;
-        robotFieldZ = detection.robotPose.getPosition().z;
 
-        robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-        robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-        robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
-
-        tagXFromRobot = teamColor.getWallCoord(id)[0] - robotFieldX;
-        tagYFromRobot = teamColor.getWallCoord(id)[1] - robotFieldY;
-        tagZFromRobot = teamColor.getWallCoord(id)[2] - robotFieldZ;
-
-        robotRangeToTag = Math.hypot(tagZFromRobot, Math.hypot(tagXFromRobot, tagYFromRobot));
-        cameraElevation = Math.acos(tagZFromRobot / robotRangeToTag);
-        cameraBearing   = Math.acos(tagYFromRobot / robotRangeToTag);
     }
 
     public boolean isTagShouldBeInFov(){
@@ -238,11 +244,13 @@ public class CameraClass extends UpdatableModule {
 
     public void showData(){
         telemetry.addLine("=== CAMERA ===");
-        telemetry.addData("Randomized artifacts: ", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]));
+        telemetry.addData("Randomized artifacts:", "%s %s %s", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]));
         telemetry.addData("Tags Found", 0);
         telemetry.addData("Streaming", isCameraStreaming);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);
+        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);
+        telemetry.addData("Camera state", cameraState.toString());
         telemetry.addLine();
     }
 }

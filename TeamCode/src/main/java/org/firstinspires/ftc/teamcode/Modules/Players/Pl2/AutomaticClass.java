@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSenso
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 
 public class AutomaticClass extends PlayerClass{
-    public AutomaticClass(Gamepad gamepad, RobotClass.Collector collector, OpMode op) {
-        super(new JoystickActivity(gamepad, op.telemetry), op.telemetry);
+    public AutomaticClass(JoystickActivity joystickActivity, RobotClass.Collector collector, OpMode op) {
+        super(joystickActivity, op.telemetry);
         this.collector = collector;
 
         cells = new Cells();
@@ -68,7 +68,10 @@ public class AutomaticClass extends PlayerClass{
         Baraban_at_pos,
         Pusher_back,
         Find_Color,
+        Idle,
+        Pusher_start
     }
+
     @Override
     public void execute(){
         if(!joystickActivity.buttonX) {
@@ -78,75 +81,102 @@ public class AutomaticClass extends PlayerClass{
 
             switch (automaticState){
                 case Load:
-                    collector.motors.targetMotorState = CollectorMotors.MotorsState.OnIntake;
-                    if(collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready) return;
 
-                    switch (loadState){
-                        case Baraban_moving_to_0:
-                            collector.servos.barabanPos = 0.0;
-                            collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
-                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
-                                loadState = LoadState.Baraban_at_0;
+                    collector.motors.targetMotorState = CollectorMotors.MotorsState.OnIntake;
+
+                    if(collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready) break;
+
+                    switch (loadState) {
+
+                        case Idle:
+                            collector.motors.targetMotorState = CollectorMotors.MotorsState.ReverseForWhile;
+                            if (collector.motors.runTimeAll.seconds() > 1 && collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Ready) {
+
+                                collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
+                                automaticState = CollectorState.Fire;
+                                runtime.reset();
                             }
                             break;
-                        case Baraban_at_0:
-                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
-                                    loadArtifactInCell(0);
-                                    loadState = LoadState.Baraban_moving_to_05;
-                                }
-                                break;
-                        case Baraban_moving_to_05:
-                            collector.servos.barabanPos = 0.5;
-                            collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
-                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
-                                loadState = LoadState.Baraban_at_05;
-                            }
-                            break;
-                        case Baraban_at_05:
-                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
-                                loadArtifactInCell(1);
-                                loadState = LoadState.Baraban_moving_to_1;
-                            }
-                            break;
-                        case Baraban_moving_to_1:
-                            collector.servos.barabanPos = 1;
-                            collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
-                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
-                                loadState = LoadState.Baraban_at_1;
-                            }
-                            break;
+
                         case Baraban_at_1:
-                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(2);
                                 loadState = LoadState.Idle;
                                 runtime.reset();
                             }
                             break;
-                        case Idle:
-                            collector.motors.targetMotorState = CollectorMotors.MotorsState.ReverseForWhile;
-                            if(collector.motors.runTimeAll.seconds() > 1 && collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Ready) {
 
-                                collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
-                                automaticState = CollectorState.Fire;
-                                runtime.reset();}
+                        case Baraban_moving_to_1:
+                            collector.servos.barabanPos = 1;
+                            collector.servos.execute();
+                            if ( (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_1;
+                            }
+                            break;
+
+                        case Baraban_at_05:
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                                loadArtifactInCell(1);
+                                loadState = LoadState.Baraban_moving_to_1;
+                            }
+                            break;
+
+
+                        case Baraban_moving_to_05:
+                            collector.servos.barabanPos = 0.5;
+                            collector.servos.execute();
+                            if ( (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_05;
+                            }
+                            break;
+
+                        case Baraban_at_0:
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                                loadArtifactInCell(0);
+                                loadState = LoadState.Baraban_moving_to_05;
+                            }
+                            break;
+
+                        case Baraban_moving_to_0:
+                            collector.servos.barabanPos = 0.0;
+                            collector.servos.execute();
+                            if ((collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
+                                collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
+                                loadState = LoadState.Baraban_at_0;
+                            }
+                            break;
+
+                        default:
                             break;
                     }
+
                     break;
+
                 case Fire:
+
                     collector.motors.targetMotorState = CollectorMotors.MotorsState.OffFlyWheel;
-                    if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()) return;
+                    if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()) break;
 
                     collector.motors.targetMotorState = CollectorMotors.MotorsState.OnFlyWheel;
-                    if(collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready) return;
+                    if (collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Unready
+                            || (Math.abs(collector.motors.curLeftVel) < 4 && Math.abs(collector.motors.curRightVel) < 4)) break;
 
-                    switch (fireState){
+                    switch (fireState) {
+                        case Idle:
+                            collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
+                            if (collector.motors.collectorMotorsState == CollectorMotors.CollectorMotorsState.Ready) {
+                                loadState = LoadState.Baraban_moving_to_0;
+                                fireState = FireState.Find_Color;
+                                automaticState = CollectorState.Load;
+                                joystickActivity.buttonBack = false;
+                            }
+                            break;
+
                         case Find_Color:
                             if (artifactCount == 0) {
-                                collector.motors.targetMotorState = CollectorMotors.MotorsState.OnIntake;
-                                automaticState = CollectorState.Load;
+                                fireState = FireState.Pusher_start;
                                 break;
                             }
 
@@ -156,7 +186,7 @@ public class AutomaticClass extends PlayerClass{
 
                             double targetPos = findNeededArtifactPos(targetColor);
 
-                            // Выбираем состояние движения
+                                    // Выбираем состояние движения
                             if (targetPos == 1.0) {
                                 fireState = FireState.Baraban_moving_to_1;
                             } else if (targetPos == 0.5) {
@@ -164,12 +194,12 @@ public class AutomaticClass extends PlayerClass{
                             } else {
                                 fireState = FireState.Baraban_moving_to_0;
                             }
-                            break;
 
+                            break;
                         case Baraban_moving_to_0:
                             collector.servos.barabanPos = 0.0;
                             collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                            if ((collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
                                 collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
                                 fireState = FireState.Baraban_at_pos;
                             }
@@ -177,16 +207,16 @@ public class AutomaticClass extends PlayerClass{
                         case Baraban_moving_to_05:
                             collector.servos.barabanPos = 0.5;
                             collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                            if ((collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
                                 collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
                                 fireState = FireState.Baraban_at_pos;
                             }
                             break;
 
-                        case Baraban_moving_to_1:
+                            case Baraban_moving_to_1:
                             collector.servos.barabanPos = 1;
                             collector.servos.execute();
-                            if((collector.buttonClass.buttonClassState == ButtonClass.ButtonClassState.wasPressed ) || (collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)){
+                            if ((collector.servos.runTimeBaraban.seconds() > 0.6 && collector.servos.barabanState == Servos.BarabanState.inPos)) {
                                 collector.buttonClass.buttonClassState = ButtonClass.ButtonClassState.upDateState;
                                 fireState = FireState.Baraban_at_pos;
                             }
@@ -195,7 +225,7 @@ public class AutomaticClass extends PlayerClass{
                         case Baraban_at_pos:
                             collector.servos.pusherPos = 0.9;
                             collector.servos.execute();
-                            if(collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos){
+                            if (collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos) {
                                 fireState = FireState.Pusher_back;
                             }
                             break;
@@ -203,19 +233,33 @@ public class AutomaticClass extends PlayerClass{
                         case Pusher_back:
                             collector.servos.pusherPos = 0.45;
                             collector.servos.execute();
-                            if(collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos){
-                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
+
+                            if (collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos) {
+                                if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {
                                     deleteColorFromCell();
                                     fireState = FireState.Find_Color;
-                                }else {
+                                } else {
                                     fireState = FireState.Baraban_at_pos;
                                 }
                             }
                             break;
+                        case Pusher_start:
+                            collector.servos.pusherPos = PUSHER_START_POS;
+                            collector.servos.execute();
+                            if (collector.servos.runTimePusher.seconds() > 0.8 && collector.servos.pusherState == Servos.PusherState.inPos) {
+                                fireState = FireState.Idle;
+                            }
+                            break;
+                        default:
+                            break;
                     }
+
                     break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + automaticState);
             }
         }
+        collector.servos.execute();
         collector.motors.execute();
     }
 
@@ -295,7 +339,7 @@ public class AutomaticClass extends PlayerClass{
         return Math.abs(curVel) < 25;
     }
     public boolean isAllowFire(){
-        return isVyrCompleted && joystickActivity.buttonY;
+        return joystickActivity.buttonBack;
     }
     public boolean isRandomizeWasDetected(){
         return randomizedArtifacts[0] != 0;
@@ -325,6 +369,8 @@ public class AutomaticClass extends PlayerClass{
             }
         }
     }
+
+    @Override
     public void showData(){
         telemetry.addLine("=== AUTOMATIC ===");
         telemetry.addData("Runtime", "%.1fs", runtime.seconds());
@@ -332,6 +378,11 @@ public class AutomaticClass extends PlayerClass{
         telemetry.addData("Cell0", "pos:%s color:%s", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color));
         telemetry.addData("Cell1", "pos:%s color:%s", cells.cell1.table.pos, getColorFromNumber(cells.cell1.table.color));
         telemetry.addData("Cell2", "pos:%s color:%s", cells.cell2.table.pos, getColorFromNumber(cells.cell2.table.color));
+        telemetry.addData("Automatic state", automaticState.toString());
+        telemetry.addData("Load state", loadState.toString());
+        telemetry.addData("Fire state", fireState.toString());
+        telemetry.addData("Button X", joystickActivity.buttonX);
+        telemetry.addLine();
     }
     public String getColorFromNumber(double number){
         return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";

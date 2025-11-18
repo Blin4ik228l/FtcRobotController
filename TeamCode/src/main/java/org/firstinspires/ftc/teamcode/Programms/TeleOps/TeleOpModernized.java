@@ -19,9 +19,11 @@ public abstract class TeleOpModernized extends OpMode {
         moduleAutomatic.execute();
     }
     public void showAll(){
+        moduleJoystickActivityPlayer1.showData();
+
         moduleRobot.showData();
 
-        moduleJoystickActivityPlayer1.showData();
+        moduleAutomatic.showData();
     }
 }
 

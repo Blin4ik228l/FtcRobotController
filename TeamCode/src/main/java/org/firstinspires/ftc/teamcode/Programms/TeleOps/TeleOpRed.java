@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.Modules.Players.JoystickActivity;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.PlayerClass2;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -12,11 +13,13 @@ public class TeleOpRed extends OpMode {
     PlayerClass2 dimas;
     PlayerClass1 leva;
     RobotClass robot;
+    JoystickActivity joystickActivity;
 
     @Override
     public void init() {
+        joystickActivity = new JoystickActivity(gamepad1, this);
         robot = new RobotClass(this, "Red");
-        leva = new PlayerClass1(gamepad1, robot.driveTrain, this);
+        leva = new PlayerClass1(joystickActivity, robot.driveTrain, this);
 //        dimas = new Player2(gamepad2, robot.teleSkope, this);
 
     }

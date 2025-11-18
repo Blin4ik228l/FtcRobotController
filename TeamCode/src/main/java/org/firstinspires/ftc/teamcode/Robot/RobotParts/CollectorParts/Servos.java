@@ -65,25 +65,13 @@ public class Servos extends MainModule {
 
     @Override
     public void update() {
-        if(barabanPos == curBarabanPos) barabanState = BarabanState.inPos;
-        else {
-            barabanState = BarabanState.notInPos;
-            runTimeBaraban.reset();}
 
-        if(pusherPos == curPusherPos) pusherState = PusherState.inPos;
-        else {
-            pusherState = PusherState.notInPos;
-            runTimePusher.reset();
-        }
-
-        if(anglePos == curAnglePos) angleState = AngleState.inPos;
-        else {
-            angleState = AngleState.notInPos;
-            runTimeAngle.reset();}
     }
 
     @Override
     public void execute() {
+        if(curAnglePos == anglePos && curBarabanPos == barabanPos && curPusherPos == pusherPos) return;
+
         angle.setPosition(anglePos);
         pusher.setPosition(pusherPos);
         baraban.setPosition(barabanPos);
@@ -91,12 +79,21 @@ public class Servos extends MainModule {
         curAnglePos = angle.getPosition();
         curPusherPos = pusher.getPosition();
         curBarabanPos = baraban.getPosition();
+
+        runTimeBaraban.reset();
+        runTimePusher.reset();
+        runTimeAngle.reset();
+
+        barabanState = BarabanState.inPos;
+        angleState = AngleState.inPos;
+        pusherState = PusherState.inPos;
     }
 
     @Override
     public void showData(){
         telemetry.addLine("===SERVOS===");
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherPos, curBarabanPos);
+        telemetry.addData("Baraban time", runTimeBaraban);
         telemetry.addLine();
     }
 }

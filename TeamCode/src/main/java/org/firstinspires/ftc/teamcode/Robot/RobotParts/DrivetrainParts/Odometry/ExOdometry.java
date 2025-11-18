@@ -52,17 +52,18 @@ public class ExOdometry extends UpdatableModule {
     public void setPosFromCamera(Position2D cameraPos){
         if(!cameraPos.equals(new Position2D()) && !isPosFromCameraWasGotFirstly){
 
-            encGlobalPosition2D.setX(cameraPos.getX());
-            encGlobalPosition2D.setY(cameraPos.getY());
-            encGlobalPosition2D.setHeading(cameraPos.getHeading());
 
             isPosFromCameraWasGotFirstly = true;
         }
-        if(isPosFromCameraWasGotFirstly){
-            encGlobalPosition2D.setX(encGlobalPosition2D.getX() * 0.9 + cameraPos.getX() * 0.1);
-            encGlobalPosition2D.setY(encGlobalPosition2D.getY() * 0.9 + cameraPos.getY() * 0.1);
-            encGlobalPosition2D.setHeading(encGlobalPosition2D.getHeading() * 0.9 + cameraPos.getHeading() * 0.1);
-        }
+        detectedPos = cameraPos;
+        encGlobalPosition2D.setX(detectedPos.getX());
+        encGlobalPosition2D.setY(detectedPos.getY());
+        encGlobalPosition2D.setHeading(detectedPos.getHeading());
+//        if(isPosFromCameraWasGotFirstly && !cameraPos.equals(new Position2D())){
+//            encGlobalPosition2D.setX(encGlobalPosition2D.getX() * 0.9 + cameraPos.getX() * 0.1);
+//            encGlobalPosition2D.setY(encGlobalPosition2D.getY() * 0.9 + cameraPos.getY() * 0.1);
+//            encGlobalPosition2D.setHeading(encGlobalPosition2D.getHeading() * 0.9 + cameraPos.getHeading() * 0.1);
+//        }
     }
     public boolean isVyrCompleted;
     @Override
@@ -101,9 +102,11 @@ public class ExOdometry extends UpdatableModule {
     @Override
     public void showData(){
         telemetry.addLine("=== EXODOMETRY ===");
-        telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
+        telemetry.addData("Position from encoders", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), detectedPos.getHeading() * 180/Math.PI);
+        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1f Y:%.1f", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);
+        telemetry.addLine();
     }
 
     public class SelfMath {
@@ -236,20 +239,21 @@ public class ExOdometry extends UpdatableModule {
         }
 
         private void updateGlobalAngle() {
-            if (encGlobalPosition2D.getHeading() < -Math.PI) {
-                encGlobalPosition2D.add(0, 0, 2 * Math.PI);
-            }
-
-            if (encGlobalPosition2D.getHeading() > Math.PI) {
-                encGlobalPosition2D.add(0, 0, -2 * Math.PI);
-            }
-            encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
-
-            encGlobalPosition2D.add(0, 0, encDeltaHeading * 1);
-            gyroGlobalPosition2D.add(0, 0, gyroDeltaHeading * 1);
-
-            robotCurVelocity.rotateToGlobal(encGlobalPosition2D.getHeading());
-            robotCurAccel.rotateToGlobal(encGlobalPosition2D.getHeading());
+//            encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+//
+//            encGlobalPosition2D.add(0, 0, encDeltaHeading * 1);
+//            gyroGlobalPosition2D.add(0, 0, gyroDeltaHeading * 1);
+//
+////            if (encGlobalPosition2D.getHeading() < -Math.PI) {
+////                encGlobalPosition2D.add(0, 0, 2 * Math.PI);
+////            }
+////
+////            if (encGlobalPosition2D.getHeading() > Math.PI) {
+////                encGlobalPosition2D.add(0, 0, -2 * Math.PI);
+////            }
+//
+//            robotCurVelocity.rotateToGlobal(encGlobalPosition2D.getHeading());
+//            robotCurAccel.rotateToGlobal(encGlobalPosition2D.getHeading());
         }
 
         private void updateGlobalPosition() {
@@ -269,9 +273,10 @@ public class ExOdometry extends UpdatableModule {
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
             Position2D deltaPos = new Position2D(deltaX * 1, deltaY * 1, 0);
+            Position2D deltaGyroPos = new Position2D(deltaX * 1, deltaY * 1, 0);
 
             Vector2 rotatedVectorEnc = deltaPos.toVector().rotateToGlobal(encGlobalPosition2D.getHeading());
-            Vector2 rotatedVectorGyro = deltaPos.toVector().rotateToGlobal(gyroGlobalPosition2D.getHeading());
+            Vector2 rotatedVectorGyro = deltaGyroPos.toVector().rotateToGlobal(gyroGlobalPosition2D.getHeading());
 
             encGlobalPosition2D.add(rotatedVectorEnc.x * 1, rotatedVectorEnc.y * 1, 0);
             gyroGlobalPosition2D.add(rotatedVectorGyro.x * 1, rotatedVectorGyro.y * 1, 0);

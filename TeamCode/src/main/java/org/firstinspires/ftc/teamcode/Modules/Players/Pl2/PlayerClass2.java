@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.Modules.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 public class PlayerClass2 extends PlayerClass {
-   public PlayerClass2(Gamepad gamepad, RobotClass.Collector teleskope, OpMode op){
-       super(new JoystickActivity(gamepad, op.telemetry), op.telemetry);
+   public PlayerClass2(JoystickActivity joystickActivity, RobotClass.Collector teleskope, OpMode op){
+       super(joystickActivity, op.telemetry);
 
 
     }

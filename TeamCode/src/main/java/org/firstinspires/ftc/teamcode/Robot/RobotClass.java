@@ -96,6 +96,8 @@ public class RobotClass extends TeamColor {
        @Override
        public void update() {
            colorSensor.update();
+           servos.update();
+           motors.update();
            buttonClass.update();
        }
 

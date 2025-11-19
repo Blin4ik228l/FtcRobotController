@@ -339,7 +339,7 @@ public class AutomaticClass extends PlayerClass{
         return Math.abs(curVel) < 25;
     }
     public boolean isAllowFire(){
-        return joystickActivity.buttonBack;
+        return isVyrCompleted && joystickActivity.buttonBack;
     }
     public boolean isRandomizeWasDetected(){
         return randomizedArtifacts[0] != 0;

@@ -5,9 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
+import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
-public class InnerWardenClass extends ExecutableModule {
+public class InnerWardenClass extends UpdatableModule {
     public RobotClass robotClass;
     public AutomaticClass automaticClass;
     public PlayerClass1 playerClass1;
@@ -19,8 +20,9 @@ public class InnerWardenClass extends ExecutableModule {
     }
 
     @Override
-    public void execute() {
+    public void update() {
         robotClass.driveTrain.exOdometry.setPosFromCamera(robotClass.cameraClass.returnWritedPos());
+
         automaticClass.setRandomizedArtifacts(robotClass.cameraClass.randomizedArtifact);
 
         robotClass.cameraClass.setOdometryState(robotClass.driveTrain.exOdometry.isPosFromCameraWasGotFirstly);

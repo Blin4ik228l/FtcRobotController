@@ -40,8 +40,8 @@ public class RobotClass extends TeamColor {
     @Override
     public void showData(){
         driveTrain.showData();
-        collector.showData();
         cameraClass.showData();
+        collector.showData();
     }
 
     public static class MecanumDrivetrain extends MainModule {
@@ -99,6 +99,7 @@ public class RobotClass extends TeamColor {
            servos.update();
            motors.update();
            buttonClass.update();
+
        }
 
        @Override

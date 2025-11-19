@@ -33,7 +33,7 @@ public class CameraClass extends UpdatableModule {
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
         cameraPosition = new Position(DistanceUnit.CM,-9 ,-15,26.086, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0), Math.toRadians(87), Math.toRadians(180), 0);//На сколько камера повёрнута относительно неё же
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0), Math.toRadians(87), Math.toRadians(180), 0);//Насколько камера повёрнута относительно неё же
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)

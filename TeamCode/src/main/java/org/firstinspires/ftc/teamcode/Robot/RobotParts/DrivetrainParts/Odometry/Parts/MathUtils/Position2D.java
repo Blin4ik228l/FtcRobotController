@@ -10,24 +10,30 @@ public class Position2D {
     public Position2D(double x , double y, double heading){
         this.x = x;
         this.y = y;
-        this.heading = Math.toRadians(heading);
+        this.heading = heading;
+
+
     }
 
     public Position2D(Position2D position2D){
         this.x = position2D.x;
         this.y = position2D.y;
         this.heading = position2D.heading;
+
+
     }
 
     public Position2D(Vector2 vector2, double heading){
         this.x = vector2.x;
         this.y = vector2.y;
         this.heading = heading;
+
     }
 
     public Position2D(){
         this.x = 0;
         this.y = 0;
+
         this.heading = 0;
     }
 
@@ -61,6 +67,15 @@ public class Position2D {
     }
 
     public double getHeading(){
+        //Нормализуем угол
+        if (this.heading < -Math.PI) {
+            this.heading += 2 * Math.PI;
+        }
+
+        if (this.heading > Math.PI) {
+            this.heading -= 2 * Math.PI;
+        }
+
         return heading;
     }
 

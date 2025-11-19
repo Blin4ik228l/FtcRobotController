@@ -74,7 +74,7 @@ public class ExOdometry extends UpdatableModule {
         double targX = teamColor.getWallCoord()[0] - encGlobalPosition2D.getX();
         double targY = teamColor.getWallCoord()[1] - encGlobalPosition2D.getY();
 
-        return  (Math.atan2(targY, -targX) - Math.PI/2);
+        return  new Position2D(0,0, Math.atan2(targY, -targX) - Math.PI/2).getHeading();
     }
 
     public double getDeltaAngle(double targetAngle){
@@ -239,21 +239,13 @@ public class ExOdometry extends UpdatableModule {
         }
 
         private void updateGlobalAngle() {
-//            encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
-//
-//            encGlobalPosition2D.add(0, 0, encDeltaHeading * 1);
-//            gyroGlobalPosition2D.add(0, 0, gyroDeltaHeading * 1);
-//
-////            if (encGlobalPosition2D.getHeading() < -Math.PI) {
-////                encGlobalPosition2D.add(0, 0, 2 * Math.PI);
-////            }
-////
-////            if (encGlobalPosition2D.getHeading() > Math.PI) {
-////                encGlobalPosition2D.add(0, 0, -2 * Math.PI);
-////            }
-//
-//            robotCurVelocity.rotateToGlobal(encGlobalPosition2D.getHeading());
-//            robotCurAccel.rotateToGlobal(encGlobalPosition2D.getHeading());
+            encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+
+            encGlobalPosition2D.add(0, 0, encDeltaHeading * 1);
+            gyroGlobalPosition2D.add(0, 0, gyroDeltaHeading * 1);
+
+            robotCurVelocity.rotateToGlobal(encGlobalPosition2D.getHeading());
+            robotCurAccel.rotateToGlobal(encGlobalPosition2D.getHeading());
         }
 
         private void updateGlobalPosition() {

@@ -7,15 +7,15 @@ import org.firstinspires.ftc.teamcode.Modules.MainModule;
 import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 
 public abstract class TeleOpModernized extends OpMode {
-    public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot;
-    public ExecutableModule modulePlayer1, moduleAutomatic, moduleInnerWarden;
+    public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot, moduleInnerWarden;
+    public ExecutableModule modulePlayer1, moduleAutomatic;
     public void updateAll() {
         moduleJoystickActivityPlayer1.update();
         moduleRobot.update();
+        moduleInnerWarden.update();
     }
     public void executeAll(){
         modulePlayer1.execute();
-        moduleInnerWarden.execute();
         moduleAutomatic.execute();
     }
     public void showAll(){

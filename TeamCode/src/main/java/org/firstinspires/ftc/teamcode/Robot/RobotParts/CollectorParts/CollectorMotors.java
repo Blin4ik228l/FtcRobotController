@@ -104,8 +104,8 @@ public class CollectorMotors extends MainModule {
         encMotorLeft.setPower(flyWheelVel);
         encMotorRight.setPower(-flyWheelVel);
 
-//        encMotorLeft.setVelocity(-flyWheelVel);
-//        encMotorRight.setVelocity(flyWheelVel);
+//        encMotorLeft.setVelocity(flyWheelVel);
+//        encMotorRight.setVelocity(-flyWheelVel);
 
         inTakeCurPower = inTake.getPower();
 

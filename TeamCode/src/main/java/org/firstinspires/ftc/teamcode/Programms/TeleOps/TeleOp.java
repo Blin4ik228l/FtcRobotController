@@ -19,7 +19,7 @@ public class TeleOp extends TeleOpModernized {
     public void init() {
         joystickActivity = new JoystickActivity(gamepad1, this);
 
-        robot = new RobotClass(this, "Blue");
+        robot = new RobotClass(this, "Red");
 
         player1 = new PlayerClass1(joystickActivity, robot.driveTrain, this);
         automaticClass = new AutomaticClass(joystickActivity, robot.collector, this);

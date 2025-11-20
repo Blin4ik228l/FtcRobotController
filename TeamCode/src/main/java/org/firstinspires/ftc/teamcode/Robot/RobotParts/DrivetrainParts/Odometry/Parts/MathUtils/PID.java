@@ -50,5 +50,19 @@ public class PID {
         oldtime = runtime.milliseconds();
 
         return P + Range.clip(I, minI, maxI) + D;
+
+    }
+
+    public double calculate(double error){
+
+        P = error * kP;
+        I += error * (runtime.milliseconds() - oldtime) * kI;
+        D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
+
+        olderror = error;
+        oldtime = runtime.milliseconds();
+
+        return P + Range.clip(I, minI, maxI) + D;
+
     }
 }

@@ -98,6 +98,7 @@ public class CameraClass extends UpdatableModule {
     public double robotFieldPitch;
     public double robotFieldRoll;
     public double robotFieldYaw;
+    public double ftcYaw;
     public double robotRangeToTag;
     public double cameraElevation;
     public double cameraBearing;
@@ -137,8 +138,8 @@ public class CameraClass extends UpdatableModule {
     @Override
     public void update(){
 
-        if(isObeliskWasSeen && isPosWasTakenFirstly){
-            if(!isRobotHaveMinVel() || !isTagShouldBeInFov()|| !isRobotHaveMinRange() || lastPosWasTaked.seconds() < 2){
+        if(isPosWasTakenFirstly){
+            if(!isRobotHaveMinVel() || !isTagShouldBeInFov()|| lastPosWasTaked.seconds() < 1){
                 cameraState = CameraState.noDetected;
                 return;
             }
@@ -174,6 +175,7 @@ public class CameraClass extends UpdatableModule {
 //                    robotRangeToTag = Math.hypot(tagZFromRobot, Math.hypot(tagXFromRobot, tagYFromRobot));
 //                    cameraElevation = Math.acos(tagZFromRobot / robotRangeToTag);
 //                    cameraBearing   = Math.acos(tagYFromRobot / robotRangeToTag);
+                    ftcYaw = detection1.ftcPose.yaw;
 
                     robotRangeToTag = detection1.ftcPose.range;
                     cameraElevation = detection1.ftcPose.elevation;
@@ -187,7 +189,7 @@ public class CameraClass extends UpdatableModule {
         }
     }
     public Position2D returnWritedPos(){
-//        if(cameraState == CameraState.noDetected) return new Position2D();
+        if(cameraState == CameraState.noDetected) return null;
 
         return new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
     }
@@ -230,7 +232,7 @@ public class CameraClass extends UpdatableModule {
         return range <= 200 && range >= 40;
     }
     public boolean isRobotHaveMinVel(){
-       return robotVel.length() <= 30;
+       return Math.abs(robotHeadVel) <= Math.toRadians(30);
     }
     public boolean isRobotHaveMinRange(){
         if(!state) return true;
@@ -247,10 +249,15 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Randomized artifacts:", "%s %s %s", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]));
         telemetry.addData("Tags Found", 0);
         telemetry.addData("Streaming", isCameraStreaming);
+        telemetry.addData("ftc yaw", ftcYaw * rad);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);
         telemetry.addData("Camera state", cameraState.toString());
+        telemetry.addData("Robot have min vel", isRobotHaveMinVel());
+        telemetry.addData("Robot have min range", isRobotHaveMinRange());
+        telemetry.addData("Camera have needed fov", isTagShouldBeInFov());
+        telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addLine();
     }
 }

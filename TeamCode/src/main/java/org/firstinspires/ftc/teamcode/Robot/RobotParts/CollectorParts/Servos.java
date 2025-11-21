@@ -13,6 +13,7 @@ public class Servos extends MainModule {
 
         pusher = op.hardwareMap.get(Servo.class, "pusher");
         baraban = op.hardwareMap.get(Servo.class, "baraban");
+        baraban2 = op.hardwareMap.get(Servo.class, "baraban2");
         angle = op.hardwareMap.get(Servo.class, "angle");
         runtime = new ElapsedTime();
 
@@ -23,7 +24,7 @@ public class Servos extends MainModule {
         while (true) {
             if (!(runtime.seconds() < 1)) break;
         }
-
+        baraban.setPosition(BARABAN2_START_POS);
         baraban.setPosition(BARABAN_START_POS);
 
         runTimeBaraban = new ElapsedTime();
@@ -35,7 +36,7 @@ public class Servos extends MainModule {
     private final ElapsedTime runtime;
     private final Servo angle;
     private final Servo pusher;
-    private final Servo baraban;
+    private final Servo baraban, baraban2;
     public double curAnglePos, curPusherPos, curBarabanPos;
     public double anglePos = BARABAN_START_POS;
     public double pusherPos = PUSHER_START_POS;
@@ -74,7 +75,9 @@ public class Servos extends MainModule {
 
         angle.setPosition(anglePos);
         pusher.setPosition(pusherPos);
+
         baraban.setPosition(barabanPos);
+        baraban2.setPosition(1 - barabanPos);
 
         curAnglePos = angle.getPosition();
         curPusherPos = pusher.getPosition();

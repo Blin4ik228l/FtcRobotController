@@ -72,6 +72,11 @@ public class AutomaticClass extends PlayerClass{
 
     @Override
     public void execute(){
+        if(joystickActivity.buttonY){
+            collector.servos.barabanPos = 0.5;
+        }else{
+            collector.servos.barabanPos = 0;
+        }
         if(!joystickActivity.buttonX) {
             collector.motors.targetMotorState = CollectorMotors.MotorsState.OffInTake;
         }else{

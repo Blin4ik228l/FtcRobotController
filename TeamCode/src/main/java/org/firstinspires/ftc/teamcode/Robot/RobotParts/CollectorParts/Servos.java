@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.MainModule;
+import org.firstinspires.ftc.teamcode.Modules.Module;
 
-public class Servos extends MainModule {
+public class Servos extends Module {
     public Servos(OpMode op){
         super(op.telemetry);
 
@@ -38,9 +38,9 @@ public class Servos extends MainModule {
     private final Servo pusher;
     private final Servo baraban, baraban2;
     public double curAnglePos, curPusherPos, curBarabanPos;
-    public double anglePos = BARABAN_START_POS;
-    public double pusherPos = PUSHER_START_POS;
-    public double barabanPos = ANGLE_ENDING_POS;
+    public double targetAnglePos = BARABAN_START_POS;
+    public double targetPusherPos = PUSHER_START_POS;
+    public double targetBarabanPos = ANGLE_ENDING_POS;
     public Servo getBaraban() {
         return baraban;
     }
@@ -50,46 +50,36 @@ public class Servos extends MainModule {
     public Servo getAngle() {
         return angle;
     }
-    public BarabanState barabanState;
-    public PusherState pusherState;
-    public AngleState angleState;
     public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusher;
-    public enum BarabanState{
-        inPos, notInPos
-    }
-    public enum PusherState{
-        inPos, notInPos
-    }
-    public enum AngleState{
-        inPos, notInPos
-    }
 
-    @Override
-    public void update() {
+    public void setBaraban(double targetBarabanPos){
+        if(curBarabanPos == targetBarabanPos) return;
 
-    }
+        baraban.setPosition(targetBarabanPos);
+        baraban2.setPosition(1 - targetBarabanPos);
 
-    @Override
-    public void execute() {
-        if(curAnglePos == anglePos && curBarabanPos == barabanPos && curPusherPos == pusherPos) return;
-
-        angle.setPosition(anglePos);
-        pusher.setPosition(pusherPos);
-
-        baraban.setPosition(barabanPos);
-        baraban2.setPosition(1 - barabanPos);
-
-        curAnglePos = angle.getPosition();
-        curPusherPos = pusher.getPosition();
         curBarabanPos = baraban.getPosition();
 
-        runTimeBaraban.reset();
-        runTimePusher.reset();
-        runTimeAngle.reset();
+        runTimeBaraban.reset();//Обнуляем время с момента попадания программы в эту часть
+    }
 
-        barabanState = BarabanState.inPos;
-        angleState = AngleState.inPos;
-        pusherState = PusherState.inPos;
+    public void setPusher(double targetPusherPos){
+        if(curPusherPos == targetPusherPos) return;
+        pusher.setPosition(targetPusherPos);
+
+        curPusherPos = pusher.getPosition();
+
+        runTimePusher.reset();//Обнуляем время с момента попадания программы в эту часть
+    }
+
+    public void setAngle(double targetAnglePos){
+        if(curAnglePos == targetAnglePos) return;
+
+        angle.setPosition(targetAnglePos);
+
+        curAnglePos = angle.getPosition();
+
+        runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
     }
 
     @Override

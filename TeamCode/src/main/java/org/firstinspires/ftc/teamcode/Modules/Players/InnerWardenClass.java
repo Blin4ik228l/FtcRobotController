@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Modules.Players;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
 import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
@@ -21,16 +20,11 @@ public class InnerWardenClass extends UpdatableModule {
 
     @Override
     public void update() {
-        robotClass.driveTrain.exOdometry.setPosFromCamera(robotClass.cameraClass.returnWritedPos());
+        robotClass.driveTrain.exOdometry.setPos(robotClass.driveTrain.cameraClass.getPos());
 
-        automaticClass.setRandomizedArtifacts(robotClass.cameraClass.randomizedArtifact);
+        robotClass.driveTrain.cameraClass.setFields(robotClass.driveTrain.exOdometry.encGlobalPosition2D, robotClass.driveTrain.exOdometry.encHeadVel);
 
-        robotClass.cameraClass.setOdometryState(robotClass.driveTrain.exOdometry.isPosFromCameraWasGotFirstly);
-
-        robotClass.cameraClass.setPositionFromOdometry(robotClass.driveTrain.exOdometry.encGlobalPosition2D);
-        robotClass.cameraClass.setRobotVelFromOdometry(robotClass.driveTrain.exOdometry.robotCurVelocity, robotClass.driveTrain.exOdometry.encHeadVel);
-        robotClass.cameraClass.setRangeFromOdometry(robotClass.driveTrain.exOdometry.getRange());
-
-        automaticClass.setFields(robotClass.driveTrain.exOdometry.isVyrCompleted, robotClass.driveTrain.exOdometry.getRange(), robotClass.driveTrain.exOdometry.robotCurVelocity.length());
+        automaticClass.setFields(robotClass.driveTrain.cameraClass.randomizedArtifact, robotClass.driveTrain.exOdometry.isVyrCompleted,
+                robotClass.driveTrain.exOdometry.getRange(), robotClass.driveTrain.exOdometry.encHeadVel);
     }
 }

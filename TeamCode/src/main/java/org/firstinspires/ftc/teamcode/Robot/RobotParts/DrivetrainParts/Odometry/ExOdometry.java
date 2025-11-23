@@ -7,7 +7,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.EncoderClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.PID;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.TeamColor;
@@ -45,30 +44,15 @@ public class ExOdometry extends UpdatableModule {
     public double encHeadVel, encHeadAccel;
     public double gyroHeadVel, gyroHeadAccel;
     public Position2D detectedPos;
-    public boolean isPosFromCameraWasGotFirstly = false;
-
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
-
-    public void setPosFromCamera(Position2D cameraPos){
-        if(cameraPos != null && !isPosFromCameraWasGotFirstly){
+    public void setPos(Position2D cameraPos){
+        if(cameraPos != null) {
             encGlobalPosition2D.setX(cameraPos.getX());
             encGlobalPosition2D.setY(cameraPos.getY());
             encGlobalPosition2D.setHeading(cameraPos.getHeading());
-
-            isPosFromCameraWasGotFirstly = true;
         }
-        if(cameraPos != null){
-            encGlobalPosition2D.setX(encGlobalPosition2D.getX() * 0.9 + cameraPos.getX() * 0.1);
-            encGlobalPosition2D.setY(encGlobalPosition2D.getY() * 0.9 + cameraPos.getY() * 0.1);
-            encGlobalPosition2D.setHeading(cameraPos.getHeading());
-        }
-//        if(isPosFromCameraWasGotFirstly && !cameraPos.equals(new Position2D())){
-//            encGlobalPosition2D.setX(encGlobalPosition2D.getX() * 0.9 + cameraPos.getX() * 0.1);
-//            encGlobalPosition2D.setY(encGlobalPosition2D.getY() * 0.9 + cameraPos.getY() * 0.1);
-//            encGlobalPosition2D.setHeading(encGlobalPosition2D.getHeading() * 0.9 + cameraPos.getHeading() * 0.1);
-//        }
     }
     public boolean isVyrCompleted;
     @Override
@@ -79,26 +63,20 @@ public class ExOdometry extends UpdatableModule {
         double targX = teamColor.getWallCoord()[0] - encGlobalPosition2D.getX();
         double targY = teamColor.getWallCoord()[1] - encGlobalPosition2D.getY();
 
-        return  new Position2D(0,0, Math.atan2(targX, -targY)).getHeading();
+        return new Position2D(0,0, Math.atan2(targX, -targY)).getHeading();
     }
 
-    public double getDeltaAngle(double targetAngle){
-
-        double target = new Position2D(0,0,targetAngle - encGlobalPosition2D.getHeading()).getHeading();
-
-
-        PID angularPid = new PID(2, 0, 0,-1, 1);
-
-        double power = angularPid.calculate(target);
+    public double getDeltaAngle(){
+        double target = new Position2D(0,0,getFoundedRobotAngle() - encGlobalPosition2D.getHeading()).getHeading();
 
         if(Math.abs(target) < Math.toRadians(1)) {
-            power = 0;
+            target = 0;
             isVyrCompleted = true;
         }else {
             isVyrCompleted = false;
         }
 
-        return power;
+        return target;
     }
 
     public double getRange(){
@@ -118,7 +96,7 @@ public class ExOdometry extends UpdatableModule {
         telemetry.addData("Velocity", "X:%.1f Y:%.1f", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);
         telemetry.addData("Founded Robot Angle", getFoundedRobotAngle()* 180/Math.PI);
-        telemetry.addData("Target", getDeltaAngle(getFoundedRobotAngle())* 180/Math.PI);
+        telemetry.addData("Target", getDeltaAngle()* 180/Math.PI);
         telemetry.addLine();
     }
 

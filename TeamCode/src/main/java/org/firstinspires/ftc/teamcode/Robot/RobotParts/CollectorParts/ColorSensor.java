@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
@@ -25,6 +26,8 @@ public class ColorSensor extends UpdatableModule {
         relativeLayoutId = op.hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", op.hardwareMap.appContext.getPackageName());
         relativeLayout = ((Activity) op.hardwareMap.appContext).findViewById(relativeLayoutId);
 
+        timeFromDetect = new ElapsedTime();
+
         telemetry.addLine("ColorSensor Inited");
     }
     private final int relativeLayoutId;
@@ -39,6 +42,7 @@ public class ColorSensor extends UpdatableModule {
     public double sensor0Distance, sensor2Distance;
     public double artifactColor;
     public ColorSensorState colorState;
+    public ElapsedTime timeFromDetect;
 
     public enum ColorSensorState{
         No_Artifact_Detected,
@@ -105,7 +109,10 @@ public class ColorSensor extends UpdatableModule {
     }
 
     public void updateClassState(){
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && sensor0Distance < 10) colorState = ColorSensorState.Artifact_Detected;
+        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && sensor0Distance < 10 && colorState == ColorSensorState.No_Artifact_Detected) {
+            colorState = ColorSensorState.Artifact_Detected;
+            timeFromDetect.reset();
+        }
         else colorState = ColorSensorState.No_Artifact_Detected;
     }
     public void updateArtifactColor(){

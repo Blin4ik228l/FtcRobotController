@@ -5,8 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
+import org.firstinspires.ftc.teamcode.Modules.Module;
 
-public class DrivetrainMotors extends ExecutableModule {
+public class DrivetrainMotors extends Module {
 
     public DrivetrainMotors(OpMode op) {
         super(op.telemetry);
@@ -55,12 +56,11 @@ public class DrivetrainMotors extends ExecutableModule {
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
     public double leftBPower, leftFPower, rightBPower, rightFPower;
 
-    @Override
-    public void execute() {
-        rightB.setPower(rightBPower);
-        rightF.setPower(rightFPower);
-        leftF.setPower(leftFPower);
-        leftB.setPower(leftBPower);
+    public void setPower(double forwardPow, double sidePow, double anglePow){
+        rightB.setPower(forwardPow - sidePow + anglePow);
+        rightF.setPower(forwardPow + sidePow + anglePow);
+        leftF.setPower(forwardPow - sidePow - anglePow);
+        leftB.setPower(forwardPow + sidePow - anglePow);
 
         curRightBPower = rightB.getPower();
         curRightFPower = rightF.getPower();

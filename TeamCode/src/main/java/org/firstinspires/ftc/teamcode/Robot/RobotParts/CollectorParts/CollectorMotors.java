@@ -6,27 +6,25 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.MainModule;
-import org.firstinspires.ftc.teamcode.Modules.Players.Pl2.AutomaticClass;
-import org.opencv.core.Mat;
+import org.firstinspires.ftc.teamcode.Modules.Module;
 
-public class CollectorMotors extends MainModule {
+public class CollectorMotors extends Module {
     public CollectorMotors(OpMode op){
         super(op.telemetry);
 
-        inTake = op.hardwareMap.get(DcMotor.class, "inTake");
+        inTakeMotor = op.hardwareMap.get(DcMotor.class, "inTake");
         encMotorRight = op.hardwareMap.get(DcMotorEx.class, "flyWheelRight");
         encMotorLeft = op.hardwareMap.get(DcMotorEx.class, "flyWheelLeft");
 
-        inTake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        inTakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем правый энкодер
         encMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем левый энкодер
 
         encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
         encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        inTake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        inTakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         encMotorLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
@@ -34,11 +32,11 @@ public class CollectorMotors extends MainModule {
 
         telemetry.addLine("Motors on collector inited");
     }
-    private final DcMotor inTake;
+    private final DcMotor inTakeMotor;
     private final DcMotorEx encMotorRight;
     private final DcMotorEx encMotorLeft;
-    public DcMotor getInTake() {
-        return inTake;
+    public DcMotor getInTakeMotor() {
+        return inTakeMotor;
     }
     public DcMotorEx getEncMotorLeft() {
         return encMotorLeft;
@@ -65,56 +63,61 @@ public class CollectorMotors extends MainModule {
         OffFlyWheel,
     }
 
-    @Override
-    public void update() {
-        if (inTakePower != inTakeCurPower || !(Math.abs(flyWheelVel) <= Math.abs(curOverallVel)) && motorsState != targetMotorState) {
-            collectorMotorsState = CollectorMotorsState.Unready;
-            runTimeAll.reset();
-        }else collectorMotorsState = CollectorMotorsState.Ready;
+    public void onIntake(){
+        double targetInTakePower = -1;
+        double targetFlyWheelVel = 1;
+
+        setPower(targetInTakePower, targetFlyWheelVel);
     }
 
-    @Override
-    public void execute() {
-        if(motorsState != targetMotorState){
-            motorsState = targetMotorState;
-            switch (motorsState){
-                case OnIntake:
-                    inTakePower = -1;
-                    flyWheelVel = 1;
-                    break;
-                case ReverseForWhile:
-                    inTakePower = 1;
-                    flyWheelVel = 0;
-                    break;
-                case OffInTake:
-                    inTakePower = 0;
-                    flyWheelVel = 0;
-                    break;
-                case OnFlyWheel:
-                    flyWheelVel = 5;
-                    break;
-                case OffFlyWheel:
-                    flyWheelVel = 0;
-                    break;
-            }
-        }
+    public void offIntake(){
+        double targetInTakePower = 0;
+        double targetFlyWheelVel = 0;
 
-        inTake.setPower(inTakePower);
+        setPower(targetInTakePower, targetFlyWheelVel);
+    }
 
-        encMotorLeft.setPower(flyWheelVel);
-        encMotorRight.setPower(-flyWheelVel);
+    public void reverseForAWhile(double targetTime){
+        double targetInTakePower = 1;
+        double targetFlyWheelVel = 0;
 
-//        encMotorLeft.setVelocity(flyWheelVel);
-//        encMotorRight.setVelocity(-flyWheelVel);
+        if(inTakeCurPower != targetInTakePower) runTimeAll.reset();
 
-        inTakeCurPower = inTake.getPower();
+        setPower(targetInTakePower, targetFlyWheelVel);
+
+        if(runTimeAll.seconds() >= targetTime) offIntake();
+    }
+
+    public void offFLyWheel(){
+        double targetInTakePower = 0;
+        double targetFlyWheelVel = 0;
+
+        setPower(targetInTakePower, targetFlyWheelVel);
+    }
+
+    public void onFLyWheel(){
+        double targetInTakePower = 0;
+        double targetFlyWheelVel = 1;
+
+        setPower(targetInTakePower, targetFlyWheelVel);
+    }
+
+    public void setPower(double targetIntakePow, double targetFlyWheelPower){
+        inTakeMotor.setPower(targetIntakePow);
+
+        //encMotorLeft.setVelocity(flyWheelVel);
+        //encMotorRight.setVelocity(-flyWheelVel);
+
+        encMotorLeft.setPower(targetFlyWheelPower);
+        encMotorRight.setPower(-targetFlyWheelPower);
+
+        inTakeCurPower = inTakeMotor.getPower();
 
         curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
         curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
 
         curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel - curRightVel) / 2.0 : curLeftVel - curRightVel;
     }
-
 
     @Override
     public void showData(){

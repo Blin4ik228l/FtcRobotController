@@ -110,7 +110,6 @@ public class CameraClass extends UpdatableModule {
     public Position2D robotPos;
     public Vector2 robotVel;
     public double robotHeadVel;
-    public double rangeFromOdometry;
 
     public ElapsedTime lastPosWasTaked;
 
@@ -120,19 +119,9 @@ public class CameraClass extends UpdatableModule {
         noDetected,
         hasDetected
     }
-
-    public void setPositionFromOdometry(Position2D robotPos){
+    public void setFields(Position2D robotPos, double robotHeadVel){
         this.robotPos = robotPos;
-    }
-    public void setRobotVelFromOdometry(Vector2 robotVel, double robotHeadVel){
-        this.robotVel = robotVel;
         this.robotHeadVel = robotHeadVel;
-    }
-    public void setRangeFromOdometry(double rangeFromOdometry){
-        this.rangeFromOdometry = rangeFromOdometry;
-    }
-    public void setOdometryState(boolean state){
-        this.state = state;
     }
 
     @Override
@@ -188,7 +177,7 @@ public class CameraClass extends UpdatableModule {
             }
         }
     }
-    public Position2D returnWritedPos(){
+    public Position2D getPos(){
         if(cameraState == CameraState.noDetected) return null;
 
         return new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
@@ -209,13 +198,8 @@ public class CameraClass extends UpdatableModule {
             isObeliskWasSeen = true;
         }
     }
-    public void calculate(){
-
-    }
 
     public boolean isTagShouldBeInFov(){
-        if(!state) return true;
-
         double leftBorder = robotPos.getHeading() + (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
         double rightBorder = robotPos.getHeading() - (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
 
@@ -235,9 +219,7 @@ public class CameraClass extends UpdatableModule {
        return Math.abs(robotHeadVel) <= Math.toRadians(30);
     }
     public boolean isRobotHaveMinRange(){
-        if(!state) return true;
-
-        return rangeFromOdometry < 200 && rangeFromOdometry > 40;
+        return robotRangeToTag < 200 && robotRangeToTag > 40;
     }
 
     public String getColorFromNumber(int number){

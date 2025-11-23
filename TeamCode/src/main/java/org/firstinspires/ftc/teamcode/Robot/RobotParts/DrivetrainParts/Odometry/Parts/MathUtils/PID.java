@@ -54,7 +54,6 @@ public class PID {
     }
 
     public double calculate(double error){
-
         P = error * kP;
         I += error * (runtime.milliseconds() - oldtime) * kI;
         D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;

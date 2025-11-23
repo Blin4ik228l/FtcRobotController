@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.MainModule;
+import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
@@ -23,28 +24,25 @@ public class RobotClass extends TeamColor {
         super(teamColor, op);
 
         driveTrain = new MecanumDrivetrain(op, this);
-        cameraClass = new CameraClass(op, this);
+
         collector = new Collector(op);
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
-    public CameraClass cameraClass;
 
     @Override
     public void update() {
         driveTrain.update();
         collector.update();
-        cameraClass.update();
     }
 
     @Override
     public void showData(){
         driveTrain.showData();
-        cameraClass.showData();
         collector.showData();
     }
 
-    public static class MecanumDrivetrain extends MainModule {
+    public static class MecanumDrivetrain extends UpdatableModule {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
         public MecanumDrivetrain(OpMode op, TeamColor teamColor){
@@ -53,30 +51,29 @@ public class RobotClass extends TeamColor {
             motors = new DrivetrainMotors(op);
 
             exOdometry = new ExOdometry(op,teamColor );
+            cameraClass = new CameraClass(op, teamColor);
 
             telemetry.addLine("Drivetrain Inited");
         }
         public DrivetrainMotors motors;
         public ExOdometry exOdometry;
+        public CameraClass cameraClass;
 
         @Override
         public void update() {
+            cameraClass.update();
             exOdometry.update();
         }
 
         @Override
-        public void execute() {
-            motors.execute();
-        }
-
-        @Override
         public void showData() {
-            motors.showData();
+            cameraClass.showData();
             exOdometry.showData();
+            motors.showData();
         }
     }
 
-   public static class Collector extends MainModule {
+   public static class Collector extends UpdatableModule {
         public Collector(OpMode op) {
             super(op.telemetry);
 
@@ -96,16 +93,6 @@ public class RobotClass extends TeamColor {
        @Override
        public void update() {
            colorSensor.update();
-           servos.update();
-           motors.update();
-           buttonClass.update();
-
-       }
-
-       @Override
-       public void execute() {
-           motors.execute();
-           servos.execute();
        }
 
        @Override
@@ -113,6 +100,7 @@ public class RobotClass extends TeamColor {
            motors.showData();
            servos.showData();
            colorSensor.showData();
+           buttonClass.showData();
        }
    }
 

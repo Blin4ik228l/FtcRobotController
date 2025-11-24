@@ -74,7 +74,7 @@ public class AutomaticClass extends PlayerClass{
     @Override
     public void execute(){
         double delayToRotate = 0.2;
-        double delayToBaraban = 0.6;
+        double delayToBaraban = 0.4;
         double delayToPusher = 0.8;
         double delayToReverse = 1;
 
@@ -91,11 +91,10 @@ public class AutomaticClass extends PlayerClass{
 
             switch (automaticState){
                 case Load:
-                    collector.motors.onIntake();
 
                     switch (loadState) {
-
                         case Baraban_moving_to_0:
+                            collector.motors.onIntake();
                             collector.servos.setBaraban(0.0);
 
                             if (isRotateEnded(delayToBaraban)) {
@@ -104,14 +103,14 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_0:
-                            if (collector.colorSensor.timeFromDetect.seconds() > delayToRotate && collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(0);
                                 loadState = LoadState.Baraban_moving_to_05;
                             }
                             break;
 
                         case Baraban_moving_to_05:
-                            collector.servos.setBaraban(0.5);
+                            collector.servos.setBaraban(0.25);
 
                             if (isRotateEnded(delayToBaraban)) {
                                 loadState = LoadState.Baraban_at_05;
@@ -119,14 +118,14 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_05:
-                            if (collector.colorSensor.timeFromDetect.seconds() > delayToRotate && collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(1);
                                 loadState = LoadState.Baraban_moving_to_1;
                             }
                             break;
 
                         case Baraban_moving_to_1:
-                            collector.servos.setBaraban(1);
+                            collector.servos.setBaraban(0.5);
 
                             if (isRotateEnded(delayToBaraban)) {
                                 loadState = LoadState.Baraban_at_1;
@@ -134,7 +133,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_1:
-                            if (collector.colorSensor.timeFromDetect.seconds() > delayToRotate && collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(2);
                                 loadState = LoadState.Idle;
                             }
@@ -163,11 +162,11 @@ public class AutomaticClass extends PlayerClass{
 
                     switch (fireState) {
                         case Pusher_prefire:
-                            collector.servos.setPusher(0.5);
+                            collector.servos.setPusher(0.55);
 
-//                            if (collector.servos.runTimePusher.seconds() > 0.5) {
-//                                fireState = FireState.Find_Color;
-//                            }Не забыть раскомментировать!!
+                            if (collector.servos.runTimePusher.seconds() > 0.5) {
+                                fireState = FireState.Find_Color;
+                            }
                             break;
 
                         case Find_Color:
@@ -217,7 +216,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_pos:
-                            if(collector.motors.curOverallVel < 4.5) break;
+//                            if(collector.motors.curOverallVel < 4.5) break;
 
                             collector.servos.setPusher(1);
 
@@ -227,7 +226,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Pusher_back:
-                            collector.servos.setPusher(0.45);
+                            collector.servos.setPusher(0.55);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {
@@ -276,10 +275,10 @@ public class AutomaticClass extends PlayerClass{
             cells.cell0.table.pos = 0.0;
         } else if (cell == 1) {
             cells.cell1.table.color = collector.colorSensor.artifactColor;
-            cells.cell1.table.pos = 0.5;
+            cells.cell1.table.pos = 0.25;
         } else if (cell == 2) {
             cells.cell2.table.color = collector.colorSensor.artifactColor;
-            cells.cell2.table.pos = 1.0;
+            cells.cell2.table.pos = 0.5;
         }else {
             return;
         }

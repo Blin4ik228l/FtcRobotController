@@ -21,8 +21,8 @@ public class ButtonClass extends Module {
     public boolean state;
 
     public boolean getState(){
-        state = button.getState();
-        return state;
+//        state = button.getState();
+        return false;
     }
 
 

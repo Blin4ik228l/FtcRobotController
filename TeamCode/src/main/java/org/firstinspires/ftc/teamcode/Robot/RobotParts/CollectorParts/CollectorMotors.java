@@ -126,8 +126,8 @@ public class CollectorMotors extends Module {
         telemetry.addData("FlyWheelSpeed overall","%.2f", curOverallVel);
         telemetry.addData("Left motor speed","%.2f", curLeftVel);
         telemetry.addData("Right motor speed","%.2f", curRightVel);
-        telemetry.addData("Motors state", motorsState.toString());
-        telemetry.addData("collectorMotorsState state", collectorMotorsState.toString());
+//        telemetry.addData("Motors state", motorsState.toString());
+//        telemetry.addData("collectorMotorsState state", collectorMotorsState.toString());
         telemetry.addLine();
     }
 }

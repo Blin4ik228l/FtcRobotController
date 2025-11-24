@@ -109,11 +109,13 @@ public class ColorSensor extends UpdatableModule {
     }
 
     public void updateClassState(){
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && sensor0Distance < 10 && colorState == ColorSensorState.No_Artifact_Detected) {
+        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && sensor0Distance < 10) {
             colorState = ColorSensorState.Artifact_Detected;
+        }
+        else {
+            colorState = ColorSensorState.No_Artifact_Detected;
             timeFromDetect.reset();
         }
-        else colorState = ColorSensorState.No_Artifact_Detected;
     }
     public void updateArtifactColor(){
         artifactColor = sensor0FoundedColor != 0 ? sensor0FoundedColor : sensor2FoundedColor;

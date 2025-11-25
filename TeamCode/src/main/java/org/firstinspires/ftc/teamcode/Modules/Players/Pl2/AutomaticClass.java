@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Modules.Players.Pl2;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Modules.Players.JoystickActivity;
 import org.firstinspires.ftc.teamcode.Modules.Players.PlayerClass;
@@ -74,27 +75,41 @@ public class AutomaticClass extends PlayerClass{
     @Override
     public void execute(){
         double delayToRotate = 0.2;
-        double delayToBaraban = 0.4;
+        double delayToBaraban = 2;
         double delayToPusher = 0.8;
         double delayToReverse = 1;
+        double delayToAngle = 0.5;
 
-        if(joystickActivity.buttonY){
-            collector.servos.targetBarabanPos = 0.5;
-        }else{
-            collector.servos.targetBarabanPos = 0;
+        if(joystickActivity.tDpadUpPressed == 1){
+            collector.servos.setBaraban(0.25);
+        }else if(joystickActivity.tDpadUpPressed == 2){
+            collector.servos.setBaraban(0.5);
+        }else if(joystickActivity.tDpadUpPressed == 3){
+            collector.servos.setBaraban(0);
+            joystickActivity.tDpadUpPressed = 0;
         }
+
+        if(joystickActivity.tDpadLeftPressed == 1){
+            collector.servos.setAngle(Math.max(collector.servos.curAnglePos - 0.05, 0.0));
+            joystickActivity.tDpadLeftPressed = 0;
+        }
+         if(joystickActivity.tDpadRightPressed == 1){
+            collector.servos.setAngle(Math.min(collector.servos.curAnglePos + 0.05, 0.65));
+             joystickActivity.tDpadRightPressed = 0;
+        }
+
         if(!joystickActivity.buttonX) {
             collector.motors.offIntake();
 
         }else{
             checkNumberOfArtifacts();
-
+            collector.servos.setAngle(findNeededPosAngle(range));
             switch (automaticState){
                 case Load:
 
                     switch (loadState) {
                         case Baraban_moving_to_0:
-                            collector.motors.onIntake();
+
                             collector.servos.setBaraban(0.0);
 
                             if (isRotateEnded(delayToBaraban)) {
@@ -103,6 +118,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_0:
+                            collector.motors.onIntake();
                             if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(0);
                                 loadState = LoadState.Baraban_moving_to_05;
@@ -118,6 +134,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_05:
+                            collector.motors.onIntake();
                             if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(1);
                                 loadState = LoadState.Baraban_moving_to_1;
@@ -133,6 +150,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_at_1:
+                            collector.motors.onIntake();
                             if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 loadArtifactInCell(2);
                                 loadState = LoadState.Idle;
@@ -182,9 +200,9 @@ public class AutomaticClass extends PlayerClass{
                             double targetPos = findNeededArtifactPos(targetColor);
 
                                     // Выбираем состояние движения
-                            if (targetPos == 1.0) {
+                            if (targetPos == 0.5) {
                                 fireState = FireState.Baraban_moving_to_1;
-                            } else if (targetPos == 0.5) {
+                            } else if (targetPos == 0.25) {
                                 fireState = FireState.Baraban_moving_to_05;
                             } else {
                                 fireState = FireState.Baraban_moving_to_0;
@@ -200,7 +218,7 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Baraban_moving_to_05:
-                            collector.servos.setBaraban(0.5);
+                            collector.servos.setBaraban(0.25);
 
                             if (isRotateEnded(delayToBaraban)) {
                                 fireState = FireState.Baraban_at_pos;
@@ -208,16 +226,16 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                             case Baraban_moving_to_1:
-                            collector.servos.setBaraban(1);
+                            collector.servos.setBaraban(0.5);
 
                             if (isRotateEnded(delayToBaraban)) {
                                 fireState = FireState.Baraban_at_pos;
                             }
                             break;
 
-                        case Baraban_at_pos:
-//                            if(collector.motors.curOverallVel < 4.5) break;
 
+                        case Baraban_at_pos:
+                            if(collector.motors.curOverallVel < 4.5) break;
                             collector.servos.setPusher(1);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
@@ -319,26 +337,22 @@ public class AutomaticClass extends PlayerClass{
         artifactCount = artifactNumber;
     }
     public Cells.Cell findNeededCell(){
-        return cells.cell0.table.pos == collector.servos.getBaraban().getPosition() ? cells.cell0 : (cells.cell1.table.pos == collector.servos.getBaraban().getPosition() ? cells.cell1 : cells.cell2);
+        return cells.cell0.table.pos == collector.servos.curBarabanPos ? cells.cell0 : (cells.cell1.table.pos == collector.servos.curBarabanPos ? cells.cell1 : cells.cell2);
     }
     public double findNeededPosAngle(double length){
-        double neededPos = 0;
+        return (((getAngle(length + 75)) * (185 / 23)) / Math.toRadians(270));
 
-//        if(getHeight(getAngle(length)) >= 94){
-//            return getAngle(length)/Math.toRadians(30);
-//        }
 
-        return collector.servos.getAngle().getPosition();
     }
     double getAngle(double length){
-        double velBall = 450;
+        double velBall = 900;
 
-        return (length * 981) / (Math.pow(velBall, 2)) / 2.0;
+        return ((length * 981) / (Math.pow(velBall, 2))) / 2.0;
     }
     double getHeight(double angle){
-        double velBall = 450;
+        double velBall = 900;
 
-        return (Math.pow(velBall, 2) * Math.pow(Math.sin(angle), 2)) / (981 * 2);
+        return (Math.pow(velBall, 2) * Math.pow(angle, 2)) / (981 * 2);
     }
 
     public boolean isRobotHaveMinVel(){
@@ -381,6 +395,9 @@ public class AutomaticClass extends PlayerClass{
     @Override
     public void showData(){
         telemetry.addLine("=== AUTOMATIC ===");
+        telemetry.addData("range", range);
+        telemetry.addData("Heaight", getHeight(getAngle(range + 75)) + Math.toRadians(43));
+        telemetry.addData("Angle", (((getAngle(range + 75)) * (185 / 23)) / Math.toRadians(270)));
         telemetry.addData("Runtime", "%.1fs", timeFromLoad.seconds());
         telemetry.addData("Artifacts", artifactCount);
         telemetry.addData("Cell0", "pos:%s color:%s", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color));

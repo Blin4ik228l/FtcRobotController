@@ -116,7 +116,7 @@ public class CollectorMotors extends Module {
         curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
         curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
 
-        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel - curRightVel) / 2.0 : curLeftVel - curRightVel;
+        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
     }
 
     @Override

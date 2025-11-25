@@ -19,7 +19,7 @@ public class Servos extends Module {
 
         //Устанавливаем в начальное положение
         pusher.setPosition(PUSHER_START_POS);
-        angle.setPosition(ANGLE_ENDING_POS);
+        angle.setPosition(ANGLE_START_POS);
 
         while (true) {
             if (!(runtime.seconds() < 1)) break;
@@ -87,6 +87,7 @@ public class Servos extends Module {
         telemetry.addLine("===SERVOS===");
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherPos, curBarabanPos);
         telemetry.addData("Baraban time", runTimeBaraban);
+        telemetry.addData("Pusher time", runTimePusher);
         telemetry.addLine();
     }
 }

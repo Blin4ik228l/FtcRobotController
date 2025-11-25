@@ -97,8 +97,8 @@ public class RobotClass extends TeamColor {
 
        @Override
        public void showData() {
-           motors.showData();
            servos.showData();
+           motors.showData();
            colorSensor.showData();
            buttonClass.showData();
        }

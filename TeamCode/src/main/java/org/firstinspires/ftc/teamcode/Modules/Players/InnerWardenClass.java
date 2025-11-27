@@ -22,9 +22,13 @@ public class InnerWardenClass extends UpdatableModule {
     public void update() {
         robotClass.driveTrain.exOdometry.setPos(robotClass.driveTrain.cameraClass.getPos());
 
-        robotClass.driveTrain.cameraClass.setFields(robotClass.driveTrain.exOdometry.encGlobalPosition2D, robotClass.driveTrain.exOdometry.encHeadVel);
+        robotClass.driveTrain.cameraClass.setFields(robotClass.driveTrain.exOdometry.encGlobalPosition2D, robotClass.driveTrain.exOdometry.encHeadVel,
+                robotClass.driveTrain.exOdometry.robotCurVelocity.length());
 
         automaticClass.setFields(robotClass.driveTrain.cameraClass.randomizedArtifact, robotClass.driveTrain.exOdometry.isVyrCompleted,
-                robotClass.driveTrain.exOdometry.getRange(), robotClass.driveTrain.exOdometry.encHeadVel);
+                robotClass.driveTrain.exOdometry.getRange(), robotClass.driveTrain.exOdometry.encHeadVel, robotClass.driveTrain.exOdometry.robotCurVelocity.length());
+
+        robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.kPower);
+        robotClass.collector.motors.setKPower(robotClass.voltageSensor.kPower);
     }
 }

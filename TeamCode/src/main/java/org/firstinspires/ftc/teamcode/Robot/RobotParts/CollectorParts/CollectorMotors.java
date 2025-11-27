@@ -62,10 +62,11 @@ public class CollectorMotors extends Module {
         OnFlyWheel,
         OffFlyWheel,
     }
+    public double kPower;
 
     public void onIntake(){
-        double targetInTakePower = -1;
-        double targetFlyWheelVel = 1;
+        double targetInTakePower = -1 * kPower;
+        double targetFlyWheelVel = 1 * kPower;
 
         setPower(targetInTakePower, targetFlyWheelVel);
     }
@@ -97,7 +98,7 @@ public class CollectorMotors extends Module {
 
     public void onFLyWheel(){
         double targetInTakePower = 0;
-        double targetFlyWheelVel = 1;
+        double targetFlyWheelVel = 1 * kPower;
 
         setPower(targetInTakePower, targetFlyWheelVel);
     }
@@ -105,8 +106,8 @@ public class CollectorMotors extends Module {
     public void setPower(double targetIntakePow, double targetFlyWheelPower){
         inTakeMotor.setPower(targetIntakePow);
 
-        //encMotorLeft.setVelocity(flyWheelVel);
-        //encMotorRight.setVelocity(-flyWheelVel);
+//        encMotorLeft.setVelocity(4.5);
+//        encMotorRight.setVelocity(-4.5);
 
         encMotorLeft.setPower(targetFlyWheelPower);
         encMotorRight.setPower(-targetFlyWheelPower);
@@ -117,6 +118,10 @@ public class CollectorMotors extends Module {
         curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
 
         curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
+    }
+
+    public void setKPower(double kPower){
+        this.kPower = kPower;
     }
 
     @Override

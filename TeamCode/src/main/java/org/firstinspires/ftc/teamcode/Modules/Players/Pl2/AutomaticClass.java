@@ -30,15 +30,16 @@ public class AutomaticClass extends PlayerClass{
     public double range;
     public double headVel;
     public int artifactCount;
-
+public double vel;
     public void setFields(
             int[] randomizedArtifacts, boolean isVyrCompleted,
-                          double range, double headVel){
+                          double range, double headVel, double vel){
 
         this.randomizedArtifacts = randomizedArtifacts;
         this.isVyrCompleted = isVyrCompleted;
         this.range = range;
         this.headVel = headVel;
+        this.vel = vel;
     }
 
     public CollectorState automaticState;
@@ -75,7 +76,7 @@ public class AutomaticClass extends PlayerClass{
     @Override
     public void execute(){
         double delayToRotate = 0.2;
-        double delayToBaraban = 2;
+        double delayToBaraban = 0.3;
         double delayToPusher = 0.8;
         double delayToReverse = 1;
         double delayToAngle = 0.5;
@@ -103,7 +104,7 @@ public class AutomaticClass extends PlayerClass{
 
         }else{
             checkNumberOfArtifacts();
-            collector.servos.setAngle(findNeededPosAngle(range));
+
             switch (automaticState){
                 case Load:
 
@@ -213,7 +214,7 @@ public class AutomaticClass extends PlayerClass{
                             collector.servos.setBaraban(0.0);
 
                             if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Baraban_at_pos;
+                                fireState = FireState.Move_angle;
                             }
                             break;
 
@@ -221,7 +222,7 @@ public class AutomaticClass extends PlayerClass{
                             collector.servos.setBaraban(0.25);
 
                             if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Baraban_at_pos;
+                                fireState = FireState.Move_angle;
                             }
                             break;
 
@@ -229,13 +230,24 @@ public class AutomaticClass extends PlayerClass{
                             collector.servos.setBaraban(0.5);
 
                             if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Baraban_at_pos;
+                                fireState = FireState.Move_angle;
+                            }
+                            break;
+                        case Move_angle:
+                            collector.servos.setAngle(findNeededPosAngle(range));
+
+                            if(collector.servos.runTimeAngle.seconds() > delayToAngle ) {
+                            fireState = FireState.Baraban_at_pos;
                             }
                             break;
 
-
                         case Baraban_at_pos:
-                            if(collector.motors.curOverallVel < 4.5) break;
+                            if(vel > 5){
+                                fireState = FireState.Move_angle;
+                                break;
+                            }
+
+                            if(collector.motors.curOverallVel < getSpeed(range * 2, getAngle(range)) && collector.servos.curPusherPos != 1) break;
                             collector.servos.setPusher(1);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
@@ -340,14 +352,18 @@ public class AutomaticClass extends PlayerClass{
         return cells.cell0.table.pos == collector.servos.curBarabanPos ? cells.cell0 : (cells.cell1.table.pos == collector.servos.curBarabanPos ? cells.cell1 : cells.cell2);
     }
     public double findNeededPosAngle(double length){
-        return (((getAngle(length + 75)) * (185 / 23)) / Math.toRadians(270));
-
-
+        return ((Math.max(getAngle2(length), Math.toRadians(43)) - Math.toRadians(43)) * (185 / 23)) / Math.toRadians(270);
     }
     double getAngle(double length){
         double velBall = 900;
 
-        return ((length * 981) / (Math.pow(velBall, 2))) / 2.0;
+        return (((length + 200) * 981) / (Math.pow(velBall, 2))) / 2.0;
+    }
+    double getAngle2(double lenght){
+        return Math.atan((2 * 105)/ lenght);
+    }
+    double getSpeed(double lenght, double angle){
+        return Math.sqrt(lenght * 981 / Math.sin(angle));
     }
     double getHeight(double angle){
         double velBall = 900;
@@ -396,8 +412,9 @@ public class AutomaticClass extends PlayerClass{
     public void showData(){
         telemetry.addLine("=== AUTOMATIC ===");
         telemetry.addData("range", range);
-        telemetry.addData("Heaight", getHeight(getAngle(range + 75)) + Math.toRadians(43));
-        telemetry.addData("Angle", (((getAngle(range + 75)) * (185 / 23)) / Math.toRadians(270)));
+        telemetry.addData("Speed", getSpeed(range * 2, getAngle(range)) );
+        telemetry.addData("Angle", getAngle2(range) * 180 / 3.14);
+        telemetry.addData("AngleServo", findNeededPosAngle(range));
         telemetry.addData("Runtime", "%.1fs", timeFromLoad.seconds());
         telemetry.addData("Artifacts", artifactCount);
         telemetry.addData("Cell0", "pos:%s color:%s", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color));

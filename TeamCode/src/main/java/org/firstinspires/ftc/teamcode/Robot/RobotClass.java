@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.TeamColor;
 
 public class RobotClass extends TeamColor {
@@ -24,22 +25,25 @@ public class RobotClass extends TeamColor {
         super(teamColor, op);
 
         driveTrain = new MecanumDrivetrain(op, this);
-
         collector = new Collector(op);
+        voltageSensor = new VoltageSensorClass(op);
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
+    public VoltageSensorClass voltageSensor;
 
     @Override
     public void update() {
         driveTrain.update();
         collector.update();
+        voltageSensor.update();
     }
 
     @Override
     public void showData(){
         driveTrain.showData();
         collector.showData();
+        voltageSensor.showData();
     }
 
     public static class MecanumDrivetrain extends UpdatableModule {
@@ -53,11 +57,13 @@ public class RobotClass extends TeamColor {
             exOdometry = new ExOdometry(op,teamColor );
             cameraClass = new CameraClass(op, teamColor);
 
+
             telemetry.addLine("Drivetrain Inited");
         }
         public DrivetrainMotors motors;
         public ExOdometry exOdometry;
         public CameraClass cameraClass;
+
 
         @Override
         public void update() {
@@ -67,6 +73,7 @@ public class RobotClass extends TeamColor {
 
         @Override
         public void showData() {
+
             cameraClass.showData();
             exOdometry.showData();
             motors.showData();
@@ -83,8 +90,10 @@ public class RobotClass extends TeamColor {
             colorSensor = new ColorSensor(op);
             buttonClass = new ButtonClass(op);
 
+
             telemetry.addLine("Collector inited");
         }
+
         public CollectorMotors motors;
         public Servos servos;
         public ColorSensor colorSensor;

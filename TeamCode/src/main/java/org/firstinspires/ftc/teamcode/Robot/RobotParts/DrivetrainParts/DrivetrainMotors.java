@@ -53,10 +53,17 @@ public class DrivetrainMotors extends Module {
     public DcMotor getRightF() {
         return rightF;
     }
+    private double kPower;
+
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
     public double leftBPower, leftFPower, rightBPower, rightFPower;
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
+        if(kPower != 0){
+            forwardPow = forwardPow * kPower;
+            sidePow = sidePow * kPower;
+            anglePow = anglePow * kPower;
+        }
         rightB.setPower(forwardPow - sidePow + anglePow);
         rightF.setPower(forwardPow + sidePow + anglePow);
         leftF.setPower(forwardPow - sidePow - anglePow);
@@ -66,6 +73,10 @@ public class DrivetrainMotors extends Module {
         curRightFPower = rightF.getPower();
         curLeftBPower = leftB.getPower();
         curLeftFPower = leftB.getPower();
+    }
+
+    public void setKPower(double kPower){
+        this.kPower = kPower;
     }
 
     @Override

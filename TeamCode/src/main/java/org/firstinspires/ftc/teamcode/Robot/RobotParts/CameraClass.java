@@ -108,7 +108,7 @@ public class CameraClass extends UpdatableModule {
     public double rad = 180 / Math.PI;
     public double cameraFov = Math.toRadians(60);
     public Position2D robotPos;
-    public Vector2 robotVel;
+    public double robotVel;
     public double robotHeadVel;
 
     public ElapsedTime lastPosWasTaked;
@@ -119,9 +119,10 @@ public class CameraClass extends UpdatableModule {
         noDetected,
         hasDetected
     }
-    public void setFields(Position2D robotPos, double robotHeadVel){
+    public void setFields(Position2D robotPos, double robotHeadVel, double robotCurVel){
         this.robotPos = robotPos;
         this.robotHeadVel = robotHeadVel;
+        robotVel = robotCurVel;
     }
 
     @Override

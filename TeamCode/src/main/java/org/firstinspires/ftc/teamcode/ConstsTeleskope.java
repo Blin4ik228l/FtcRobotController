@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 public interface ConstsTeleskope {
     double PUSHER_START_POS = 0.05;
-    double BARABAN_START_POS = 0;
+    double BARABAN_START_POS = 0.0;
     double BARABAN2_START_POS = 1;
     double ANGLE_START_POS = 0.65;
 

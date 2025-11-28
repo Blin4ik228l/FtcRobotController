@@ -41,6 +41,10 @@ public double vel;
         this.headVel = headVel;
         this.vel = vel;
     }
+    double curAngle;
+    double curVel;
+    double curLength;
+    double curHeight;
 
     public CollectorState automaticState;
     public LoadState loadState;
@@ -86,18 +90,28 @@ public double vel;
         }else if(joystickActivity.tDpadUpPressed == 2){
             collector.servos.setBaraban(0.5);
         }else if(joystickActivity.tDpadUpPressed == 3){
-            collector.servos.setBaraban(0);
+            collector.servos.setBaraban(0.0);
             joystickActivity.tDpadUpPressed = 0;
         }
 
         if(joystickActivity.tDpadLeftPressed == 1){
-            collector.servos.setAngle(Math.max(collector.servos.curAnglePos - 0.05, 0.0));
+            collector.servos.setAngle(Math.max(collector.servos.curAnglePos - 0.02, 0.0));
             joystickActivity.tDpadLeftPressed = 0;
         }
          if(joystickActivity.tDpadRightPressed == 1){
-            collector.servos.setAngle(Math.min(collector.servos.curAnglePos + 0.05, 0.65));
+            collector.servos.setAngle(Math.min(collector.servos.curAnglePos + 0.02, 0.65));
              joystickActivity.tDpadRightPressed = 0;
         }
+         if(joystickActivity.tDpadDownPressed == 1){
+             collector.servos.setPusher(1);
+         } else if (joystickActivity.tDpadDownPressed == 2) {
+             collector.servos.setPusher(0.55);
+             joystickActivity.tDpadDownPressed = 0;
+         }
+        curAngle = getAngle(collector.servos.curAnglePos);
+        curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.37;
+        curLength = getLength(curAngle, curVel);
+        curHeight = getHeight(curAngle, curVel);
 
         if(!joystickActivity.buttonX) {
             collector.motors.offIntake();
@@ -234,20 +248,28 @@ public double vel;
                             }
                             break;
                         case Move_angle:
-                            collector.servos.setAngle(findNeededPosAngle(range));
-
-                            if(collector.servos.runTimeAngle.seconds() > delayToAngle ) {
-                            fireState = FireState.Baraban_at_pos;
-                            }
+//                            curAngle = getAngle(collector.servos.curAnglePos);
+//                            curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.3;
+//                            curLength = getLength(curAngle, curVel);
+//                            curHeight = getHeight(curAngle, curVel);
+//
+//                            if (curLength >= range * 2 && curLength <= range * 2 + 10 && curHeight >= 105 && curHeight <= 110
+//                                    && collector.servos.runTimeAngle.seconds() > delayToAngle ){
+//                                fireState = FireState.Baraban_at_pos;
+//                            }else {
+//                                if(curLength - range * 2 <= 10){
+//                                    collector.servos.setAngle(Math.max(collector.servos.curAnglePos - 0.02, 0.0));
+//                                }else {
+//                                    collector.servos.setAngle(Math.min(collector.servos.curAnglePos + 0.02, 0.65));
+//                                }
+//                            }
                             break;
 
                         case Baraban_at_pos:
-                            if(vel > 5){
+                            if(vel > 5 && collector.servos.curPusherPos != 1){
                                 fireState = FireState.Move_angle;
                                 break;
                             }
-
-                            if(collector.motors.curOverallVel < getSpeed(range * 2, getAngle(range)) && collector.servos.curPusherPos != 1) break;
                             collector.servos.setPusher(1);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
@@ -354,22 +376,23 @@ public double vel;
     public double findNeededPosAngle(double length){
         return ((Math.max(getAngle2(length), Math.toRadians(43)) - Math.toRadians(43)) * (185 / 23)) / Math.toRadians(270);
     }
-    double getAngle(double length){
-        double velBall = 900;
-
-        return (((length + 200) * 981) / (Math.pow(velBall, 2))) / 2.0;
+    double getAngle(double servoPos){
+        return (servoPos * 270 * 23) / 185 + 43;
     }
+    double getLength(double angle, double vel){
+        return (Math.sin(Math.toRadians(angle) * 2) * Math.pow(vel, 2))/ 981;
+    }
+    double getHeight(double angle, double vel){
+        return (Math.pow(vel, 2) * Math.pow(Math.sin(Math.toRadians(angle)), 2)) / (981 * 2);
+    }
+
     double getAngle2(double lenght){
         return Math.atan((2 * 105)/ lenght);
     }
     double getSpeed(double lenght, double angle){
         return Math.sqrt(lenght * 981 / Math.sin(angle));
     }
-    double getHeight(double angle){
-        double velBall = 900;
 
-        return (Math.pow(velBall, 2) * Math.pow(angle, 2)) / (981 * 2);
-    }
 
     public boolean isRobotHaveMinVel(){
         return Math.abs(headVel) < Math.toRadians(30);
@@ -412,9 +435,10 @@ public double vel;
     public void showData(){
         telemetry.addLine("=== AUTOMATIC ===");
         telemetry.addData("range", range);
-        telemetry.addData("Speed", getSpeed(range * 2, getAngle(range)) );
-        telemetry.addData("Angle", getAngle2(range) * 180 / 3.14);
-        telemetry.addData("AngleServo", findNeededPosAngle(range));
+        telemetry.addData("Speed", curVel);
+        telemetry.addData("Angle", curAngle);
+        telemetry.addData("Length", curLength);
+        telemetry.addData("Height", curHeight);
         telemetry.addData("Runtime", "%.1fs", timeFromLoad.seconds());
         telemetry.addData("Artifacts", artifactCount);
         telemetry.addData("Cell0", "pos:%s color:%s", cells.cell0.table.pos, getColorFromNumber(cells.cell0.table.color));

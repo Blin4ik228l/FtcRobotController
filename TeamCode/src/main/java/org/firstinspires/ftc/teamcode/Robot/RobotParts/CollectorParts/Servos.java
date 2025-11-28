@@ -18,18 +18,15 @@ public class Servos extends Module {
         runtime = new ElapsedTime();
 
         //Устанавливаем в начальное положение
-        pusher.setPosition(PUSHER_START_POS);
-        angle.setPosition(ANGLE_START_POS);
-
-        while (true) {
-            if (!(runtime.seconds() < 1)) break;
-        }
-        baraban.setPosition(BARABAN2_START_POS);
-        baraban.setPosition(BARABAN_START_POS);
-
         runTimeBaraban = new ElapsedTime();
         runTimeAngle = new ElapsedTime();
         runTimePusher = new ElapsedTime();
+
+        setPusher(PUSHER_START_POS);
+        setAngle(ANGLE_START_POS);
+        setBaraban(BARABAN_START_POS);
+
+        if (runTimeBaraban.seconds() < 1) return;
 
         telemetry.addLine("Servos inited");
     }

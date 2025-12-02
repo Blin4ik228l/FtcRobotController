@@ -24,6 +24,9 @@ public class CollectorMotors extends Module {
         encMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
         encMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+//        encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
+//        encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         inTakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         encMotorLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -63,7 +66,7 @@ public class CollectorMotors extends Module {
         OffFlyWheel,
     }
     public double kPower;
-
+    public double targSpeed;
     public void onIntake(){
         double targetInTakePower = -1 * kPower;
         double targetFlyWheelVel = 1 * kPower;
@@ -76,6 +79,16 @@ public class CollectorMotors extends Module {
         double targetFlyWheelVel = 0;
 
         setPower(targetInTakePower, targetFlyWheelVel);
+    }
+    public void setSpeed(double speed){
+
+        encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
+        encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
+
+        curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
+        curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
+
+        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
     }
 
     public void reverseForAWhile(double targetTime){
@@ -129,8 +142,11 @@ public class CollectorMotors extends Module {
         telemetry.addLine("===COLLECTOR MOTORS===");
         telemetry.addData("InTake Power", inTakeCurPower);
         telemetry.addData("FlyWheelSpeed overall","%.2f", curOverallVel * 0.04 * 100);
-        telemetry.addData("Left motor speed","%.2f", curLeftVel);
-        telemetry.addData("Right motor speed","%.2f", curRightVel);
+        telemetry.addData("Left motor speed","%s", curLeftVel);
+        telemetry.addData("Right motor speed","%s", curRightVel);
+        telemetry.addData("Targ speed","%s", targSpeed);
+        telemetry.addData("Left motor power","%s", encMotorLeft.getPower());
+        telemetry.addData("Right motor power","%s", encMotorRight.getPower());
 //        telemetry.addData("Motors state", motorsState.toString());
 //        telemetry.addData("collectorMotorsState state", collectorMotorsState.toString());
         telemetry.addLine();

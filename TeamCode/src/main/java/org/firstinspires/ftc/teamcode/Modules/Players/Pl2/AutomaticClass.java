@@ -106,15 +106,27 @@ public double vel;
              collector.servos.setPusher(1);
          } else if (joystickActivity.tDpadDownPressed == 2) {
              collector.servos.setPusher(0.55);
+         } else {
+             collector.servos.setPusher(0.0);
              joystickActivity.tDpadDownPressed = 0;
          }
-        curAngle = getAngle(collector.servos.curAnglePos);
-        curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.37;
-        curLength = getLength(curAngle, curVel);
-        curHeight = getHeight(curAngle, curVel);
+//        curAngle = getAngle(collector.servos.curAnglePos);
+//        curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.37;
+//        curLength = getLength(curAngle, curVel);
+//        curHeight = getHeight(curAngle, curVel);
+        curAngle = getAngle3(range );
+         curVel = getSpeed(range, curAngle);
+        collector.servos.setAngle(findNeededPosAngle(curAngle));
+
+        if (joystickActivity.buttonA) {
+            collector.motors.setSpeed(curVel / 7 * 5);
+        }else {
+            collector.motors.setSpeed(0);
+        }
+
 
         if(!joystickActivity.buttonX) {
-            collector.motors.offIntake();
+//            collector.motors.offIntake();
 
         }else{
             checkNumberOfArtifacts();
@@ -373,8 +385,8 @@ public double vel;
     public Cells.Cell findNeededCell(){
         return cells.cell0.table.pos == collector.servos.curBarabanPos ? cells.cell0 : (cells.cell1.table.pos == collector.servos.curBarabanPos ? cells.cell1 : cells.cell2);
     }
-    public double findNeededPosAngle(double length){
-        return ((Math.max(getAngle2(length), Math.toRadians(43)) - Math.toRadians(43)) * (185 / 23)) / Math.toRadians(270);
+    public double findNeededPosAngle(double curAngle){
+        return ((curAngle - Math.toRadians(43)) * (185 / 23)) / Math.toRadians(270);
     }
     double getAngle(double servoPos){
         return (servoPos * 270 * 23) / 185 + 43;
@@ -389,8 +401,11 @@ public double vel;
     double getAngle2(double lenght){
         return Math.atan((2 * 105)/ lenght);
     }
-    double getSpeed(double lenght, double angle){
-        return Math.sqrt(lenght * 981 / Math.sin(angle));
+    double getAngle3(double range){
+        return Math.atan(Math.tan(Math.toRadians(45)) + 2 * (100 - 30) / range);
+    }
+    double getSpeed(double range, double angle){
+        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(45)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
     }
 
 
@@ -436,7 +451,7 @@ public double vel;
         telemetry.addLine("=== AUTOMATIC ===");
         telemetry.addData("range", range);
         telemetry.addData("Speed", curVel);
-        telemetry.addData("Angle", curAngle);
+        telemetry.addData("Angle", curAngle * 180 / 3.14);
         telemetry.addData("Length", curLength);
         telemetry.addData("Height", curHeight);
         telemetry.addData("Runtime", "%.1fs", timeFromLoad.seconds());

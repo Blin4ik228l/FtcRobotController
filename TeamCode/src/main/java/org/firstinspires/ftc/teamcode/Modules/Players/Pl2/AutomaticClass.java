@@ -61,7 +61,7 @@ public double vel;
         Baraban_at_05,
         Baraban_moving_to_1,
         Baraban_at_1,
-        Check_Cells;
+        Pusher_start
 
     }
     public enum FireState{
@@ -85,56 +85,101 @@ public double vel;
         double delayToReverse = 1;
         double delayToAngle = 0.5;
 
-        if(joystickActivity.tDpadUpPressed == 1){
-            collector.servos.setBaraban(0.25);
-        }else if(joystickActivity.tDpadUpPressed == 2){
-            collector.servos.setBaraban(0.5);
-        }else if(joystickActivity.tDpadUpPressed == 3){
-            collector.servos.setBaraban(0.0);
-            joystickActivity.tDpadUpPressed = 0;
-        }
+        curAngle = getAngle3(range);
+        curVel = getSpeed(range, curAngle);
 
-        if(joystickActivity.tDpadLeftPressed == 1){
-            collector.servos.setAngle(Math.max(collector.servos.curAnglePos - 0.02, 0.0));
-            joystickActivity.tDpadLeftPressed = 0;
-        }
-         if(joystickActivity.tDpadRightPressed == 1){
-            collector.servos.setAngle(Math.min(collector.servos.curAnglePos + 0.02, 0.65));
-             joystickActivity.tDpadRightPressed = 0;
-        }
-         if(joystickActivity.tDpadDownPressed == 1){
-             collector.servos.setPusher(1);
-         } else if (joystickActivity.tDpadDownPressed == 2) {
-             collector.servos.setPusher(0.55);
-         } else {
-             collector.servos.setPusher(0.0);
-             joystickActivity.tDpadDownPressed = 0;
-         }
-//        curAngle = getAngle(collector.servos.curAnglePos);
-//        curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.37;
-//        curLength = getLength(curAngle, curVel);
-//        curHeight = getHeight(curAngle, curVel);
-        curAngle = getAngle3(range );
-         curVel = getSpeed(range, curAngle);
         collector.servos.setAngle(findNeededPosAngle(curAngle));
 
-        if (joystickActivity.buttonA) {
-            collector.motors.setSpeed(curVel / 7 * 5);
-        }else {
-            collector.motors.setSpeed(0);
-        }
-
-
         if(!joystickActivity.buttonX) {
-//            collector.motors.offIntake();
+            double barabanPos;
+            double pusherPos = 0.0;
 
+            if(joystickActivity.tDpadUpPressed == 0){
+                if(collector.servos.runTimePusher.seconds() > 0.3 && collector.servos.curPusherPos <= 0.55){
+                    collector.servos.setBaraban(0.0);
+
+                    if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected
+                            && collector.servos.runTimeBaraban.seconds() > 0.5){
+                        loadArtifactInCell(findNeededCell().numCell);
+
+                    }
+                }
+            }else if(joystickActivity.tDpadUpPressed == 1){
+                if(collector.servos.runTimePusher.seconds() > 0.3 && collector.servos.curPusherPos <= 0.55){
+                    collector.servos.setBaraban(0.25);
+
+                    if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected
+                            && collector.servos.runTimeBaraban.seconds() > 0.5){
+                        loadArtifactInCell(findNeededCell().numCell);
+                    }
+                }
+
+            }else if(joystickActivity.tDpadUpPressed == 2){
+                if(collector.servos.runTimePusher.seconds() > 0.3 && collector.servos.curPusherPos <= 0.55){
+                    collector.servos.setBaraban(0.5);
+
+                    if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected
+                            && collector.servos.runTimeBaraban.seconds() > 0.5){
+                        loadArtifactInCell(findNeededCell().numCell);
+
+                    }
+                }
+            }else {
+                joystickActivity.tDpadUpPressed = 0;
+            }
+
+            if(joystickActivity.tDpadDownPressed == 0){
+                pusherPos = 0.0;
+            } else if (joystickActivity.tDpadDownPressed == 1) {
+                pusherPos = 0.50;
+            } else if(joystickActivity.tDpadDownPressed == 2) {
+                pusherPos = 1;
+            }else {
+                joystickActivity.tDpadDownPressed = 0;
+            }
+
+            collector.servos.setPusher(pusherPos);
+
+
+            if (joystickActivity.bumperLeft) {
+                collector.motors.setSpeed(curVel / 6.28 * 5);
+            }else {
+                collector.motors.setSpeed(0);
+            }
+
+            if(joystickActivity.bumperRight){
+                collector.motors.onIntake();
+            }else {
+                collector.motors.offIntake();
+            }
+
+            automaticState = CollectorState.Load;
+            loadState = LoadState.Pusher_start;
         }else{
+            joystickActivity.tDpadUpPressed = 0;
+            joystickActivity.tDpadDownPressed = 0;
+            joystickActivity.bumperRight = false;
+            joystickActivity.bumperLeft = false;
+
             checkNumberOfArtifacts();
 
             switch (automaticState){
                 case Load:
 
                     switch (loadState) {
+                        case Pusher_start:
+                            collector.motors.offIntake();
+                            collector.servos.setPusher(0.0);
+
+                            if(collector.servos.runTimePusher.seconds() > 0.5){
+                                loadState = LoadState.Baraban_at_0;
+                            }
+                            if(artifactCount == 3){
+                                loadState = LoadState.Idle;
+                            }
+
+                            break;
+
                         case Baraban_moving_to_0:
 
                             collector.servos.setBaraban(0.0);
@@ -203,8 +248,6 @@ public double vel;
                         collector.motors.offFLyWheel();
                         break;}
 
-                    collector.motors.onFLyWheel();
-
                     switch (fireState) {
                         case Pusher_prefire:
                             collector.servos.setPusher(0.55);
@@ -260,6 +303,7 @@ public double vel;
                             }
                             break;
                         case Move_angle:
+                            fireState = FireState.Baraban_at_pos;
 //                            curAngle = getAngle(collector.servos.curAnglePos);
 //                            curVel = collector.motors.curOverallVel * 0.04 * 10000 * 0.3;
 //                            curLength = getLength(curAngle, curVel);
@@ -278,15 +322,17 @@ public double vel;
                             break;
 
                         case Baraban_at_pos:
-                            if(vel > 5 && collector.servos.curPusherPos != 1){
-                                fireState = FireState.Move_angle;
+                            if(collector.motors.curOverallVel >= curVel/6.3 *5){
+                                collector.servos.setPusher(1);
+
+                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                    fireState = FireState.Pusher_back;
+                                }
+                            }else {
+                                collector.motors.setSpeed(curVel/6.3 *5);
                                 break;
                             }
-                            collector.servos.setPusher(1);
 
-                            if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                fireState = FireState.Pusher_back;
-                            }
                             break;
 
                         case Pusher_back:
@@ -354,7 +400,6 @@ public double vel;
         double currentPos = collector.servos.curBarabanPos;
 
         if(cells.cell2.table.color == color){
-
             return cells.cell2.table.pos;
         }
         if(cells.cell1.table.color == color){
@@ -386,7 +431,7 @@ public double vel;
         return cells.cell0.table.pos == collector.servos.curBarabanPos ? cells.cell0 : (cells.cell1.table.pos == collector.servos.curBarabanPos ? cells.cell1 : cells.cell2);
     }
     public double findNeededPosAngle(double curAngle){
-        return ((curAngle - Math.toRadians(43)) * (185 / 23)) / Math.toRadians(270);
+        return ((90 - 65) - (90 - Math.toDegrees(curAngle))) * (185 / 23) / 270;
     }
     double getAngle(double servoPos){
         return (servoPos * 270 * 23) / 185 + 43;
@@ -402,10 +447,10 @@ public double vel;
         return Math.atan((2 * 105)/ lenght);
     }
     double getAngle3(double range){
-        return Math.atan(Math.tan(Math.toRadians(45)) + 2 * (100 - 30) / range);
+        return Math.atan(Math.tan(Math.toRadians(60)) + 2 * (100 - 30) / range);
     }
     double getSpeed(double range, double angle){
-        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(45)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
+        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(60)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
     }
 
 
@@ -428,6 +473,7 @@ public double vel;
         }
         private final Cell cell0, cell1, cell2;
         public static class Cell{
+
             public Cell(int numCell, Table table){
                 this.numCell = numCell;
                 this.table = table;

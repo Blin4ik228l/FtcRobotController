@@ -71,14 +71,14 @@ public class CollectorMotors extends Module {
         double targetInTakePower = -1 * kPower;
         double targetFlyWheelVel = 1 * kPower;
 
-        setPower(targetInTakePower, targetFlyWheelVel);
+        setPower(targetInTakePower);
     }
 
     public void offIntake(){
         double targetInTakePower = 0;
         double targetFlyWheelVel = 0;
 
-        setPower(targetInTakePower, targetFlyWheelVel);
+        setPower(targetInTakePower);
     }
     public void setSpeed(double speed){
 
@@ -97,7 +97,7 @@ public class CollectorMotors extends Module {
 
         if(inTakeCurPower != targetInTakePower) runTimeAll.reset();
 
-        setPower(targetInTakePower, targetFlyWheelVel);
+        setPower(targetInTakePower);
 
         if(runTimeAll.seconds() >= targetTime) offIntake();
     }
@@ -106,31 +106,20 @@ public class CollectorMotors extends Module {
         double targetInTakePower = 0;
         double targetFlyWheelVel = 0;
 
-        setPower(targetInTakePower, targetFlyWheelVel);
+        setSpeed(targetInTakePower);
     }
 
     public void onFLyWheel(){
         double targetInTakePower = 0;
-        double targetFlyWheelVel = 1 * kPower;
+        double targetFlyWheelVel = 1;
 
-        setPower(targetInTakePower, targetFlyWheelVel);
+        setSpeed(targetInTakePower);
     }
 
-    public void setPower(double targetIntakePow, double targetFlyWheelPower){
+    public void setPower(double targetIntakePow){
         inTakeMotor.setPower(targetIntakePow);
 
-//        encMotorLeft.setVelocity(4.5);
-//        encMotorRight.setVelocity(-4.5);
-
-        encMotorLeft.setPower(targetFlyWheelPower);
-        encMotorRight.setPower(-targetFlyWheelPower);
-
         inTakeCurPower = inTakeMotor.getPower();
-
-        curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
-        curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
-
-        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
     }
 
     public void setKPower(double kPower){

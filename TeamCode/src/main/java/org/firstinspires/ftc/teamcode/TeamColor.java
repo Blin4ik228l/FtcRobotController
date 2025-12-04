@@ -47,16 +47,16 @@ public class TeamColor extends UpdatableModule {
     private final double[] blueWallCoord = new double[]{
 //            2.54 * (-58.3727),//X
 //            2.54 * (-55.6425),//Y
-            -183,//X
-            -183,//Y
+            -178,//X
+            -178,//Y
             2.54 * (29.5),//Z
             0//Угол относительно поля
     };
     private final double[] redWallCoord = new double[]{
 //            2.54 * (-58.3727),//X
 //            2.54 * (55.6425),//Y
-            -183,//X
-            183,//Y
+            -178,//X
+            178,//Y
             2.54 * (29.5),//Z
             0//Угол относительно поля
     };

@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.MainModule;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CameraClass;
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCells;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.PositionRobotController;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.TeamColor;
 
 public class RobotClass extends TeamColor {
    /* Основная идея данного класса:
@@ -21,16 +22,25 @@ public class RobotClass extends TeamColor {
     Чтобы в дальнейшем ими легко управлять
     */
 
-    public RobotClass(OpMode op, String teamColor){
-        super(teamColor, op);
+    public RobotClass(Color color, StartPos startPos, OpMode op  ){
+        super(color, startPos, op);
 
         driveTrain = new MecanumDrivetrain(op, this);
         collector = new Collector(op);
         voltageSensor = new VoltageSensorClass(op);
+
+        startTime = new ElapsedTime();
     }
     public MecanumDrivetrain driveTrain;
     public Collector collector;
     public VoltageSensorClass voltageSensor;
+    public ElapsedTime startTime;
+
+    public void start(){
+        startTime.reset();
+
+        driveTrain.cameraClass.generalLogic = CameraClass.GeneralLogic.Button_play_pressed;
+    }
 
     @Override
     public void update() {
@@ -57,30 +67,29 @@ public class RobotClass extends TeamColor {
             exOdometry = new ExOdometry(op,teamColor );
             cameraClass = new CameraClass(op, teamColor);
 
+            positionRobotController = new PositionRobotController(exOdometry, cameraClass, op);
 
             telemetry.addLine("Drivetrain Inited");
         }
         public DrivetrainMotors motors;
         public ExOdometry exOdometry;
         public CameraClass cameraClass;
-
+        public PositionRobotController positionRobotController;
 
         @Override
         public void update() {
-            cameraClass.update();
-            exOdometry.update();
+            positionRobotController.update();
         }
 
         @Override
         public void showData() {
-
             cameraClass.showData();
             exOdometry.showData();
             motors.showData();
         }
     }
 
-   public static class Collector extends UpdatableModule {
+    public static class Collector extends UpdatableModule {
         public Collector(OpMode op) {
             super(op.telemetry);
 
@@ -90,6 +99,7 @@ public class RobotClass extends TeamColor {
             colorSensor = new ColorSensor(op);
             buttonClass = new ButtonClass(op);
 
+            digitalCells = new DigitalCells(servos, op);
 
             telemetry.addLine("Collector inited");
         }
@@ -97,6 +107,7 @@ public class RobotClass extends TeamColor {
         public CollectorMotors motors;
         public Servos servos;
         public ColorSensor colorSensor;
+        public DigitalCells digitalCells;
         public ButtonClass buttonClass;
 
        @Override

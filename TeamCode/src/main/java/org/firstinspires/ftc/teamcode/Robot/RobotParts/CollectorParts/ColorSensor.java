@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public class ColorSensor extends UpdatableModule {
     public ColorSensor(OpMode op){
@@ -38,9 +38,9 @@ public class ColorSensor extends UpdatableModule {
     public NormalizedRGBA sensor0Colors, sensor2Colors;
     public float red0, blue0, green0, alpha0;
     public float red2, blue2, green2, alpha2;
-    public double sensor0FoundedColor, sensor2FoundedColor;
+    public int sensor0FoundedColor, sensor2FoundedColor;
     public double sensor0Distance, sensor2Distance;
-    public double artifactColor;
+    public int artifactColor;
     public ColorSensorState colorState;
     public ElapsedTime timeFromDetect;
 
@@ -94,11 +94,11 @@ public class ColorSensor extends UpdatableModule {
     }
     public void updateSensor2DominantColor(){
         if(red2 > blue2 && red2 > green2 && red2 > 0.05) {
-            sensor2FoundedColor =  2;}
+            sensor2FoundedColor = 2;}
         else if(blue2 > red2 && blue2 > green2 && blue2 > 0.05) {
-            sensor2FoundedColor =  2;}
+            sensor2FoundedColor = 2;}
         else if(green2 > red2 && green2 > blue2 && green2 > 0.1) {
-            sensor2FoundedColor =  1;}
+            sensor2FoundedColor = 1;}
         else sensor2FoundedColor = 0;
     }
     public void updateDistance0(){

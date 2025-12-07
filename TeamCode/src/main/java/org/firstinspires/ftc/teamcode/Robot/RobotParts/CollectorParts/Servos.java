@@ -4,8 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.MainModule;
-import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class Servos extends Module {
     public Servos(OpMode op){
@@ -24,7 +23,7 @@ public class Servos extends Module {
 
         setPusher(PUSHER_START_POS);
         setAngle(ANGLE_START_POS);
-        setBaraban(BARABAN_START_POS);
+        setBaraban(BARABAN_CELL0_POS);
 
         if (runTimeBaraban.seconds() < 1) return;
 
@@ -34,8 +33,8 @@ public class Servos extends Module {
     private final Servo angle;
     private final Servo pusher;
     private final Servo baraban, baraban2;
-    public double curAnglePos, curPusherPos, curBarabanPos;
-    public double targetAnglePos = BARABAN_START_POS;
+    public double curAnglePos = -1, curPusherPos = -1, curBarabanPos = -1;
+    public double targetAnglePos = BARABAN_CELL0_POS;
     public double targetPusherPos = PUSHER_START_POS;
     public double targetBarabanPos = ANGLE_ENDING_POS;
     public Servo getBaraban() {
@@ -48,7 +47,6 @@ public class Servos extends Module {
         return angle;
     }
     public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusher;
-
     public void setBaraban(double targetBarabanPos){
         if(curBarabanPos == targetBarabanPos) return;
 
@@ -83,6 +81,8 @@ public class Servos extends Module {
     public void showData(){
         telemetry.addLine("===SERVOS===");
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherPos, curBarabanPos);
+        telemetry.addData("Fire angle", curAnglePos * 270 / (185/23) + 75);
+        telemetry.addData("Angle time", runTimeAngle);
         telemetry.addData("Baraban time", runTimeBaraban);
         telemetry.addData("Pusher time", runTimePusher);
         telemetry.addLine();

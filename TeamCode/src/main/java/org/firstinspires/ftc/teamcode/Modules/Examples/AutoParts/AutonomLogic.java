@@ -1,0 +1,489 @@
+package org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ConstsTeleskope;
+import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCells;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
+
+public class AutonomLogic extends ExecutableModule {
+    public AutonomLogic(RobotClass robotClass, OpMode op) {
+        super(op.telemetry);
+        this.robotClass = robotClass;
+
+        driveTrain = robotClass.driveTrain;
+        collector = robotClass.collector;
+        digitalCells = collector.digitalCells;
+
+        driveHandler = new DriveHandler(driveTrain, op);
+
+        positionArtifactLogic = new PositionArtifactLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor,  op);
+        positionFireLogic = new PositionFireLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor, op);
+        findTagsLogic = new FindTagsLogic(driveTrain, op);
+    }
+    public RobotClass robotClass;
+    public RobotClass.MecanumDrivetrain driveTrain;
+    public RobotClass.Collector collector;
+    public DigitalCells digitalCells;
+    public PositionArtifactLogic positionArtifactLogic;
+    public PositionFireLogic positionFireLogic;
+    public FindTagsLogic findTagsLogic;
+    public RobotStates robotStates;
+    public ProgramState programState;
+    public AutoState autoState;
+
+    public DriveLogic driveLogic;
+    public DriveHandler driveHandler;
+    public FireLogic fireLogic;
+    public enum RobotStates{
+        Wait_For_Camera,
+        Find_tags,
+        Idle,
+        Rotate_Baraban,
+        Check_Color,
+        Go_to_pos,
+        Near_pos,
+        Prepare_to_fire,
+        Fire
+    }
+    public enum DriveLogic{
+        Get_pos,
+        Power_motors,
+        Done
+    }
+    public enum FireLogic{
+        Find_and_turn,
+        Check_readiness,
+        Push_artifact,
+        Check_artifact
+
+    }
+    public enum ProgramState{
+        Load_state,
+        Fire_state,
+    }
+    public enum AutoState {
+        Start_auto,
+        End_auto
+    }
+
+    double curAngle;
+    double targetSpeed, curVelRad;
+    /*
+    * Пояснение к программе
+    * Она построена по принципу State machine(машина состояний), что значит следущее:
+    * Попадая в начальное состояние программа делает определённые действия свойственные для него, если определённые условия выполнены, то машина переходит в следующее состояние
+    * Программа состоит из 2 основных состояний:
+    * Load_state и Fire_state
+    * В первом состоянии робота лежат действия по загрузки артифакта во внутр него
+    * Вторая подпрограмма отвечает непосредственно за стрельбу артифактами
+    * Затем программа повторяет цикл
+    * */
+    @Override
+    public void execute() {
+        double delayToBaraban = 0.2;
+        double delayToPusher = 0.3;
+        double delayToReverse = 1;
+
+        switch (autoState){
+            case Start_auto:
+                //Если осталось мало времени и у нас есть загруженные артифакты => едем отстреливать что есть
+                if(AUTO_TIME - robotClass.startTime.seconds() < 4 && digitalCells.artifactCount != 0) {
+                    autoState = AutoState.End_auto;
+                    break;
+                }
+                switch (programState){
+                    case Load_state:
+                        switch (robotStates){
+                            case Wait_For_Camera:
+                                //TODO
+                                if(driveTrain.cameraClass.tagState == CameraClass.TagState.hasDetected && driveTrain.cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected){
+                                    robotStates = RobotStates.Check_Color;
+                                    driveTrain.motors.setPower(0,0,0);
+                                }
+                                if(driveTrain.cameraClass.generalLogic == CameraClass.GeneralLogic.Need_movement_ASAP){
+                                    robotStates = RobotStates.Find_tags;
+                                }
+                                break;
+
+                            case Find_tags:
+                                findTagsLogic.execute();
+                                driveTrain.cameraClass.generalLogic = CameraClass.GeneralLogic.Button_play_pressed;
+                                robotStates = RobotStates.Wait_For_Camera;
+                                break;
+
+                            case Check_Color:
+                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
+                                    digitalCells.setColor(collector.colorSensor.artifactColor);
+                                    digitalCells.checkNumberOfArtifacts();
+
+                                    //Это условие нужно, так как в начале в роботе уже предазагружены артифакты, чтобы мы не смогли удалить то чего нет
+                                    if(positionArtifactLogic.getPosForSend() != null){
+                                        positionArtifactLogic.deleteArtifact();
+                                    }
+
+                                    if(digitalCells.artifactCount == 3){
+                                        robotStates = RobotStates.Idle;
+                                    }else {
+                                        robotStates = RobotStates.Rotate_Baraban;
+                                    }
+                                }
+                                else {
+                                    robotStates = RobotStates.Go_to_pos;
+                                }
+                                break;
+                            case Rotate_Baraban:
+                                double barabanPos = digitalCells.getBarabanPos();
+
+                                collector.servos.setBaraban(barabanPos);
+                                if(isRotateEnded(delayToBaraban)){
+                                    robotStates = RobotStates.Check_Color;
+                                }
+
+                                break;
+
+                            case Go_to_pos:
+                                switch (driveLogic){
+                                    case Get_pos:
+                                        positionArtifactLogic.update();
+                                        driveHandler.setArgs(new Args.DriveArgs(
+                                                new Position2D(
+                                                        Math.signum(positionArtifactLogic.getPosForSend().getX()) * (Math.abs(positionArtifactLogic.getPosForSend().getX()) - DRIVE_OFFSET),
+                                                        positionArtifactLogic.getPosForSend().getY() * 1,
+                                                        positionArtifactLogic.getPosForSend().getHeading() * 1
+                                                )
+                                                ,200)
+                                        );
+                                        driveLogic = DriveLogic.Power_motors;
+                                        break;
+                                    case Power_motors:
+                                        driveHandler.execute();
+
+                                        if(driveHandler.isDone){
+                                            driveHandler.isDone = false;
+                                            driveLogic = DriveLogic.Done;
+                                        }
+                                        break;
+
+                                    case Done:
+                                        driveLogic = DriveLogic.Get_pos;
+                                        robotStates = RobotStates.Near_pos;
+                                        break;
+                                }
+                                break;
+
+                            case Near_pos:
+                                collector.motors.onIntake();
+
+                                switch (driveLogic){
+                                    case Get_pos:
+                                        driveHandler.setArgs(new Args.DriveArgs(
+                                                new Position2D(
+                                                        positionArtifactLogic.getPosForSend().getX() * 1,
+                                                        positionArtifactLogic.getPosForSend().getY() * 1,
+                                                        positionArtifactLogic.getPosForSend().getHeading() * 1
+                                                ),
+                                                200)
+                                        );
+                                        driveLogic = DriveLogic.Power_motors;
+                                        break;
+                                    case Power_motors:
+                                        driveHandler.execute();
+
+                                        if(driveHandler.isDone){
+                                            driveHandler.isDone = false;
+                                            driveLogic = DriveLogic.Done;
+                                        }
+
+                                        break;
+
+                                    case Done:
+                                        driveTrain.motors.setPower(0,0,0);
+                                        driveLogic = DriveLogic.Get_pos;
+
+                                        robotStates = RobotStates.Check_Color;
+                                        break;
+                                }
+                                break;
+
+                            case Idle:
+                                collector.motors.offIntake();
+
+                                programState = ProgramState.Fire_state;
+                                robotStates = RobotStates.Prepare_to_fire;
+                                break;
+                        }
+
+                        break;
+                    case Fire_state:
+                        switch (robotStates){
+                            case Prepare_to_fire:
+                                collector.motors.preFireSpeedFlyWheel();
+
+                                robotStates = RobotStates.Go_to_pos;
+                                break;
+
+                            case Go_to_pos:
+                                switch (driveLogic){
+                                    case Get_pos:
+                                        positionFireLogic.update();
+                                        driveHandler.setArgs(new Args.DriveArgs(
+                                                new Position2D(
+                                                        positionFireLogic.getSendedPos().getX() * 1,
+                                                        positionFireLogic.getSendedPos().getY() * 1,
+                                                        positionFireLogic.getSendedPos().getHeading() * 1
+                                                ),
+                                                200)
+                                        );
+                                        driveLogic = DriveLogic.Power_motors;
+                                        break;
+                                    case Power_motors:
+                                        driveHandler.execute();
+
+                                        driveLogic = DriveLogic.Get_pos;
+
+                                        if(driveHandler.isDone){
+                                            driveHandler.isDone = false;
+                                            driveLogic = DriveLogic.Done;
+                                        }
+                                        break;
+
+                                    case Done:
+                                        driveTrain.motors.setPower(0,0,0);
+                                        driveLogic = DriveLogic.Get_pos;
+
+                                        robotStates = RobotStates.Check_Color;
+                                        break;
+                                }
+                                break;
+                            case Fire:
+                                double range = driveTrain.exOdometry.getRange();
+
+                                curAngle = getAngle3(range);//Находим начальный угол стрельбы
+                                targetSpeed = getSpeed(range, curAngle);//Находим скорость на маховик
+
+                                curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
+                                collector.servos.setAngle(findNeededPosAngle(curAngle));
+
+                                collector.motors.setSpeed(curVelRad);
+                                collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+
+                                Vector2 deltaVector = new Vector2(
+                                        positionFireLogic.getSendedPos().getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
+                                        positionFireLogic.getSendedPos().getY() - driveTrain.exOdometry.encGlobalPosition2D.getY());
+
+                                switch (fireLogic){
+                                    case Find_and_turn:
+                                        digitalCells.checkNumberOfArtifacts();
+
+                                        if (digitalCells.artifactCount == 0) {
+                                            robotStates = RobotStates.Idle;
+                                            break;
+                                        }
+
+                                        // Определяем целевую ячейку (0, 1 или 2)
+                                        int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
+                                        int targetColor = driveTrain.exOdometry.teamColor.getRandomizedArtifact()[targetCellIndex];
+
+                                        double targetPos = digitalCells.findNeededArtifactPos(targetColor);
+
+
+                                        collector.servos.setBaraban(targetPos);
+                                        if(isRotateEnded(delayToBaraban)){
+                                            fireLogic = FireLogic.Check_readiness;
+                                        }
+                                        break;
+                                    case Check_readiness:
+                                        //Проверяем не сильно ли сдвинули другие роботы нашего
+                                        if(deltaVector.length() > 10 && driveTrain.exOdometry.getDeltaAngle() < Math.toRadians(5)){
+                                            //TODO: Если не набирает скорость то?
+                                            if(Math.abs(collector.motors.curOverallVel - curVelRad) < 0.1){
+                                                fireLogic = FireLogic.Push_artifact;
+                                            }
+                                        }else {
+                                            robotStates = RobotStates.Go_to_pos;
+                                        }
+                                        break;
+                                    case Push_artifact:
+                                        collector.servos.setPusher(ConstsTeleskope.PUSHER_ENDING_POS);
+
+                                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                            fireLogic = FireLogic.Check_artifact;
+                                        }
+                                        break;
+                                    case Check_artifact:
+                                        //Убираем толкатель так как он заслоняет датчик цвета
+                                        collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+
+                                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
+                                                digitalCells.deleteColorFromCell();
+                                                fireLogic = FireLogic.Find_and_turn;
+                                            }else {
+                                                //Если шар не вылетелет => толкаем ещё раз
+                                                fireLogic = FireLogic.Push_artifact;
+                                            }
+                                        }
+                                        break;
+                                }
+                                break;
+                            case Idle:
+                                collector.motors.offFLyWheel();
+
+                                collector.servos.setPusher(ConstsTeleskope.PUSHER_START_POS);
+                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                    programState = ProgramState.Load_state;
+                                    robotStates = RobotStates.Check_Color;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+            case End_auto:
+                switch (robotStates){
+                    case Prepare_to_fire:
+                        collector.motors.preFireSpeedFlyWheel();
+
+                        robotStates = RobotStates.Go_to_pos;
+                        break;
+                    case Go_to_pos:
+                        switch (driveLogic){
+                            case Get_pos:
+                                positionFireLogic.update();
+                                driveHandler.setArgs(new Args.DriveArgs(
+                                        new Position2D(
+                                                positionFireLogic.getSendedPos().getX() * 1,
+                                                positionFireLogic.getSendedPos().getY() * 1,
+                                                positionFireLogic.getSendedPos().getHeading() * 1
+                                        ),
+                                        300)
+                                );
+                                driveLogic = DriveLogic.Power_motors;
+                                break;
+                            case Power_motors:
+                                driveHandler.execute();
+
+                                driveLogic = DriveLogic.Get_pos;
+
+                                if(driveHandler.isDone){
+                                    driveHandler.isDone = false;
+                                    driveLogic = DriveLogic.Done;
+                                }
+                                break;
+
+                            case Done:
+                                driveTrain.motors.setPower(0,0,0);
+                                driveLogic = DriveLogic.Get_pos;
+
+                                robotStates = RobotStates.Check_Color;
+                                break;
+                        }
+                        break;
+                    case Fire:
+                        double range = driveTrain.exOdometry.getRange();
+
+                        curAngle = getAngle3(range);//Находим начальный угол стрельбы
+                        targetSpeed = getSpeed(range, curAngle);//Находим скорость на маховик
+
+                        curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
+                        collector.servos.setAngle(findNeededPosAngle(curAngle));
+
+                        collector.motors.setSpeed(curVelRad);
+                        collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+
+                        Vector2 deltaVector = new Vector2(
+                                positionFireLogic.getSendedPos().getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
+                                positionFireLogic.getSendedPos().getY() - driveTrain.exOdometry.encGlobalPosition2D.getY());
+
+                        switch (fireLogic){
+                            case Find_and_turn:
+                                digitalCells.checkNumberOfArtifacts();
+
+                                if (digitalCells.artifactCount == 0) {
+                                    robotStates = RobotStates.Idle;
+                                    break;
+                                }
+
+                                // Определяем целевую ячейку (0, 1 или 2)
+                                int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
+                                int targetColor = driveTrain.exOdometry.teamColor.getRandomizedArtifact()[targetCellIndex];
+
+                                double targetPos = digitalCells.findNeededArtifactPos(targetColor);
+
+
+                                collector.servos.setBaraban(targetPos);
+                                if(isRotateEnded(delayToBaraban)){
+                                    fireLogic = FireLogic.Push_artifact;
+                                }
+                                break;
+                                //Убираем это состояние так как здесь нам требуется скорость а не точность
+
+//                            case Check_readiness:
+//                                //Проверяем не сильно ли сдвинули другие роботы нашего
+//                                if(deltaVector.length() > 10 && driveTrain.exOdometry.getDeltaAngle() < Math.toRadians(5)){
+//                                    //TODO: Если не набирает скорость то?
+//                                    if(Math.abs(collector.motors.curOverallVel - curVelRad) < 0.1){
+//                                        fireLogic = FireLogic.Push_artifact;
+//                                    }
+//                                }else {
+//                                    robotStates = RobotStates.Go_to_pos;
+//                                }
+//                                break;
+                            case Push_artifact:
+                                collector.servos.setPusher(ConstsTeleskope.PUSHER_ENDING_POS);
+
+                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                    fireLogic = FireLogic.Check_artifact;
+                                }
+                                break;
+                            case Check_artifact:
+                                //Убираем толкатель так как он заслоняет датчик цвета
+                                collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+
+                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                    if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
+                                        digitalCells.deleteColorFromCell();
+                                        fireLogic = FireLogic.Find_and_turn;
+                                    }else {
+                                        //Если шар не вылетелет => толкаем ещё раз
+                                        fireLogic = FireLogic.Push_artifact;
+                                    }
+                                }
+                                break;
+                        }
+                        break;
+                    case Idle:
+                        collector.motors.offFLyWheel();
+
+                        collector.servos.setPusher(ConstsTeleskope.PUSHER_START_POS);
+                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                            programState = ProgramState.Load_state;
+                            robotStates = RobotStates.Check_Color;
+                        }
+                        break;
+            }
+                break;
+        }
+    }
+    public double findNeededPosAngle(double curAngle){
+        return ((90 - MAX_ANGLE) - (90 - Math.toDegrees(curAngle))) * (185 / 23) / 270;
+    }
+    double getAngle3(double range){
+        return Math.atan(Math.tan(Math.toRadians(60)) + 2 * (100 - 30) / range);
+    }
+    double getSpeed(double range, double angle){
+        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(60)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
+    }
+    public boolean isRotateEnded(double delayToBaraban){
+        return collector.servos.runTimeBaraban.seconds() > delayToBaraban || collector.buttonClass.getState();
+    }
+
+}
+

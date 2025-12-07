@@ -1,5 +1,5 @@
-import static org.firstinspires.ftc.teamcode.Consts.DIST_BETWEEN_ENC_X;
-import static org.firstinspires.ftc.teamcode.Consts.OFFSET_ENC_M_FROM_CENTER;
+import static org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Consts.DIST_BETWEEN_ENC_X;
+import static org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Consts.OFFSET_ENC_M_FROM_CENTER;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;

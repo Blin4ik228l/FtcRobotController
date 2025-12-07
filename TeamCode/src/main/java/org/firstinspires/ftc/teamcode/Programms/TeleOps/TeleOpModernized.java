@@ -2,9 +2,8 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Modules.ExecutableModule;
-import org.firstinspires.ftc.teamcode.Modules.MainModule;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public abstract class TeleOpModernized extends OpMode {
     public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot, moduleInnerWarden;

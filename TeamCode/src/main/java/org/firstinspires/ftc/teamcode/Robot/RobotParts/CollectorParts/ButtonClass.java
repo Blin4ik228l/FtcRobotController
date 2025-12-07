@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class ButtonClass extends Module {
     public ButtonClass(OpMode op) {

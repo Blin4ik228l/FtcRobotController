@@ -4,9 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.Modules.Module;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
-import org.opencv.core.MatOfByte;
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public class VoltageSensorClass extends UpdatableModule {
     public VoltageSensorClass(OpMode op){
@@ -16,7 +14,7 @@ public class VoltageSensorClass extends UpdatableModule {
 
     private HardwareMap hardwareMap;
     public double curVoltage;
-    public double MAX_VOL = 13;
+    public double MAX_VOL = 0.0;
     public double kPower;
     @Override
     public void update() {
@@ -28,7 +26,9 @@ public class VoltageSensorClass extends UpdatableModule {
             }
         }
 
+
         curVoltage = result;
+        if(curVoltage > MAX_VOL) MAX_VOL = curVoltage;
 
         kPower = curVoltage / MAX_VOL;
     }

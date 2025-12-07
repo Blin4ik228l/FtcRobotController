@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Modules.MainModule;
-import org.firstinspires.ftc.teamcode.Modules.Module;
+import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class CollectorMotors extends Module {
     public CollectorMotors(OpMode op){
@@ -31,7 +30,8 @@ public class CollectorMotors extends Module {
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         encMotorLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        runTimeAll = new ElapsedTime();
+        runTimeFlyWheel = new ElapsedTime();
+        runTimeIntake = new ElapsedTime();
 
         telemetry.addLine("Motors on collector inited");
     }
@@ -47,81 +47,69 @@ public class CollectorMotors extends Module {
     public DcMotorEx getEncMotorRight() {
         return encMotorRight;
     }
-    public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower;
-    public double inTakePower;
-    public double flyWheelVel;
-    public ElapsedTime runTimeAll;
-    public CollectorMotorsState collectorMotorsState;
-    public enum CollectorMotorsState{
-        Ready,
-        Unready
-    }
-    private MotorsState motorsState;
-    public MotorsState targetMotorState;
-    public enum MotorsState{
-        OnIntake,
-        OffInTake,
-        ReverseForWhile,
-        OnFlyWheel,
-        OffFlyWheel,
-    }
+    public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower, curOverallInMeters;
+    public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;
     public double targSpeed;
+
+    public void setPower(double targetIntakePow){
+        double DELTA = 1e-3;
+
+        if(Math.abs(inTakeCurPower - targetIntakePow) < DELTA) return;
+
+        inTakeMotor.setPower(targetIntakePow);
+
+        inTakeCurPower = inTakeMotor.getPower();
+
+        runTimeIntake.reset();
+    }
+    public void setSpeed(double speed){
+        double DELTA = 1e-3;
+        //Небольшая оптимаизация чтобы постояно не тегать контроллер
+        if(Math.abs(targSpeed - speed) > DELTA) {
+            encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
+            encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
+
+            targSpeed = speed;
+            runTimeFlyWheel.reset();
+        }
+        calcCurSpeed();
+    }
+    public void calcCurSpeed(){
+        curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
+        curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
+
+        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
+
+        curOverallInMeters = curOverallVel / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
+    }
+
     public void onIntake(){
         double targetInTakePower = -1 * kPower;
-        double targetFlyWheelVel = 1 * kPower;
+
+        setPower(targetInTakePower);
+    }
+    public void reverseInTake(){
+        double targetInTakePower = 1 * kPower;
 
         setPower(targetInTakePower);
     }
 
     public void offIntake(){
         double targetInTakePower = 0;
-        double targetFlyWheelVel = 0;
 
         setPower(targetInTakePower);
     }
-    public void setSpeed(double speed){
-
-        encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
-        encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
-
-        curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
-        curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
-
-        curOverallVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
-    }
-
-    public void reverseForAWhile(double targetTime){
-        double targetInTakePower = 1;
-        double targetFlyWheelVel = 0;
-
-        if(inTakeCurPower != targetInTakePower) runTimeAll.reset();
-
-        setPower(targetInTakePower);
-
-        if(runTimeAll.seconds() >= targetTime) offIntake();
-    }
-
     public void offFLyWheel(){
-        double targetInTakePower = 0;
-        double targetFlyWheelVel = 0;
+        double targetFlyWheelSpeed = 0;
 
-        setSpeed(targetInTakePower);
+        setSpeed(targetFlyWheelSpeed);
     }
+    public void preFireSpeedFlyWheel(){
+        double targetFlyWheelSpeed = 2;
 
-    public void onFLyWheel(){
-        double targetInTakePower = 0;
-        double targetFlyWheelVel = 1;
-
-        setSpeed(targetInTakePower);
+        setSpeed(targetFlyWheelSpeed);
     }
-
-    public void setPower(double targetIntakePow){
-        inTakeMotor.setPower(targetIntakePow);
-
-        inTakeCurPower = inTakeMotor.getPower();
-    }
-
     public void setKPower(double kPower){
         this.kPower = kPower;
     }
@@ -130,14 +118,13 @@ public class CollectorMotors extends Module {
     public void showData(){
         telemetry.addLine("===COLLECTOR MOTORS===");
         telemetry.addData("InTake Power", inTakeCurPower);
-        telemetry.addData("FlyWheelSpeed overall","%.2f", curOverallVel * 0.04 * 100);
-        telemetry.addData("Left motor speed","%s", curLeftVel);
-        telemetry.addData("Right motor speed","%s", curRightVel);
-        telemetry.addData("Targ speed","%s", targSpeed);
+        telemetry.addData("FlyWheelSpeed overall in meters","%.2f m/s", curOverallInMeters);
+        telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
+        telemetry.addData("Left motor speed in rad","%.2f /s", curLeftVel);
+        telemetry.addData("Right motor speed in rad","%.2f /s", curRightVel);
+        telemetry.addData("Targ speed in rad","%.2f /s", targSpeed);
         telemetry.addData("Left motor power","%s", encMotorLeft.getPower());
         telemetry.addData("Right motor power","%s", encMotorRight.getPower());
-//        telemetry.addData("Motors state", motorsState.toString());
-//        telemetry.addData("collectorMotorsState state", collectorMotorsState.toString());
         telemetry.addLine();
     }
 }

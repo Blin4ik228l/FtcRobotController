@@ -4,12 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Modules.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.EncoderClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.TeamColor;
+import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
 public class ExOdometry extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
@@ -26,7 +26,6 @@ public class ExOdometry extends UpdatableModule {
 
         encGlobalPosition2D = new Position2D();
         gyroGlobalPosition2D = new Position2D();
-        detectedPos = new Position2D();
 
         robotCurVelocity = new Vector2();
         robotCurAccel = new Vector2();
@@ -43,16 +42,13 @@ public class ExOdometry extends UpdatableModule {
     public Vector2 robotCurAccel;
     public double encHeadVel, encHeadAccel;
     public double gyroHeadVel, gyroHeadAccel;
-    public Position2D detectedPos;
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
     public void setPos(Position2D cameraPos){
-        if(cameraPos != null) {
-            encGlobalPosition2D.setX(cameraPos.getX());
-            encGlobalPosition2D.setY(cameraPos.getY());
-            encGlobalPosition2D.setHeading(cameraPos.getHeading());
-        }
+        encGlobalPosition2D.setX(cameraPos.getX());
+        encGlobalPosition2D.setY(cameraPos.getY());
+        encGlobalPosition2D.setHeading(cameraPos.getHeading());
     }
     public boolean isVyrCompleted;
     @Override
@@ -93,10 +89,11 @@ public class ExOdometry extends UpdatableModule {
         telemetry.addLine("=== EXODOMETRY ===");
         telemetry.addData("Position from encoders", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
-        telemetry.addData("Velocity", "X:%.1f Y:%.1f", robotCurVelocity.x, robotCurVelocity.y);
+        telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);
-        telemetry.addData("Founded Robot Angle", getFoundedRobotAngle()* 180/Math.PI);
-        telemetry.addData("Target", getDeltaAngle()* 180/Math.PI);
+        telemetry.addData("Founded Robot Angle", "%.1f°",getFoundedRobotAngle()* 180/Math.PI);
+        telemetry.addData("Target angle", "%.1f°",getDeltaAngle()* 180/Math.PI);
+        telemetry.addData("Range to target","%.1f cm", getRange());
         telemetry.addLine();
     }
 

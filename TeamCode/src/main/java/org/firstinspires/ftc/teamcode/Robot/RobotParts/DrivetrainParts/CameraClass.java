@@ -21,12 +21,12 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class CameraClass extends UpdatableModule {
     public CameraClass(OpMode op, TeamColor teamColor)  {
         super(op.telemetry);
-
         this.teamColor = teamColor;
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -53,12 +53,6 @@ public class CameraClass extends UpdatableModule {
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
-        while (true){
-            if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
-                isCameraStreaming = true;
-                break;}
-        }
-
         exposure = visionPortal.getCameraControl(ExposureControl.class);
         exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
         exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
@@ -68,15 +62,14 @@ public class CameraClass extends UpdatableModule {
 
         aprilTagProcessor.setDecimation(2);
 
-        position2D = null;
-
-        randomizeStatus = RandomizeStatus.UnDetected;
+        lastRecordedPosition2D = null;
 
         lastPosWasTaked = new ElapsedTime();
 
-        generalLogic = GeneralLogic.Mid_game;
+        generalLogic = GeneralLogic.Check_camera_state;
         cameraLogic = CameraLogic.Check_condition;
-        tagState = TagState.noDetected;
+        randomizeStatus = RandomizeStatus.UnDetected;
+        tagState = TagState.UnDetected;
 
         telemetry.addLine("Camera Inited");
     }
@@ -84,13 +77,10 @@ public class CameraClass extends UpdatableModule {
     private final YawPitchRollAngles cameraOrientation;
     private final AprilTagProcessor aprilTagProcessor;
     private final VisionPortal visionPortal;
-    public AprilTagDetection detection;
     private final WebcamName webcamName;
     private final ExposureControl exposure;
     private final GainControl gain;
     public final TeamColor teamColor;
-    private final int green = 1;
-    private final int purple = 2;
     private int id;
     public double robotFieldX;
     public double robotFieldY;
@@ -109,17 +99,23 @@ public class CameraClass extends UpdatableModule {
     private boolean isPosWasTakenFirstly = false;
     private boolean isCameraStreaming;
     public double rad = 180 / Math.PI;
-    public double cameraFov = Math.toRadians(60);
+
     public Position2D robotPos;
     public double robotVel;
     public double robotHeadVel;
     public ElapsedTime lastPosWasTaked;
     public TagState tagState;
-    public Position2D position2D;
+    private Position2D lastRecordedPosition2D;
     public RandomizeStatus randomizeStatus;
+    public double distanceWeight;
+    public double angleWeight;
+    public double qualityWeight;
+    public double combinedWeight;
+
+    public ArrayList <AprilTagDetection> lastRecordedDetection;
     public enum TagState {
-        noDetected,
-        hasDetected
+        Detected,
+        UnDetected
     }
     public enum RandomizeStatus{
         Detected,
@@ -132,142 +128,104 @@ public class CameraClass extends UpdatableModule {
         Get_pos
     }
     public enum GeneralLogic{
-        Start_game,
-        Button_play_pressed,
-        Need_movement_ASAP,
-        Mid_game
+        Check_camera_state,
+        Check_obelisk_and_pos,
+        Check_only_pos
     }
     public void setFields(Position2D robotPos, double robotHeadVel, double robotCurVel){
         this.robotPos = robotPos;
         this.robotHeadVel = robotHeadVel;
         robotVel = robotCurVel;
     }
-    public double distanceWeight;
-    public double angleWeight;
-    public double qualityWeight;
-    public double combinedWeight;
 
-    public int atemptTryies = 0;
     @Override
     public void update(){
         switch (generalLogic){
-            case Start_game:
+            case Check_camera_state:
+                if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+                    isCameraStreaming = true;
+                    generalLogic = GeneralLogic.Check_obelisk_and_pos;
+                }
+                break;
+            case Check_obelisk_and_pos:
                 switch (cameraLogic){
+
                     case Check_condition:
                         if(!aprilTagProcessor.getDetections().isEmpty()){
+                            lastRecordedDetection = aprilTagProcessor.getDetections();
                             cameraLogic = CameraLogic.Get_pos;
+                        }else {
+                            randomizeStatus = RandomizeStatus.UnDetected;
+                            tagState = TagState.Detected;
                         }
                         break;
 
                     case Get_pos:
-                        for(AprilTagDetection detection1 : aprilTagProcessor.getDetections()){
-                            id = detection1.id;
+                        for(AprilTagDetection detection : lastRecordedDetection){
+                            id = detection.id;
+
+                            if(id == 21 || id == 22 || id == 23){
+                                setRandomizedArtifactFromId(id);
+                                randomizeStatus = RandomizeStatus.Detected;
+                            }else randomizeStatus = RandomizeStatus.UnDetected;
 
                             if((id == 20 || id == 24) ){
-                                robotFieldX = detection1.robotPose.getPosition().x;
-                                robotFieldY = detection1.robotPose.getPosition().y;
-                                robotFieldZ = detection1.robotPose.getPosition().z;
+                                robotFieldX = detection.robotPose.getPosition().x;
+                                robotFieldY = detection.robotPose.getPosition().y;
+                                robotFieldZ = detection.robotPose.getPosition().z;
 
-                                robotFieldPitch = detection1.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                                robotFieldRoll  = detection1.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                                robotFieldYaw   = detection1.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                                robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                                robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                                robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                                robotRangeToTag = detection1.ftcPose.range;
-                                cameraElevation = detection1.ftcPose.elevation;
-                                cameraBearing   = detection1.ftcPose.bearing;
+                                robotRangeToTag = detection.ftcPose.range;
+                                cameraElevation = detection.ftcPose.elevation;
+                                cameraBearing   = detection.ftcPose.bearing;
 
-                                position2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                                lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
-                                tagState = TagState.hasDetected;
-                            }else {
-                                tagState = TagState.noDetected;
+                                tagState = TagState.Detected;
                             }
                         }
 
-                        if(randomizeStatus == RandomizeStatus.UnDetected){
-                            generalLogic = GeneralLogic.Button_play_pressed;
-                        }
+                        if(randomizeStatus == RandomizeStatus.Detected) generalLogic = GeneralLogic.Check_only_pos;
                         cameraLogic = CameraLogic.Check_condition;
-                        break;
-                }
-                break;
 
-            case Button_play_pressed:
+                        lastPosWasTaked.reset();
+                        break;
+
+                }
+
+            case Check_only_pos:
                 switch (cameraLogic){
+
                     case Check_condition:
-                        if(!aprilTagProcessor.getDetections().isEmpty()){
+                        if(!aprilTagProcessor.getDetections().isEmpty() && lastPosWasTaked.seconds() > 1){
+                            lastRecordedDetection = aprilTagProcessor.getDetections();
                             cameraLogic = CameraLogic.Get_pos;
-                        }
-                    break;
-
-                    case Get_pos:
-                        atemptTryies ++;
-
-                        if(id == 21 || id == 22 || id == 23){
-                            setRandomizedArtifactFromId(id);
-                            randomizeStatus = RandomizeStatus.Detected;
-                        }
-                        if(randomizeStatus == RandomizeStatus.Detected){
-                            cameraLogic = CameraLogic.Check_condition;
-                            generalLogic = GeneralLogic.Mid_game;
-
-                        }else if(atemptTryies == 2){
-                            generalLogic = GeneralLogic.Need_movement_ASAP;
                         }else {
-                            cameraLogic = CameraLogic.Check_condition;
-                        }
-                        break;
-
-                }
-                break;
-
-            case Need_movement_ASAP:
-                atemptTryies = 0;
-                generalLogic = GeneralLogic.Start_game;
-                cameraLogic = CameraLogic.Check_condition;
-                break;
-
-            case Mid_game:
-                switch (cameraLogic){
-                    case Check_condition:
-                        if(isTagShouldBeInFov() && lastPosWasTaked.seconds() > 1){
-                            if(!aprilTagProcessor.getDetections().isEmpty()){
-                                cameraLogic = CameraLogic.Get_pos;
-                            }else {
-                                tagState = TagState.noDetected;
-                            }
-                        }else {
-                            tagState = TagState.noDetected;
+                            tagState = TagState.Detected;
                         }
                         break;
 
                     case Get_pos:
-                        if(isTagShouldBeInFov() && lastPosWasTaked.seconds() > 1){
-                            if(!aprilTagProcessor.getDetections().isEmpty()){
-                                cameraLogic = CameraLogic.Get_pos;
-                            }else {
-                                tagState = TagState.noDetected;
-                            }
-                        }else {
-                            tagState = TagState.noDetected;
-                        }
-                        for(AprilTagDetection detection1 : aprilTagProcessor.getDetections()){
-                            id = detection1.id;
+                        for(AprilTagDetection detection : lastRecordedDetection){
+                            id = detection.id;
 
                             if((id == 20 || id == 24) ){
-                                robotFieldX = detection1.robotPose.getPosition().x;
-                                robotFieldY = detection1.robotPose.getPosition().y;
-                                robotFieldZ = detection1.robotPose.getPosition().z;
+                                robotFieldX = detection.robotPose.getPosition().x;
+                                robotFieldY = detection.robotPose.getPosition().y;
+                                robotFieldZ = detection.robotPose.getPosition().z;
 
-                                robotFieldPitch = detection1.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                                robotFieldRoll  = detection1.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                                robotFieldYaw   = detection1.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                                robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                                robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                                robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                                robotRangeToTag = detection1.ftcPose.range;
-                                cameraElevation = detection1.ftcPose.elevation;
-                                cameraBearing   = detection1.ftcPose.bearing;
+                                robotRangeToTag = detection.ftcPose.range;
+                                cameraElevation = detection.ftcPose.elevation;
+                                cameraBearing   = detection.ftcPose.bearing;
 
-                                position2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                                lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
                                 distanceWeight = getDistanceBasedWeight(detection.ftcPose.range);
                                 angleWeight = getAngleBasedWeight(
@@ -277,16 +235,16 @@ public class CameraClass extends UpdatableModule {
                                 qualityWeight = getQualityBasedWeight(detection);
 
                                 // Комбинируем все факторы (можно с разными весами)
-                                combinedWeight = distanceWeight * 0.5
-                                        + angleWeight * 0.3
-                                        + qualityWeight * 0.2;
+                                combinedWeight = distanceWeight * 0.5 + angleWeight * 0.3 + qualityWeight * 0.2;
 
-                                tagState = TagState.hasDetected;
-                                lastPosWasTaked.reset();
+                                tagState = TagState.Detected;
                             }
                         }
+
                         cameraLogic = CameraLogic.Check_condition;
+                        lastPosWasTaked.reset();
                         break;
+
                 }
                 break;
         }
@@ -325,12 +283,13 @@ public class CameraClass extends UpdatableModule {
         if (detection.decisionMargin < 50) return 0.7; // Среднее
         return 1.0; // Высокое качество
     }
-    public Position2D getPos(){
-        if(tagState == TagState.noDetected) return null;
-
-        return new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+    public Position2D getLastRecordedPosition2D(){
+        return lastRecordedPosition2D;
     }
     public void setRandomizedArtifactFromId(int id) {
+        int green = 1;
+        int purple = 2;
+
         if(id == 21){
             teamColor.setRandomizedArtifact(new int[] {green, purple, purple});
             isObeliskWasSeen = true;
@@ -345,37 +304,17 @@ public class CameraClass extends UpdatableModule {
         }
     }
 
-    public boolean isTagShouldBeInFov(){
-//        double leftBorder = robotPos.getHeading() + (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
-//        double rightBorder = robotPos.getHeading() - (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
-//
-//        return !((Math.toRadians(44) < leftBorder && rightBorder < Math.toRadians(44) && robotPos.getY() > 0)
-//                        ||
-//                (Math.toRadians(136) < (leftBorder) && (rightBorder) < Math.toRadians(136)) && robotPos.getY() < 0);
-        return true;
-    }
-    public boolean isRobotHaveMinVel(){
-       return Math.abs(robotHeadVel) <= Math.toRadians(30);
-    }
-    public boolean isRobotHaveMinRange(){
-        return robotRangeToTag < 200 && robotRangeToTag > 40;
-    }
-
     public void showData(){
         telemetry.addLine("=== CAMERA ===");
+        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Camera logic", cameraLogic.toString());
-        telemetry.addData("Tags Found", 0);
-        telemetry.addData("Streaming", isCameraStreaming);
-        telemetry.addData("ftc yaw", ftcYaw * rad);
+        telemetry.addData("Camera state", tagState.toString());
+        telemetry.addData("Tags Found", lastRecordedDetection.size());
+        telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);
-        telemetry.addData("Camera state", tagState.toString());
-        telemetry.addData("Robot have min vel", isRobotHaveMinVel());
-        telemetry.addData("Robot have min range", isRobotHaveMinRange());
-        telemetry.addData("Camera have needed fov", isTagShouldBeInFov());
-        telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addLine();
     }
 }

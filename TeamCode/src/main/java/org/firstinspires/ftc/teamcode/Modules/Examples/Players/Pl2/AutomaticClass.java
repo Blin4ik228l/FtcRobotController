@@ -49,13 +49,17 @@ public class AutomaticClass extends PlayerClass{
     public enum LoadState{
         Idle,
         Idle2,
+        Check_color,
+        Reverse,
+        Rotate_baraban,
+
         Baraban_moving_to_0,
         Baraban_at_0,
         Baraban_moving_to_1,
         Baraban_at_1,
         Baraban_moving_to_2,
         Baraban_at_2,
-        Pusher_start
+        Prepare_to_load
     }
     public enum FireState{
         Baraban_moving_to_0,
@@ -63,11 +67,11 @@ public class AutomaticClass extends PlayerClass{
         Baraban_moving_to_2,
         Baraban_at_pos,
         Pusher_back,
-        Find_Color,
+        Find_and_turn,
         Idle,
         Pusher_start,
-        Pusher_prefire,
-        Set_Speed
+        Prepare_to_fire,
+        Set_speed
     }
 
     @Override
@@ -81,8 +85,6 @@ public class AutomaticClass extends PlayerClass{
         curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
 
         collector.servos.setAngle(findNeededPosAngle(curAngle));
-
-        digitalCells.checkNumberOfArtifacts();
 
         if(!joystickActivity.buttonX) {
             double barabanPos = BARABAN_CELL0_POS;
@@ -163,7 +165,7 @@ public class AutomaticClass extends PlayerClass{
 
             if(joystickActivity.bumperLeft && collector.servos.curPusherPos == PUSHER_START_POS){
                 collector.motors.onIntake();
-                loadState = LoadState.Idle2;
+                loadState = LoadState.Prepare_to_load;
 
             }else if(joystickActivity.tLeftBumperPressed != 0 && joystickActivity.tLeftBumperPressed % 2 == 0 ) {
                 collector.motors.reverseInTake();
@@ -171,10 +173,10 @@ public class AutomaticClass extends PlayerClass{
                 if(collector.motors.runTimeIntake.seconds() > delayToReverse){
                     joystickActivity.tLeftBumperPressed = 0;
                 }
-                loadState = LoadState.Pusher_start;
+                loadState = LoadState.Prepare_to_load;
             }else {
                 collector.motors.offIntake();
-                loadState = LoadState.Pusher_start;
+                loadState = LoadState.Prepare_to_load;
             }
 
 
@@ -184,7 +186,7 @@ public class AutomaticClass extends PlayerClass{
                 automaticState = CollectorState.Load;
             }
 
-            fireState = FireState.Pusher_prefire;
+            fireState = FireState.Prepare_to_fire;
         }else{
             joystickActivity.tDpadUpPressed = 0;
             joystickActivity.tDpadDownPressed = 0;
@@ -197,79 +199,57 @@ public class AutomaticClass extends PlayerClass{
             switch (automaticState){
                 case Load:
                     switch (loadState) {
-                        case Idle2:
-                            collector.motors.reverseInTake();
-
-                            if(collector.motors.runTimeIntake.seconds() > delayToReverse){
-                                collector.motors.offIntake();
-                                loadState = LoadState.Pusher_start;
-                            }
-                            break;
-
-                        case Pusher_start:
+                        case Prepare_to_load:
+                            collector.motors.offIntake();
                             collector.servos.setPusher(PUSHER_START_POS);
 
                             if(collector.servos.runTimePusher.seconds() > delayToPusher){
-                                if(artifactCount == 3){
-                                    automaticState = CollectorState.Fire;
+                                loadState = LoadState.Check_color;
+                            }
+                            break;
+                        case Check_color:
+                            collector.motors.onIntake();
+
+                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
+                                collector.motors.offIntake();
+
+                                digitalCells.setColor(collector.colorSensor.artifactColor);
+                                digitalCells.checkNumberOfArtifacts();
+
+                                if(digitalCells.artifactCount == 3){
+                                    loadState = LoadState.Idle;
+
                                 }else {
-                                    collector.motors.onIntake();
-                                    loadState = LoadState.Baraban_moving_to_0;
+                                    loadState = LoadState.Reverse;
                                 }
+
                             }
                             break;
+                        case Reverse:
+                            collector.motors.reverseInTake();
 
-                        case Baraban_moving_to_0:
-                            collector.servos.setBaraban(BARABAN_CELL0_POS);
-
-                            if (isRotateEnded(delayToBaraban)) {
-                                loadState = LoadState.Baraban_at_0;
+                            if(collector.motors.runTimeIntake.seconds() > 0.15){
+                                collector.motors.offIntake();
+                                loadState = LoadState.Rotate_baraban;
                             }
                             break;
+                        case Rotate_baraban:
+                            double barabanPos = digitalCells.getBarabanPos();
 
-                        case Baraban_at_0:
-                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
-                                digitalCells.setColor(collector.colorSensor.artifactColor);
-                                loadState = LoadState.Baraban_moving_to_1;
-                            }
-                            break;
-
-                        case Baraban_moving_to_1:
-                            collector.servos.setBaraban(BARABAN_CELL1_POS);
-
-                            if (isRotateEnded(delayToBaraban)) {
-                                loadState = LoadState.Baraban_at_1;
-                            }
-                            break;
-
-                        case Baraban_at_1:
-                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
-                                digitalCells.setColor(collector.colorSensor.artifactColor);
-                                loadState = LoadState.Baraban_moving_to_2;
-                            }
-                            break;
-
-                        case Baraban_moving_to_2:
-                            collector.servos.setBaraban(BARABAN_CELL2_POS);
-
-                            if (isRotateEnded(delayToBaraban)) {
-                                loadState = LoadState.Baraban_at_2;
-                            }
-                            break;
-
-                        case Baraban_at_2:
-                            if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
-                                digitalCells.setColor(collector.colorSensor.artifactColor);
-                                loadState = LoadState.Idle;
+                            collector.servos.setBaraban(barabanPos);
+                            if(isRotateEnded(delayToBaraban)){
+                                collector.motors.onIntake();
+                                loadState = LoadState.Check_color;
                             }
                             break;
 
                         case Idle:
                             collector.motors.reverseInTake();
-
                             if (collector.motors.runTimeIntake.seconds() > delayToReverse) {
                                 collector.motors.offIntake();
+
                                 automaticState = CollectorState.Fire;
+                                fireState = FireState.Prepare_to_fire;
                             }
                             break;
 
@@ -281,19 +261,19 @@ public class AutomaticClass extends PlayerClass{
 
                 case Fire:
                     switch (fireState) {
-                        case Pusher_prefire:
+                        case Prepare_to_fire:
+                            collector.motors.preFireSpeedFlyWheel();
+
                             collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                collector.motors.preFireSpeedFlyWheel();
-
-                                fireState = FireState.Find_Color;
+                                fireState = FireState.Find_and_turn;
                             }
                             break;
 
-                        case Find_Color:
+                        case Find_and_turn:
                             if (artifactCount == 0) {
-                                fireState = FireState.Pusher_start;
+                                fireState = FireState.Idle;
                                 break;
                             }
 
@@ -303,41 +283,14 @@ public class AutomaticClass extends PlayerClass{
 
                             double targetPos = digitalCells.findNeededArtifactPos(targetColor);
 
-                            // Выбираем состояние движения
-                            if (targetPos == BARABAN_CELL2_POS) {
-                                fireState = FireState.Baraban_moving_to_2;
-                            } else if (targetPos == BARABAN_CELL1_POS) {
-                                fireState = FireState.Baraban_moving_to_1;
-                            } else {
-                                fireState = FireState.Baraban_moving_to_0;
+                            collector.servos.setBaraban(targetPos);
+                            if(isRotateEnded(delayToBaraban)){
+                                fireState = FireState.Set_speed;
                             }
                             break;
 
-                        case Baraban_moving_to_0:
-                            collector.servos.setBaraban(BARABAN_CELL0_POS);
 
-                            if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Set_Speed;
-                            }
-                            break;
-
-                        case Baraban_moving_to_1:
-                            collector.servos.setBaraban(BARABAN_CELL1_POS);
-
-                            if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Set_Speed;
-                            }
-                            break;
-
-                            case Baraban_moving_to_2:
-                            collector.servos.setBaraban(BARABAN_CELL2_POS);
-
-                            if (isRotateEnded(delayToBaraban)) {
-                                fireState = FireState.Set_Speed;
-                            }
-                            break;
-
-                        case Set_Speed:
+                        case Set_speed:
                             double DELTA = 3e-3;
                             collector.motors.setSpeed(curVelRad);
 
@@ -348,7 +301,7 @@ public class AutomaticClass extends PlayerClass{
 
                         case Baraban_at_pos:
                             if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()){
-                                fireState = FireState.Set_Speed;
+                                fireState = FireState.Set_speed;
                                 break;}
 
                             collector.servos.setPusher(1);
@@ -364,18 +317,10 @@ public class AutomaticClass extends PlayerClass{
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {
                                     digitalCells.deleteColorFromCell();
-                                    fireState = FireState.Find_Color;
+                                    fireState = FireState.Find_and_turn;
                                 } else {
                                     fireState = FireState.Baraban_at_pos;
                                 }
-                            }
-                            break;
-
-                        case Pusher_start:
-                            collector.servos.setPusher(PUSHER_START_POS);
-
-                            if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                fireState = FireState.Idle;
                             }
                             break;
 
@@ -383,10 +328,7 @@ public class AutomaticClass extends PlayerClass{
                             collector.motors.offFLyWheel();
 
                             automaticState = CollectorState.Load;
-                            loadState = LoadState.Pusher_start;
-                            fireState = FireState.Pusher_prefire;
-
-                            joystickActivity.buttonBack = false;
+                            loadState = LoadState.Prepare_to_load;
                             break;
 
                         default:
@@ -416,8 +358,7 @@ public class AutomaticClass extends PlayerClass{
         return Math.abs(headVel) < Math.toRadians(30);
     }
     public boolean isAllowFire(){
-        return true;
-//        return isVyrCompleted && joystickActivity.buttonY;
+        return isVyrCompleted;
     }
 
     public boolean isRandomizeWasDetected(){

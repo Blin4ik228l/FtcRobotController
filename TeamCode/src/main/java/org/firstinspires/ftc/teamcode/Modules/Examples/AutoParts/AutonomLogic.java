@@ -120,7 +120,6 @@ public class AutonomLogic extends ExecutableModule {
 
                             case Find_tags:
                                 findTagsLogic.execute();
-                                driveTrain.cameraClass.generalLogic = CameraClass.GeneralLogic.Button_play_pressed;
                                 robotStates = RobotStates.Wait_For_Camera;
                                 break;
 

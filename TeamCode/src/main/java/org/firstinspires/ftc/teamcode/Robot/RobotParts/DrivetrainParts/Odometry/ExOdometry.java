@@ -57,6 +57,7 @@ public class ExOdometry extends UpdatableModule {
         selfMath.calculateAll();
     }
     public double getFoundedRobotAngle(){
+        //TODO Изменить угол
         double targX = teamColor.getWallCoord()[0] - encGlobalPosition2D.getX();
         double targY = teamColor.getWallCoord()[1] - encGlobalPosition2D.getY();
 

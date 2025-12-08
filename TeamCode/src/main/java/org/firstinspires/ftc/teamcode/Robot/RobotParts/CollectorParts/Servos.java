@@ -25,8 +25,6 @@ public class Servos extends Module {
         setAngle(ANGLE_START_POS);
         setBaraban(BARABAN_CELL0_POS);
 
-        if (runTimeBaraban.seconds() < 1) return;
-
         telemetry.addLine("Servos inited");
     }
     private final ElapsedTime runtime;

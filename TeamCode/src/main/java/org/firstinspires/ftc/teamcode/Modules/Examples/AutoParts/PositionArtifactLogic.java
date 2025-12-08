@@ -18,8 +18,10 @@ public class PositionArtifactLogic extends UpdatableModule {
     }
     private final TeamColor teamColor;
     private final ExOdometry exOdometry;
-    private LogicStates logicStates;
+
+    public LogicStates logicStates = LogicStates.Check_Pos;
     private MovementLogic movementLogic;
+
     private Position2D foundedPos = new Position2D();
     private Position2D posForSend = null;
 
@@ -91,11 +93,11 @@ public class PositionArtifactLogic extends UpdatableModule {
                 foundedPos.setY(teamColor.getClosestArtifacts()[minI][2]);
                 foundedPos.setHeading(teamColor.getClosestArtifacts()[minI][4]);
 
+                posForSend = foundedPos;
                 logicStates = LogicStates.Send_founded_pos;
                 break;
 
             case Send_founded_pos:
-                posForSend = foundedPos;
                 if(teamColor.getClosestArtifacts()[minI][0] == 0){
                     logicStates = LogicStates.Check_Pos;
                 }

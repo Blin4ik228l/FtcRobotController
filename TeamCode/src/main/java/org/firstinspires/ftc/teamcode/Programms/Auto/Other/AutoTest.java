@@ -22,6 +22,7 @@ public class AutoTest extends LinearOpModeModernized {
             robot.update();
 
             robot.showData();
+            autonomLogic.showData();
 
             telemetry.update();
         }
@@ -33,7 +34,9 @@ public class AutoTest extends LinearOpModeModernized {
 
             autonomLogic.execute();
 
+            autonomLogic.showData();
             robot.showData();
+
             telemetry.update();
         }
 

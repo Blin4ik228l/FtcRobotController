@@ -84,11 +84,11 @@ public class TeamColor extends UpdatableModule {
 
     public final double[][]artifactsUnderBlueWallCoord = new double[][]{
             //                GREEN                                                        PURPLE                                                            PURPLE
-            new double[]{1 ,-30.401,-133.588,6.264 , Math.toRadians(-180)}, new double[]{2, -30.401,-122.888,6.264 , Math.toRadians(-180)}, new double[]{2, -30.401,-108.188,6.264 , Math.toRadians(-180)},
+            new double[]{1 ,-30.401,-133.588,6.264 , Math.toRadians(-90)}, new double[]{2, -30.401,-122.888,6.264 , Math.toRadians(-90)}, new double[]{2, -30.401,-108.188,6.264 , Math.toRadians(-180)},
             //                PURPLE                                                        GREEN                                                            PURPLE
-            new double[]{2,  29.607,-133.588,6.264 , Math.toRadians(-180)}, new double[]{1, 29.607 ,-122.888,6.264 , Math.toRadians(-180)}, new double[]{2, 29.607 ,-108.188,6.264 , Math.toRadians(-180)},
+            new double[]{2,  29.607,-133.588,6.264 , Math.toRadians(-90)}, new double[]{1, 29.607 ,-122.888,6.264 , Math.toRadians(-90)}, new double[]{2, 29.607 ,-108.188,6.264 , Math.toRadians(-180)},
             //                PURPLE                                                        PURPLE                                                            GREEN
-            new double[]{2, 89.614,-133.588,6.264 , Math.toRadians(-180)}, new double[]{2, 89.614 ,-122.888,6.264 , Math.toRadians(-180)}, new double[]{1, 89.614 ,-108.188,6.264 , Math.toRadians(-180)}
+            new double[]{2, 89.614,-133.588,6.264 , Math.toRadians(-90)}, new double[]{2, 89.614 ,-122.888,6.264 , Math.toRadians(-90)}, new double[]{1, 89.614 ,-108.188,6.264 , Math.toRadians(-180)}
     };
 
     public final double[][]artifactsUnderRedWallCoord = new double[][]{

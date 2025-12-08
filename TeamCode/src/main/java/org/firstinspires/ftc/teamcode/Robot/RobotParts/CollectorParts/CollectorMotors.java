@@ -55,7 +55,7 @@ public class CollectorMotors extends Module {
     public void setPower(double targetIntakePow){
         double DELTA = 1e-3;
 
-        if(Math.abs(inTakeCurPower - targetIntakePow) < DELTA) return;
+        if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
 
         inTakeMotor.setPower(targetIntakePow);
 
@@ -125,6 +125,8 @@ public class CollectorMotors extends Module {
         telemetry.addData("Targ speed in rad","%.2f /s", targSpeed);
         telemetry.addData("Left motor power","%s", encMotorLeft.getPower());
         telemetry.addData("Right motor power","%s", encMotorRight.getPower());
+        telemetry.addData("Run time intake", runTimeIntake);
+        telemetry.addData("Run time flywhell", runTimeFlyWheel);
         telemetry.addLine();
     }
 }

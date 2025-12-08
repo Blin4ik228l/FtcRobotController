@@ -45,6 +45,7 @@ public class ExOdometry extends UpdatableModule {
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
+
     public void setPos(Position2D cameraPos){
         encGlobalPosition2D.setX(cameraPos.getX());
         encGlobalPosition2D.setY(cameraPos.getY());

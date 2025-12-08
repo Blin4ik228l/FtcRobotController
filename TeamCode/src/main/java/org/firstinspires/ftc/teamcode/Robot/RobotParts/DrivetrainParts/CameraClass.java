@@ -31,8 +31,8 @@ public class CameraClass extends UpdatableModule {
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,-9 ,-15,26.086, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0), Math.toRadians(87), Math.toRadians(180), 0);//Насколько камера повёрнута относительно неё же
+        cameraPosition = new Position(DistanceUnit.CM,-13 ,8,0, 0);//Позиция камеры относительно координат робота
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);//Насколько камера повёрнута относительно неё же
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -73,6 +73,9 @@ public class CameraClass extends UpdatableModule {
         randomizeStatus = RandomizeStatus.UnDetected;
 
         lastPosWasTaked = new ElapsedTime();
+
+        generalLogic = GeneralLogic.Mid_game;
+        cameraLogic = CameraLogic.Check_condition;
         tagState = TagState.noDetected;
 
         telemetry.addLine("Camera Inited");
@@ -181,6 +184,9 @@ public class CameraClass extends UpdatableModule {
                             }
                         }
 
+                        if(randomizeStatus == RandomizeStatus.UnDetected){
+                            generalLogic = GeneralLogic.Button_play_pressed;
+                        }
                         cameraLogic = CameraLogic.Check_condition;
                         break;
                 }
@@ -216,6 +222,9 @@ public class CameraClass extends UpdatableModule {
                 break;
 
             case Need_movement_ASAP:
+                atemptTryies = 0;
+                generalLogic = GeneralLogic.Start_game;
+                cameraLogic = CameraLogic.Check_condition;
                 break;
 
             case Mid_game:
@@ -233,6 +242,15 @@ public class CameraClass extends UpdatableModule {
                         break;
 
                     case Get_pos:
+                        if(isTagShouldBeInFov() && lastPosWasTaked.seconds() > 1){
+                            if(!aprilTagProcessor.getDetections().isEmpty()){
+                                cameraLogic = CameraLogic.Get_pos;
+                            }else {
+                                tagState = TagState.noDetected;
+                            }
+                        }else {
+                            tagState = TagState.noDetected;
+                        }
                         for(AprilTagDetection detection1 : aprilTagProcessor.getDetections()){
                             id = detection1.id;
 
@@ -328,12 +346,13 @@ public class CameraClass extends UpdatableModule {
     }
 
     public boolean isTagShouldBeInFov(){
-        double leftBorder = robotPos.getHeading() + (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
-        double rightBorder = robotPos.getHeading() - (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
-
-        return !((Math.toRadians(44) < leftBorder && rightBorder < Math.toRadians(44) && robotPos.getY() > 0)
-                        ||
-                (Math.toRadians(136) < (leftBorder) && (rightBorder) < Math.toRadians(136)) && robotPos.getY() < 0);
+//        double leftBorder = robotPos.getHeading() + (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
+//        double rightBorder = robotPos.getHeading() - (Math.signum(robotPos.getHeading()) * cameraFov / 4.0);
+//
+//        return !((Math.toRadians(44) < leftBorder && rightBorder < Math.toRadians(44) && robotPos.getY() > 0)
+//                        ||
+//                (Math.toRadians(136) < (leftBorder) && (rightBorder) < Math.toRadians(136)) && robotPos.getY() < 0);
+        return true;
     }
     public boolean isRobotHaveMinVel(){
        return Math.abs(robotHeadVel) <= Math.toRadians(30);
@@ -344,7 +363,8 @@ public class CameraClass extends UpdatableModule {
 
     public void showData(){
         telemetry.addLine("=== CAMERA ===");
-
+        telemetry.addData("General logic", generalLogic.toString());
+        telemetry.addData("Camera logic", cameraLogic.toString());
         telemetry.addData("Tags Found", 0);
         telemetry.addData("Streaming", isCameraStreaming);
         telemetry.addData("ftc yaw", ftcYaw * rad);

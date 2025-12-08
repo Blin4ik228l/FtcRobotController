@@ -34,6 +34,10 @@ public class PositionRobotController extends UpdatableModule {
 
         //Проверяем если робот двигается
         if(exOdometry.robotCurVelocity.length() < 10 && exOdometry.encHeadVel < Math.toRadians(10)){
+            if(exOdometry.robotCurVelocity.length() != 0 && exOdometry.encHeadVel != 0 && cameraClass.tagState == CameraClass.TagState.noDetected){
+                cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
+            }
+
             cameraClass.update();
         }else {
             cameraClass.tagState = CameraClass.TagState.noDetected;

@@ -20,8 +20,6 @@ public class InnerWardenClass extends UpdatableModule {
 
     @Override
     public void update() {
-        robotClass.driveTrain.exOdometry.setPos(robotClass.driveTrain.cameraClass.getPos());
-
         robotClass.driveTrain.cameraClass.setFields(robotClass.driveTrain.exOdometry.encGlobalPosition2D, robotClass.driveTrain.exOdometry.encHeadVel,
                 robotClass.driveTrain.exOdometry.robotCurVelocity.length());
 

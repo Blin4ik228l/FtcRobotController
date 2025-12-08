@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.PlayerClass2;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
-@TeleOp(name = "TeleopNearWall", group = "Red")
+@TeleOp(name = "TeleopRedNearWall", group = "Red")
 public class TeleOpRedNear extends OpMode {
     Thread parallelStream;
     PlayerClass2 dimas;

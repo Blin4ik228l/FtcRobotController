@@ -17,7 +17,9 @@ public class PositionFireLogic extends UpdatableModule {
     }
     public ExOdometry exOdometry;
     public TeamColor teamColor;
-    public LogicStates logicStates;
+
+    public LogicStates logicStates = LogicStates.Check_pos;
+
     private Position2D foundedPos = new Position2D();
     private Position2D sendedPos = null;
     public Position2D getSendedPos(){
@@ -42,12 +44,13 @@ public class PositionFireLogic extends UpdatableModule {
                         foundedPos = new Position2D(teamColor.getFireZones()[i][0], teamColor.getFireZones()[i][1], 0);
                     }
                 }
-                logicStates = LogicStates.Send_pos;
-                break;
-            case Send_pos:
                 foundedPos.setHeading(exOdometry.getDeltaAngle());
 
                 sendedPos = foundedPos;
+
+                logicStates = LogicStates.Send_pos;
+                break;
+            case Send_pos:
                 Vector2 deltaVector = new Vector2(teamColor.getFireZones()[minI][0] - exOdometry.encGlobalPosition2D.getX(), teamColor.getFireZones()[minI][1] - exOdometry.encGlobalPosition2D.getY());
                 if(deltaVector.length() < 1){
                     logicStates = LogicStates.Check_pos;

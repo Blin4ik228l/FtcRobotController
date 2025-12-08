@@ -70,4 +70,8 @@ public interface Consts {
     double DRIVE_OFFSET = 20;
 
     double AUTO_TIME = 30;
+
+    double BARABAN_DELAY = 0.2;
+    double PUSHER_DELAY = 0.3;
+    double REVERSE_DELAY = 0.6;
 }

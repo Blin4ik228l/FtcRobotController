@@ -25,22 +25,25 @@ public class AutonomLogic extends ExecutableModule {
 
         positionArtifactLogic = new PositionArtifactLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor,  op);
         positionFireLogic = new PositionFireLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor, op);
-        findTagsLogic = new FindTagsLogic(driveTrain, op);
+        findTagsLogic = new FindTagsLogic(driveTrain, driveTrain.exOdometry.teamColor ,op);
     }
     public RobotClass robotClass;
     public RobotClass.MecanumDrivetrain driveTrain;
     public RobotClass.Collector collector;
     public DigitalCells digitalCells;
+    public DriveHandler driveHandler;
+
     public PositionArtifactLogic positionArtifactLogic;
     public PositionFireLogic positionFireLogic;
     public FindTagsLogic findTagsLogic;
-    public RobotStates robotStates;
-    public ProgramState programState;
-    public AutoState autoState;
 
-    public DriveLogic driveLogic;
-    public DriveHandler driveHandler;
-    public FireLogic fireLogic;
+    public RobotStates robotStates = RobotStates.Wait_For_Camera;
+    public ProgramState programState = ProgramState.Load_state;
+    public AutoState autoState = AutoState.Start_auto;
+
+    public DriveLogic driveLogic = DriveLogic.Get_pos;
+    public FireLogic fireLogic = FireLogic.Find_and_turn;
+
     public enum RobotStates{
         Wait_For_Camera,
         Find_tags,
@@ -87,9 +90,9 @@ public class AutonomLogic extends ExecutableModule {
     * */
     @Override
     public void execute() {
-        double delayToBaraban = 0.2;
-        double delayToPusher = 0.3;
-        double delayToReverse = 1;
+        double delayToBaraban = BARABAN_DELAY;
+        double delayToPusher = PUSHER_DELAY;
+        double delayToReverse = REVERSE_DELAY;
 
         switch (autoState){
             case Start_auto:
@@ -103,13 +106,16 @@ public class AutonomLogic extends ExecutableModule {
                         switch (robotStates){
                             case Wait_For_Camera:
                                 //TODO
-                                if(driveTrain.cameraClass.tagState == CameraClass.TagState.hasDetected && driveTrain.cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected){
-                                    robotStates = RobotStates.Check_Color;
-                                    driveTrain.motors.setPower(0,0,0);
-                                }
-                                if(driveTrain.cameraClass.generalLogic == CameraClass.GeneralLogic.Need_movement_ASAP){
-                                    robotStates = RobotStates.Find_tags;
-                                }
+                                robotStates = RobotStates.Check_Color;
+                                driveTrain.motors.setPower(0,0,0);
+//                                if(driveTrain.cameraClass.tagState == CameraClass.TagState.hasDetected && driveTrain.cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected){
+//                                    robotStates = RobotStates.Check_Color;
+//                                    driveTrain.motors.setPower(0,0,0);
+//                                    break;
+//                                }
+//                                if(driveTrain.cameraClass.generalLogic == CameraClass.GeneralLogic.Need_movement_ASAP){
+//                                    robotStates = RobotStates.Find_tags;
+//                                }
                                 break;
 
                             case Find_tags:
@@ -152,15 +158,21 @@ public class AutonomLogic extends ExecutableModule {
                                 switch (driveLogic){
                                     case Get_pos:
                                         positionArtifactLogic.update();
-                                        driveHandler.setArgs(new Args.DriveArgs(
-                                                new Position2D(
-                                                        Math.signum(positionArtifactLogic.getPosForSend().getX()) * (Math.abs(positionArtifactLogic.getPosForSend().getX()) - DRIVE_OFFSET),
-                                                        positionArtifactLogic.getPosForSend().getY() * 1,
-                                                        positionArtifactLogic.getPosForSend().getHeading() * 1
-                                                )
-                                                ,200)
-                                        );
-                                        driveLogic = DriveLogic.Power_motors;
+
+                                        if(positionArtifactLogic.logicStates == PositionArtifactLogic.LogicStates.Send_founded_pos) {
+
+                                            driveHandler.setArgs(new Args.DriveArgs(
+                                                    new Position2D(
+                                                            Math.signum(positionArtifactLogic.getPosForSend().getX()) * (Math.abs(positionArtifactLogic.getPosForSend().getX()) - DRIVE_OFFSET),
+                                                            positionArtifactLogic.getPosForSend().getY() * 1,
+                                                            positionArtifactLogic.getPosForSend().getHeading() * 1
+                                                    )
+                                                    ,200)
+                                            );
+                                            driveLogic = DriveLogic.Power_motors;
+                                        }
+
+
                                         break;
                                     case Power_motors:
                                         driveHandler.execute();
@@ -233,15 +245,19 @@ public class AutonomLogic extends ExecutableModule {
                                 switch (driveLogic){
                                     case Get_pos:
                                         positionFireLogic.update();
-                                        driveHandler.setArgs(new Args.DriveArgs(
-                                                new Position2D(
-                                                        positionFireLogic.getSendedPos().getX() * 1,
-                                                        positionFireLogic.getSendedPos().getY() * 1,
-                                                        positionFireLogic.getSendedPos().getHeading() * 1
-                                                ),
-                                                200)
-                                        );
-                                        driveLogic = DriveLogic.Power_motors;
+                                        if(positionFireLogic.logicStates == PositionFireLogic.LogicStates.Send_pos) {
+                                            driveHandler.setArgs(new Args.DriveArgs(
+                                                    new Position2D(
+                                                            positionFireLogic.getSendedPos().getX() * 1,
+                                                            positionFireLogic.getSendedPos().getY() * 1,
+                                                            positionFireLogic.getSendedPos().getHeading() * 1
+                                                    ),
+                                                    200)
+                                            );
+                                            driveLogic = DriveLogic.Power_motors;
+                                        };
+
+
                                         break;
                                     case Power_motors:
                                         driveHandler.execute();
@@ -485,5 +501,13 @@ public class AutonomLogic extends ExecutableModule {
         return collector.servos.runTimeBaraban.seconds() > delayToBaraban || collector.buttonClass.getState();
     }
 
+    @Override
+    public void showData() {
+        telemetry.addLine("===AUTO LOGIC===");
+        telemetry.addData("AUTO state", autoState.toString());
+        telemetry.addData("Program state", programState.toString());
+        telemetry.addData("Robot state", robotStates.toString());
+        telemetry.addLine();
+    }
 }
 

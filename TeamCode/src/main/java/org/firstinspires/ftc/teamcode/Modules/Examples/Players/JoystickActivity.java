@@ -251,6 +251,7 @@ public class JoystickActivity extends UpdatableModule implements JoystickButtons
         telemetry.addData("Bumpers", "L:%s R:%s", bumperLeft, bumperRight);
         telemetry.addData("Triggers", "L:%s R:%s", triggerLeft, triggerRight);
         telemetry.addData("DPad", "U:%s D:%s L:%s R:%s", dpad_Up, dpad_Down, dpad_Left, dpad_Right);
+        telemetry.addData("Bumper times", "L: %s", tLeftBumperPressed);
         telemetry.addLine();
     }
 }

@@ -72,9 +72,9 @@ public class AutomaticClass extends PlayerClass{
 
     @Override
     public void execute(){
-        double delayToBaraban = 0.3;
-        double delayToPusher = 0.6;
-        double delayToReverse = 1;
+        double delayToBaraban = BARABAN_DELAY;
+        double delayToPusher = PUSHER_DELAY;
+        double delayToReverse = REVERSE_DELAY;
 
         curAngle = getAngle(range);
         targetSpeed = getSpeed(range, curAngle);
@@ -165,7 +165,7 @@ public class AutomaticClass extends PlayerClass{
                 collector.motors.onIntake();
                 loadState = LoadState.Idle2;
 
-            }else if(joystickActivity.tLeftBumperPressed != 0 && joystickActivity.tLeftBumperPressed % 2 == 0 && collector.servos.curPusherPos == PUSHER_START_POS) {
+            }else if(joystickActivity.tLeftBumperPressed != 0 && joystickActivity.tLeftBumperPressed % 2 == 0 ) {
                 collector.motors.reverseInTake();
 
                 if(collector.motors.runTimeIntake.seconds() > delayToReverse){
@@ -177,7 +177,12 @@ public class AutomaticClass extends PlayerClass{
                 loadState = LoadState.Pusher_start;
             }
 
-            automaticState = CollectorState.Load;
+
+            if(artifactCount == 3){
+                automaticState = CollectorState.Fire;
+            }else {
+                automaticState = CollectorState.Load;
+            }
 
             fireState = FireState.Pusher_prefire;
         }else{

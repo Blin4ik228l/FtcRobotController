@@ -27,9 +27,9 @@ public class DriveHandler extends ExecutableModule {
 
     // ПИД объекты должны быть final, инициализироваться здесь,
     // либо извне через PID.setPID(ваши коэффициенты)
-    public final PID pidLinearX;
-    public final PID pidLinearY;
-    public final PID pidAngular;
+    public PID pidLinearX;
+    public PID pidLinearY;
+    public PID pidAngular;
     public boolean isDone;
     private double returnDistance(double VelMax, double accel ){
         return Math.pow(VelMax, 2) / (2 * accel);
@@ -44,13 +44,13 @@ public class DriveHandler extends ExecutableModule {
         double angularPID;
 
         Position2D deltaPos = new Position2D(
-                driveArgs.position2D.getY() - driveTrain.exOdometry.encGlobalPosition2D.getY(),
                 driveArgs.position2D.getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
+                driveArgs.position2D.getY() - driveTrain.exOdometry.encGlobalPosition2D.getY(),
                 driveArgs.position2D.getHeading() - driveTrain.exOdometry.encGlobalPosition2D.getHeading());
 
         // Находим ошибку положения
         // Направление движения
-        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(driveTrain.exOdometry.encGlobalPosition2D.getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.exOdometry.encGlobalPosition2D.getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
         double errorHeading = deltaPos.getHeading();//Turn
 
@@ -80,15 +80,20 @@ public class DriveHandler extends ExecutableModule {
 
         if(errorPosDone && errorHeadingDone){
             isDone = true;
+            pidLinearX = new PID(0.024,0.000000080,0.000, -1,1);
+            pidLinearY = new PID(0.024,0.000000080,0.000, -1,1);
+            pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
         }
 
         driveTrain.motors.setPower(speedPIDX, speedPIDY, angularPID);
+
     }
 
     @Override
     public void showData() {
-        telemetry.addLine("driveToPosition");
-        telemetry.addData("\nisDone", isDone);
+        telemetry.addLine("===DriveHandler===");
+        telemetry.addData("isDone", isDone);
+        telemetry.addData("Drive args", "Targets X: %s Y: %s Head: %s Speed: %s", driveArgs.position2D.getX(), driveArgs.position2D.getY(), driveArgs.position2D.getHeading(), driveArgs.speed);
         telemetry.addLine();
     }
 }

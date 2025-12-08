@@ -7,9 +7,10 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
 public class FindTagsLogic extends ExecutableModule {
-    public FindTagsLogic(RobotClass.MecanumDrivetrain drivetrain, OpMode op) {
+    public FindTagsLogic(RobotClass.MecanumDrivetrain drivetrain, TeamColor teamColor ,OpMode op) {
         super(op.telemetry);
         this.drivetrain = drivetrain;
+        this.teamColor = teamColor;
     }
     public TeamColor teamColor;
     public RobotClass.MecanumDrivetrain drivetrain;

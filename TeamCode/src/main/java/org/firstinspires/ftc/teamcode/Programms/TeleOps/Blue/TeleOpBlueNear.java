@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
-@TeleOp(name = "TeleopNearWall", group = "Blue")
+@TeleOp(name = "TeleopBlueNearWall", group = "Blue")
 public class TeleOpBlueNear extends TeleOpModernized {
     PlayerClass1 player1;
 
@@ -46,7 +46,7 @@ public class TeleOpBlueNear extends TeleOpModernized {
 
     @Override
     public void start() {
-
+        robot.start();
     }
 
     @Override

@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Consts;
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.JoystickActivity;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -14,18 +16,17 @@ public class AutomaticClass extends PlayerClass{
         super(joystickActivity, op.telemetry);
         this.collector = collector;
 
-        digitalCells = new DigitalCells(collector.servos, op);
     }
     public RobotClass.Collector collector;
-    private final DigitalCells digitalCells;
     public int[] randomizedArtifacts = new int[3];
-    public boolean isVyrCompleted;
+
+    public double isVyrCompleted;
     public double range;
     public double headVel;
-    public int artifactCount;
     public double vel;
+
     public void setFields(
-            int[] randomizedArtifacts, boolean isVyrCompleted,
+            int[] randomizedArtifacts, double isVyrCompleted,
                           double range, double headVel, double vel){
 
         this.randomizedArtifacts = randomizedArtifacts;
@@ -59,7 +60,8 @@ public class AutomaticClass extends PlayerClass{
         Baraban_at_1,
         Baraban_moving_to_2,
         Baraban_at_2,
-        Prepare_to_load
+        Prepare_to_load,
+        Prepare_baraban
     }
     public enum FireState{
         Baraban_moving_to_0,
@@ -125,18 +127,10 @@ public class AutomaticClass extends PlayerClass{
                 joystickActivity.tDpadUpPressed = 0;
             }
 
-            if(artifactCount == 3){
+            if(collector.digitalCells.artifactCount == 3){
                 isLoadEnded = true;
-            }else if (artifactCount == 0) {
+            }else if (collector.digitalCells.artifactCount == 0) {
                 isLoadEnded = false;
-            }
-
-            if(isLoadEnded){
-                // Определяем целевую ячейку (0, 1 или 2)
-                int targetCellIndex = 3 - artifactCount; // 3→0, 2→1, 1→2
-                int targetColor = randomizedArtifacts[targetCellIndex];
-
-                barabanPos = digitalCells.findNeededArtifactPos(targetColor);
             }
 
             collector.servos.setPusher(pusherPos);
@@ -147,11 +141,11 @@ public class AutomaticClass extends PlayerClass{
                 if(isRotateEnded(delayToBaraban)){//Сначала ждём проворота барабана
                     if(!isLoadEnded){//Затем проверяем режим
                         if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected ){
-                            digitalCells.setColor(collector.colorSensor.artifactColor);
+                            collector.digitalCells.setColor(collector.colorSensor.artifactColor);
                         }
                     }else{
                         if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
-                            digitalCells.deleteColorFromCell();
+                            collector.digitalCells.deleteColorFromCell();
                         }
                     }
                 }
@@ -165,7 +159,7 @@ public class AutomaticClass extends PlayerClass{
 
             if(joystickActivity.bumperLeft && collector.servos.curPusherPos == PUSHER_START_POS){
                 collector.motors.onIntake();
-                loadState = LoadState.Prepare_to_load;
+                loadState = LoadState.Prepare_baraban;
 
             }else if(joystickActivity.tLeftBumperPressed != 0 && joystickActivity.tLeftBumperPressed % 2 == 0 ) {
                 collector.motors.reverseInTake();
@@ -173,14 +167,14 @@ public class AutomaticClass extends PlayerClass{
                 if(collector.motors.runTimeIntake.seconds() > delayToReverse){
                     joystickActivity.tLeftBumperPressed = 0;
                 }
-                loadState = LoadState.Prepare_to_load;
+                loadState = LoadState.Prepare_baraban;
             }else {
                 collector.motors.offIntake();
-                loadState = LoadState.Prepare_to_load;
+                loadState = LoadState.Prepare_baraban;
             }
 
 
-            if(artifactCount == 3){
+            if(collector.digitalCells.artifactCount == 3){
                 automaticState = CollectorState.Fire;
             }else {
                 automaticState = CollectorState.Load;
@@ -199,6 +193,13 @@ public class AutomaticClass extends PlayerClass{
             switch (automaticState){
                 case Load:
                     switch (loadState) {
+                        case Prepare_baraban:
+                            collector.servos.setBaraban(BARABAN_CELL0_POS);
+                            if(isRotateEnded(delayToBaraban)){
+                                loadState = LoadState.Prepare_to_load;
+                            }
+
+                            break;
                         case Prepare_to_load:
                             collector.motors.offIntake();
                             collector.servos.setPusher(PUSHER_START_POS);
@@ -207,39 +208,41 @@ public class AutomaticClass extends PlayerClass{
                                 loadState = LoadState.Check_color;
                             }
                             break;
-                        case Check_color:
-                            collector.motors.onIntake();
 
+                        case Check_color:
                             if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected) {
                                 collector.motors.offIntake();
+                                collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
-                                digitalCells.setColor(collector.colorSensor.artifactColor);
-                                digitalCells.checkNumberOfArtifacts();
+                                collector.digitalCells.setColor(collector.colorSensor.artifactColor);
+                                collector.digitalCells.checkNumberOfArtifacts();
 
-                                if(digitalCells.artifactCount == 3){
+                                if(collector.digitalCells.artifactCount == 3){
                                     loadState = LoadState.Idle;
 
                                 }else {
                                     loadState = LoadState.Reverse;
                                 }
 
-                            }
+                            }else collector.motors.onIntake();
+
                             break;
+
                         case Reverse:
                             collector.motors.reverseInTake();
 
-                            if(collector.motors.runTimeIntake.seconds() > 0.15){
+                            if(collector.motors.runTimeIntake.seconds() > 0.05){
                                 collector.motors.offIntake();
                                 loadState = LoadState.Rotate_baraban;
                             }
                             break;
+
                         case Rotate_baraban:
-                            double barabanPos = digitalCells.getBarabanPos();
+                            double barabanPos = collector.digitalCells.getBarabanPos();
 
                             collector.servos.setBaraban(barabanPos);
                             if(isRotateEnded(delayToBaraban)){
-                                collector.motors.onIntake();
-                                loadState = LoadState.Check_color;
+                                loadState = LoadState.Prepare_to_load;
                             }
                             break;
 
@@ -261,6 +264,7 @@ public class AutomaticClass extends PlayerClass{
 
                 case Fire:
                     switch (fireState) {
+
                         case Prepare_to_fire:
                             collector.motors.preFireSpeedFlyWheel();
 
@@ -272,26 +276,29 @@ public class AutomaticClass extends PlayerClass{
                             break;
 
                         case Find_and_turn:
-                            if (artifactCount == 0) {
+                            collector.digitalCells.checkNumberOfArtifacts();
+
+                            if (collector.digitalCells.artifactCount == 0) {
                                 fireState = FireState.Idle;
                                 break;
                             }
 
                             // Определяем целевую ячейку (0, 1 или 2)
-                            int targetCellIndex = 3 - artifactCount; // 3→0, 2→1, 1→2
+                            int targetCellIndex = 3 - collector.digitalCells.artifactCount; // 3→0, 2→1, 1→2
                             int targetColor = randomizedArtifacts[targetCellIndex];
 
-                            double targetPos = digitalCells.findNeededArtifactPos(targetColor);
+                            double targetPos = collector.digitalCells.findNeededArtifactPos(targetColor);
 
                             collector.servos.setBaraban(targetPos);
                             if(isRotateEnded(delayToBaraban)){
                                 fireState = FireState.Set_speed;
                             }
+
                             break;
 
 
                         case Set_speed:
-                            double DELTA = 3e-3;
+                            double DELTA = 5e-2;
                             collector.motors.setSpeed(curVelRad);
 
                             if(Math.abs(collector.motors.curOverallVel - curVelRad) < DELTA){
@@ -304,7 +311,7 @@ public class AutomaticClass extends PlayerClass{
                                 fireState = FireState.Set_speed;
                                 break;}
 
-                            collector.servos.setPusher(1);
+                            collector.servos.setPusher(PUSHER_ENDING_POS);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 fireState = FireState.Pusher_back;
@@ -316,7 +323,7 @@ public class AutomaticClass extends PlayerClass{
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {
-                                    digitalCells.deleteColorFromCell();
+                                    collector.digitalCells.deleteColorFromCell();
                                     fireState = FireState.Find_and_turn;
                                 } else {
                                     fireState = FireState.Baraban_at_pos;
@@ -328,7 +335,7 @@ public class AutomaticClass extends PlayerClass{
                             collector.motors.offFLyWheel();
 
                             automaticState = CollectorState.Load;
-                            loadState = LoadState.Prepare_to_load;
+                            loadState = LoadState.Prepare_baraban;
                             break;
 
                         default:
@@ -358,11 +365,12 @@ public class AutomaticClass extends PlayerClass{
         return Math.abs(headVel) < Math.toRadians(30);
     }
     public boolean isAllowFire(){
-        return isVyrCompleted;
+        return isVyrCompleted == 0;
     }
 
     public boolean isRandomizeWasDetected(){
-        return randomizedArtifacts[0] != 0;
+//        return randomizedArtifacts[0] != 0;
+        return  true;
     }
     @Override
     public void showData(){
@@ -373,7 +381,5 @@ public class AutomaticClass extends PlayerClass{
         telemetry.addData("Fire state", fireState.toString());
         telemetry.addLine();
     }
-    public String getColorFromNumber(double number){
-        return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
-    }
+
 }

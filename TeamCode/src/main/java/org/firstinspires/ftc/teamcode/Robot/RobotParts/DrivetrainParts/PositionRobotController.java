@@ -5,13 +5,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
 public class PositionRobotController extends UpdatableModule {
-    public PositionRobotController(ExOdometry exOdometry, CameraClass cameraClass, OpMode op) {
+    public PositionRobotController(ExOdometry exOdometry, TeamColor teamColor, CameraClass cameraClass, OpMode op) {
         super(op.telemetry);
         this.exOdometry = exOdometry;
         this.cameraClass = cameraClass;
+        this.teamColor = teamColor;
     }
+    private TeamColor teamColor;
     private ExOdometry exOdometry;
     private CameraClass cameraClass;
     private Position2D rawPosition2D;
@@ -30,21 +34,19 @@ public class PositionRobotController extends UpdatableModule {
 
     public double cameraFov = Math.toRadians(60);
 
+    public boolean isVyrCompleted;
+
     @Override
     public void update() {
         exOdometry.update();
 
+        cameraClass.update();
         //Проверяем если робот двигается
-        if(exOdometry.robotCurVelocity.length() < 10 && exOdometry.encHeadVel < Math.toRadians(10) && isTagShouldBeInFov()){
-            if(cameraClass.generalLogic == CameraClass.GeneralLogic.Check_only_pos){
-                if(isTagShouldBeInFov()){
-                    cameraClass.update();
-                }
-            }else cameraClass.update();
-
-        }else {
-            cameraClass.tagState = CameraClass.TagState.UnDetected;
-        }
+//        if(exOdometry.robotCurVelocity.length() < 10 && exOdometry.encHeadVel < Math.toRadians(10)){
+//
+//        }else {
+//            cameraClass.tagState = CameraClass.TagState.UnDetected;
+//        }
 
         //Если камера увидела таг - обрабатываем
         if(cameraClass.tagState == CameraClass.TagState.Detected){
@@ -93,6 +95,32 @@ public class PositionRobotController extends UpdatableModule {
         }
 
     }
+    public double getFoundedRobotAngle(){
+        //TODO Изменить угол
+        double targX = teamColor.getWallCoord()[0] - exOdometry.encGlobalPosition2D.getX();
+        double targY = teamColor.getWallCoord()[1] - exOdometry.encGlobalPosition2D.getY();
+
+        return new Position2D(0,0, Math.atan2(-targY, -targX)).getHeading();
+    }
+
+    public double getDeltaAngle(){
+        double target = new Position2D(0,0,getFoundedRobotAngle() - exOdometry.encGlobalPosition2D.getHeading()).getHeading();
+
+        if(Math.abs(target) < Math.toRadians(2)) {
+            target = 0;
+        }
+
+        return target;
+    }
+
+    public double getRange(){
+        return new Vector2(teamColor.getWallCoord()[0] - exOdometry.encGlobalPosition2D.getX(), teamColor.getWallCoord()[1] - exOdometry.encGlobalPosition2D.getY()).length();
+    }
+    public Position2D getDeltaPos(){
+        Position2D targPos = new Position2D(teamColor.artifactsUnderBlueWallCoord[0][0], teamColor.artifactsUnderBlueWallCoord[0][1], teamColor.artifactsUnderBlueWallCoord[0][3]);
+
+        return new Position2D(targPos.getX() - exOdometry.encGlobalPosition2D.getX(), targPos.getY() - exOdometry.encGlobalPosition2D.getY(), targPos.getHeading() - exOdometry.encGlobalPosition2D.getHeading());
+    }
 
     public boolean isTagShouldBeInFov(){
         double leftBorder = exOdometry.encGlobalPosition2D.getHeading() + (Math.signum(exOdometry.encGlobalPosition2D.getHeading()) * cameraFov / 4.0);
@@ -103,12 +131,15 @@ public class PositionRobotController extends UpdatableModule {
                 (Math.toRadians(135) < (leftBorder) && (rightBorder) < Math.toRadians(135)) && exOdometry.encGlobalPosition2D.getY() < 0);
     }
     public boolean isRobotHaveMinRange(){
-        return exOdometry.getRange() < 200 && exOdometry.getRange() > 40;
+        return getRange() < 200 && getRange() > 40;
     }
     @Override
     public void showData() {
         telemetry.addLine("===POS CONTROLLER===");
-        telemetry.addData("Position from class", "X:%.1f Y:%.1f H:%.1f°", filteredPose.getX(), filteredPose.getY(), filteredPose.getHeading() * 180/Math.PI);
+//        telemetry.addData("Position from class", "X:%.1f Y:%.1f H:%.1f°", filteredPose.getX(), filteredPose.getY(), filteredPose.getHeading() * 180/Math.PI);
+        telemetry.addData("Founded Robot Angle", "%.1f°",getFoundedRobotAngle()* 180/Math.PI);
+        telemetry.addData("Target angle", "%.1f°",getDeltaAngle()* 180/Math.PI);
+        telemetry.addData("Range to target","%.1f cm", getRange());
         telemetry.addLine();
     }
 }

@@ -23,8 +23,8 @@ public class InnerWardenClass extends UpdatableModule {
         robotClass.driveTrain.cameraClass.setFields(robotClass.driveTrain.exOdometry.encGlobalPosition2D, robotClass.driveTrain.exOdometry.encHeadVel,
                 robotClass.driveTrain.exOdometry.robotCurVelocity.length());
 
-        automaticClass.setFields(robotClass.driveTrain.exOdometry.teamColor.getRandomizedArtifact(), robotClass.driveTrain.exOdometry.isVyrCompleted,
-                robotClass.driveTrain.exOdometry.getRange(), robotClass.driveTrain.exOdometry.encHeadVel, robotClass.driveTrain.exOdometry.robotCurVelocity.length());
+        automaticClass.setFields(robotClass.driveTrain.teamColor.getRandomizedArtifact(), robotClass.driveTrain.positionRobotController.getDeltaAngle(),
+                robotClass.driveTrain.positionRobotController.getRange(), robotClass.driveTrain.exOdometry.encHeadVel, robotClass.driveTrain.exOdometry.robotCurVelocity.length());
 
         robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.kPower);
         robotClass.collector.motors.setKPower(robotClass.voltageSensor.kPower);

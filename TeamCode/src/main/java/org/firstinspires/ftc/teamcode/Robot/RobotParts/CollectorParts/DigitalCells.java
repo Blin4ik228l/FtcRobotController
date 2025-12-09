@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class DigitalCells extends Module {
+
     public DigitalCells(Servos servos, OpMode op){
         super(op.telemetry);
         this.servos = servos;
@@ -12,9 +13,11 @@ public class DigitalCells extends Module {
         cell1 = new Cell(1, new Cell.Table(0, BARABAN_CELL1_POS));
         cell2 = new Cell(2, new Cell.Table(0, BARABAN_CELL2_POS));
     }
+
     private final Cell cell0, cell1, cell2;
     private final Servos servos;
     public int artifactCount;
+
     public void checkNumberOfArtifacts(){
         int artifactNumber = 0;
 
@@ -24,6 +27,7 @@ public class DigitalCells extends Module {
 
         artifactCount = artifactNumber;
     }
+
     public void setColor(int color){
         if(servos.curBarabanPos == BARABAN_CELL0_POS){
             cell0.table.color = color;
@@ -33,16 +37,19 @@ public class DigitalCells extends Module {
             cell2.table.color = color;
         }
     }
+
     public double getBarabanPos() {
         double barabanPos;
 
+        barabanPos = servos.curBarabanPos;
+
         if(servos.curBarabanPos == BARABAN_CELL0_POS && cell0.table.color != 0){
             barabanPos = BARABAN_CELL1_POS;
-        } else if (servos.curBarabanPos == BARABAN_CELL1_POS && cell1.table.color != 0) {
-            barabanPos = BARABAN_CELL2_POS;
-        } else{
-            barabanPos = servos.curBarabanPos;
         }
+        if (servos.curBarabanPos == BARABAN_CELL1_POS && cell1.table.color != 0) {
+            barabanPos = BARABAN_CELL2_POS;
+        }
+
         return barabanPos;
     }
 
@@ -90,8 +97,16 @@ public class DigitalCells extends Module {
         }
     }
 
+    public String getColorFromNumber(double number){
+        return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
+    }
+
     @Override
     public void showData() {
-
+        telemetry.addLine("===DIGITAL CELLS===");
+        telemetry.addData("Count", artifactCount);
+        telemetry.addData("Cells", "C0:%s C1:%s C2:%s",
+                getColorFromNumber(cell0.table.color),getColorFromNumber(cell1.table.color),getColorFromNumber(cell2.table.color));
+        telemetry.addLine();
     }
 }

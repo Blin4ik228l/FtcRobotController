@@ -21,7 +21,7 @@ public class Servos extends Module {
         runTimeAngle = new ElapsedTime();
         runTimePusher = new ElapsedTime();
 
-        setPusher(PUSHER_START_POS);
+        setPusher(PUSHER_PREFIRE_POS);
         setAngle(ANGLE_START_POS);
         setBaraban(BARABAN_CELL0_POS);
 

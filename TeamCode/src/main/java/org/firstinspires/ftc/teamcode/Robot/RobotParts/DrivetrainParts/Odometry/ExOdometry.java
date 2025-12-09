@@ -13,12 +13,11 @@ import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
 public class ExOdometry extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
-    public ExOdometry(OpMode op, TeamColor teamColor){
+    public ExOdometry(OpMode op){
         super(op.telemetry);
-//            voltageSensor = op.hardwareMap.get(VoltageSensor.class, "");
+
         gyro = new GyroscopeClass(op);
         encoderClass = new EncoderClass(op);
-        this.teamColor = teamColor;
 
         selfMath = new SelfMath();
         selfMath.deltaTimes = new double[3];
@@ -33,7 +32,6 @@ public class ExOdometry extends UpdatableModule {
         telemetry.addLine("ExOdometry Inited");
     }
     private GyroscopeClass gyro;
-    public TeamColor teamColor;
     public EncoderClass encoderClass;
     public final SelfMath selfMath;
     public final Position2D gyroGlobalPosition2D;                                   // Относительное перемещение
@@ -51,40 +49,12 @@ public class ExOdometry extends UpdatableModule {
         encGlobalPosition2D.setY(cameraPos.getY());
         encGlobalPosition2D.setHeading(cameraPos.getHeading());
     }
-    public boolean isVyrCompleted;
+
     @Override
     public void update(){
         selfMath.calculateAll();
     }
-    public double getFoundedRobotAngle(){
-        //TODO Изменить угол
-        double targX = teamColor.getWallCoord()[0] - encGlobalPosition2D.getX();
-        double targY = teamColor.getWallCoord()[1] - encGlobalPosition2D.getY();
 
-        return new Position2D(0,0, Math.atan2(targX, -targY)).getHeading();
-    }
-
-    public double getDeltaAngle(){
-        double target = new Position2D(0,0,getFoundedRobotAngle() - encGlobalPosition2D.getHeading()).getHeading();
-
-        if(Math.abs(target) < Math.toRadians(1)) {
-            target = 0;
-            isVyrCompleted = true;
-        }else {
-            isVyrCompleted = false;
-        }
-
-        return target;
-    }
-
-    public double getRange(){
-        return new Vector2(teamColor.getWallCoord()[0] - encGlobalPosition2D.getX(), teamColor.getWallCoord()[1] - encGlobalPosition2D.getY()).length();
-    }
-    public Position2D getDeltaPos(){
-        Position2D targPos = new Position2D(teamColor.artifactsUnderBlueWallCoord[0][0], teamColor.artifactsUnderBlueWallCoord[0][1], teamColor.artifactsUnderBlueWallCoord[0][3]);
-
-        return new Position2D(targPos.getX() - encGlobalPosition2D.getX(), targPos.getY() - encGlobalPosition2D.getY(), targPos.getHeading() - encGlobalPosition2D.getHeading());
-    }
 
     @Override
     public void showData(){
@@ -93,9 +63,6 @@ public class ExOdometry extends UpdatableModule {
         telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);
-        telemetry.addData("Founded Robot Angle", "%.1f°",getFoundedRobotAngle()* 180/Math.PI);
-        telemetry.addData("Target angle", "%.1f°",getDeltaAngle()* 180/Math.PI);
-        telemetry.addData("Range to target","%.1f cm", getRange());
         telemetry.addLine();
     }
 

@@ -23,9 +23,9 @@ public class AutonomLogic extends ExecutableModule {
 
         driveHandler = new DriveHandler(driveTrain, op);
 
-        positionArtifactLogic = new PositionArtifactLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor,  op);
-        positionFireLogic = new PositionFireLogic(driveTrain.exOdometry, driveTrain.exOdometry.teamColor, op);
-        findTagsLogic = new FindTagsLogic(driveTrain, driveTrain.exOdometry.teamColor ,op);
+        positionArtifactLogic = new PositionArtifactLogic(driveTrain.exOdometry, driveTrain.teamColor,  op);
+        positionFireLogic = new PositionFireLogic(driveTrain, driveTrain.teamColor, op);
+        findTagsLogic = new FindTagsLogic(driveTrain, driveTrain.teamColor ,op);
     }
     public RobotClass robotClass;
     public RobotClass.MecanumDrivetrain driveTrain;
@@ -278,7 +278,7 @@ public class AutonomLogic extends ExecutableModule {
                                 }
                                 break;
                             case Fire:
-                                double range = driveTrain.exOdometry.getRange();
+                                double range = driveTrain.positionRobotController.getRange();
 
                                 curAngle = getAngle3(range);//Находим начальный угол стрельбы
                                 targetSpeed = getSpeed(range, curAngle);//Находим скорость на маховик
@@ -304,7 +304,7 @@ public class AutonomLogic extends ExecutableModule {
 
                                         // Определяем целевую ячейку (0, 1 или 2)
                                         int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
-                                        int targetColor = driveTrain.exOdometry.teamColor.getRandomizedArtifact()[targetCellIndex];
+                                        int targetColor = driveTrain.teamColor.getRandomizedArtifact()[targetCellIndex];
 
                                         double targetPos = digitalCells.findNeededArtifactPos(targetColor);
 
@@ -316,7 +316,7 @@ public class AutonomLogic extends ExecutableModule {
                                         break;
                                     case Check_readiness:
                                         //Проверяем не сильно ли сдвинули другие роботы нашего
-                                        if(deltaVector.length() > 10 && driveTrain.exOdometry.getDeltaAngle() < Math.toRadians(5)){
+                                        if(deltaVector.length() > 10 && driveTrain.positionRobotController.getDeltaAngle() < Math.toRadians(5)){
                                             //TODO: Если не набирает скорость то?
                                             if(Math.abs(collector.motors.curOverallVel - curVelRad) < 0.1){
                                                 fireLogic = FireLogic.Push_artifact;
@@ -402,7 +402,7 @@ public class AutonomLogic extends ExecutableModule {
                         }
                         break;
                     case Fire:
-                        double range = driveTrain.exOdometry.getRange();
+                        double range = driveTrain.positionRobotController.getRange();
 
                         curAngle = getAngle3(range);//Находим начальный угол стрельбы
                         targetSpeed = getSpeed(range, curAngle);//Находим скорость на маховик
@@ -428,7 +428,7 @@ public class AutonomLogic extends ExecutableModule {
 
                                 // Определяем целевую ячейку (0, 1 или 2)
                                 int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
-                                int targetColor = driveTrain.exOdometry.teamColor.getRandomizedArtifact()[targetCellIndex];
+                                int targetColor = driveTrain.teamColor.getRandomizedArtifact()[targetCellIndex];
 
                                 double targetPos = digitalCells.findNeededArtifactPos(targetColor);
 

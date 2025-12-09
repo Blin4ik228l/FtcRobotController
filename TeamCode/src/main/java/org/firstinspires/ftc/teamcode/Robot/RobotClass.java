@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
@@ -15,31 +16,31 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorM
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.PositionRobotController;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.VoltageSensorClass;
 
-public class RobotClass extends TeamColor {
+public class RobotClass extends UpdatableModule {
    /* Основная идея данного класса:
     Робот - это как конструктор, он состоит из разных частей
     Моя задача как программиста расписать каждый модуль(часть робота)
     Чтобы в дальнейшем ими легко управлять
     */
 
-    public RobotClass(Color color, StartPos startPos, OpMode op  ){
-        super(color, startPos, op);
+    public RobotClass(TeamColor.Color color, TeamColor.StartPos startPos, OpMode op ){
+        super(op.telemetry);
 
-        driveTrain = new MecanumDrivetrain(op, this);
+        driveTrain = new MecanumDrivetrain(color, startPos, op);
         collector = new Collector(op);
         voltageSensor = new VoltageSensorClass(op);
 
         startTime = new ElapsedTime();
     }
+
     public MecanumDrivetrain driveTrain;
     public Collector collector;
     public VoltageSensorClass voltageSensor;
     public ElapsedTime startTime;
 
+
     public void start(){
         startTime.reset();
-
-        driveTrain.cameraClass.generalLogic = CameraClass.GeneralLogic.Button_play_pressed;
     }
 
     @Override
@@ -54,23 +55,26 @@ public class RobotClass extends TeamColor {
         driveTrain.showData();
         collector.showData();
         voltageSensor.showData();
+
     }
 
     public static class MecanumDrivetrain extends UpdatableModule {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
-        public MecanumDrivetrain(OpMode op, TeamColor teamColor){
+        public MecanumDrivetrain(TeamColor.Color color, TeamColor.StartPos startPos, OpMode op){
             super(op.telemetry);
+            teamColor = new TeamColor(color, startPos, op);
 
             motors = new DrivetrainMotors(op);
 
-            exOdometry = new ExOdometry(op,teamColor );
+            exOdometry = new ExOdometry(op);
             cameraClass = new CameraClass(op, teamColor);
 
-            positionRobotController = new PositionRobotController(exOdometry, cameraClass, op);
+            positionRobotController = new PositionRobotController(exOdometry, teamColor, cameraClass, op);
 
             telemetry.addLine("Drivetrain Inited");
         }
+        public TeamColor teamColor;
         public DrivetrainMotors motors;
         public ExOdometry exOdometry;
         public CameraClass cameraClass;
@@ -83,9 +87,11 @@ public class RobotClass extends TeamColor {
 
         @Override
         public void showData() {
+            positionRobotController.showData();
             cameraClass.showData();
             exOdometry.showData();
             motors.showData();
+            teamColor.showData();
         }
     }
 
@@ -121,6 +127,7 @@ public class RobotClass extends TeamColor {
            motors.showData();
            colorSensor.showData();
            buttonClass.showData();
+           digitalCells.showData();
        }
    }
 

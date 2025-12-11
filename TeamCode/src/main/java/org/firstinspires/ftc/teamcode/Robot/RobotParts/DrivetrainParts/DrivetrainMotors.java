@@ -25,10 +25,10 @@ public class DrivetrainMotors extends Module {
         leftF.setDirection(DcMotorSimple.Direction.REVERSE);
         leftB.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         telemetry.addLine("Motors on drivetrain Inited");
     }

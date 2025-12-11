@@ -99,7 +99,8 @@ public class CameraClass extends UpdatableModule {
     public ElapsedTime lastPosWasTaked;
 
     private Position2D lastRecordedPosition2D;
-
+    public double desicionMargin = 0;
+    public double hamming = 0;
 
     public double distanceWeight;
     public double angleWeight;
@@ -160,11 +161,11 @@ public class CameraClass extends UpdatableModule {
 
                 break;
             case Check_obelisk_and_pos:
-
                 switch (cameraLogic){
 
                     case Check_condition:
-                        if(!aprilTagProcessor.getDetections().isEmpty() && lastPosWasTaked.seconds() > 0.3){
+                        index = 0;
+                        if(!aprilTagProcessor.getDetections().isEmpty()){
                             lastRecordedDetection = aprilTagProcessor.getDetections();
                             cameraLogic = CameraLogic.Get_pos;
                         }else {
@@ -177,6 +178,9 @@ public class CameraClass extends UpdatableModule {
                     case Get_pos:
                         AprilTagDetection detection = lastRecordedDetection.get(index);
                         id = detection.id;
+
+                        desicionMargin = detection.decisionMargin;
+                        hamming = detection.hamming;
 
                         if(id == 21 || id == 22 || id == 23){
                             setRandomizedArtifactFromId(id);
@@ -220,6 +224,7 @@ public class CameraClass extends UpdatableModule {
                 switch (cameraLogic){
 
                     case Check_condition:
+                        index = 0;
                         if(!aprilTagProcessor.getDetections().isEmpty() && lastPosWasTaked.seconds() > 1){
                             lastRecordedDetection = aprilTagProcessor.getDetections();
                             cameraLogic = CameraLogic.Get_pos;
@@ -232,6 +237,8 @@ public class CameraClass extends UpdatableModule {
                     case Get_pos:
                         AprilTagDetection detection = lastRecordedDetection.get(index);
                         id = detection.id;
+                        desicionMargin = detection.decisionMargin;
+                        hamming = detection.hamming;
 
                         if((id == 20 || id == 24) ){
                             robotFieldX = detection.robotPose.getPosition().x;
@@ -339,6 +346,8 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Tags Found", lastRecordedDetection.size());
         telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
+        telemetry.addData("des", desicionMargin);
+        telemetry.addData("ham", hamming);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);

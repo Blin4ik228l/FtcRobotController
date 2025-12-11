@@ -90,6 +90,7 @@ public class RobotClass extends UpdatableModule {
             positionRobotController.showData();
             cameraClass.showData();
             exOdometry.showData();
+            exOdometry.encoderClass.showData();
             motors.showData();
             teamColor.showData();
         }

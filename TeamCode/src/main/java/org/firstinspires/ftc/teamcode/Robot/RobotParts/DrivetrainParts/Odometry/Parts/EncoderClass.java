@@ -60,4 +60,12 @@ public class EncoderClass extends Module {
         return -encRight.getVelocity();
     }
 
+    @Override
+    public void showData() {
+        telemetry.addLine("===ENCODERS===");
+        telemetry.addData("Left", getCurrentPosLeft());
+        telemetry.addData("Right", getCurrentPosRight());
+        telemetry.addData("Mid", getCurrentPosMid());
+        telemetry.addLine();
+    }
 }

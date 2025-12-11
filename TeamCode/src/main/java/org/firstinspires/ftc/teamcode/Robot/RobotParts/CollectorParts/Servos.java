@@ -45,6 +45,8 @@ public class Servos extends Module {
         return angle;
     }
     public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusher;
+
+    public double targ;
     public void setBaraban(double targetBarabanPos){
         if(curBarabanPos == targetBarabanPos) return;
 
@@ -66,6 +68,7 @@ public class Servos extends Module {
     }
 
     public void setAngle(double targetAnglePos){
+        targ = targetAnglePos;
         if(curAnglePos == targetAnglePos) return;
 
         angle.setPosition(targetAnglePos);
@@ -79,10 +82,12 @@ public class Servos extends Module {
     public void showData(){
         telemetry.addLine("===SERVOS===");
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherPos, curBarabanPos);
-        telemetry.addData("Fire angle", curAnglePos * 270 / (185/23) + 75);
+        telemetry.addData("Target Fire angle", targ);
         telemetry.addData("Angle time", runTimeAngle);
         telemetry.addData("Baraban time", runTimeBaraban);
         telemetry.addData("Pusher time", runTimePusher);
         telemetry.addLine();
+
+//         * 270 / (185/23) + 75
     }
 }

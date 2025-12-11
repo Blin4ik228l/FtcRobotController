@@ -3,13 +3,10 @@ package org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Consts;
-import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ConstsTeleskope;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.JoystickActivity;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCells;
 
 public class AutomaticClass extends PlayerClass{
     public AutomaticClass(JoystickActivity joystickActivity, RobotClass.Collector collector, OpMode op) {
@@ -66,15 +63,40 @@ public class AutomaticClass extends PlayerClass{
         Baraban_moving_to_0,
         Baraban_moving_to_1,
         Baraban_moving_to_2,
-        Baraban_at_pos,
+        Push_artifact,
         Pusher_back,
         Find_and_turn,
         Idle,
         Pusher_start,
         Prepare_to_fire,
         Set_speed,
-        Fire
+        Fire,
+        Check_readiness
     }
+    public enum AngleStates{
+        Ready,
+        Unready
+    }
+    public enum FlyWheelStates{
+        Ready,
+        Unready
+    }
+    public enum AnotherStates{
+        Ready,
+        Unready
+    }
+    public enum GlobalState{
+        InMoving,
+        Stopped
+    }
+    public GlobalState globalState;
+    public AngleStates angleStates = AngleStates.Unready;
+    public FlyWheelStates flyWheelStates = FlyWheelStates.Unready;
+    public AnotherStates anotherStates = AnotherStates.Unready;
+
+    public double DELTA_ANGLE = 7e-2;
+    public double DELTA_SPEED = 3e-2;
+    public double theta = 35;
 
     @Override
     public void execute(){
@@ -86,6 +108,9 @@ public class AutomaticClass extends PlayerClass{
         targetSpeed = getSpeed(range, curAngle);
 
         curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
+
+//        if(range > 280) theta = 45;
+//        else theta = 60;
 
         if(!joystickActivity.buttonX) {
             double barabanPos = BARABAN_CELL0_POS;
@@ -264,8 +289,20 @@ public class AutomaticClass extends PlayerClass{
                     break;
 
                 case Fire:
+                    collector.servos.setAngle(findNeededPosAngle(curAngle));
                     collector.motors.setSpeed(curVelRad);
-                    collector.servos.setPusher(curAngle);
+                    if(Math.abs(collector.servos.curAnglePos - findNeededPosAngle(curAngle)) > 0.03){
+                        angleStates = AngleStates.Unready;
+                    }else angleStates = AngleStates.Ready;
+
+                    if(Math.abs(collector.motors.curOverallVel - curVelRad) > 0.03 ) {
+                        flyWheelStates = FlyWheelStates.Unready;
+                    }else flyWheelStates = FlyWheelStates.Ready;
+
+                    if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()){
+                        if(fireState == FireState.Push_artifact) fireState = FireState.Check_readiness;
+                        anotherStates = AnotherStates.Unready;
+                    }else anotherStates = AnotherStates.Ready;
 
                     switch (fireState) {
                         case Prepare_to_fire:
@@ -291,34 +328,36 @@ public class AutomaticClass extends PlayerClass{
                             double targetPos = collector.digitalCells.findNeededArtifactPos(targetColor);
 
                             collector.servos.setBaraban(targetPos);
-                            if(isRotateEnded(delayToBaraban)){
-                                fireState = FireState.Baraban_at_pos;
+                            if(isRotateEnded(delayToBaraban) ){
+                                fireState = FireState.Check_readiness;
                             }
 
                             break;
+                        case Check_readiness:
+                            if(anotherStates == AnotherStates.Ready
+                                    && angleStates == AngleStates.Ready
+                                    && flyWheelStates == FlyWheelStates.Ready){
+                                fireState = FireState.Push_artifact;
+                            }
+                            break;
 
-                        case Baraban_at_pos:
-                            double DELTA_SPEED = 5e-2;
-                            double DELTA_ANGLE = 3e-2;
+                        case Push_artifact:
+                            collector.servos.setPusher(PUSHER_ENDING_POS);
 
-                            if(Math.abs(collector.motors.curOverallVel - curVelRad) < DELTA_SPEED && Math.abs(collector.servos.curAnglePos - curAngle) < DELTA_ANGLE) {
-                                collector.servos.setPusher(PUSHER_ENDING_POS);
-
-                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                    fireState = FireState.Pusher_back;
-                                }
+                            if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                fireState = FireState.Pusher_back;
                             }
                             break;
 
                         case Pusher_back:
-
+                            collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {
                                     collector.digitalCells.deleteColorFromCell();
                                     fireState = FireState.Find_and_turn;
                                 } else {
-                                    fireState = FireState.Baraban_at_pos;
+                                    fireState = FireState.Check_readiness;
                                 }
                             }
                             break;
@@ -345,13 +384,15 @@ public class AutomaticClass extends PlayerClass{
         return collector.servos.runTimeBaraban.seconds() > delayToBaraban || collector.buttonClass.getState();
     }
     public double findNeededPosAngle(double curAngle){
-        return ((90 - MAX_ANGLE) - (90 - Math.toDegrees(curAngle))) * (185 / 23) / 270;
+        curAngle = Range.clip(Math.toDegrees(curAngle), MIN_ANGLE, MAX_ANGLE);
+
+        return (curAngle - 43) * (185 / 23) / 270;
     }
     double getAngle(double range){
-        return Math.atan(Math.tan(Math.toRadians(60)) + 2 * (100 - 30) / range);
+        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (80) / range);
     }
     double getSpeed(double range, double angle){
-        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(60)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
+        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(theta)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
     }
     public boolean isRobotHaveMinVel(){
         return Math.abs(headVel) < Math.toRadians(30);
@@ -361,16 +402,24 @@ public class AutomaticClass extends PlayerClass{
     }
 
     public boolean isRandomizeWasDetected(){
-//        return randomizedArtifacts[0] != 0;
-        return  true;
+        return randomizedArtifacts[0] != 0;
     }
     @Override
     public void showData(){
         telemetry.addLine("=== AUTOMATIC ===");
+        telemetry.addData("Target angle", Math.toDegrees(curAngle));
         telemetry.addData("Target speed", "%.1fm/s", targetSpeed);
         telemetry.addData("Automatic state", automaticState.toString());
         telemetry.addData("Load state", loadState.toString());
         telemetry.addData("Fire state", fireState.toString());
+        telemetry.addData("Angle state", angleStates.toString());
+        telemetry.addData("FlyWheel state", flyWheelStates.toString());
+        telemetry.addData("Another state", anotherStates.toString());
+        telemetry.addData("dAngle", Math.abs(collector.servos.curAnglePos - findNeededPosAngle(curAngle)));
+        telemetry.addData("dAngle const", DELTA_ANGLE);
+        telemetry.addData("dSpeed", Math.abs(collector.motors.curOverallVel - curVelRad));
+        telemetry.addData("dSpeed const", DELTA_SPEED);
+        telemetry.addData("boole", Math.abs(collector.motors.curOverallVel - curVelRad) > DELTA_SPEED );
         telemetry.addLine();
     }
 

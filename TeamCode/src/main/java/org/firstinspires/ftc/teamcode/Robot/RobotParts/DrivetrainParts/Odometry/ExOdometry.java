@@ -55,7 +55,6 @@ public class ExOdometry extends UpdatableModule {
         selfMath.calculateAll();
     }
 
-
     @Override
     public void showData(){
         telemetry.addLine("=== EXODOMETRY ===");

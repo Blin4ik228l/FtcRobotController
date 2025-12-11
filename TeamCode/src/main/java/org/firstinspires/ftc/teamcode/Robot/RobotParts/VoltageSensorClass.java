@@ -37,6 +37,7 @@ public class VoltageSensorClass extends UpdatableModule {
     public void showData() {
         telemetry.addLine("===VoltageClass===");
         telemetry.addData("vol", curVoltage);
+        telemetry.addData("Max vol", MAX_VOL);
         telemetry.addData("koef Power", kPower);
         telemetry.addLine();
     }

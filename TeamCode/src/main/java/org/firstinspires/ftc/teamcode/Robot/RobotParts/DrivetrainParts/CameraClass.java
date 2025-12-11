@@ -338,8 +338,6 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Tags Found", lastRecordedDetection.size());
-        telemetry.addData("Tag id", id);
-        telemetry.addData("April", !aprilTagProcessor.getDetections().isEmpty());
         telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);

@@ -19,7 +19,6 @@ public class AutomaticClass extends PlayerClass{
     }
     public RobotClass.Collector collector;
     public int[] randomizedArtifacts = new int[3];
-
     public double isVyrCompleted;
     public double range;
     public double headVel;
@@ -73,7 +72,8 @@ public class AutomaticClass extends PlayerClass{
         Idle,
         Pusher_start,
         Prepare_to_fire,
-        Set_speed
+        Set_speed,
+        Fire
     }
 
     @Override
@@ -84,13 +84,14 @@ public class AutomaticClass extends PlayerClass{
 
         curAngle = getAngle(range);
         targetSpeed = getSpeed(range, curAngle);
-        curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
 
-        collector.servos.setAngle(findNeededPosAngle(curAngle));
+        curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
 
         if(!joystickActivity.buttonX) {
             double barabanPos = BARABAN_CELL0_POS;
             double pusherPos = PUSHER_START_POS;
+
+            collector.servos.setAngle(findNeededPosAngle(curAngle));
 
             if(joystickActivity.tDpadRightPressed == 1){
                 count ++;
@@ -263,11 +264,11 @@ public class AutomaticClass extends PlayerClass{
                     break;
 
                 case Fire:
+                    collector.motors.setSpeed(curVelRad);
+                    collector.servos.setPusher(curAngle);
+
                     switch (fireState) {
-
                         case Prepare_to_fire:
-                            collector.motors.preFireSpeedFlyWheel();
-
                             collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
@@ -291,35 +292,26 @@ public class AutomaticClass extends PlayerClass{
 
                             collector.servos.setBaraban(targetPos);
                             if(isRotateEnded(delayToBaraban)){
-                                fireState = FireState.Set_speed;
-                            }
-
-                            break;
-
-
-                        case Set_speed:
-                            double DELTA = 5e-2;
-                            collector.motors.setSpeed(curVelRad);
-
-                            if(Math.abs(collector.motors.curOverallVel - curVelRad) < DELTA){
                                 fireState = FireState.Baraban_at_pos;
                             }
+
                             break;
 
                         case Baraban_at_pos:
-                            if(!isRandomizeWasDetected() || !isAllowFire() || !isRobotHaveMinVel()){
-                                fireState = FireState.Set_speed;
-                                break;}
+                            double DELTA_SPEED = 5e-2;
+                            double DELTA_ANGLE = 3e-2;
 
-                            collector.servos.setPusher(PUSHER_ENDING_POS);
+                            if(Math.abs(collector.motors.curOverallVel - curVelRad) < DELTA_SPEED && Math.abs(collector.servos.curAnglePos - curAngle) < DELTA_ANGLE) {
+                                collector.servos.setPusher(PUSHER_ENDING_POS);
 
-                            if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                fireState = FireState.Pusher_back;
+                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                    fireState = FireState.Pusher_back;
+                                }
                             }
                             break;
 
                         case Pusher_back:
-                            collector.servos.setPusher(PUSHER_PREFIRE_POS);
+
 
                             if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                 if (collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected) {

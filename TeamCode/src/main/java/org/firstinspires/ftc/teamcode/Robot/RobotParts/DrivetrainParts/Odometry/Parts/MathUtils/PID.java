@@ -29,6 +29,10 @@ public class PID {
         this.kD = kD;
     }
 
+    public double getkP() {
+        return kP;
+    }
+
     public void reset(){
         P = 0;
         I = 0;

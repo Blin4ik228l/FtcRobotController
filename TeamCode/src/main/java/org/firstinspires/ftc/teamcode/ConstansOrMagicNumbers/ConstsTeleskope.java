@@ -14,5 +14,5 @@ public interface ConstsTeleskope {
     double MIN_ANGLE = 43;
 
     double MAX_RAD_SPEED = 5;
-    double MAX_EXPERIMENTAL_SPEED_IN_METERS = 7.4;
+    double MAX_EXPERIMENTAL_SPEED_IN_METERS = 7.6;
 }

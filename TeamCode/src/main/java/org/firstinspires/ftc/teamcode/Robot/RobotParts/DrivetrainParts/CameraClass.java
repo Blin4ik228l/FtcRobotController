@@ -165,7 +165,7 @@ public class CameraClass extends UpdatableModule {
 
                     case Check_condition:
                         index = 0;
-                        if(!aprilTagProcessor.getDetections().isEmpty()){
+                        if(!aprilTagProcessor.getDetections().isEmpty() && lastPosWasTaked.seconds() > 0.3){
                             lastRecordedDetection = aprilTagProcessor.getDetections();
                             cameraLogic = CameraLogic.Get_pos;
                         }else {

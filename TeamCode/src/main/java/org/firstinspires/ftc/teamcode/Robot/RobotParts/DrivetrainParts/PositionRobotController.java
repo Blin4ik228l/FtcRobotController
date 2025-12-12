@@ -40,55 +40,57 @@ public class PositionRobotController extends UpdatableModule {
     public void update() {
         exOdometry.update();
 
-        //Проверяем если робот двигается
-        if(exOdometry.robotCurVelocity.length() == 0 && exOdometry.encHeadVel == Math.toRadians(0)){
+        if(exOdometry.robotCurVelocity.length() >= 15 || Math.abs(exOdometry.encHeadVel) >= Math.toRadians(5)){
+            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
+            cameraClass.tagState = CameraClass.TagState.UnDetected;
+        }else {
             cameraClass.update();
-        }else cameraClass.tagState = CameraClass.TagState.UnDetected;
+        }
 
+        //Проверяем если робот двигается
 
         //Если камера увидела таг - обрабатываем
         if(cameraClass.tagState == CameraClass.TagState.Detected){
-            double targetWeight;
-
-            // Ограничиваем и умножаем на MAX_CAMERA_WEIGHT
-            targetWeight = Math.min(MAX_CAMERA_WEIGHT,
-                    Math.max(0.1, cameraClass.combinedWeight * MAX_CAMERA_WEIGHT));
-
-            if (cameraWeight < targetWeight) {
-                // Плавное появление камеры
-                cameraWeight += FADE_IN_RATE;
-                cameraWeight = Math.min(cameraWeight, targetWeight);
-            } else if (cameraWeight > targetWeight) {
-                // Плавное исчезновение камеры
-                cameraWeight -= FADE_OUT_RATE;
-                cameraWeight = Math.max(cameraWeight, targetWeight);
-            }
-
-            if (cameraWeight > 0.01 && cameraClass.tagState == CameraClass.TagState.UnDetected) {
-                double weight2 = 1.0 - cameraWeight;
-
-                calcPos = new Position2D(
-                        cameraClass.getLastRecordedPosition2D().getX() * cameraWeight + exOdometry.encGlobalPosition2D.getX() * weight2,
-                        cameraClass.getLastRecordedPosition2D().getY() * cameraWeight + exOdometry.encGlobalPosition2D.getY() * weight2,
-                        cameraClass.getLastRecordedPosition2D().getHeading() * cameraWeight + exOdometry.encGlobalPosition2D.getHeading() * weight2
-                );
-
-
-                lastCameraPose = cameraClass.getLastRecordedPosition2D();
-            } else {
-                calcPos = exOdometry.encGlobalPosition2D; // Только одометрия
-            }
-
-            if (filteredPose == null) {
-                filteredPose = calcPos;
-            }
-
-            filteredPose = new Position2D(
-                    ALPHA * calcPos.getX() + (1-ALPHA) * filteredPose.getX(),
-                    ALPHA * calcPos.getY() + (1-ALPHA) * filteredPose.getY(),
-                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
-            );
-
+//            double targetWeight;
+//
+//            // Ограничиваем и умножаем на MAX_CAMERA_WEIGHT
+//            targetWeight = Math.min(MAX_CAMERA_WEIGHT,
+//                    Math.max(0.1, cameraClass.combinedWeight * MAX_CAMERA_WEIGHT));
+//
+//            if (cameraWeight < targetWeight) {
+//                // Плавное появление камеры
+//                cameraWeight += FADE_IN_RATE;
+//                cameraWeight = Math.min(cameraWeight, targetWeight);
+//            } else if (cameraWeight > targetWeight) {
+//                // Плавное исчезновение камеры
+//                cameraWeight -= FADE_OUT_RATE;
+//                cameraWeight = Math.max(cameraWeight, targetWeight);
+//            }
+//
+//            if (cameraWeight > 0.01 && cameraClass.tagState == CameraClass.TagState.UnDetected) {
+//                double weight2 = 1.0 - cameraWeight;
+//
+//                calcPos = new Position2D(
+//                        cameraClass.getLastRecordedPosition2D().getX() * cameraWeight + exOdometry.encGlobalPosition2D.getX() * weight2,
+//                        cameraClass.getLastRecordedPosition2D().getY() * cameraWeight + exOdometry.encGlobalPosition2D.getY() * weight2,
+//                        cameraClass.getLastRecordedPosition2D().getHeading() * cameraWeight + exOdometry.encGlobalPosition2D.getHeading() * weight2
+//                );
+//
+//
+//                lastCameraPose = cameraClass.getLastRecordedPosition2D();
+//            } else {
+//                calcPos = exOdometry.encGlobalPosition2D; // Только одометрия
+//            }
+//
+//            if (filteredPose == null) {
+//                filteredPose = calcPos;
+//            }
+//
+//            filteredPose = new Position2D(
+//                    ALPHA * calcPos.getX() + (1-ALPHA) * filteredPose.getX(),
+//                    ALPHA * calcPos.getY() + (1-ALPHA) * filteredPose.getY(),
+//                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
+//            );
             exOdometry.setPos(cameraClass.getLastRecordedPosition2D());
         }
 
@@ -112,7 +114,7 @@ public class PositionRobotController extends UpdatableModule {
     }
 
     public double getRange(){
-        return new Vector2(teamColor.getWallCoord()[0] - exOdometry.encGlobalPosition2D.getX(), teamColor.getWallCoord()[1] - exOdometry.encGlobalPosition2D.getY()).length();
+        return new Vector2(teamColor.getBlueWallCoord[0] - exOdometry.encGlobalPosition2D.getX(), teamColor.getBlueWallCoord[1] - exOdometry.encGlobalPosition2D.getY()).length();
     }
     public Position2D getDeltaPos(){
         Position2D targPos = new Position2D(teamColor.artifactsUnderBlueWallCoord[0][0], teamColor.artifactsUnderBlueWallCoord[0][1], teamColor.artifactsUnderBlueWallCoord[0][3]);
@@ -124,9 +126,9 @@ public class PositionRobotController extends UpdatableModule {
         double leftBorder = exOdometry.encGlobalPosition2D.getHeading() + (Math.signum(exOdometry.encGlobalPosition2D.getHeading()) * cameraFov / 4.0);
         double rightBorder = exOdometry.encGlobalPosition2D.getHeading() - (Math.signum(exOdometry.encGlobalPosition2D.getHeading()) * cameraFov / 4.0);
 
-        return !((Math.toRadians(-135) < leftBorder && rightBorder < Math.toRadians(-135) && exOdometry.encGlobalPosition2D.getY() > 0)
+        return !((Math.toRadians(45) < leftBorder && rightBorder < Math.toRadians(45))
                         ||
-                (Math.toRadians(135) < (leftBorder) && (rightBorder) < Math.toRadians(135)) && exOdometry.encGlobalPosition2D.getY() < 0);
+                (Math.toRadians(-45) > leftBorder && rightBorder > Math.toRadians(-45)));
     }
     public boolean isRobotHaveMinRange(){
         return getRange() < 200 && getRange() > 40;

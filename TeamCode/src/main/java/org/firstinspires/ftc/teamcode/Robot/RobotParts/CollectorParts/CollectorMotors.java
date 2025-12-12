@@ -62,17 +62,15 @@ public class CollectorMotors extends Module {
         inTakeCurPower = inTakeMotor.getPower();
 
         runTimeIntake.reset();
+        calcCurSpeed();
     }
     public void setSpeed(double speed){
-        double DELTA = 1e-3;
-        //Небольшая оптимаизация чтобы постояно не тегать контроллер
-        if(Math.abs(targSpeed - speed) > DELTA) {
-            encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
-            encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
+        encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
+        encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 
-            targSpeed = speed;
-            runTimeFlyWheel.reset();
-        }
+        targSpeed = speed;
+        runTimeFlyWheel.reset();
+
         calcCurSpeed();
     }
     public void calcCurSpeed(){

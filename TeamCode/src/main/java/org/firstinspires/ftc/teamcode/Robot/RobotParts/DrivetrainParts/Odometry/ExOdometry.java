@@ -59,7 +59,7 @@ public class ExOdometry extends UpdatableModule {
     public void showData(){
         telemetry.addLine("=== EXODOMETRY ===");
         telemetry.addData("Position from encoders", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
-        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
+//        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);
         telemetry.addLine();

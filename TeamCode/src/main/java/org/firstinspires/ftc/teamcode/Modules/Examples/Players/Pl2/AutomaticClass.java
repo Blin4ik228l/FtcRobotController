@@ -96,7 +96,7 @@ public class AutomaticClass extends PlayerClass{
 
     public double DELTA_ANGLE = 7e-2;
     public double DELTA_SPEED = 3e-2;
-    public double theta = 35;
+    public double theta = 30;
 
     @Override
     public void execute(){
@@ -277,6 +277,7 @@ public class AutomaticClass extends PlayerClass{
                             if (collector.motors.runTimeIntake.seconds() > delayToReverse) {
                                 collector.motors.offIntake();
 
+                                collector.motors.setSpeed(4);
                                 automaticState = CollectorState.Fire;
                                 fireState = FireState.Prepare_to_fire;
                             }
@@ -291,11 +292,12 @@ public class AutomaticClass extends PlayerClass{
                 case Fire:
                     collector.servos.setAngle(findNeededPosAngle(curAngle));
                     collector.motors.setSpeed(curVelRad);
+
                     if(Math.abs(collector.servos.curAnglePos - findNeededPosAngle(curAngle)) > 0.03){
                         angleStates = AngleStates.Unready;
                     }else angleStates = AngleStates.Ready;
 
-                    if(Math.abs(collector.motors.curOverallVel - curVelRad) > 0.03 ) {
+                    if(Math.abs(collector.motors.curOverallVel - curVelRad) > 0.06 ) {
                         flyWheelStates = FlyWheelStates.Unready;
                     }else flyWheelStates = FlyWheelStates.Ready;
 
@@ -389,7 +391,7 @@ public class AutomaticClass extends PlayerClass{
         return (curAngle - 43) * (185 / 23) / 270;
     }
     double getAngle(double range){
-        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (80) / range);
+        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (105) / range);
     }
     double getSpeed(double range, double angle){
         return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(theta)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;

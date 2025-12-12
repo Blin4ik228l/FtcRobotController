@@ -52,10 +52,9 @@ public class RobotClass extends UpdatableModule {
 
     @Override
     public void showData(){
+        voltageSensor.showData();
         driveTrain.showData();
         collector.showData();
-        voltageSensor.showData();
-
     }
 
     public static class MecanumDrivetrain extends UpdatableModule {
@@ -125,10 +124,10 @@ public class RobotClass extends UpdatableModule {
        @Override
        public void showData() {
            servos.showData();
-           motors.showData();
            colorSensor.showData();
            buttonClass.showData();
            digitalCells.showData();
+           motors.showData();
        }
    }
 

@@ -96,7 +96,7 @@ public class AutomaticClass extends PlayerClass{
 
     public double DELTA_ANGLE = 7e-2;
     public double DELTA_SPEED = 3e-2;
-    public double theta = 30;
+    public double theta = 35;
 
     @Override
     public void execute(){

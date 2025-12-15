@@ -44,13 +44,13 @@ public class DriveHandler extends ExecutableModule {
         double angularPID;
 
         Position2D deltaPos = new Position2D(
-                driveArgs.position2D.getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
-                driveArgs.position2D.getY() - driveTrain.exOdometry.encGlobalPosition2D.getY(),
-                driveArgs.position2D.getHeading() - driveTrain.exOdometry.encGlobalPosition2D.getHeading());
+                driveArgs.position2D.getX() - driveTrain.odometryClass.encGlobalPosition2D.getX(),
+                driveArgs.position2D.getY() - driveTrain.odometryClass.encGlobalPosition2D.getY(),
+                driveArgs.position2D.getHeading() - driveTrain.odometryClass.encGlobalPosition2D.getHeading());
 
         // Находим ошибку положения
         // Направление движения
-        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.exOdometry.encGlobalPosition2D.getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.odometryClass.encGlobalPosition2D.getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
 
         double errorHeading = deltaPos.getHeading();//Turn
 
@@ -58,8 +58,8 @@ public class DriveHandler extends ExecutableModule {
         double linearVel = deltaVector.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;// Линейная скорость робота
 
         Vector2 deltaSpeed = new Vector2(
-                deltaVector.x * linearVel - driveTrain.exOdometry.robotCurVelocity.x,
-                deltaVector.y * linearVel - driveTrain.exOdometry.robotCurVelocity.y);
+                deltaVector.x * linearVel - driveTrain.odometryClass.robotCurVelocity.x,
+                deltaVector.y * linearVel - driveTrain.odometryClass.robotCurVelocity.y);
         deltaSpeed.normalize();
 
         // Передаем требуемые скорости в ПИД для расчета напряжения на моторы

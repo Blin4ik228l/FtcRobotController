@@ -26,7 +26,6 @@ public class VoltageSensorClass extends UpdatableModule {
             }
         }
 
-
         curVoltage = result;
         if(curVoltage > MAX_VOL) MAX_VOL = curVoltage;
 
@@ -36,9 +35,9 @@ public class VoltageSensorClass extends UpdatableModule {
     @Override
     public void showData() {
         telemetry.addLine("===VoltageClass===");
-        telemetry.addData("vol", curVoltage);
+        telemetry.addData("Vol", curVoltage);
         telemetry.addData("Max vol", MAX_VOL);
-        telemetry.addData("koef Power", kPower);
+        telemetry.addData("Koef power", kPower);
         telemetry.addLine();
     }
 }

@@ -51,10 +51,14 @@ public class CollectorMotors extends Module {
     public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;
     public double targSpeed;
+    public FlyWheelStates flyWheelStates;
+
+    public enum FlyWheelStates{
+        Ready,
+        Unready
+    }
 
     public void setPower(double targetIntakePow){
-        double DELTA = 1e-3;
-
         if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
 
         inTakeMotor.setPower(targetIntakePow);
@@ -62,15 +66,16 @@ public class CollectorMotors extends Module {
         inTakeCurPower = inTakeMotor.getPower();
 
         runTimeIntake.reset();
-        calcCurSpeed();
     }
     public void setSpeed(double speed){
+        flyWheelStates = FlyWheelStates.Ready;
+        targSpeed = speed;
+        if(Math.abs(targSpeed - curOverallVel) < 0.1) return;
         encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
         encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 
-        targSpeed = speed;
+        flyWheelStates = FlyWheelStates.Unready;
         runTimeFlyWheel.reset();
-
         calcCurSpeed();
     }
     public void calcCurSpeed(){
@@ -104,7 +109,7 @@ public class CollectorMotors extends Module {
         setSpeed(targetFlyWheelSpeed);
     }
     public void preFireSpeedFlyWheel(){
-        double targetFlyWheelSpeed = 2;
+        double targetFlyWheelSpeed = 4;
 
         setSpeed(targetFlyWheelSpeed);
     }
@@ -115,14 +120,12 @@ public class CollectorMotors extends Module {
     @Override
     public void showData(){
         telemetry.addLine("===COLLECTOR MOTORS===");
-        telemetry.addData("InTake Power", inTakeCurPower);
-        telemetry.addData("FlyWheelSpeed overall in meters","%.2f m/s", curOverallInMeters);
         telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
+        telemetry.addData("Targ speed in rad","%.2f /s", targSpeed);
+        telemetry.addData("FlyWheelSpeed overall in meters","%.2f m/s", curOverallInMeters);
         telemetry.addData("Left motor speed in rad","%.2f /s", curLeftVel);
         telemetry.addData("Right motor speed in rad","%.2f /s", curRightVel);
-        telemetry.addData("Targ speed in rad","%.2f /s", targSpeed);
-        telemetry.addData("Left motor power","%s", encMotorLeft.getPower());
-        telemetry.addData("Right motor power","%s", encMotorRight.getPower());
+        telemetry.addData("InTake Power", inTakeCurPower);
         telemetry.addData("Run time intake", runTimeIntake);
         telemetry.addData("Run time flywhell", runTimeFlyWheel);
         telemetry.addLine();

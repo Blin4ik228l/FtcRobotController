@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers;
 
-public interface Consts {
+public interface AnotherConsts {
     double RAZN_ENCODERS = 263254.0/250005.0;
 
     // просто значения(см)
@@ -14,9 +14,9 @@ public interface Consts {
     double DIAM_CIRCLE_ROBOT = 42.7;                                        // диаметр большей окружности робота(колёс)
     double DIST_BETWEEN_ENC_X = 30.8775;                                       // расстояние между энкодерами R и L     // ширина поля
     double MAX_DIST = 366;                                               //
-    double MAX_RAD = Consts.LENGTH_ROUND_BIG/(Consts.DIAM_CIRCLE_ROBOT/2);  //
-    double MAX_TIME_DRIVE = MAX_DIST/ Consts.MAX_CM_PER_SEC;
-    double MAX_TIME_ROUNDING = MAX_RAD/ Consts.MAX_RAD_PER_SEC;
+    double MAX_RAD = AnotherConsts.LENGTH_ROUND_BIG/(AnotherConsts.DIAM_CIRCLE_ROBOT/2);  //
+    double MAX_TIME_DRIVE = MAX_DIST/ AnotherConsts.MAX_CM_PER_SEC;
+    double MAX_TIME_ROUNDING = MAX_RAD/ AnotherConsts.MAX_RAD_PER_SEC;
 
     // ДЛИНЫ ОКРУЖНОСТЕЙ(см)
     double LENGTH_ROUND_BIG = DIAM_CIRCLE_ROBOT * Math.PI;                  // длина большей окружности
@@ -72,6 +72,9 @@ public interface Consts {
     double AUTO_TIME = 30;
 
     double BARABAN_DELAY = 0.1;
-    double PUSHER_DELAY = 0.3;
-    double REVERSE_DELAY = 0.6;
+    double PUSHER_DELAY = 0.2;
+    double REVERSE_DELAY = 0.03;
+    double RAD = 180 / Math.PI;
+
+    double END_TIME = 142;
 }

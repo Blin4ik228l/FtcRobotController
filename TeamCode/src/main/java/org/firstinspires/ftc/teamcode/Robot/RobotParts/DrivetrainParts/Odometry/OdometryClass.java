@@ -9,11 +9,10 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 
-public class ExOdometry extends UpdatableModule {
+public class OdometryClass extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
-    public ExOdometry(OpMode op){
+    public OdometryClass(OpMode op){
         super(op.telemetry);
 
         gyro = new GyroscopeClass(op);
@@ -44,6 +43,18 @@ public class ExOdometry extends UpdatableModule {
         return ticks / encoderClass.COUNTS_PER_CM;
     }
 
+    public enum MoveState{
+        High_speed,
+        Small_speed,
+        Stopped
+    }
+    public enum RotateState{
+        High_speed,
+        Small_speed,
+        Stopped
+    }
+    public MoveState moveState;
+    public RotateState rotateState;
     public void setPos(Position2D cameraPos){
         encGlobalPosition2D.setX(cameraPos.getX());
         encGlobalPosition2D.setY(cameraPos.getY());
@@ -53,11 +64,26 @@ public class ExOdometry extends UpdatableModule {
     @Override
     public void update(){
         selfMath.calculateAll();
+
+        if(robotCurVelocity.length() == 0){
+            moveState = MoveState.Stopped;
+        } else if (robotCurVelocity.length() > 0 && robotCurVelocity.length() <= 30) {
+            moveState = MoveState.Small_speed;
+        }else moveState = MoveState.High_speed;
+
+        if(encHeadVel == 0){
+            rotateState = RotateState.Stopped;
+        } else if (encHeadVel > 0 && encHeadVel <= Math.toRadians(10)) {
+            rotateState = RotateState.Small_speed;
+        }else rotateState = RotateState.High_speed;
     }
 
     @Override
     public void showData(){
-        telemetry.addLine("=== EXODOMETRY ===");
+        gyro.showData();
+        encoderClass.showData();
+
+        telemetry.addLine("===ODOMETRY===");
         telemetry.addData("Position from encoders", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
 //        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s", robotCurVelocity.x, robotCurVelocity.y);

@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
-public class JoystickActivity extends UpdatableModule implements JoystickButtons {
+public class JoystickActivityClass extends UpdatableModule implements JoystickButtons {
     public Gamepad playersGamepad;
     public boolean buttonX = false, buttonA = false, buttonB = false, buttonY = false,
             buttonBack = false, buttonStart = false,
@@ -22,11 +22,11 @@ public class JoystickActivity extends UpdatableModule implements JoystickButtons
             tDpadDownPressed = 0, tDpadUpPressed = 0, tDpadLeftPressed = 0, tDpadRightPressed = 0,
             tBackPressed, tStartPressed = 0;
 
-    public JoystickActivity(Gamepad gamepad, OpMode op) {
+    public JoystickActivityClass(Gamepad gamepad, OpMode op) {
         super(op.telemetry);
         playersGamepad = gamepad;
     }
-    public JoystickActivity(OpMode op) {
+    public JoystickActivityClass(OpMode op) {
         super(op.telemetry);
     }
 

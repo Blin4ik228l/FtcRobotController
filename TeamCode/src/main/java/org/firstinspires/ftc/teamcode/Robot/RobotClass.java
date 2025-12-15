@@ -3,17 +3,17 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCells;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.ExOdometry;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.Servos;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensorClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCellsClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.OdometryClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ServomotorsClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.PositionRobotController;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.TeamColorClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.VoltageSensorClass;
 
 public class RobotClass extends UpdatableModule {
@@ -23,24 +23,23 @@ public class RobotClass extends UpdatableModule {
     Чтобы в дальнейшем ими легко управлять
     */
 
-    public RobotClass(TeamColor.Color color, TeamColor.StartPos startPos, OpMode op ){
+    public RobotClass(TeamColorClass.Color color, TeamColorClass.StartPos startPos, OpMode op ){
         super(op.telemetry);
 
         driveTrain = new MecanumDrivetrain(color, startPos, op);
         collector = new Collector(op);
         voltageSensor = new VoltageSensorClass(op);
 
-        startTime = new ElapsedTime();
+        innerTime = new ElapsedTime();
     }
 
     public MecanumDrivetrain driveTrain;
     public Collector collector;
     public VoltageSensorClass voltageSensor;
-    public ElapsedTime startTime;
-
+    public ElapsedTime innerTime;
 
     public void start(){
-        startTime.reset();
+        innerTime.reset();
     }
 
     @Override
@@ -52,6 +51,7 @@ public class RobotClass extends UpdatableModule {
 
     @Override
     public void showData(){
+        telemetry.addData("Match time:", innerTime.seconds());
         voltageSensor.showData();
         driveTrain.showData();
         collector.showData();
@@ -60,22 +60,22 @@ public class RobotClass extends UpdatableModule {
     public static class MecanumDrivetrain extends UpdatableModule {
         //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
 
-        public MecanumDrivetrain(TeamColor.Color color, TeamColor.StartPos startPos, OpMode op){
+        public MecanumDrivetrain(TeamColorClass.Color color, TeamColorClass.StartPos startPos, OpMode op){
             super(op.telemetry);
-            teamColor = new TeamColor(color, startPos, op);
+            teamColorClass = new TeamColorClass(color, startPos, op);
 
             motors = new DrivetrainMotors(op);
 
-            exOdometry = new ExOdometry(op);
-            cameraClass = new CameraClass(op, teamColor);
+            odometryClass = new OdometryClass(op);
+            cameraClass = new CameraClass(op, teamColorClass);
 
-            positionRobotController = new PositionRobotController(exOdometry, teamColor, cameraClass, op);
+            positionRobotController = new PositionRobotController(odometryClass, teamColorClass, cameraClass, op);
 
             telemetry.addLine("Drivetrain Inited");
         }
-        public TeamColor teamColor;
+        public TeamColorClass teamColorClass;
         public DrivetrainMotors motors;
-        public ExOdometry exOdometry;
+        public OdometryClass odometryClass;
         public CameraClass cameraClass;
         public PositionRobotController positionRobotController;
 
@@ -86,12 +86,11 @@ public class RobotClass extends UpdatableModule {
 
         @Override
         public void showData() {
-            positionRobotController.showData();
+            teamColorClass.showData();
+            odometryClass.showData();
             cameraClass.showData();
-            exOdometry.showData();
-            exOdometry.encoderClass.showData();
+            positionRobotController.showData();
             motors.showData();
-            teamColor.showData();
         }
     }
 
@@ -101,36 +100,34 @@ public class RobotClass extends UpdatableModule {
 
             motors = new CollectorMotors(op);
 
-            servos = new Servos(op);
-            colorSensor = new ColorSensor(op);
+            servos = new ServomotorsClass(op);
+            colorSensorClass = new ColorSensorClass(op);
             buttonClass = new ButtonClass(op);
 
-            digitalCells = new DigitalCells(servos, op);
+            digitalCellsClass = new DigitalCellsClass(servos, op);
 
             telemetry.addLine("Collector inited");
         }
 
         public CollectorMotors motors;
-        public Servos servos;
-        public ColorSensor colorSensor;
-        public DigitalCells digitalCells;
+        public ServomotorsClass servos;
+        public ColorSensorClass colorSensorClass;
+        public DigitalCellsClass digitalCellsClass;
         public ButtonClass buttonClass;
 
        @Override
        public void update() {
-           colorSensor.update();
+           colorSensorClass.update();
        }
 
        @Override
        public void showData() {
+           digitalCellsClass.showData();
+           colorSensorClass.showData();
            servos.showData();
-           colorSensor.showData();
-           buttonClass.showData();
-           digitalCells.showData();
            motors.showData();
        }
    }
-
 }
 
 

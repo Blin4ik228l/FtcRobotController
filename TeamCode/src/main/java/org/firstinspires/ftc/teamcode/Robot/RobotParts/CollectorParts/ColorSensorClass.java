@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
-public class ColorSensor extends UpdatableModule {
-    public ColorSensor(OpMode op){
+public class ColorSensorClass extends UpdatableModule {
+    public ColorSensorClass(OpMode op){
         super(op.telemetry);
 
         colorSensor = op.hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
@@ -109,7 +109,8 @@ public class ColorSensor extends UpdatableModule {
     }
 
     public void updateClassState(){
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && sensor0Distance < 10) {
+        //TODO
+        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) || sensor0Distance < 10) {
             colorState = ColorSensorState.Artifact_Detected;
         }
         else {
@@ -124,7 +125,7 @@ public class ColorSensor extends UpdatableModule {
         return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
     }
     public void showData(){
-        telemetry.addLine("=== COLOR SENSOR ===");
+        telemetry.addLine("===COLOR SENSOR===");
         telemetry.addData("Colors", "Cur:%s Cur2:%s", getColorFromNumber(sensor0FoundedColor), getColorFromNumber(sensor2FoundedColor));
         telemetry.addData("Distance", "%.1fcm", sensor0Distance);
         telemetry.addData("RGB1", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);

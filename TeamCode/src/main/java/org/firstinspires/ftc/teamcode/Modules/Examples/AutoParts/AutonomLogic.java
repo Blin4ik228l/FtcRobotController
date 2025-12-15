@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ConstsTeleskope;
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.PositionConsts;
 import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensor;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCells;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensorClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.DigitalCellsClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
@@ -19,18 +18,18 @@ public class AutonomLogic extends ExecutableModule {
 
         driveTrain = robotClass.driveTrain;
         collector = robotClass.collector;
-        digitalCells = collector.digitalCells;
+        digitalCellsClass = collector.digitalCellsClass;
 
         driveHandler = new DriveHandler(driveTrain, op);
 
-        positionArtifactLogic = new PositionArtifactLogic(driveTrain.exOdometry, driveTrain.teamColor,  op);
-        positionFireLogic = new PositionFireLogic(driveTrain, driveTrain.teamColor, op);
-        findTagsLogic = new FindTagsLogic(driveTrain, driveTrain.teamColor ,op);
+        positionArtifactLogic = new PositionArtifactLogic(driveTrain.odometryClass, driveTrain.teamColorClass,  op);
+        positionFireLogic = new PositionFireLogic(driveTrain, op);
+        findTagsLogic = new FindTagsLogic(driveTrain, driveTrain.teamColorClass,op);
     }
     public RobotClass robotClass;
     public RobotClass.MecanumDrivetrain driveTrain;
     public RobotClass.Collector collector;
-    public DigitalCells digitalCells;
+    public DigitalCellsClass digitalCellsClass;
     public DriveHandler driveHandler;
 
     public PositionArtifactLogic positionArtifactLogic;
@@ -97,7 +96,7 @@ public class AutonomLogic extends ExecutableModule {
         switch (autoState){
             case Start_auto:
                 //Если осталось мало времени и у нас есть загруженные артифакты => едем отстреливать что есть
-                if(AUTO_TIME - robotClass.startTime.seconds() < 4 && digitalCells.artifactCount != 0) {
+                if(AUTO_TIME - robotClass.innerTime.seconds() < 4 && digitalCellsClass.artifactCount != 0) {
                     autoState = AutoState.End_auto;
                     break;
                 }
@@ -124,16 +123,16 @@ public class AutonomLogic extends ExecutableModule {
                                 break;
 
                             case Check_Color:
-                                if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.Artifact_Detected){
-                                    digitalCells.setColor(collector.colorSensor.artifactColor);
-                                    digitalCells.checkNumberOfArtifacts();
+                                if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected){
+                                    digitalCellsClass.setColor(collector.colorSensorClass.artifactColor);
+                                    digitalCellsClass.checkNumberOfArtifacts();
 
                                     //Это условие нужно, так как в начале в роботе уже предазагружены артифакты, чтобы мы не смогли удалить то чего нет
                                     if(positionArtifactLogic.getPosForSend() != null){
                                         positionArtifactLogic.deleteArtifact();
                                     }
 
-                                    if(digitalCells.artifactCount == 3){
+                                    if(digitalCellsClass.artifactCount == 3){
                                         robotStates = RobotStates.Idle;
                                     }else {
                                         robotStates = RobotStates.Rotate_Baraban;
@@ -144,7 +143,7 @@ public class AutonomLogic extends ExecutableModule {
                                 }
                                 break;
                             case Rotate_Baraban:
-                                double barabanPos = digitalCells.getBarabanPos();
+                                double barabanPos = digitalCellsClass.getBarabanPos();
 
                                 collector.servos.setBaraban(barabanPos);
                                 if(isRotateEnded(delayToBaraban)){
@@ -287,29 +286,29 @@ public class AutonomLogic extends ExecutableModule {
                                 collector.servos.setAngle(findNeededPosAngle(curAngle));
 
                                 collector.motors.setSpeed(curVelRad);
-                                collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+                                collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
 
                                 Vector2 deltaVector = new Vector2(
-                                        positionFireLogic.getSendedPos().getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
-                                        positionFireLogic.getSendedPos().getY() - driveTrain.exOdometry.encGlobalPosition2D.getY());
+                                        positionFireLogic.getSendedPos().getX() - driveTrain.odometryClass.encGlobalPosition2D.getX(),
+                                        positionFireLogic.getSendedPos().getY() - driveTrain.odometryClass.encGlobalPosition2D.getY());
 
                                 switch (fireLogic){
                                     case Find_and_turn:
-                                        digitalCells.checkNumberOfArtifacts();
+                                        digitalCellsClass.checkNumberOfArtifacts();
 
-                                        if (digitalCells.artifactCount == 0) {
+                                        if (digitalCellsClass.artifactCount == 0) {
                                             robotStates = RobotStates.Idle;
                                             break;
                                         }
 
-                                        // Определяем целевую ячейку (0, 1 или 2)
-                                        int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
-                                        int targetColor = driveTrain.teamColor.getRandomizedArtifact()[targetCellIndex];
+//                                        // Определяем целевую ячейку (0, 1 или 2)
+//                                        int targetCellIndex = 3 - digitalCellsClass.artifactCount; // 3→0, 2→1, 1→2
+//                                        int targetColor = driveTrain.teamColorClass.getRandomizedArtifact()[targetCellIndex];
+//
+//                                        double targetPos = digitalCellsClass.findNeededArtifactPos(targetColor);
 
-                                        double targetPos = digitalCells.findNeededArtifactPos(targetColor);
 
-
-                                        collector.servos.setBaraban(targetPos);
+//                                        collector.servos.setBaraban(targetPos);
                                         if(isRotateEnded(delayToBaraban)){
                                             fireLogic = FireLogic.Check_readiness;
                                         }
@@ -326,7 +325,7 @@ public class AutonomLogic extends ExecutableModule {
                                         }
                                         break;
                                     case Push_artifact:
-                                        collector.servos.setPusher(ConstsTeleskope.PUSHER_ENDING_POS);
+                                        collector.servos.setPusher(PositionConsts.PUSHER_ENDING_POS);
 
                                         if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                             fireLogic = FireLogic.Check_artifact;
@@ -334,11 +333,11 @@ public class AutonomLogic extends ExecutableModule {
                                         break;
                                     case Check_artifact:
                                         //Убираем толкатель так как он заслоняет датчик цвета
-                                        collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+                                        collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
 
                                         if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                            if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
-                                                digitalCells.deleteColorFromCell();
+                                            if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected){
+                                                digitalCellsClass.deleteColorFromCell();
                                                 fireLogic = FireLogic.Find_and_turn;
                                             }else {
                                                 //Если шар не вылетелет => толкаем ещё раз
@@ -351,7 +350,7 @@ public class AutonomLogic extends ExecutableModule {
                             case Idle:
                                 collector.motors.offFLyWheel();
 
-                                collector.servos.setPusher(ConstsTeleskope.PUSHER_START_POS);
+                                collector.servos.setPusher(PositionConsts.PUSHER_START_POS);
                                 if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                     programState = ProgramState.Load_state;
                                     robotStates = RobotStates.Check_Color;
@@ -411,29 +410,29 @@ public class AutonomLogic extends ExecutableModule {
                         collector.servos.setAngle(findNeededPosAngle(curAngle));
 
                         collector.motors.setSpeed(curVelRad);
-                        collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+                        collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
 
                         Vector2 deltaVector = new Vector2(
-                                positionFireLogic.getSendedPos().getX() - driveTrain.exOdometry.encGlobalPosition2D.getX(),
-                                positionFireLogic.getSendedPos().getY() - driveTrain.exOdometry.encGlobalPosition2D.getY());
+                                positionFireLogic.getSendedPos().getX() - driveTrain.odometryClass.encGlobalPosition2D.getX(),
+                                positionFireLogic.getSendedPos().getY() - driveTrain.odometryClass.encGlobalPosition2D.getY());
 
                         switch (fireLogic){
                             case Find_and_turn:
-                                digitalCells.checkNumberOfArtifacts();
+                                digitalCellsClass.checkNumberOfArtifacts();
 
-                                if (digitalCells.artifactCount == 0) {
+                                if (digitalCellsClass.artifactCount == 0) {
                                     robotStates = RobotStates.Idle;
                                     break;
                                 }
 
                                 // Определяем целевую ячейку (0, 1 или 2)
-                                int targetCellIndex = 3 - digitalCells.artifactCount; // 3→0, 2→1, 1→2
-                                int targetColor = driveTrain.teamColor.getRandomizedArtifact()[targetCellIndex];
+//                                int targetCellIndex = 3 - digitalCellsClass.artifactCount; // 3→0, 2→1, 1→2
+//                                int targetColor = driveTrain.teamColorClass.getRandomizedArtifact()[targetCellIndex];
 
-                                double targetPos = digitalCells.findNeededArtifactPos(targetColor);
+//                                double targetPos = digitalCellsClass.findNeededArtifactPos(targetColor);
 
 
-                                collector.servos.setBaraban(targetPos);
+//                                collector.servos.setBaraban(targetPos);
                                 if(isRotateEnded(delayToBaraban)){
                                     fireLogic = FireLogic.Push_artifact;
                                 }
@@ -452,7 +451,7 @@ public class AutonomLogic extends ExecutableModule {
 //                                }
 //                                break;
                             case Push_artifact:
-                                collector.servos.setPusher(ConstsTeleskope.PUSHER_ENDING_POS);
+                                collector.servos.setPusher(PositionConsts.PUSHER_ENDING_POS);
 
                                 if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                                     fireLogic = FireLogic.Check_artifact;
@@ -460,11 +459,11 @@ public class AutonomLogic extends ExecutableModule {
                                 break;
                             case Check_artifact:
                                 //Убираем толкатель так как он заслоняет датчик цвета
-                                collector.servos.setPusher(ConstsTeleskope.PUSHER_PREFIRE_POS);
+                                collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
 
                                 if (collector.servos.runTimePusher.seconds() > delayToPusher) {
-                                    if(collector.colorSensor.colorState == ColorSensor.ColorSensorState.No_Artifact_Detected){
-                                        digitalCells.deleteColorFromCell();
+                                    if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected){
+                                        digitalCellsClass.deleteColorFromCell();
                                         fireLogic = FireLogic.Find_and_turn;
                                     }else {
                                         //Если шар не вылетелет => толкаем ещё раз
@@ -477,7 +476,7 @@ public class AutonomLogic extends ExecutableModule {
                     case Idle:
                         collector.motors.offFLyWheel();
 
-                        collector.servos.setPusher(ConstsTeleskope.PUSHER_START_POS);
+                        collector.servos.setPusher(PositionConsts.PUSHER_START_POS);
                         if (collector.servos.runTimePusher.seconds() > delayToPusher) {
                             programState = ProgramState.Load_state;
                             robotStates = RobotStates.Check_Color;

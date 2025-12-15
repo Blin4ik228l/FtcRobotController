@@ -14,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.TeamColor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -25,9 +24,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class CameraClass extends UpdatableModule {
-    public CameraClass(OpMode op, TeamColor teamColor)  {
+    public CameraClass(OpMode op, TeamColorClass teamColorClass)  {
         super(op.telemetry);
-        this.teamColor = teamColor;
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
@@ -72,42 +70,20 @@ public class CameraClass extends UpdatableModule {
     private final WebcamName webcamName;
     private ExposureControl exposure;
     private GainControl gain;
-    public final TeamColor teamColor;
-    public double robotFieldX;
-    public double robotFieldY;
-    public double robotFieldZ;
-    public double tagXFromRobot;
-    public double tagYFromRobot;
-    public double tagZFromRobot;
-    public double robotFieldPitch;
-    public double robotFieldRoll;
-    public double robotFieldYaw;
-    public double ftcYaw;
-    public double robotRangeToTag;
-    public double cameraElevation;
-    public double cameraBearing;
-
-    private boolean isObeliskWasSeen = false;
-    private boolean isPosWasTakenFirstly = false;
-    private boolean isCameraStreaming;
-    public double rad = 180 / Math.PI;
-
-    public Position2D robotPos;
-    public double robotVel;
-    public double robotHeadVel;
-
+    public double robotFieldX, robotFieldY, robotFieldZ;
+    public double robotFieldPitch, robotFieldRoll, robotFieldYaw;
+    public double robotRangeToTag, cameraElevation, cameraBearing;
     public ElapsedTime lastPosWasTaked;
-
     private Position2D lastRecordedPosition2D;
     public double desicionMargin = 0;
     public double hamming = 0;
-
     public double distanceWeight;
     public double angleWeight;
     public double qualityWeight;
     public double combinedWeight;
     public int index;
     public int id;
+    public int[] randomizedArtifacts = new int[3];
     public ArrayList <AprilTagDetection> lastRecordedDetection = new ArrayList<>();
     public enum TagState {
         Detected,
@@ -117,12 +93,6 @@ public class CameraClass extends UpdatableModule {
         Detected,
         UnDetected
     }
-
-    public GeneralLogic generalLogic;
-    public CameraLogic cameraLogic;
-    public RandomizeStatus randomizeStatus;
-    public TagState tagState;
-
     public enum CameraLogic{
         Check_condition,
         Get_pos
@@ -132,28 +102,25 @@ public class CameraClass extends UpdatableModule {
         Check_obelisk_and_pos,
         Check_only_pos
     }
-    public void setFields(Position2D robotPos, double robotHeadVel, double robotCurVel){
-        this.robotPos = robotPos;
-        this.robotHeadVel = robotHeadVel;
-        robotVel = robotCurVel;
-    }
+
+    public GeneralLogic generalLogic;
+    public CameraLogic cameraLogic;
+    public RandomizeStatus randomizeStatus;
+    public TagState tagState;
 
     @Override
     public void update(){
         switch (generalLogic){
             case Check_camera_state:
-
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                     exposure = visionPortal.getCameraControl(ExposureControl.class);
                     exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
-                    exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
+                    exposure.setExposure(10, TimeUnit.MILLISECONDS);//Экспозиция
 
                     gain = visionPortal.getCameraControl(GainControl.class);
                     gain.setGain(190);//яркость
 
                     aprilTagProcessor.setDecimation(2);
-
-                    isCameraStreaming = true;
 
                     generalLogic = GeneralLogic.Check_obelisk_and_pos;
                     cameraLogic = CameraLogic.Check_condition;
@@ -185,6 +152,13 @@ public class CameraClass extends UpdatableModule {
                         if(id == 21 || id == 22 || id == 23){
                             setRandomizedArtifactFromId(id);
                             randomizeStatus = RandomizeStatus.Detected;
+                        }else {
+                            if(randomizedArtifacts[0] == 0){
+                                int min = 21;
+                                int max = 23;
+                                int randId = (int)(Math.random() * (max - min + 1)) + min;
+                                setRandomizedArtifactFromId(randId);
+                            }
                         }
 
                         if((id == 20 || id == 24) ){
@@ -207,10 +181,10 @@ public class CameraClass extends UpdatableModule {
 
                         index++;
 
-                        if(index == lastRecordedDetection.size()){
-                            if(randomizeStatus == RandomizeStatus.Detected) generalLogic = GeneralLogic.Check_only_pos;
-                            cameraLogic = CameraLogic.Check_condition;
+                        if(randomizeStatus == RandomizeStatus.Detected) generalLogic = GeneralLogic.Check_only_pos;
 
+                        if(index == lastRecordedDetection.size()){
+                            cameraLogic = CameraLogic.Check_condition;
                             index = 0;
                             lastPosWasTaked.reset();
                         }
@@ -324,33 +298,32 @@ public class CameraClass extends UpdatableModule {
         int purple = 2;
 
         if(id == 21){
-            teamColor.setRandomizedArtifact(new int[] {green, purple, purple});
-            isObeliskWasSeen = true;
+            randomizedArtifacts = new int[] {green, purple, purple};
         }
         if(id == 22){
-            teamColor.setRandomizedArtifact(new int[] {purple, green, purple});
-            isObeliskWasSeen = true;
+            randomizedArtifacts = new int[] {purple, green, purple};
         }
         if(id == 23){
-            teamColor.setRandomizedArtifact(new int[] {purple, purple, green});
-            isObeliskWasSeen = true;
+            randomizedArtifacts = new int[] {purple, purple, green};
         }
     }
 
     public void showData(){
-        telemetry.addLine("=== CAMERA ===");
-        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
+        telemetry.addLine("===CAMERA===");
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Camera logic", cameraLogic.toString());
         telemetry.addData("Tag status", tagState.toString());
-        telemetry.addData("Randomize status", randomizeStatus.toString());
+        if(randomizeStatus == RandomizeStatus.UnDetected){
+            telemetry.addData("Randomize status", randomizeStatus.toString());
+        }
+        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("Tags Found", lastRecordedDetection.size());
         telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addData("des", desicionMargin);
         telemetry.addData("ham", hamming);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
-        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * rad, robotFieldPitch * rad, robotFieldYaw * rad);
-        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * rad, cameraBearing * rad);
+        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
+        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
         telemetry.addLine();
     }
 }

@@ -139,7 +139,7 @@ public class PositionRobotController extends UpdatableModule {
         if (Math.abs(deltaAngle) < Math.toRadians(2)) {
             deltaAngle = 0;
             vyrState = VyrState.Straight_to_it;
-        } else if (Math.abs(deltaAngle) < Math.toRadians(10)) {
+        } else if (Math.abs(deltaAngle) < Math.toRadians(9)) {
             vyrState = VyrState.Near_from_it;
         } else vyrState = VyrState.Far_from_it;
     }

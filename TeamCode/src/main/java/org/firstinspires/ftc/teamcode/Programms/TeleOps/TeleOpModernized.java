@@ -64,7 +64,8 @@ public abstract class TeleOpModernized extends OpMode {
 
     @Override
     public void init_loop() {
-
+        updateAll();
+        showAll();
     }
 
     @Override
@@ -76,11 +77,11 @@ public abstract class TeleOpModernized extends OpMode {
     public void loop() {
         updateAll();
 
-        if(robot.innerTime.seconds() > 140){
-
-            autoPlayerClass.generalState = AutoPlayerClass.GeneralState.Fire;
-            autoPlayerClass.fireState = AutoPlayerClass.FireState.Prepare_to_fire;
-        }
+//        if(robot.innerTime.seconds() > 140){
+//
+//            autoPlayerClass.generalState = AutoPlayerClass.GeneralState.Fire;
+//            autoPlayerClass.fireState = AutoPlayerClass.FireState.Prepare_to_fire;
+//        }
         executeAll();
 
         showAll();

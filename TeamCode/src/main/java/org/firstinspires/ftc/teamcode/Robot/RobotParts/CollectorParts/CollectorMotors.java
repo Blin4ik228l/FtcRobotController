@@ -50,8 +50,8 @@ public class CollectorMotors extends Module {
     public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower, curOverallInMeters;
     public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;
-    public double targSpeed;
-    public FlyWheelStates flyWheelStates;
+    public double targSpeedInMeters;
+    public FlyWheelStates flyWheelStates = FlyWheelStates.Unready;
 
     public enum FlyWheelStates{
         Ready,
@@ -69,8 +69,8 @@ public class CollectorMotors extends Module {
     }
     public void setSpeed(double speed){
         flyWheelStates = FlyWheelStates.Ready;
-        targSpeed = speed;
-        if(Math.abs(targSpeed - curOverallVel) < 0.1) return;
+        targSpeedInMeters = speed / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
+        if(Math.abs(targSpeedInMeters - curOverallInMeters) < 0.05) return;
         encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
         encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 
@@ -120,11 +120,11 @@ public class CollectorMotors extends Module {
     @Override
     public void showData(){
         telemetry.addLine("===COLLECTOR MOTORS===");
-        telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
-        telemetry.addData("Targ speed in rad","%.2f /s", targSpeed);
+//        telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
+        telemetry.addData("Targ speed in meters","%.2f m/s", targSpeedInMeters);
         telemetry.addData("FlyWheelSpeed overall in meters","%.2f m/s", curOverallInMeters);
-        telemetry.addData("Left motor speed in rad","%.2f /s", curLeftVel);
-        telemetry.addData("Right motor speed in rad","%.2f /s", curRightVel);
+//        telemetry.addData("Left motor speed in rad","%.2f /s", curLeftVel);
+//        telemetry.addData("Right motor speed in rad","%.2f /s", curRightVel);
         telemetry.addData("InTake Power", inTakeCurPower);
         telemetry.addData("Run time intake", runTimeIntake);
         telemetry.addData("Run time flywhell", runTimeFlyWheel);

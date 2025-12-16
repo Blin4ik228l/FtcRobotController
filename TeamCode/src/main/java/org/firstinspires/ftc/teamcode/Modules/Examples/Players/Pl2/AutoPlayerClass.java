@@ -41,7 +41,7 @@ public class AutoPlayerClass extends PlayerClass{
     double targetSpeed, targetRadSpeed;
     int count;
     boolean isLoadEnded;
-    public GeneralState generalState;
+    public GeneralState generalState = GeneralState.Load;
     public LoadState loadState = LoadState.Prepare_to_load;
     public FireState fireState = FireState.Prepare_to_fire;
     public enum GeneralState {
@@ -64,7 +64,7 @@ public class AutoPlayerClass extends PlayerClass{
         Prepare_to_fire,
         Check_readiness
     }
-    public double theta = 35;
+    public double theta = 10;
 
     @Override
     public void execute(){
@@ -77,13 +77,13 @@ public class AutoPlayerClass extends PlayerClass{
 
         targetRadSpeed = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
 
-        if(innerTime.seconds() > END_TIME + 5){
-            return;
-        } else if (innerTime.seconds() > END_TIME) {
-            generalState = GeneralState.Fire;
-        }else if(innerTime.seconds() > END_TIME - 1){
-            joystickActivityClass.buttonX = true;
-        }
+//        if(innerTime.seconds() > END_TIME + 5){
+//            return;
+//        } else if (innerTime.seconds() > END_TIME) {
+//            generalState = GeneralState.Fire;
+//        }else if(innerTime.seconds() > END_TIME - 1){
+//            joystickActivityClass.buttonX = true;
+//        }
 
         if(!joystickActivityClass.buttonX) {
             double barabanPos = BARABAN_CELL0_POS;
@@ -126,12 +126,12 @@ public class AutoPlayerClass extends PlayerClass{
                 joystickActivityClass.tDpadUpPressed = 0;
             }
 
-            if(collector.servos.runTimePusher.seconds() > delayToPusher){
-                if(pusherPos == PUSHER_ENDING_POS) {
-                    joystickActivityClass.tDpadUpPressed = 1;
-                    pusherPos = PUSHER_PREFIRE_POS;
-                }
-            }
+//            if(collector.servos.runTimePusher.seconds() > delayToPusher){
+//                if(pusherPos == PUSHER_ENDING_POS) {
+//                    joystickActivityClass.tDpadUpPressed = 1;
+//                    pusherPos = PUSHER_PREFIRE_POS;
+//                }
+//            }
             collector.servos.setPusher(pusherPos);
 
             if(collector.servos.runTimePusher.seconds() > delayToPusher && collector.servos.curPusherPos <= PUSHER_PREFIRE_POS){
@@ -147,7 +147,7 @@ public class AutoPlayerClass extends PlayerClass{
             }
 
             if (joystickActivityClass.bumperRight) {
-                collector.motors.setSpeed(targetRadSpeed);
+                collector.motors.setSpeed(5);
             }else {
                 collector.motors.setSpeed(0);
             }
@@ -204,6 +204,7 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case load_and_check:
+                            collector.update();
                             if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected) {
                                 collector.motors.offIntake();
 //                                collector.servos.setPusher(PUSHER_PREFIRE_POS);
@@ -226,24 +227,22 @@ public class AutoPlayerClass extends PlayerClass{
 
                             if(collector.motors.runTimeIntake.seconds() > delayToReverse){
                                 collector.motors.offIntake();
-                                loadState = LoadState.Prepare_to_load;
+                                loadState = LoadState.Prepare_baraban;
                             }
                             break;
 
                         case Idle:
-//                            collector.motors.reverseInTake();
-//                            if (collector.motors.runTimeIntake.seconds() > delayToReverse) {
-//                                collector.motors.offIntake();
-//
-//
-//                            }
-                            collector.motors.offIntake();
+                            collector.motors.reverseInTake();
+                            if (collector.motors.runTimeIntake.seconds() > delayToReverse) {
+                                collector.motors.offIntake();
 
-                            collector.motors.preFireSpeedFlyWheel();
-                            collector.servos.setPusher(PUSHER_PREFIRE_POS);
+                                collector.motors.preFireSpeedFlyWheel();
+                                collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
-                            generalState = GeneralState.Fire;
-                            fireState = FireState.Prepare_to_fire;
+                                generalState = GeneralState.Fire;
+                                fireState = FireState.Prepare_to_fire;
+                            }
+
                             break;
 
                         default:
@@ -334,12 +333,12 @@ public class AutoPlayerClass extends PlayerClass{
         return collector.servos.runTimeBaraban.seconds() > delayToBaraban || collector.buttonClass.getState();
     }
     public double findNeededPosAngle(double targAngle){
-        double rampAngle = Range.clip(90 - targAngle, MIN_ANGLE, MAX_ANGLE);
+        double rampAngle = Range.clip(90 - Math.toDegrees(targAngle), MIN_ANGLE, 65);
 
-        return (rampAngle - MIN_ANGLE) * (185 / 23) / 270;
+        return (65 - rampAngle) * (185 / 23) / 270;
     }
     double getAngle(double range){
-        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (105) / range);
+        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (80) / range);
     }
     double getSpeed(double range, double angle){
         return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(theta)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;

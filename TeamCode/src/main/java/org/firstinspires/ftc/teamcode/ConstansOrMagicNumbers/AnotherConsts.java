@@ -71,10 +71,10 @@ public interface AnotherConsts {
 
     double AUTO_TIME = 30;
 
-    double BARABAN_DELAY = 0.1;
-    double PUSHER_DELAY = 0.2;
-    double REVERSE_DELAY = 0.03;
+    double BARABAN_DELAY = 0.25;
+    double PUSHER_DELAY = 0.1;
+    double REVERSE_DELAY = 0.1;
     double RAD = 180 / Math.PI;
 
-    double END_TIME = 142;
+    double END_TIME = 5042;
 }

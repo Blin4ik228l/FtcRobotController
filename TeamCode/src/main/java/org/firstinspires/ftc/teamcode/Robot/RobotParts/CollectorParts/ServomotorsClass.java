@@ -45,7 +45,7 @@ public class ServomotorsClass extends Module {
         Ready,
         Unready
     }
-    public AngleStates angleStates;
+    public AngleStates angleStates = AngleStates.Unready;
     public void setBaraban(double targetBarabanPos){
         if(curBarabanPos == targetBarabanPos) return;
 
@@ -79,7 +79,7 @@ public class ServomotorsClass extends Module {
     }
 
     public double fromPosToAngle(double curPos){
-        return curPos / (185 / 23) * 270 + MIN_ANGLE;
+        return  -curPos / (185 / 23) * 270 + 65;
     }
 
     @Override

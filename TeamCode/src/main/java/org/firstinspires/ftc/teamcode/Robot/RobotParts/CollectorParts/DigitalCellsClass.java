@@ -19,6 +19,7 @@ public class DigitalCellsClass extends Module {
     private final Cell cell0, cell1, cell2;
     private final ServomotorsClass servos;
     public int artifactCount;
+    public double delay;
 
     public void checkNumberOfArtifacts(){
         int artifactNumber = 0;
@@ -43,19 +44,36 @@ public class DigitalCellsClass extends Module {
 
     public double getBarabanPos() {
         if(servos.curBarabanPos == BARABAN_CELL2_POS){
-            if(cell2.table.color == 0) return BARABAN_CELL2_POS;
-            else if (cell1.table.color == 0) return BARABAN_CELL1_POS;
-            else return BARABAN_CELL0_POS;
+            if(cell2.table.color == 0) {
+                delay = 0.05;
+                return BARABAN_CELL2_POS;}
+            else if (cell1.table.color == 0)  {
+                delay = 0.1;
+                return BARABAN_CELL1_POS;}
+            else {delay = 0.2;
+            return BARABAN_CELL0_POS;}
 
         } else if (servos.curBarabanPos == BARABAN_CELL1_POS) {
-            if(cell1.table.color == 0) return BARABAN_CELL1_POS;
-            else if (cell0.table.color == 0) return BARABAN_CELL0_POS;
-            else return BARABAN_CELL2_POS;
+            if(cell1.table.color == 0) {
+                delay = 0.05;
+                return BARABAN_CELL1_POS;}
+            else if (cell0.table.color == 0) {
+                delay = 0.1;
+                return BARABAN_CELL0_POS;}
+            else {
+                delay = 0.2;
+                return BARABAN_CELL2_POS;}
 
         }else {
-            if(cell0.table.color == 0) return BARABAN_CELL0_POS;
-            else if (cell1.table.color == 0) return BARABAN_CELL1_POS;
-            else return BARABAN_CELL2_POS;
+            if(cell0.table.color == 0) {
+                delay = 0.05;
+                return BARABAN_CELL0_POS;}
+            else if (cell1.table.color == 0) {
+                delay = 0.1;
+                return BARABAN_CELL1_POS;}
+            else {
+                delay = 0.2;
+                return BARABAN_CELL2_POS;}
 
         }
 

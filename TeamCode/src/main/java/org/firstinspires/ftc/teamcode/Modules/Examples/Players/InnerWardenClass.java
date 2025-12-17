@@ -24,7 +24,7 @@ public class InnerWardenClass extends UpdatableModule {
         robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.kPower);
         robotClass.collector.motors.setKPower(robotClass.voltageSensor.kPower);
 
-        if(robotClass.driveTrain.cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected){
+        if(robotClass.driveTrain.cameraClass.randomizedArtifacts[0] != 0){
             robotClass.collector.digitalCellsClass.setRandomizedArtifact(robotClass.driveTrain.cameraClass.randomizedArtifacts);
         }
 

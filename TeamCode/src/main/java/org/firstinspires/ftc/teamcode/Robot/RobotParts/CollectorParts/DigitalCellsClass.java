@@ -19,8 +19,8 @@ public class DigitalCellsClass extends Module {
     private final Cell cell0, cell1, cell2;
     private final ServomotorsClass servos;
     public int artifactCount;
-    public double delay;
-
+    private int targCell;
+    private int curCell;
     public void checkNumberOfArtifacts(){
         int artifactNumber = 0;
 
@@ -42,54 +42,64 @@ public class DigitalCellsClass extends Module {
         checkNumberOfArtifacts();
     }
 
-    public double getBarabanPos() {
-        if(servos.curBarabanPos == BARABAN_CELL2_POS){
-            if(cell2.table.color == 0) {
-                delay = 0.05;
-                return BARABAN_CELL2_POS;}
-            else if (cell1.table.color == 0)  {
-                delay = 0.1;
-                return BARABAN_CELL1_POS;}
-            else {delay = 0.2;
-            return BARABAN_CELL0_POS;}
+    public double getNextBarabanPos() {
 
-        } else if (servos.curBarabanPos == BARABAN_CELL1_POS) {
-            if(cell1.table.color == 0) {
-                delay = 0.05;
-                return BARABAN_CELL1_POS;}
-            else if (cell0.table.color == 0) {
-                delay = 0.1;
-                return BARABAN_CELL0_POS;}
-            else {
-                delay = 0.2;
-                return BARABAN_CELL2_POS;}
-
-        }else {
-            if(cell0.table.color == 0) {
-                delay = 0.05;
-                return BARABAN_CELL0_POS;}
-            else if (cell1.table.color == 0) {
-                delay = 0.1;
-                return BARABAN_CELL1_POS;}
-            else {
-                delay = 0.2;
-                return BARABAN_CELL2_POS;}
-
+        if(servos.curBarabanPos == BARABAN_CELL2_POS)
+        {
+            if(cell2.table.color == 0)
+            {
+                targCell = 2;
+            }
+            else if (cell1.table.color == 0)
+            {
+                targCell = 1;
+            }
+            else
+            {
+                targCell = 0;
+            }
+        }
+        else if (servos.curBarabanPos == BARABAN_CELL1_POS)
+        {
+            if(cell1.table.color == 0)
+            {
+                targCell = 1;
+            }
+            else if (cell0.table.color == 0)
+            {
+                targCell = 0;
+            }
+            else
+            {
+                targCell = 2;
+            }
+        }
+        else
+        {
+            if(cell0.table.color == 0)
+            {
+                targCell = 0;
+            }
+            else if (cell1.table.color == 0)
+            {
+                targCell = 1;
+            }
+            else
+            {
+                targCell = 2;
+            }
         }
 
+        switch (targCell){
+            case 0:
+                return BARABAN_CELL0_POS;
+            case 1:
+                return BARABAN_CELL1_POS;
+            default:
+                return BARABAN_CELL2_POS;
+        }
     }
-
-    public void deleteColorFromCell(){
-        findNeededCell().table.color = 0;
-        checkNumberOfArtifacts();
-    }
-    public DigitalCellsClass.Cell findNeededCell(){
-        return cell0.table.pos == servos.curBarabanPos ? cell0 : (cell1.table.pos == servos.curBarabanPos ? cell1 : cell2);
-    }
-
     public double findNeededArtifactPos(int color){
-        double currentPos = servos.curBarabanPos;
-
         if(cell2.table.color == color){
             return cell2.table.pos;
         }
@@ -102,10 +112,15 @@ public class DigitalCellsClass extends Module {
         }
 
         if(cell2.table.color != 0) return cell2.table.pos;
-        if(cell1.table.color != 0) return cell1.table.pos;
-        if(cell0.table.color != 0) return cell0.table.pos;
-
-        return currentPos;
+        else if(cell1.table.color != 0) return cell1.table.pos;
+        else return cell0.table.pos;
+    }
+    public void deleteColorFromCell(){
+        findNeededCell().table.color = 0;
+        checkNumberOfArtifacts();
+    }
+    public DigitalCellsClass.Cell findNeededCell(){
+        return cell0.table.pos == servos.curBarabanPos ? cell0 : (cell1.table.pos == servos.curBarabanPos ? cell1 : cell2);
     }
     public static class Cell{
         public Cell(int numCell, Table table){

@@ -157,7 +157,7 @@ public class CameraClass extends UpdatableModule {
                                 int min = 21;
                                 int max = 23;
                                 int randId = (int)(Math.random() * (max - min + 1)) + min;
-                                setRandomizedArtifactFromId(max);
+                                setRandomizedArtifactFromId(randId);
                             }
                         }
 

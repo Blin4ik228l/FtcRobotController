@@ -70,7 +70,7 @@ public class CollectorMotors extends Module {
     public void setSpeed(double speed){
         flyWheelStates = FlyWheelStates.Ready;
         targSpeedInMeters = speed / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
-        if(Math.abs(targSpeedInMeters - curOverallInMeters) < 0.05) return;
+        if(Math.abs(targSpeedInMeters - curOverallInMeters) < 0.09) return;
         encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
         encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 

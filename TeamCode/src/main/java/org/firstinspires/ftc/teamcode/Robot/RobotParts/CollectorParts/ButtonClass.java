@@ -16,11 +16,16 @@ public class ButtonClass extends UpdatableModule {
         telemetry.addLine("Button is Inited");
     }
     public AnalogInput button;
-    public double curState;
+    public State curState = State.Unready;
+    public enum State{
+        Ready,
+        Unready
+    }
 
     @Override
     public void update() {
-        curState = button.getVoltage();
+        if(button.getVoltage() > 3) curState = State.Ready;
+        else curState = State.Unready;
     }
 
 

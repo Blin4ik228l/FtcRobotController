@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensorClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ServomotorsClass;
@@ -208,19 +209,21 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case load_and_check:
-                            if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected && collector.colorSensorClass.timeFromDetect.seconds() > DETECT_DELAY) {
+                            if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected) {
                                 collector.motors.offIntake();
+
+                                if(collector.colorSensorClass.timeFromDetect.seconds() > DETECT_DELAY){
 //                                collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
-                                collector.digitalCellsClass.setColor(collector.colorSensorClass.artifactColor);
+                                    collector.digitalCellsClass.setColor(collector.colorSensorClass.artifactColor);
 
-                                if(collector.digitalCellsClass.artifactCount == 3){
-                                    loadState = LoadState.Idle;
+                                    if(collector.digitalCellsClass.artifactCount == 3){
+                                        loadState = LoadState.Idle;
 
-                                }else {
-                                    loadState = LoadState.Reverse;
+                                    }else {
+                                        loadState = LoadState.Reverse;
+                                    }
                                 }
-
                             }else collector.motors.onIntake();
 
                             break;
@@ -305,8 +308,10 @@ public class AutoPlayerClass extends PlayerClass{
 
                             if (isPushEnded()) {
                                 if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected) {
-                                    collector.digitalCellsClass.deleteColorFromCell();
-                                    fireState = FireState.Find_and_turn;
+                                    if(collector.colorSensorClass.timeFromDetect.seconds() > DETECT_DELAY){
+                                        collector.digitalCellsClass.deleteColorFromCell();
+                                        fireState = FireState.Find_and_turn;
+                                    }
                                 } else {
                                     fireState = FireState.Push_artifact;
                                 }
@@ -332,7 +337,7 @@ public class AutoPlayerClass extends PlayerClass{
         }
     }
     public boolean isRotateEnded(){
-        return collector.servos.runTimeBaraban.seconds() > collector.servos.barabanDelay;
+        return collector.servos.runTimeBaraban.seconds() > collector.servos.barabanDelay || collector.buttonClass.curState == ButtonClass.State.Ready;
     }
     public boolean isPushEnded(){
         return collector.servos.runTimePusher.seconds() > collector.servos.pusherDelay;

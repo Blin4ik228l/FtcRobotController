@@ -2,11 +2,18 @@ package org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers;
 
 public interface PositionConsts {
     double PUSHER_START_POS = 0.05;
+
+    double PUSHER2_START_POS = 0.0;
+    double PUSHER2_ENDING_POS = 0.3;
+
+    double delta = 0.22;
+
     double BARABAN_CELL0_POS = 0.0;
-    double BARABAN_CELL1_POS = 0.25;
-    double BARABAN_CELL2_POS = 0.50;
-    double ANGLE_START_POS = 0.65;
-    double ANGLE_ENDING_POS = 0;
+    double BARABAN_CELL1_POS = BARABAN_CELL0_POS + delta;
+    double BARABAN_CELL2_POS = BARABAN_CELL1_POS + delta;
+
+    double ANGLE_START_POS = 0.0;
+    double ANGLE_ENDING_POS = 1;
     double PUSHER_PREFIRE_POS = 0.51;
     double PUSHER_ENDING_POS = 1;
 

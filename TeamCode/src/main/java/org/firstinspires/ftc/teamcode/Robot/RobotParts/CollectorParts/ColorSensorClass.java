@@ -33,7 +33,7 @@ public class ColorSensorClass extends UpdatableModule {
     private final int relativeLayoutId;
     private final NormalizedColorSensor colorSensor, colorSensor1;
     private final View relativeLayout;
-    private float gain = 3f;
+    private float gain = 15f;
     private final float[] hsvValues = new float[3];
     public NormalizedRGBA sensor0Colors, sensor2Colors;
     public float red0, blue0, green0, alpha0;
@@ -97,7 +97,7 @@ public class ColorSensorClass extends UpdatableModule {
             sensor2FoundedColor = 2;}
         else if(blue2 > red2 && blue2 > green2 && blue2 > 0.05) {
             sensor2FoundedColor = 2;}
-        else if(green2 > red2 && green2 > blue2 && green2 > 0.1) {
+        else if(green2 > red2 && green2 > blue2 && green2 > 0.037) {
             sensor2FoundedColor = 1;}
         else sensor2FoundedColor = 0;
     }
@@ -110,7 +110,7 @@ public class ColorSensorClass extends UpdatableModule {
 
     public void updateClassState(){
         //TODO
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) || sensor0Distance < 4) {
+        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && (sensor0Distance < 9 || sensor2Distance < 9)) {
             colorState = ColorSensorState.Artifact_Detected;
         }
         else {
@@ -127,7 +127,7 @@ public class ColorSensorClass extends UpdatableModule {
     public void showData(){
         telemetry.addLine("===COLOR SENSOR===");
         telemetry.addData("Colors", "Cur:%s Cur2:%s", getColorFromNumber(sensor0FoundedColor), getColorFromNumber(sensor2FoundedColor));
-        telemetry.addData("Distance", "%.1fcm", sensor0Distance);
+        telemetry.addData("Distance", "%.1fcm %.1fcm", sensor0Distance, sensor2Distance);
         telemetry.addData("RGB1", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);
         telemetry.addData("RGB2", "R:%.3f G:%.3f B:%.3f", red2, green2, blue2);
         telemetry.addData("Color sensor state", colorState.toString());

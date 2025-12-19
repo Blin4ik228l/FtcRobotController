@@ -64,12 +64,12 @@ public class AutoPlayerClass extends PlayerClass{
         Prepare_to_fire,
         Check_readiness
     }
-    public double theta = 35;
+    public double theta;
 
     @Override
     public void execute(){
         double delayToBaraban = BARABAN_DELAY;
-        double delayToPusher = PUSHER_DELAY;
+        double delayToPusher = PUSHER2_DELAY;
         double delayToReverse = REVERSE_DELAY;
 
         targetAngle = getAngle(range);
@@ -110,13 +110,13 @@ public class AutoPlayerClass extends PlayerClass{
 
             switch (count){
                 case 0:
-                    barabanPos = 0.0;
+                    barabanPos = BARABAN_CELL0_POS;
                     break;
                 case 1:
-                    barabanPos = 0.25;
+                    barabanPos = BARABAN_CELL1_POS;
                     break;
                 case 2:
-                    barabanPos = 0.50;
+                    barabanPos = BARABAN_CELL2_POS;
                     break;
             }
 
@@ -208,7 +208,7 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case load_and_check:
-                            if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected) {
+                            if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected && collector.colorSensorClass.timeFromDetect.seconds() > DETECT_DELAY) {
                                 collector.motors.offIntake();
 //                                collector.servos.setPusher(PUSHER_PREFIRE_POS);
 
@@ -338,15 +338,17 @@ public class AutoPlayerClass extends PlayerClass{
         return collector.servos.runTimePusher.seconds() > collector.servos.pusherDelay;
     }
     public double findNeededPosAngle(double targAngle){
-        double rampAngle = Range.clip(90 - Math.toDegrees(targAngle), MIN_ANGLE, 43);
+        double rampAngle = Range.clip(90 - Math.toDegrees(targAngle), MIN_ANGLE, MAX_ANGLE);
 
-        return (43 - rampAngle) * (185 / 23) / 270;
+        return (MAX_ANGLE - rampAngle) * (185 / 23) / 270;
     }
     double getAngle(double range){
-        return Math.atan(Math.tan(Math.toRadians(theta)) + 2 * (80) / range);
+        double alpha = Math.toRadians(theta);
+        return Math.atan(Math.tan(alpha) + 2 * (80) / range);
     }
-    double getSpeed(double range, double angle){
-        return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(theta)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
+    double getSpeed(double range, double beta){
+        double alpha = Math.toRadians(theta);
+        return Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(beta)) * Math.pow(Math.cos(beta), 2)))) / 100;
     }
     @Override
     public void showData(){

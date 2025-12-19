@@ -11,6 +11,7 @@ public class ServomotorsClass extends Module {
         super(op.telemetry);
 
         pusher = op.hardwareMap.get(Servo.class, "pusher");
+        pusher2 = op.hardwareMap.get(Servo.class, "pusher2");
         baraban = op.hardwareMap.get(Servo.class, "baraban");
         baraban2 = op.hardwareMap.get(Servo.class, "baraban2");
         angle = op.hardwareMap.get(Servo.class, "angle");
@@ -18,8 +19,10 @@ public class ServomotorsClass extends Module {
         runTimeBaraban = new ElapsedTime();
         runTimeAngle = new ElapsedTime();
         runTimePusher = new ElapsedTime();
+        runTimePusher2 = new ElapsedTime();
 
         //Устанавливаем в начальное положение
+        setPusher2(PUSHER2_START_POS);
         setPusher(PUSHER_START_POS);
         setAngle(ANGLE_START_POS);
         setBaraban(BARABAN_CELL0_POS);
@@ -27,9 +30,9 @@ public class ServomotorsClass extends Module {
         telemetry.addLine("Servos Inited");
     }
     private final Servo angle;
-    private final Servo pusher;
+    private final Servo pusher, pusher2;
     private final Servo baraban, baraban2;
-    public double curAnglePos = -1, curPusherPos = -1, curBarabanPos = -1;
+    public double curAnglePos = -1, curPusherPos = -1, curBarabanPos = -1, curPusher2Pos = -1;
     public Servo getBaraban() {
         return baraban;
     }
@@ -39,7 +42,7 @@ public class ServomotorsClass extends Module {
     public Servo getAngle() {
         return angle;
     }
-    public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusher;
+    public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusher, runTimePusher2;
     public double targetAngle;
     public double barabanDelay = 0;
     public double pusherDelay;
@@ -102,7 +105,7 @@ public class ServomotorsClass extends Module {
     public void setBaraban(double targetBarabanPos){
         if(curBarabanPos == targetBarabanPos) return;
         baraban.setPosition(targetBarabanPos);
-        baraban2.setPosition(1 - targetBarabanPos);
+        baraban2.setPosition(targetBarabanPos);
 
         curBarabanPos = baraban.getPosition();
 
@@ -111,6 +114,11 @@ public class ServomotorsClass extends Module {
     }
 
     public void setPusher(double targetPusherPos){
+        setPusher2(targetPusherPos);
+        if(runTimePusher2.seconds() < PUSHER2_DELAY){
+            runTimePusher.reset();
+            return;}
+
         if(curPusherPos == targetPusherPos) return;
         pusher.setPosition(targetPusherPos);
 
@@ -118,6 +126,19 @@ public class ServomotorsClass extends Module {
 
         calculateDelayPusher(targetPusherPos);
         runTimePusher.reset();//Обнуляем время с момента попадания программы в эту часть
+    }
+    public void setPusher2(double targetPusherPos){
+        if(targetPusherPos == PUSHER_ENDING_POS){
+            if(curPusher2Pos == PUSHER2_ENDING_POS) return;
+            pusher2.setPosition(PUSHER2_ENDING_POS);
+
+        } else {
+            if(curPusher2Pos == PUSHER2_START_POS) return;
+            pusher2.setPosition(PUSHER2_START_POS);
+
+        }
+        curPusher2Pos = pusher2.getPosition();
+        runTimePusher2.reset();
     }
 
     public void setAngle(double targetAnglePos){
@@ -133,7 +154,7 @@ public class ServomotorsClass extends Module {
     }
 
     public double fromPosToAngle(double curPos){
-        return  -curPos / (185 / 23) * 270 + 43;
+        return MAX_ANGLE - curPos / (185 / 23) * 270;
     }
 
     @Override

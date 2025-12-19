@@ -90,7 +90,7 @@ public class AutonomLogic extends ExecutableModule {
     @Override
     public void execute() {
         double delayToBaraban = BARABAN_DELAY;
-        double delayToPusher = PUSHER_DELAY;
+        double delayToPusher = PUSHER2_DELAY;
         double delayToReverse = REVERSE_DELAY;
 
         switch (autoState){
@@ -496,7 +496,7 @@ public class AutonomLogic extends ExecutableModule {
         return Math.sqrt(981 * range / ((Math.tan(Math.toRadians(60)) + Math.tan(angle)) * Math.pow(Math.cos(angle), 2))) / 100;
     }
     public boolean isRotateEnded(double delayToBaraban){
-        return collector.servos.runTimeBaraban.seconds() > delayToBaraban || collector.buttonClass.getState();
+        return collector.servos.runTimeBaraban.seconds() > delayToBaraban;
     }
 
     @Override

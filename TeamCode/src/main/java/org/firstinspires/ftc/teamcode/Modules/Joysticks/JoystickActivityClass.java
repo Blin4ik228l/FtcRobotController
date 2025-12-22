@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Modules.Examples.Players;
+package org.firstinspires.ftc.teamcode.Modules.Joysticks;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;

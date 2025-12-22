@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers;
 public interface PositionConsts {
     double PUSHER_START_POS = 0.05;
 
-    double PUSHER2_START_POS = 0.0;
-    double PUSHER2_ENDING_POS = 0.3;
+    double PUSHERVER_START_POS = 0.0;
+    double PUSHERVER_ENDING_POS = 0.3;
 
     double delta = 0.22;
 
@@ -15,7 +15,7 @@ public interface PositionConsts {
     double ANGLE_START_POS = 0.0;
     double ANGLE_ENDING_POS = 1;
     double PUSHER_PREFIRE_POS = 0.51;
-    double PUSHER_ENDING_POS = 1;
+    double PUSHERHOR_ENDING_POS = 1;
 
     double MAX_ANGLE = 43;
     double MIN_ANGLE = 10;

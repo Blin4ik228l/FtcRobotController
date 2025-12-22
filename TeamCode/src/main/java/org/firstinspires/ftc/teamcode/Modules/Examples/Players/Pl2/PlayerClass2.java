@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 

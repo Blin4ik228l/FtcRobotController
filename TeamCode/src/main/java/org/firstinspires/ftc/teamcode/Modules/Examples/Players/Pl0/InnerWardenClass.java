@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Modules.Examples.Players;
+package org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.CameraClass;
 
 public class InnerWardenClass extends UpdatableModule {
     public RobotClass robotClass;
@@ -24,9 +23,7 @@ public class InnerWardenClass extends UpdatableModule {
         robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.kPower);
         robotClass.collector.motors.setKPower(robotClass.voltageSensor.kPower);
 
-        if(robotClass.driveTrain.cameraClass.randomizedArtifacts[0] != 0){
-            robotClass.collector.digitalCellsClass.setRandomizedArtifact(robotClass.driveTrain.cameraClass.randomizedArtifacts);
-        }
+        robotClass.collector.digitalCellsClass.setRandomizedArtifact(robotClass.driveTrain.cameraClass.randomizedArtifacts);
 
         autoPlayerClass.setFields(robotClass.driveTrain.cameraClass.randomizeStatus, robotClass.driveTrain.positionRobotController.vyrState,
                  robotClass.driveTrain.odometryClass.moveState, robotClass.driveTrain.odometryClass.rotateState,

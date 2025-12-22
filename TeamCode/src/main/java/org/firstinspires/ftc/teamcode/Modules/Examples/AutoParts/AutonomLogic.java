@@ -90,7 +90,7 @@ public class AutonomLogic extends ExecutableModule {
     @Override
     public void execute() {
         double delayToBaraban = BARABAN_DELAY;
-        double delayToPusher = PUSHER2_DELAY;
+        double delayToPusher = PUSHERVER_DELAY;
         double delayToReverse = REVERSE_DELAY;
 
         switch (autoState){
@@ -286,7 +286,7 @@ public class AutonomLogic extends ExecutableModule {
                                 collector.servos.setAngle(findNeededPosAngle(curAngle));
 
                                 collector.motors.setSpeed(curVelRad);
-                                collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
+                                collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
                                 Vector2 deltaVector = new Vector2(
                                         positionFireLogic.getSendedPos().getX() - driveTrain.odometryClass.encGlobalPosition2D.getX(),
@@ -325,17 +325,17 @@ public class AutonomLogic extends ExecutableModule {
                                         }
                                         break;
                                     case Push_artifact:
-                                        collector.servos.setPusher(PositionConsts.PUSHER_ENDING_POS);
+                                        collector.servos.setPusherHor(PositionConsts.PUSHERHOR_ENDING_POS);
 
-                                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                        if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                                             fireLogic = FireLogic.Check_artifact;
                                         }
                                         break;
                                     case Check_artifact:
                                         //Убираем толкатель так как он заслоняет датчик цвета
-                                        collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
+                                        collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
-                                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                        if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                                             if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected){
                                                 digitalCellsClass.deleteColorFromCell();
                                                 fireLogic = FireLogic.Find_and_turn;
@@ -350,8 +350,8 @@ public class AutonomLogic extends ExecutableModule {
                             case Idle:
                                 collector.motors.offFLyWheel();
 
-                                collector.servos.setPusher(PositionConsts.PUSHER_START_POS);
-                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                collector.servos.setPusherHor(PositionConsts.PUSHER_START_POS);
+                                if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                                     programState = ProgramState.Load_state;
                                     robotStates = RobotStates.Check_Color;
                                 }
@@ -410,7 +410,7 @@ public class AutonomLogic extends ExecutableModule {
                         collector.servos.setAngle(findNeededPosAngle(curAngle));
 
                         collector.motors.setSpeed(curVelRad);
-                        collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
+                        collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
                         Vector2 deltaVector = new Vector2(
                                 positionFireLogic.getSendedPos().getX() - driveTrain.odometryClass.encGlobalPosition2D.getX(),
@@ -451,17 +451,17 @@ public class AutonomLogic extends ExecutableModule {
 //                                }
 //                                break;
                             case Push_artifact:
-                                collector.servos.setPusher(PositionConsts.PUSHER_ENDING_POS);
+                                collector.servos.setPusherHor(PositionConsts.PUSHERHOR_ENDING_POS);
 
-                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                                     fireLogic = FireLogic.Check_artifact;
                                 }
                                 break;
                             case Check_artifact:
                                 //Убираем толкатель так как он заслоняет датчик цвета
-                                collector.servos.setPusher(PositionConsts.PUSHER_PREFIRE_POS);
+                                collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
-                                if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                                if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                                     if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected){
                                         digitalCellsClass.deleteColorFromCell();
                                         fireLogic = FireLogic.Find_and_turn;
@@ -476,8 +476,8 @@ public class AutonomLogic extends ExecutableModule {
                     case Idle:
                         collector.motors.offFLyWheel();
 
-                        collector.servos.setPusher(PositionConsts.PUSHER_START_POS);
-                        if (collector.servos.runTimePusher.seconds() > delayToPusher) {
+                        collector.servos.setPusherHor(PositionConsts.PUSHER_START_POS);
+                        if (collector.servos.runTimePusherHor.seconds() > delayToPusher) {
                             programState = ProgramState.Load_state;
                             robotStates = RobotStates.Check_Color;
                         }

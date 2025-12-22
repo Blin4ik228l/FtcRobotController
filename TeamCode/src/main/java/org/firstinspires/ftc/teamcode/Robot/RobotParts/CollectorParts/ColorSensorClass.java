@@ -110,7 +110,9 @@ public class ColorSensorClass extends UpdatableModule {
 
     public void updateClassState(){
         //TODO
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && (sensor0Distance < 9 || sensor2Distance < 9)) {
+        int detectedDist = 6;
+
+        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && (sensor0Distance < detectedDist || sensor2Distance < detectedDist)) {
             colorState = ColorSensorState.Artifact_Detected;
         }
         else {
@@ -126,8 +128,9 @@ public class ColorSensorClass extends UpdatableModule {
     }
     public void showData(){
         telemetry.addLine("===COLOR SENSOR===");
-        telemetry.addData("Colors", "Cur:%s Cur2:%s", getColorFromNumber(sensor0FoundedColor), getColorFromNumber(sensor2FoundedColor));
-        telemetry.addData("Distance", "%.1fcm %.1fcm", sensor0Distance, sensor2Distance);
+        telemetry.addData("Colors", "Near:%s Far:%s", getColorFromNumber(sensor0FoundedColor), getColorFromNumber(sensor2FoundedColor));
+        telemetry.addData("Distance", "Near:%.1fcm Far:%.1fcm", sensor0Distance, sensor2Distance);
+        telemetry.addData("Time", timeFromDetect.seconds());
         telemetry.addData("RGB1", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);
         telemetry.addData("RGB2", "R:%.3f G:%.3f B:%.3f", red2, green2, blue2);
         telemetry.addData("Color sensor state", colorState.toString());

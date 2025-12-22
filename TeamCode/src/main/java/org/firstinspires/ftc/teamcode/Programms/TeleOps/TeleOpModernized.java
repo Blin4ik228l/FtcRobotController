@@ -2,19 +2,14 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts.DriveHandler;
 import org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts.PositionFireLogic;
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.InnerWardenClass;
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenClass;
+import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
 import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.TeamColorClass;
-import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
 public abstract class TeleOpModernized extends OpMode {
     public RobotClass robot;
@@ -77,11 +72,6 @@ public abstract class TeleOpModernized extends OpMode {
     public void loop() {
         updateAll();
 
-//        if(robot.innerTime.seconds() > 140){
-//
-//            autoPlayerClass.generalState = AutoPlayerClass.GeneralState.Fire;
-//            autoPlayerClass.fireState = AutoPlayerClass.FireState.Prepare_to_fire;
-//        }
         executeAll();
 
         showAll();

@@ -4,22 +4,22 @@ public interface PositionConsts {
     double PUSHER_START_POS = 0.05;
 
     double PUSHERVER_START_POS = 0.0;
-    double PUSHERVER_ENDING_POS = 0.3;
+    double PUSHERVER_ENDING_POS = 0.20;
 
-    double delta = 0.22;
+    double delta = 0.20;
 
-    double BARABAN_CELL0_POS = 0.0;
-    double BARABAN_CELL1_POS = BARABAN_CELL0_POS + delta;
-    double BARABAN_CELL2_POS = BARABAN_CELL1_POS + delta;
+    double BARABAN_CELL0_POS = 0.03;
+    double BARABAN_CELL1_POS = 0.23;
+    double BARABAN_CELL2_POS = 0.44;
 
     double ANGLE_START_POS = 0.0;
     double ANGLE_ENDING_POS = 1;
     double PUSHER_PREFIRE_POS = 0.51;
-    double PUSHERHOR_ENDING_POS = 1;
+    double PUSHERHOR_ENDING_POS = 0.85;
 
     double MAX_ANGLE = 43;
     double MIN_ANGLE = 10;
 
     double MAX_RAD_SPEED = 5;
-    double MAX_EXPERIMENTAL_SPEED_IN_METERS = 7.0;
+    double MAX_EXPERIMENTAL_SPEED_IN_METERS = 7.1   ;
 }

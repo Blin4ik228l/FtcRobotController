@@ -46,6 +46,7 @@ public class ServomotorsClass extends Module {
     public double targetAngle;
     public double barabanDelay = 0;
     public double pusherDelay;
+    public double pusherVerDelay = 0;
     public enum AngleStates{
         Ready,
         Unready
@@ -71,10 +72,10 @@ public class ServomotorsClass extends Module {
                     barabanDelay = 0;
                     break;
                 case 1:
-                    barabanDelay = 0.15;
+                    barabanDelay = 0.25;
                     break;
                 case 2:
-                    barabanDelay = 0.25;
+                    barabanDelay = 0.4;
             }
         }
     }
@@ -99,32 +100,34 @@ public class ServomotorsClass extends Module {
                     pusherDelay = 0;
                     break;
                 case 1:
-                    pusherDelay = 0.1;
+                    pusherDelay = 0.06;
                     break;
                 case 2:
-                    pusherDelay = 0.2;
+                    pusherDelay = 0.14;
             }
         }
     }
     public void setBaraban(double targetBarabanPos){
-        calculateDelayBaraban(targetBarabanPos);
-
         if(curBarabanPos == targetBarabanPos) return;
         baraban.setPosition(targetBarabanPos);
         baraban2.setPosition(targetBarabanPos);
+        calculateDelayBaraban(targetBarabanPos);
 
         curBarabanPos = baraban.getPosition();
 
+        curBarabanPos = Math.round(curBarabanPos * Math.pow(10, 2)) / Math.pow(10, 2);
         runTimeBaraban.reset();//Обнуляем время с момента попадания программы в эту часть
     }
 
     public void setPusherHor(double targetPusherPos){
-        calculateDelayPusher(targetPusherPos);
-
         if(curPusherHorPos == targetPusherPos) return;
         setPusherVer(targetPusherPos);
 
+        runTimePusherHor.reset();//Обнуляем время с момента попадания программы в эту часть
+        if(runTimePusherVer.seconds() < pusherVerDelay) return;
+
         pusherHor.setPosition(targetPusherPos);
+        calculateDelayPusher(targetPusherPos);
 
         curPusherHorPos = pusherHor.getPosition();
 
@@ -132,9 +135,11 @@ public class ServomotorsClass extends Module {
     }
     public void setPusherVer(double targetPusherPos){
         if(targetPusherPos == PUSHERHOR_ENDING_POS){
-
             targetPusherPos = PUSHERVER_ENDING_POS;
-        }else targetPusherPos = PUSHERVER_START_POS;
+            pusherVerDelay = 0.05;
+        }else {
+            pusherVerDelay = 0.05;
+            targetPusherPos = PUSHERVER_START_POS;}
 
         if(targetPusherPos == curPusherVerPos) return;
         pusherVer.setPosition(targetPusherPos);
@@ -144,19 +149,17 @@ public class ServomotorsClass extends Module {
     }
 
     public void setAngle(double targetAnglePos){
-        angleStates = AngleStates.Ready;
         targetAngle = targetAnglePos;
-        if(Math.abs(fromPosToAngle(curAnglePos) - fromPosToAngle(targetAnglePos)) < 0.9) return;
+
         angle.setPosition(targetAnglePos);
         curAnglePos = angle.getPosition();
-
-        angleStates = AngleStates.Unready;
 
         runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
     }
 
     public double fromPosToAngle(double curPos){
-        return MAX_ANGLE - curPos / (185 / 23) * 270;
+        double angle = MAX_ANGLE - curPos / (185 / 23) * 270;
+        return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);
     }
 
     @Override
@@ -164,6 +167,7 @@ public class ServomotorsClass extends Module {
         telemetry.addLine("===SERVOS===");
         telemetry.addData("Delays","B:%s P:%s", barabanDelay, pusherDelay);
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherHorPos, curBarabanPos);
+        telemetry.addData("Const","%s %s %s", BARABAN_CELL0_POS, BARABAN_CELL1_POS, BARABAN_CELL2_POS);
         telemetry.addData("Current angle", "%s", fromPosToAngle(curAnglePos));
         telemetry.addData("Target Angle", fromPosToAngle(targetAngle));
         telemetry.addData("Angle time", runTimeAngle);

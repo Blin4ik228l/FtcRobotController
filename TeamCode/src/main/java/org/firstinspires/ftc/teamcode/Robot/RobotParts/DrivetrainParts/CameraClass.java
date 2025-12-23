@@ -100,7 +100,8 @@ public class CameraClass extends UpdatableModule {
     public enum GeneralLogic{
         Check_camera_state,
         Check_obelisk_and_pos,
-        Check_only_pos
+        Check_only_pos,
+        Stop
     }
 
     public GeneralLogic generalLogic;
@@ -115,7 +116,7 @@ public class CameraClass extends UpdatableModule {
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                     exposure = visionPortal.getCameraControl(ExposureControl.class);
                     exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
-                    exposure.setExposure(10, TimeUnit.MILLISECONDS);//Экспозиция
+                    exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
 
                     gain = visionPortal.getCameraControl(GainControl.class);
                     gain.setGain(190);//яркость
@@ -253,6 +254,9 @@ public class CameraClass extends UpdatableModule {
                         break;
 
                 }
+                break;
+            case Stop:
+                visionPortal.stopStreaming();
                 break;
         }
     }

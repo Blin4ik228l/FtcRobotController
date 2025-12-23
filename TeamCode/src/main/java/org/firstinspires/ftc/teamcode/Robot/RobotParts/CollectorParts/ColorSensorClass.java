@@ -84,20 +84,20 @@ public class ColorSensorClass extends UpdatableModule {
         updateArtifactColor();
     }
     public void updateSensor0DominantColor(){
-        if(red0 > blue0 && red0 > green0 && red0 > 0.04) {
+        if(red0 > blue0 && red0 > green0 && red0 > 0.037) {
             sensor0FoundedColor =  2;}
         else if(blue0 > red0 && blue0 > green0 && blue0 > 0.04) {
             sensor0FoundedColor =  2;}
-        else if(green0 > red0 && green0 > blue0 && green0 > 0.05) {
+        else if(green0 > red0 && green0 > blue0 && green0 > 0.096) {
             sensor0FoundedColor =  1;}
         else sensor0FoundedColor =  0;
     }
     public void updateSensor2DominantColor(){
-        if(red2 > blue2 && red2 > green2 && red2 > 0.05) {
+        if(red2 > blue2 && red2 > green2 && red2 > 0.037) {
             sensor2FoundedColor = 2;}
-        else if(blue2 > red2 && blue2 > green2 && blue2 > 0.05) {
+        else if(blue2 > red2 && blue2 > green2 && blue2 > 0.04) {
             sensor2FoundedColor = 2;}
-        else if(green2 > red2 && green2 > blue2 && green2 > 0.037) {
+        else if(green2 > red2 && green2 > blue2 && green2 > 0.070) {
             sensor2FoundedColor = 1;}
         else sensor2FoundedColor = 0;
     }
@@ -131,8 +131,8 @@ public class ColorSensorClass extends UpdatableModule {
         telemetry.addData("Colors", "Near:%s Far:%s", getColorFromNumber(sensor0FoundedColor), getColorFromNumber(sensor2FoundedColor));
         telemetry.addData("Distance", "Near:%.1fcm Far:%.1fcm", sensor0Distance, sensor2Distance);
         telemetry.addData("Time", timeFromDetect.seconds());
-        telemetry.addData("RGB1", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);
-        telemetry.addData("RGB2", "R:%.3f G:%.3f B:%.3f", red2, green2, blue2);
+        telemetry.addData("Near", "R:%.3f G:%.3f B:%.3f", red0, green0, blue0);
+        telemetry.addData("Far", "R:%.3f G:%.3f B:%.3f", red2, green2, blue2);
         telemetry.addData("Color sensor state", colorState.toString());
         telemetry.addLine();
     }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts.PositionFireLogic;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenClass;
@@ -56,7 +57,7 @@ public abstract class TeleOpModernized extends OpMode {
 
         moduleAutomatic.showData();
     }
-
+public ElapsedTime time = new ElapsedTime();
     @Override
     public void init_loop() {
         updateAll();
@@ -75,6 +76,8 @@ public abstract class TeleOpModernized extends OpMode {
         executeAll();
 
         showAll();
+        telemetry.addData("t", time.seconds());
+        time.reset();
     }
 
 

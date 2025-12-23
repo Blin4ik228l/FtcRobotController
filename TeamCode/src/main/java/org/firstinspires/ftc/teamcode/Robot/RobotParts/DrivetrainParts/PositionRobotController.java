@@ -55,12 +55,14 @@ public class PositionRobotController extends UpdatableModule {
     public void update() {
         odometryClass.update();
 
-        if (odometryClass.robotCurVelocity.length() >= 15 || Math.abs(odometryClass.encHeadVel) >= Math.toRadians(5)) {
-            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
-            cameraClass.tagState = CameraClass.TagState.UnDetected;
-        } else {
-            cameraClass.update();
-        }
+        cameraClass.update();
+
+//        if (odometryClass.robotCurVelocity.length() >= 15 || Math.abs(odometryClass.encHeadVel) >= Math.toRadians(5)) {
+//            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
+//            cameraClass.tagState = CameraClass.TagState.UnDetected;
+//        } else {
+//
+//        }
 
         //Проверяем если робот двигается
 
@@ -107,6 +109,8 @@ public class PositionRobotController extends UpdatableModule {
 //                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
 //            );
             odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
+            cameraClass.generalLogic = CameraClass.GeneralLogic.Stop;
+            cameraClass.tagState = CameraClass.TagState.UnDetected;
         }
 
         calcRange();

@@ -42,7 +42,7 @@ public class DigitalCellsClass extends Module {
         checkNumberOfArtifacts();
     }
 
-    public double getNextBarabanPos() {
+    public int getNextBarabanPos() {
 
         if(servos.curBarabanPos == BARABAN_CELL2_POS)
         {
@@ -90,30 +90,23 @@ public class DigitalCellsClass extends Module {
             }
         }
 
-        switch (targCell){
-            case 0:
-                return BARABAN_CELL0_POS;
-            case 1:
-                return BARABAN_CELL1_POS;
-            default:
-                return BARABAN_CELL2_POS;
-        }
+        return targCell;
     }
-    public double findNeededArtifactPos(int color){
+    public int findNeededCell(int color){
         if(cell2.table.color == color){
-            return cell2.table.pos;
+            return 2;
         }
         if(cell1.table.color == color){
-            return cell1.table.pos;
+            return 1;
         }
 
         if(cell0.table.color == color){
-            return cell0.table.pos;
+            return 0;
         }
 
-        if(cell2.table.color != 0) return cell2.table.pos;
-        else if(cell1.table.color != 0) return cell1.table.pos;
-        else return cell0.table.pos;
+        if(cell2.table.color != 0) return 2;
+        else if(cell1.table.color != 0) return 1;
+        else return 0;
     }
     public void deleteColorFromCell(){
         findNeededCell().table.color = 0;

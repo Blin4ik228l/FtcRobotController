@@ -112,7 +112,7 @@ public class ColorSensorClass extends UpdatableModule {
         //TODO
         int detectedDist = 6;
 
-        if((sensor0FoundedColor != 0 || sensor2FoundedColor != 0) && (sensor0Distance < detectedDist || sensor2Distance < detectedDist)) {
+        if((sensor0FoundedColor != 0 && sensor2FoundedColor != 0) && (sensor0Distance < detectedDist && sensor2Distance < detectedDist)) {
             colorState = ColorSensorState.Artifact_Detected;
         }
         else {

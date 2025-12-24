@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,6 +23,10 @@ public class CollectorMotors extends Module {
 
         encMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
         encMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
 //        encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
 //        encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -29,6 +34,7 @@ public class CollectorMotors extends Module {
         inTakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         encMotorLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
 
         runTimeFlyWheel = new ElapsedTime();
         runTimeIntake = new ElapsedTime();
@@ -47,6 +53,8 @@ public class CollectorMotors extends Module {
     public DcMotorEx getEncMotorRight() {
         return encMotorRight;
     }
+    public PIDFCoefficients pidfCoefficients;
+    private double P, F;
     public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower, curOverallInMeters;
     public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;

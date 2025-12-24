@@ -67,13 +67,13 @@ public class OdometryClass extends UpdatableModule {
 
         if(robotCurVelocity.length() == 0){
             moveState = MoveState.Stopped;
-        } else if (robotCurVelocity.length() > 0 && robotCurVelocity.length() <= 30) {
+        } else if (robotCurVelocity.length() > 0 && robotCurVelocity.length() <= 45) {
             moveState = MoveState.Small_speed;
         }else moveState = MoveState.High_speed;
 
         if(encHeadVel == 0){
             rotateState = RotateState.Stopped;
-        } else if (encHeadVel > 0 && encHeadVel <= Math.toRadians(10)) {
+        } else if (encHeadVel > 0 && encHeadVel <= Math.toRadians(20)) {
             rotateState = RotateState.Small_speed;
         }else rotateState = RotateState.High_speed;
     }

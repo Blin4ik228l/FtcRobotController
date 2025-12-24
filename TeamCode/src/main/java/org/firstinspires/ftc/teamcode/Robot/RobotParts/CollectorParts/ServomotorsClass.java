@@ -149,16 +149,20 @@ public class ServomotorsClass extends Module {
     }
 
     public void setAngle(double targetAnglePos){
-        targetAngle = targetAnglePos;
+        targetAngle = fromPosToAngle(targetAnglePos);
 
         angle.setPosition(targetAnglePos);
         curAnglePos = angle.getPosition();
 
-        runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
+        double errorAngle = targetAngle - fromPosToAngle(curAnglePos);
+        angleStates = Math.abs(errorAngle) < 0.9 ? ServomotorsClass.AngleStates.Ready : ServomotorsClass.AngleStates.Unready;
+
+        if(angleStates == AngleStates.Unready) runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
     }
 
     public double fromPosToAngle(double curPos){
         double angle = MAX_ANGLE - curPos / (185 / 23) * 270;
+
         return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);
     }
 

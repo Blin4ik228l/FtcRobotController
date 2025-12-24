@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.PositionConsts;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -71,10 +70,12 @@ public class AutoPlayerClass extends PlayerClass{
         Move_to_0_cell,
         Move_to_1_cell,
         Move_to_2_cell,
-        On_cell,
+        On_cell_check_states,
+        Check_emptiness,
         Check_readiness
     }
     public double theta = 35;
+    public int flag = 0;
 
     @Override
     public void execute(){
@@ -86,7 +87,7 @@ public class AutoPlayerClass extends PlayerClass{
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed =  targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
+        targetRadSpeed = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
 
 //        if(innerTime.seconds() > END_TIME + 5){
 //            return;
@@ -193,6 +194,15 @@ public class AutoPlayerClass extends PlayerClass{
             joystickActivityClass.tRightBumperPressed = 0;
             count = 0;
 
+            if(joystickActivityClass.playersGamepad.back){
+                collector.motors.reverseInTake();
+                flag = 1;
+                return;
+            }else {
+                if(flag == 1) collector.motors.offIntake();
+                flag = 0;
+               }
+
             switch (generalState){
                 case Load:
                     switch (loadState) {
@@ -267,7 +277,7 @@ public class AutoPlayerClass extends PlayerClass{
                             }else attempts++;
 
                             if(attempts == 3) {
-                                loadState = LoadState.Find_empty_cell;
+                                loadState = LoadState.On_cell;
                                 attempts = 0;
                             }
                             break;
@@ -305,6 +315,10 @@ public class AutoPlayerClass extends PlayerClass{
                     collector.servos.setAngle(targetServoPos);
                     collector.motors.setSpeed(targetRadSpeed);
 
+                    if (collector.servos.angleStates == ServomotorsClass.AngleStates.Unready || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
+                        if(fireState == FireState.On_cell_check_states) return;
+                    }
+
                     switch (fireState) {
                         case Prepare_to_fire:
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
@@ -340,36 +354,33 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
                         case Move_to_0_cell:
                             collector.servos.setBaraban(BARABAN_CELL0_POS);
+
                             if(isRotateEnded()){
-                                fireState = FireState.On_cell;
+                                fireState = FireState.On_cell_check_states;
                             }
                             break;
                         case Move_to_1_cell:
                             collector.servos.setBaraban(BARABAN_CELL1_POS);
+
                             if(isRotateEnded()){
-                                fireState = FireState.On_cell;
+                                fireState = FireState.On_cell_check_states;
                             }
                             break;
                         case Move_to_2_cell:
                             collector.servos.setBaraban(BARABAN_CELL2_POS);
+
                             if(isRotateEnded()){
-                                fireState = FireState.On_cell;
+                                fireState = FireState.On_cell_check_states;
                             }
                             break;
-                        case On_cell:
-                            if(Math.abs(targetSpeed - collector.motors.curOverallInMeters) < 0.05) collector.motors.flyWheelStates = CollectorMotors.FlyWheelStates.Ready;
-                            else collector.motors.flyWheelStates = CollectorMotors.FlyWheelStates.Unready;
 
-                            if(Math.abs(targetAngle - collector.servos.fromPosToAngle(collector.servos.curAnglePos)) < 0.9) collector.servos.angleStates = ServomotorsClass.AngleStates.Ready;
-                            else collector.servos.angleStates = ServomotorsClass.AngleStates.Unready;
-
-                            if(collector.servos.angleStates == ServomotorsClass.AngleStates.Unready
-                                    || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready
-                                    || vyrState == PositionRobotController.VyrState.Far_from_it
+                        case On_cell_check_states:
+                            if(vyrState == PositionRobotController.VyrState.Far_from_it
                                     || moveState == OdometryClass.MoveState.High_speed
                                     || rotateState == OdometryClass.RotateState.High_speed) {
-                                if (fireState == FireState.Push_artifact) return;//Программе дальше нет смысла идти пока не выполнятся условия
-                            }
+                                return;//Программе дальше нет смысла идти пока не выполнятся условия
+                            }else fireState = FireState.Push_artifact;
+
                             break;
 
                         case Push_artifact:
@@ -384,14 +395,18 @@ public class AutoPlayerClass extends PlayerClass{
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
                             if (isPushHorEnded()) {
-                                if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected) {
-                                    collector.digitalCellsClass.deleteColorFromCell();
-                                    fireState = FireState.Find_needed_cell;
-
-                                } else {
-                                    fireState = FireState.Push_artifact;
-                                }
+                                fireState = FireState.Check_emptiness;
                             }
+                            break;
+
+                        case Check_emptiness:
+                            if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected) {
+                                collector.digitalCellsClass.deleteColorFromCell();
+                                fireState = FireState.Find_needed_cell;
+                            } else {
+                                fireState = FireState.On_cell_check_states;
+                            }
+
                             break;
 
                         case Idle:

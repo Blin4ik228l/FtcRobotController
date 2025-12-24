@@ -77,13 +77,25 @@ public class CollectorMotors extends Module {
     }
     public void setSpeed(double speed){
 //        flyWheelStates = FlyWheelStates.Ready;
+        P = 167;
+        F = 13.3;
+
         targSpeedInMeters = speed / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
+
+        pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+
+        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
         encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
         encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 
-        runTimeFlyWheel.reset();
         calcCurSpeed();
+
+        double errorSpeed = targSpeedInMeters - curOverallInMeters;
+        flyWheelStates = Math.abs(errorSpeed) < 0.05 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
+
+        if(flyWheelStates == FlyWheelStates.Unready) runTimeFlyWheel.reset();
     }
     public void calcCurSpeed(){
         curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);

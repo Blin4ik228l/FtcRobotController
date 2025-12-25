@@ -53,20 +53,8 @@ public class PositionRobotController extends UpdatableModule {
 
     @Override
     public void update() {
-        odometryClass.update();
-
         cameraClass.update();
-
-//        if (odometryClass.robotCurVelocity.length() >= 15 || Math.abs(odometryClass.encHeadVel) >= Math.toRadians(5)) {
-//            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
-//            cameraClass.tagState = CameraClass.TagState.UnDetected;
-//        } else {
-//
-//        }
-
-        //Проверяем если робот двигается
-
-        //Если камера увидела таг - обрабатываем
+        odometryClass.updateSpeed();
         if (cameraClass.tagState == CameraClass.TagState.Detected) {
 //            double targetWeight;
 //
@@ -109,9 +97,24 @@ public class PositionRobotController extends UpdatableModule {
 //                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
 //            );
             odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-            cameraClass.generalLogic = CameraClass.GeneralLogic.Stop;
-            cameraClass.tagState = CameraClass.TagState.UnDetected;
+//            cameraClass.generalLogic = CameraClass.GeneralLogic.Stop;
+        }else {
+            odometryClass.updatePoses();
         }
+
+
+
+//        if (odometryClass.robotCurVelocity.length() >= 15 || Math.abs(odometryClass.encHeadVel) >= Math.toRadians(5)) {
+//            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
+//            cameraClass.tagState = CameraClass.TagState.UnDetected;
+//        } else {
+//
+//        }
+
+        //Проверяем если робот двигается
+
+        //Если камера увидела таг - обрабатываем
+
 
         calcRange();
         calcAngle();

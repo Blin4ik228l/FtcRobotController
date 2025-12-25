@@ -19,6 +19,7 @@ public class VoltageSensorClass extends UpdatableModule {
     @Override
     public void update() {
         double result = Double.POSITIVE_INFINITY;
+        hardwareMap.size();
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
             double voltage = sensor.getVoltage();
             if (voltage > 0) {

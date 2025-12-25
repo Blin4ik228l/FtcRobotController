@@ -22,6 +22,7 @@ public abstract class TeleOpModernized extends OpMode {
     private PositionFireLogic positionFireLogic;
     public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot, moduleInnerWarden;
     public ExecutableModule modulePlayer1, moduleAutomatic;
+
     public void initAfterRobot(){
         joystickActivityClass = new JoystickActivityClass(gamepad1, this);
 
@@ -43,6 +44,7 @@ public abstract class TeleOpModernized extends OpMode {
 
     public void updateAll() {
         moduleJoystickActivityPlayer1.update();
+
         moduleRobot.update();
         moduleInnerWarden.update();
     }

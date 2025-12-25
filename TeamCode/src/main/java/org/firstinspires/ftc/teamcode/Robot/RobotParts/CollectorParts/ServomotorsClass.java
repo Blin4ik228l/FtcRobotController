@@ -24,7 +24,7 @@ public class ServomotorsClass extends Module {
         //Устанавливаем в начальное положение
         setPusherVer(PUSHERVER_START_POS);
         setPusherHor(PUSHER_START_POS);
-        setAngle(ANGLE_START_POS);
+        setAngle(ANGLE_ENDING_POS);
         setBaraban(BARABAN_CELL0_POS);
 
         telemetry.addLine("Servos Inited");
@@ -72,10 +72,10 @@ public class ServomotorsClass extends Module {
                     barabanDelay = 0;
                     break;
                 case 1:
-                    barabanDelay = 0.25;
+                    barabanDelay = 0.15;
                     break;
                 case 2:
-                    barabanDelay = 0.4;
+                    barabanDelay = 0.3;
             }
         }
     }
@@ -100,10 +100,10 @@ public class ServomotorsClass extends Module {
                     pusherDelay = 0;
                     break;
                 case 1:
-                    pusherDelay = 0.06;
+                    pusherDelay = 0.1;
                     break;
                 case 2:
-                    pusherDelay = 0.14;
+                    pusherDelay = 0.15;
             }
         }
     }

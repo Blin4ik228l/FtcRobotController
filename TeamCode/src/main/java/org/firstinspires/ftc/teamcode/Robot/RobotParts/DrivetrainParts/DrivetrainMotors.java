@@ -63,6 +63,7 @@ public class DrivetrainMotors extends Module {
             sidePow = sidePow * kPower;
             anglePow = anglePow * kPower;
         }
+
         rightB.setPower(forwardPow - sidePow + anglePow);
         rightF.setPower(forwardPow + sidePow + anglePow);
         leftF.setPower(forwardPow - sidePow - anglePow);

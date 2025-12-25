@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ColorSensorClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts.ServomotorsClass;
@@ -23,10 +22,10 @@ public class AutoPlayerClass extends PlayerClass{
         innerTime = elapsedTime;
     }
     public RobotClass.Collector collector;
-    public PositionRobotController.VyrState vyrState;
-    public OdometryClass.MoveState moveState;
-    public OdometryClass.RotateState rotateState;
-    public CameraClass.RandomizeStatus randomizeStatus;
+    public PositionRobotController.VyrState vyrState = PositionRobotController.VyrState.Far_from_it;
+    public OdometryClass.MoveState moveState = OdometryClass.MoveState.High_speed;
+    public OdometryClass.RotateState rotateState = OdometryClass.RotateState.High_speed;
+    public CameraClass.RandomizeStatus randomizeStatus = CameraClass.RandomizeStatus.UnDetected;
     public double range;
     public ElapsedTime innerTime;
     public void setFields(CameraClass.RandomizeStatus randomizeStatus,
@@ -54,7 +53,6 @@ public class AutoPlayerClass extends PlayerClass{
         Load_and_check,
         Reverse,
         Prepare_to_load,
-        Prepare_baraban,
         Find_empty_cell,
         Move_to_0_cell,
         Move_to_1_cell,
@@ -71,8 +69,7 @@ public class AutoPlayerClass extends PlayerClass{
         Move_to_1_cell,
         Move_to_2_cell,
         On_cell_check_states,
-        Check_emptiness,
-        Check_readiness
+        Check_emptiness
     }
     public double theta = 35;
     public int flag = 0;
@@ -150,7 +147,7 @@ public class AutoPlayerClass extends PlayerClass{
                 collector.servos.setBaraban(barabanPos);
             }
 
-            if(isRotateEnded()){//Сначала ждём проворота барабана
+            if(isRotateEndedToLoad()){//Сначала ждём проворота барабана
                 if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected ){
                     collector.digitalCellsClass.setColor(collector.colorSensorClass.artifactColor);
                 }else {
@@ -234,7 +231,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Move_to_0_cell:
                             collector.servos.setBaraban(BARABAN_CELL0_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToLoad()){
                                 loadState = LoadState.On_cell;
                             }
                             break;
@@ -242,7 +239,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Move_to_1_cell:
                             collector.servos.setBaraban(BARABAN_CELL1_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToLoad()){
                                 loadState = LoadState.On_cell;
                             }
                             break;
@@ -250,7 +247,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Move_to_2_cell:
                             collector.servos.setBaraban(BARABAN_CELL2_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToLoad()){
                                 loadState = LoadState.On_cell;
                             }
                             break;
@@ -271,7 +268,7 @@ public class AutoPlayerClass extends PlayerClass{
                                 if(collector.digitalCellsClass.artifactCount == 3){
                                     loadState = LoadState.Idle;
                                 }else {
-                                    loadState = LoadState.Reverse;
+                                    loadState = LoadState.Find_empty_cell;
                                 }
 
                             }else attempts++;
@@ -282,14 +279,14 @@ public class AutoPlayerClass extends PlayerClass{
                             }
                             break;
 
-                        case Reverse:
-                            collector.motors.reverseInTake();
-
-                            if(collector.motors.runTimeIntake.seconds() > delayToReverse){
-                                collector.motors.offIntake();
-                                loadState = LoadState.Find_empty_cell;
-                            }
-                            break;
+//                        case Reverse:
+//                            collector.motors.reverseInTake();
+//
+//                            if(collector.motors.runTimeIntake.seconds() > delayToReverse){
+//                                collector.motors.offIntake();
+//                                loadState = LoadState.Find_empty_cell;
+//                            }
+//                            break;
 
                         case Idle:
                             collector.motors.reverseInTake();
@@ -355,21 +352,21 @@ public class AutoPlayerClass extends PlayerClass{
                         case Move_to_0_cell:
                             collector.servos.setBaraban(BARABAN_CELL0_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToFire()){
                                 fireState = FireState.On_cell_check_states;
                             }
                             break;
                         case Move_to_1_cell:
                             collector.servos.setBaraban(BARABAN_CELL1_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToFire()){
                                 fireState = FireState.On_cell_check_states;
                             }
                             break;
                         case Move_to_2_cell:
                             collector.servos.setBaraban(BARABAN_CELL2_POS);
 
-                            if(isRotateEnded()){
+                            if(isRotateEndedToFire()){
                                 fireState = FireState.On_cell_check_states;
                             }
                             break;
@@ -414,7 +411,7 @@ public class AutoPlayerClass extends PlayerClass{
                             collector.servos.setPusherHor(PUSHER_START_POS);
 
                             generalState = GeneralState.Load;
-                            loadState = LoadState.Prepare_baraban;
+                            loadState = LoadState.Prepare_to_load;
                             break;
 
                         default:
@@ -427,8 +424,11 @@ public class AutoPlayerClass extends PlayerClass{
             }
         }
     }
-    public boolean isRotateEnded(){
-        return collector.servos.runTimeBaraban.seconds() > collector.servos.barabanDelay || collector.buttonClass.curState == ButtonClass.State.Ready;
+    public boolean isRotateEndedToLoad(){
+        return collector.servos.runTimeBaraban.seconds() > collector.servos.barabanDelay ;
+    }
+    public boolean isRotateEndedToFire(){
+        return collector.servos.runTimeBaraban.seconds() > collector.servos.barabanDelay / 2.0;
     }
     public boolean isPushHorEnded(){
         return collector.servos.runTimePusherHor.seconds() > collector.servos.pusherDelay;

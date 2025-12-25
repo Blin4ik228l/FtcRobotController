@@ -117,7 +117,7 @@ public class RobotClass extends UpdatableModule {
 
        @Override
        public void update() {
-           buttonClass.update();
+//           buttonClass.update();
            colorSensorClass.update();
        }
 
@@ -125,7 +125,7 @@ public class RobotClass extends UpdatableModule {
        public void showData() {
            buttonClass.showData();
            digitalCellsClass.showData();
-           colorSensorClass.showData();
+//           colorSensorClass.showData();
            servos.showData();
            motors.showData();
        }

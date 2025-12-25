@@ -53,17 +53,24 @@ public class OdometryClass extends UpdatableModule {
         Small_speed,
         Stopped
     }
-    public MoveState moveState;
-    public RotateState rotateState;
+    public MoveState moveState = MoveState.Stopped;
+    public RotateState rotateState = RotateState.Stopped;
     public void setPos(Position2D cameraPos){
         encGlobalPosition2D.setX(cameraPos.getX());
         encGlobalPosition2D.setY(cameraPos.getY());
         encGlobalPosition2D.setHeading(cameraPos.getHeading());
     }
-
     @Override
     public void update(){
         selfMath.calculateAll();
+    }
+
+    public void updatePoses(){
+        selfMath.calculatePoses();
+    }
+
+    public void updateSpeed(){
+        selfMath.calculateSpeeds();
 
         if(robotCurVelocity.length() == 0){
             moveState = MoveState.Stopped;
@@ -107,7 +114,7 @@ public class OdometryClass extends UpdatableModule {
         private final double[] encLastPositions = new double[3];
         private boolean flag = false;
 
-        public void calculateAll() {
+        public void calculateAll(){
             updateGyroHeading(AngleUnit.RADIANS);
             updateTimeGyroHead();
 
@@ -125,6 +132,28 @@ public class OdometryClass extends UpdatableModule {
 
             updateGlobalAngle();
             updateGlobalPosition(); //затем обновляем позицию
+        }
+
+        public void calculatePoses() {
+            updateGyroHeading(AngleUnit.RADIANS);
+            updateTimeGyroHead();
+
+            updatePosEncoders(false);//в тиках или сантиметрах?
+            updateTimePosEnc();
+
+            updateGlobalAngle();
+            updateGlobalPosition(); //затем обновляем позицию
+        }
+
+        public void calculateSpeeds(){
+            updateGyroHeadVel();
+            updateTimeGyroHeadVel();
+            updateGyroHeadAccel();
+
+            updateVelEncoders(false);
+            updateTimeVelEnc();
+            updateGlobalVelocity();
+            updateGlobalAccel();
         }
 
         private void updateGyroHeading(AngleUnit angleUnit) {

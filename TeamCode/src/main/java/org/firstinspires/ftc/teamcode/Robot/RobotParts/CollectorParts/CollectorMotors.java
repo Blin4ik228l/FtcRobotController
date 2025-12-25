@@ -25,8 +25,8 @@ public class CollectorMotors extends Module {
         encMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
 
-        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+//        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+//        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
 //        encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
 //        encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -54,7 +54,7 @@ public class CollectorMotors extends Module {
         return encMotorRight;
     }
     public PIDFCoefficients pidfCoefficients;
-    private double P, F;
+    private double P, I, D, F;
     public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower, curOverallInMeters;
     public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;
@@ -77,15 +77,17 @@ public class CollectorMotors extends Module {
     }
     public void setSpeed(double speed){
 //        flyWheelStates = FlyWheelStates.Ready;
-        P = 167;
-        F = 13.3;
+        P = 15.0;
+        I = 0.12;
+        D = 4.0;
+        F = 0.00015;
 
         targSpeedInMeters = speed / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
 
-        pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
-
-        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+//        pidfCoefficients = new PIDFCoefficients(P, I, D, F);
+//
+//        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+//        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
         encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
         encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);

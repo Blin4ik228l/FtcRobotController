@@ -26,7 +26,9 @@ public class ButtonClass extends UpdatableModule {
 
     @Override
     public void update() {
-        if(button.getDistance(DistanceUnit.CM) < 6 && button.getDistance(DistanceUnit.CM) > 3.2) curState = State.Ready;
+        double dist = button.getDistance(DistanceUnit.CM);
+
+        if(dist < 6 && dist > 3.2) curState = State.Ready;
         else curState = State.Unready;
     }
 

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.PositionConsts;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -71,21 +72,20 @@ public class AutoPlayerClass extends PlayerClass{
         On_cell_check_states,
         Check_emptiness
     }
-    public double theta = 35;
+    public double theta = 30;
     public int flag = 0;
 
     @Override
     public void execute(){
-        double delayToBaraban = BARABAN_DELAY;
-        double delayToPusher = PUSHERVER_DELAY;
-        double delayToReverse = REVERSE_DELAY;
 
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1.03;
 
+//        if (range > 200) theta = 75;
+//        else theta = 30;
 //        if(innerTime.seconds() > END_TIME + 5){
 //            return;
 //        } else if (innerTime.seconds() > END_TIME) {
@@ -135,6 +135,16 @@ public class AutoPlayerClass extends PlayerClass{
                 joystickActivityClass.tDpadUpPressed = 0;
             }
 
+//            if(joystickActivityClass.tDpadRightPressed == 0){
+//                pusherPos = PUSHER_START_POS;
+//            } else if (joystickActivityClass.tDpadRightPressed == 1) {
+//                pusherPos = PUSHER_PREFIRE_POS;
+//            } else if(joystickActivityClass.tDpadRightPressed == 2) {
+//                pusherPos = PUSHERHOR_ENDING_POS;
+//            }else {
+//                joystickActivityClass.tDpadRightPressed = 0;
+//            }
+
 //            if(isPushEnded()){
 //                if(pusherPos == PUSHER_ENDING_POS) {
 //                    joystickActivityClass.tDpadUpPressed = 1;
@@ -142,7 +152,7 @@ public class AutoPlayerClass extends PlayerClass{
 //                }
 //            }
             collector.servos.setPusherHor(pusherPos);
-
+//
             if(isPushHorEnded() && collector.servos.curPusherHorPos <= PUSHER_PREFIRE_POS){
                 collector.servos.setBaraban(barabanPos);
             }
@@ -154,20 +164,25 @@ public class AutoPlayerClass extends PlayerClass{
                     collector.digitalCellsClass.deleteColorFromCell();
                 }
             }
-
+//
             if (joystickActivityClass.bumperRight) {
-                collector.motors.setSpeed(targetRadSpeed);
+                collector.motors.setSpeed(targetRadSpeed, targetRadSpeed/ MAX_RAD_SPEED);
             }else {
-                collector.motors.setSpeed(0);
+                collector.motors.setSpeed(0, 0);
             }
-
+//            if (joystickActivityClass.dpad_Left) {
+//                collector.motors.setSpeed(targetRadSpeed);
+//            }else {
+//                collector.motors.setSpeed(0);
+//            }
+//
             if(joystickActivityClass.bumperLeft && collector.servos.curPusherHorPos == PUSHER_START_POS){
                 collector.motors.onIntake();
 
             }else if(joystickActivityClass.tLeftBumperPressed != 0 && joystickActivityClass.tLeftBumperPressed % 2 == 0 ) {
                 collector.motors.reverseInTake();
 
-                if(collector.motors.runTimeIntake.seconds() > delayToReverse){
+                if(collector.motors.runTimeIntake.seconds() > REVERSE_DELAY){
                     joystickActivityClass.tLeftBumperPressed = 0;
                 }
             }else {
@@ -262,7 +277,7 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case Load_and_check:
-                            if (collector.colorSensorClass.timeFromDetect.seconds() > 0.1){
+                            if (collector.colorSensorClass.timeFromDetect.seconds() > DETECT_DELAY){
                                 collector.digitalCellsClass.setColor(collector.colorSensorClass.artifactColor);
 
                                 if(collector.digitalCellsClass.artifactCount == 3){
@@ -290,7 +305,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                         case Idle:
                             collector.motors.reverseInTake();
-                            if (collector.motors.runTimeIntake.seconds() > delayToReverse) {
+                            if (collector.motors.runTimeIntake.seconds() > REVERSE_DELAY) {
                                 collector.motors.offIntake();
 
                                 collector.motors.preFireSpeedFlyWheel();
@@ -298,6 +313,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                                 generalState = GeneralState.Fire;
                                 fireState = FireState.Prepare_to_fire;
+                                innerTime.reset();
                             }
 
                             break;
@@ -310,9 +326,9 @@ public class AutoPlayerClass extends PlayerClass{
 
                 case Fire:
                     collector.servos.setAngle(targetServoPos);
-                    collector.motors.setSpeed(targetRadSpeed);
-
-                    if (collector.servos.angleStates == ServomotorsClass.AngleStates.Unready || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
+                    collector.motors.setSpeed(targetRadSpeed, targetRadSpeed/ MAX_RAD_SPEED);
+//
+                    if (collector.motors.runTimeFlyWheel.seconds() < 0.5 ||collector.servos.angleStates == ServomotorsClass.AngleStates.Unready || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
                         if(fireState == FireState.On_cell_check_states) return;
                     }
 
@@ -381,6 +397,8 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case Push_artifact:
+//                            collector.motors.setSpeed(targetRadSpeed * 1.1);
+
                             collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
 
                             if (isPushHorEnded()) {
@@ -449,7 +467,7 @@ public class AutoPlayerClass extends PlayerClass{
     void calcAngle(){
         double alpha = Math.toRadians(theta);
 
-        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (80) / range);
+        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (73) / range);
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
     }

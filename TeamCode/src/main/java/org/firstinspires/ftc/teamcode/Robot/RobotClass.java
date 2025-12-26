@@ -52,7 +52,7 @@ public class RobotClass extends UpdatableModule {
     @Override
     public void showData(){
         telemetry.addData("Match time:", innerTime.seconds());
-        voltageSensor.showData();
+//        voltageSensor.showData();
         driveTrain.showData();
         collector.showData();
     }
@@ -123,9 +123,9 @@ public class RobotClass extends UpdatableModule {
 
        @Override
        public void showData() {
-           buttonClass.showData();
+//           buttonClass.showData();
            digitalCellsClass.showData();
-//           colorSensorClass.showData();
+           colorSensorClass.showData();
            servos.showData();
            motors.showData();
        }

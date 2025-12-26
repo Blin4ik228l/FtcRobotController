@@ -89,7 +89,7 @@ public class AutonomLogic extends ExecutableModule {
     * */
     @Override
     public void execute() {
-        double delayToBaraban = BARABAN_DELAY;
+        double delayToBaraban = BARABAN_DELAY_FAR;
         double delayToPusher = PUSHERVER_DELAY;
         double delayToReverse = REVERSE_DELAY;
 
@@ -285,7 +285,7 @@ public class AutonomLogic extends ExecutableModule {
                                 curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
                                 collector.servos.setAngle(findNeededPosAngle(curAngle));
 
-                                collector.motors.setSpeed(curVelRad);
+                                collector.motors.setSpeed(curVelRad, targetSpeed/ MAX_RAD_SPEED);
                                 collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
                                 Vector2 deltaVector = new Vector2(
@@ -409,7 +409,7 @@ public class AutonomLogic extends ExecutableModule {
                         curVelRad = targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED;
                         collector.servos.setAngle(findNeededPosAngle(curAngle));
 
-                        collector.motors.setSpeed(curVelRad);
+                        collector.motors.setSpeed(curVelRad, targetSpeed/ MAX_RAD_SPEED);
                         collector.servos.setPusherHor(PositionConsts.PUSHER_PREFIRE_POS);
 
                         Vector2 deltaVector = new Vector2(

@@ -89,11 +89,11 @@ public class ColorSensorClass extends UpdatableModule {
         double dist = (sensor0Distance + sensor2Distance) / 2.0;
 
         int foundColor;
-        if(r > g && r > b && r > 0.054) {
+        if(r > g && r > b && r > 0.060) {
             foundColor =  2;}
-        else if(b > r && b > g && b > 0.070) {
+        else if(b > r && b > g && b > 0.076) {
             foundColor =  2;}
-        else if(g > r && g > b && g > 0.085) {
+        else if(g > r && g > b && g > 0.099) {
             foundColor =  1;}
 
         else foundColor =  0;

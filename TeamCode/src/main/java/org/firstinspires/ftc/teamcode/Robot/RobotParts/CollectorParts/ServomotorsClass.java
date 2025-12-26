@@ -72,10 +72,10 @@ public class ServomotorsClass extends Module {
                     barabanDelay = 0;
                     break;
                 case 1:
-                    barabanDelay = 0.15;
+                    barabanDelay = BARABAN_DELAY_NEAR;
                     break;
                 case 2:
-                    barabanDelay = 0.3;
+                    barabanDelay = BARABAN_DELAY_FAR;
             }
         }
     }
@@ -100,10 +100,10 @@ public class ServomotorsClass extends Module {
                     pusherDelay = 0;
                     break;
                 case 1:
-                    pusherDelay = 0.1;
+                    pusherDelay = PUSHERHOR_DELAY_NEAR;
                     break;
                 case 2:
-                    pusherDelay = 0.15;
+                    pusherDelay = PUSHERHOR_DELAY_FAR;
             }
         }
     }
@@ -136,9 +136,9 @@ public class ServomotorsClass extends Module {
     public void setPusherVer(double targetPusherPos){
         if(targetPusherPos == PUSHERHOR_ENDING_POS){
             targetPusherPos = PUSHERVER_ENDING_POS;
-            pusherVerDelay = 0.05;
+            pusherVerDelay = PUSHERVER_DELAY;
         }else {
-            pusherVerDelay = 0.05;
+            pusherVerDelay = 0.0;
             targetPusherPos = PUSHERVER_START_POS;}
 
         if(targetPusherPos == curPusherVerPos) return;
@@ -173,7 +173,7 @@ public class ServomotorsClass extends Module {
         telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherHorPos, curBarabanPos);
         telemetry.addData("Const","%s %s %s", BARABAN_CELL0_POS, BARABAN_CELL1_POS, BARABAN_CELL2_POS);
         telemetry.addData("Current angle", "%s", fromPosToAngle(curAnglePos));
-        telemetry.addData("Target Angle", fromPosToAngle(targetAngle));
+        telemetry.addData("Target Angle", targetAngle);
         telemetry.addData("Angle time", runTimeAngle);
         telemetry.addData("Baraban time", runTimeBaraban);
         telemetry.addData("Pusher time", runTimePusherHor);

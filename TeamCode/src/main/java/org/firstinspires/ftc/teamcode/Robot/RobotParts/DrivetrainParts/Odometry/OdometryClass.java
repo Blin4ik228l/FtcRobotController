@@ -39,6 +39,7 @@ public class OdometryClass extends UpdatableModule {
     public Vector2 robotCurAccel;
     public double encHeadVel, encHeadAccel;
     public double gyroHeadVel, gyroHeadAccel;
+    public ElapsedTime stopTime = new ElapsedTime();
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
@@ -70,19 +71,28 @@ public class OdometryClass extends UpdatableModule {
     }
 
     public void updateSpeed(){
+        if(encGlobalPosition2D.toVector().length() == 0) stopTime.reset();
+
         selfMath.calculateSpeeds();
 
         if(robotCurVelocity.length() == 0){
             moveState = MoveState.Stopped;
         } else if (robotCurVelocity.length() > 0 && robotCurVelocity.length() <= 45) {
             moveState = MoveState.Small_speed;
-        }else moveState = MoveState.High_speed;
+            stopTime.reset();
+        }else {
+            moveState = MoveState.High_speed;
+            stopTime.reset();}
 
         if(encHeadVel == 0){
             rotateState = RotateState.Stopped;
         } else if (encHeadVel > 0 && encHeadVel <= Math.toRadians(20)) {
+            stopTime.reset();
             rotateState = RotateState.Small_speed;
-        }else rotateState = RotateState.High_speed;
+        }else {
+            rotateState = RotateState.High_speed;
+            stopTime.reset();}
+
     }
 
     @Override

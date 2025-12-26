@@ -53,9 +53,11 @@ public class PositionRobotController extends UpdatableModule {
 
     @Override
     public void update() {
-        cameraClass.update();
         odometryClass.updateSpeed();
-        if (cameraClass.tagState == CameraClass.TagState.Detected) {
+
+        cameraClass.update();
+        if(odometryClass.stopTime.seconds() < 1){
+            if (cameraClass.tagState == CameraClass.TagState.Detected) {
 //            double targetWeight;
 //
 //            // Ограничиваем и умножаем на MAX_CAMERA_WEIGHT
@@ -96,10 +98,11 @@ public class PositionRobotController extends UpdatableModule {
 //                    ALPHA * calcPos.getY() + (1-ALPHA) * filteredPose.getY(),
 //                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
 //            );
-            odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
+                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
 //            cameraClass.generalLogic = CameraClass.GeneralLogic.Stop;
-        }else {
-            odometryClass.updatePoses();
+            }else {
+                odometryClass.updatePoses();
+            }
         }
 
 

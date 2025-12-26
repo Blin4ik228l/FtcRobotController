@@ -21,15 +21,15 @@ public class CollectorMotors extends Module {
         encMotorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем правый энкодер
         encMotorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем левый энкодер
 
-        encMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
-        encMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+//        encMotorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
+//        encMotorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-//        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
+        encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        encMotorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
-//        encMotorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+//        encMotorLeft.setVelocityPIDFCoefficients(P, I, D, F);
+//        encMotorRight.setVelocityPIDFCoefficients(P, I, D, F);
 
         inTakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         encMotorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -54,12 +54,15 @@ public class CollectorMotors extends Module {
         return encMotorRight;
     }
     public PIDFCoefficients pidfCoefficients;
-    private double P, I, D, F;
+
     public double curOverallVel, curLeftVel, curRightVel, inTakeCurPower, curOverallInMeters;
     public ElapsedTime runTimeFlyWheel, runTimeIntake;
     public double kPower;
-    public double targSpeedInMeters;
+    public double targSpeedInRad;
     public FlyWheelStates flyWheelStates = FlyWheelStates.Unready;
+
+//    private double P = 18, I = 0.15, D = 3.0, F = 0.45;
+private double P = 18, I = 0, D = 0, F = 0.45;
 
     public enum FlyWheelStates{
         Ready,
@@ -75,30 +78,40 @@ public class CollectorMotors extends Module {
 
         runTimeIntake.reset();
     }
-    public void setSpeed(double speed){
-//        flyWheelStates = FlyWheelStates.Ready;
-        P = 15.0;
-        I = 0.12;
-        D = 4.0;
-        F = 0.00015;
+    double koef = 0.98;
+    double i =0;
+    int attempts;
+    public void setSpeed(double speed, double pow){
+        if(speed == 0) {
+            attempts = 0;
+            i = 0;}
+        targSpeedInRad = speed ;
+/// MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS
+//        encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
+//        encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
 
-        targSpeedInMeters = speed / MAX_RAD_SPEED * MAX_EXPERIMENTAL_SPEED_IN_METERS;
-
-//        pidfCoefficients = new PIDFCoefficients(P, I, D, F);
-//
-//        encMotorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-//        encMotorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-
-        encMotorLeft.setVelocity(speed, AngleUnit.RADIANS);
-        encMotorRight.setVelocity(-speed, AngleUnit.RADIANS);
+        encMotorLeft.setPower(pow * (koef + i) );
+        encMotorRight.setPower(-pow * (koef + i));
 
         calcCurSpeed();
 
-        double errorSpeed = targSpeedInMeters - curOverallInMeters;
-        flyWheelStates = Math.abs(errorSpeed) < 0.05 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
+        double errorSpeed = targSpeedInRad - curOverallVel;
+
+        if(attempts > 20){
+            i += errorSpeed / 700;
+        }
+        flyWheelStates = Math.abs(curOverallVel / targSpeedInRad - 1) < 0.03 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
 
         if(flyWheelStates == FlyWheelStates.Unready) runTimeFlyWheel.reset();
+
+        attempts++;
     }
+
+    public void setPIDF(double P, double I, double D, double F){
+        encMotorLeft.setVelocityPIDFCoefficients(P, I, D, F);
+        encMotorRight.setVelocityPIDFCoefficients(P, I, D, F);
+    }
+
     public void calcCurSpeed(){
         curLeftVel = encMotorLeft.getVelocity(AngleUnit.RADIANS);
         curRightVel = encMotorRight.getVelocity(AngleUnit.RADIANS);
@@ -127,12 +140,12 @@ public class CollectorMotors extends Module {
     public void offFLyWheel(){
         double targetFlyWheelSpeed = 0;
 
-        setSpeed(targetFlyWheelSpeed);
+        setSpeed(targetFlyWheelSpeed, 0);
     }
     public void preFireSpeedFlyWheel(){
         double targetFlyWheelSpeed = 4;
 
-        setSpeed(targetFlyWheelSpeed);
+        setSpeed(targetFlyWheelSpeed, 1);
     }
     public void setKPower(double kPower){
         this.kPower = kPower;
@@ -142,8 +155,12 @@ public class CollectorMotors extends Module {
     public void showData(){
         telemetry.addLine("===COLLECTOR MOTORS===");
 //        telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
-        telemetry.addData("Targ speed in meters","%.2f m/s", targSpeedInMeters);
-        telemetry.addData("FlyWheelSpeed overall in meters","%.2f m/s", curOverallInMeters);
+        telemetry.addData("PIDF", "P %s I %s D %s F %s", encMotorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).p,
+                encMotorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).i, encMotorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).d,
+                encMotorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f);
+        telemetry.addData("Targ speed in rad","%.2f /s", targSpeedInRad);
+        telemetry.addData("FlyWheelSpeed overall in rad","%.2f /s", curOverallVel);
+        telemetry.addData("errror%", Math.abs(curOverallVel / targSpeedInRad - 1) * 100);
 //        telemetry.addData("Left motor speed in rad","%.2f /s", curLeftVel);
 //        telemetry.addData("Right motor speed in rad","%.2f /s", curRightVel);
         telemetry.addData("InTake Power", inTakeCurPower);

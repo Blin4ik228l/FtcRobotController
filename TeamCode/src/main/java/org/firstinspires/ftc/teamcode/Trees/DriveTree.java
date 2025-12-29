@@ -4,12 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Task;
 import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.TaskNode;
 
 public class DriveTree extends ExecutableModule {
-    public DriveTree(RobotClass.MecanumDrivetrain drivetrain, AutomaticLogicTree automaticLogicTree, OpMode op){
+    public DriveTree(MecanumDrivetrain drivetrain, AutomaticLogicTree automaticLogicTree, OpMode op){
         super(op.telemetry);
         mainRoot = new Root();
 
@@ -21,7 +22,7 @@ public class DriveTree extends ExecutableModule {
         mainRoot.root.stackNodes();
     }
     public Root mainRoot;
-    public RobotClass.MecanumDrivetrain drivetrain;
+    public MecanumDrivetrain drivetrain;
     private final AutomaticLogicTree teleScopeTree;
     public void loadProgram(){
         Task first = new Task(100, 100, 0, 100, drivetrain, telemetry, 1);

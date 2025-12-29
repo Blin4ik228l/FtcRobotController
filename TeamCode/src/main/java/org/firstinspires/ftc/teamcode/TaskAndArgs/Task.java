@@ -3,11 +3,13 @@ package org.firstinspires.ftc.teamcode.TaskAndArgs;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
 
 public class Task {
-    public Task(double targetX, double targetY, double targetHeading, double targetSpeed, RobotClass.MecanumDrivetrain driveTrain, Telemetry telemetry, int queuePlace){
+    public Task(double targetX, double targetY, double targetHeading, double targetSpeed, MecanumDrivetrain driveTrain, Telemetry telemetry, int queuePlace){
         Position2D targetPosition2D = new Position2D(targetX, targetY, targetHeading);
         Args.DriveArgs driveArgs = new Args.DriveArgs(targetPosition2D, targetSpeed);
 
@@ -15,19 +17,19 @@ public class Task {
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
 
         this.queuePlace = queuePlace;
     }
 
-    public Task(String targetName, double targetPos, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(String targetName, double targetPos, Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
 
         this.queuePlace = queuePlace;
     }
 
-    public Task(double targetHeight, double targetPower, String targetName, double targetPos, RobotClass.Collector teleSkope, Telemetry telemetry, int queuePlace){
+    public Task(double targetHeight, double targetPower, String targetName, double targetPos, Collector teleSkope, Telemetry telemetry, int queuePlace){
         Args.LiftArgs liftArgs = new Args.LiftArgs(targetHeight, targetPower);
         Args.ServoArgs servoArgs = new Args.ServoArgs(targetName, targetPos);
 

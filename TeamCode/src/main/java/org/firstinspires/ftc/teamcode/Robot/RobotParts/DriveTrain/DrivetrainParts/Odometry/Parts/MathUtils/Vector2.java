@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils;
 
 public class Vector2 {
     public double x;
@@ -104,6 +104,7 @@ public class Vector2 {
 
     public Vector2 rotateToGlobal(double Rad) {
         Rad += Math.toRadians(270);
+
         double oldX = x;
         double oldY = y;
 

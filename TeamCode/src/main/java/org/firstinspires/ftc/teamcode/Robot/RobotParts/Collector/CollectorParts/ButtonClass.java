@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts;
 
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;

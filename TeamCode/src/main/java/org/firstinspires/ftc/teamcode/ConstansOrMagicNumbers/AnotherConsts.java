@@ -71,18 +71,12 @@ public interface AnotherConsts {
 
     double AUTO_TIME = 30;
 
-    double BARABAN_DELAY_NEAR = 0.30;
-    double BARABAN_DELAY_FAR = BARABAN_DELAY_NEAR * 2.0;
-
-    double PUSHERHOR_DELAY_NEAR = 0.1;
-    double PUSHERHOR_DELAY_FAR = PUSHERHOR_DELAY_NEAR * 1.5;
-
-    double PUSHERVER_DELAY = 0.5;
-
-    double REVERSE_DELAY = 0.1;
-
-    double DETECT_DELAY = 0.0;
     double RAD = 180 / Math.PI;
 
     double END_TIME = 5042;
+    double MAX_ANGLE = 43;
+    double MIN_ANGLE = 10;
+
+    double MAX_RAD_SPEED = 5;
+    double MAX_EXPERIMENTAL_SPEED_IN_METERS = 7.0;
 }

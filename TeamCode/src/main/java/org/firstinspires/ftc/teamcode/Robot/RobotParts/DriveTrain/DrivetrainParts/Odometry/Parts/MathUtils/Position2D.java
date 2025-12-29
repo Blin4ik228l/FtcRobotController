@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils;
 
 import androidx.annotation.NonNull;
 
@@ -19,8 +19,6 @@ public class Position2D {
         this.x = position2D.x;
         this.y = position2D.y;
         this.heading = position2D.heading;
-
-
     }
 
     public Position2D(Vector2 vector2, double heading){

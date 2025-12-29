@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,7 +7,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class DrivetrainMotors extends Module {
-
+    private final DcMotor leftB;
+    private final DcMotor leftF;
+    private final DcMotor rightB;
+    private final DcMotor rightF;
     public DrivetrainMotors(OpMode op) {
         super(op.telemetry);
         rightB = op.hardwareMap.get(DcMotor.class, "rightB");
@@ -32,11 +35,6 @@ public class DrivetrainMotors extends Module {
 
         telemetry.addLine("Motors on drivetrain Inited");
     }
-    private final DcMotor leftB;
-    private final DcMotor leftF;
-    private final DcMotor rightB;
-    private final DcMotor rightF;
-
     public DcMotor getLeftB() {
         return leftB;
     }
@@ -53,9 +51,7 @@ public class DrivetrainMotors extends Module {
         return rightF;
     }
     private double kPower;
-
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
-    public double leftBPower, leftFPower, rightBPower, rightFPower;
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
         if(kPower != 0){

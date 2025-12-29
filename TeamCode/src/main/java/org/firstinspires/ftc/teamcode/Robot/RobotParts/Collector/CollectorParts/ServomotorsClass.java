@@ -1,12 +1,17 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.CollectorParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class ServomotorsClass extends Module {
+    private final Servo angle;
+    private final Servo pusherHor, pusherVer;
+    private final Servo baraban, baraban2;
+    public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusherHor, runTimePusherVer;
     public ServomotorsClass(OpMode op){
         super(op.telemetry);
 
@@ -24,15 +29,11 @@ public class ServomotorsClass extends Module {
         //Устанавливаем в начальное положение
         setPusherVer(PUSHERVER_START_POS);
         setPusherHor(PUSHER_START_POS);
-        setAngle(ANGLE_ENDING_POS);
+        setAngle(ANGLE_LOWER_POS);
         setBaraban(BARABAN_CELL0_POS);
 
         telemetry.addLine("Servos Inited");
     }
-    private final Servo angle;
-    private final Servo pusherHor, pusherVer;
-    private final Servo baraban, baraban2;
-    public double curAnglePos = -1, curPusherHorPos = -1, curBarabanPos = -1, curPusherVerPos = -1;
     public Servo getBaraban() {
         return baraban;
     }
@@ -42,16 +43,9 @@ public class ServomotorsClass extends Module {
     public Servo getAngle() {
         return angle;
     }
-    public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusherHor, runTimePusherVer;
-    public double targetAngle;
-    public double barabanDelay = 0;
-    public double pusherDelay;
-    public double pusherVerDelay = 0;
-    public enum AngleStates{
-        Ready,
-        Unready
-    }
-    public AngleStates angleStates = AngleStates.Unready;
+    public double targetAngle, curAngle;
+    public double barabanDelay, pusherHorDelay, pusherVerDelay;
+    public double curAnglePos = -1, curPusherHorPos = -1, curBarabanPos = -1, curPusherVerPos = -1;
     public void calculateDelayBaraban(double targPos){
         int curCell;
         int targCell;
@@ -94,16 +88,16 @@ public class ServomotorsClass extends Module {
 
         int way = Math.abs(targPosNum - curPosNum);
 
-        if (runTimePusherHor.seconds() > pusherDelay){
+        if (runTimePusherHor.seconds() > pusherHorDelay){
             switch (way){
                 case 0:
-                    pusherDelay = 0;
+                    pusherHorDelay = 0;
                     break;
                 case 1:
-                    pusherDelay = PUSHERHOR_DELAY_NEAR;
+                    pusherHorDelay = PUSHERHOR_DELAY_NEAR;
                     break;
                 case 2:
-                    pusherDelay = PUSHERHOR_DELAY_FAR;
+                    pusherHorDelay = PUSHERHOR_DELAY_FAR;
             }
         }
     }
@@ -134,7 +128,7 @@ public class ServomotorsClass extends Module {
         runTimePusherHor.reset();//Обнуляем время с момента попадания программы в эту часть
     }
     public void setPusherVer(double targetPusherPos){
-        if(targetPusherPos == PUSHERHOR_ENDING_POS){
+        if (targetPusherPos == PUSHERHOR_ENDING_POS){
             targetPusherPos = PUSHERVER_ENDING_POS;
             pusherVerDelay = PUSHERVER_DELAY;
         }else {
@@ -149,15 +143,15 @@ public class ServomotorsClass extends Module {
     }
 
     public void setAngle(double targetAnglePos){
-        targetAngle = fromPosToAngle(targetAnglePos);
+        targetAnglePos = Range.clip(targetAnglePos, ANGLE_UPPER_POS, ANGLE_LOWER_POS);
 
+        if (targetAnglePos == curAnglePos) return;
         angle.setPosition(targetAnglePos);
         curAnglePos = angle.getPosition();
 
-        double errorAngle = targetAngle - fromPosToAngle(curAnglePos);
-        angleStates = Math.abs(errorAngle) < 0.9 ? ServomotorsClass.AngleStates.Ready : ServomotorsClass.AngleStates.Unready;
+        curAngle = fromPosToAngle(curAnglePos);
 
-        if(angleStates == AngleStates.Unready) runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
+        runTimeAngle.reset();//Обнуляем время с момента попадания программы в эту часть
     }
 
     public double fromPosToAngle(double curPos){
@@ -168,15 +162,20 @@ public class ServomotorsClass extends Module {
 
     @Override
     public void showData(){
-        telemetry.addLine("===SERVOS===");
-        telemetry.addData("Delays","B:%s P:%s", barabanDelay, pusherDelay);
-        telemetry.addData("Pos","A:%s P:%s B:%s",curAnglePos, curPusherHorPos, curBarabanPos);
-        telemetry.addData("Const","%s %s %s", BARABAN_CELL0_POS, BARABAN_CELL1_POS, BARABAN_CELL2_POS);
-        telemetry.addData("Current angle", "%s", fromPosToAngle(curAnglePos));
-        telemetry.addData("Target Angle", targetAngle);
-        telemetry.addData("Angle time", runTimeAngle);
-        telemetry.addData("Baraban time", runTimeBaraban);
-        telemetry.addData("Pusher time", runTimePusherHor);
+        telemetry.addLine("===SERVOMOTORS===");
+        telemetry.addLine("Baraban");
+        telemetry.addData("BPos", curBarabanPos);
+        telemetry.addData("Const","C0:%s C1:%s C2:%s", BARABAN_CELL0_POS, BARABAN_CELL1_POS, BARABAN_CELL2_POS);
+        telemetry.addLine("Angle");
+        telemetry.addData("APos", curAnglePos);
+        telemetry.addData("Current angle", curAngle);
+        telemetry.addLine("Pushers");
+        telemetry.addData("Poses","Hor:%s Ver:%s", curPusherHorPos, curPusherVerPos);
+
+        telemetry.addData("Delays","B:%s P:%s", barabanDelay, pusherHorDelay);
+//        telemetry.addData("Angle time", runTimeAngle);
+//        telemetry.addData("Baraban time", runTimeBaraban);
+//        telemetry.addData("Pusher time", runTimePusherHor);
         telemetry.addLine();
     }
 }

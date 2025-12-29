@@ -7,19 +7,23 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public class VoltageSensorClass extends UpdatableModule {
+    private HardwareMap hardwareMap;
     public VoltageSensorClass(OpMode op){
         super(op.telemetry);
         hardwareMap = op.hardwareMap;
     }
+    private double curVoltage;
+    private double MAX_VOL;
+    private double kPower;
 
-    private HardwareMap hardwareMap;
-    public double curVoltage;
-    public double MAX_VOL = 0.0;
-    public double kPower;
+    public double getkPower() {
+        return kPower;
+    }
+
     @Override
     public void update() {
         double result = Double.POSITIVE_INFINITY;
-        hardwareMap.size();
+
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
             double voltage = sensor.getVoltage();
             if (voltage > 0) {
@@ -36,9 +40,10 @@ public class VoltageSensorClass extends UpdatableModule {
     @Override
     public void showData() {
         telemetry.addLine("===VoltageClass===");
+        telemetry.addData("H size", hardwareMap.size());
         telemetry.addData("Vol", curVoltage);
         telemetry.addData("Max vol", MAX_VOL);
-        telemetry.addData("Koef power", kPower);
+        telemetry.addData("KP", kPower);
         telemetry.addLine();
     }
 }

@@ -20,13 +20,15 @@ public class InnerWardenClass extends UpdatableModule {
 
     @Override
     public void update() {
-        robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.kPower);
-        robotClass.collector.motors.setKPower(robotClass.voltageSensor.kPower);
+        robotClass.driveTrain.motors.setKPower(robotClass.voltageSensor.getkPower());
+        robotClass.collector.motors.setKPower(robotClass.voltageSensor.getkPower());
 
-        robotClass.collector.digitalCellsClass.setRandomizedArtifact(robotClass.driveTrain.cameraClass.randomizedArtifacts);
+        robotClass.collector.digitalCellsClass.setRandomizedArtifact(robotClass.driveTrain.cameraClass.getRandomizedArtifacts());
 
-        autoPlayerClass.setFields(robotClass.driveTrain.cameraClass.randomizeStatus, robotClass.driveTrain.positionRobotController.vyrState,
-                 robotClass.driveTrain.odometryClass.moveState, robotClass.driveTrain.odometryClass.rotateState,
+        autoPlayerClass.setFields(robotClass.driveTrain.cameraClass.randomizeStatus,
+                robotClass.driveTrain.positionRobotController.vyrState,
+                robotClass.driveTrain.odometryClass.moveState,
+                robotClass.driveTrain.odometryClass.rotateState,
                 robotClass.driveTrain.positionRobotController.getRange());
     }
 }

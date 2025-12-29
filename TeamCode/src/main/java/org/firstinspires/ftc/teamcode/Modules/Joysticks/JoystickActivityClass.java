@@ -11,16 +11,19 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonBack = false, buttonStart = false,
             bumperRight = false, bumperLeft = false,
             triggerRight = false, triggerLeft = false,
-            dpad_Up = false, dpad_Down = false, dpad_Left = false, dpad_Right = false;
-
+            dpad_Up = false, dpad_Down = false, dpad_Left = false, dpad_Right = false, a_and_Left_Trigger = false;
     public boolean switchA = false, switchX = false, switchB = false, switchY = false, switchBack = false, switchStart = false,
             switchRightBumper = false, switchLeftBumper = false,
             switchRightTrigger = false, switchLeftTrigger = false,
-            switchDpad_Up = false, switchDpad_Down = false, switchDpad_Left = false, switchDpad_Right = false;
+            switchDpad_Up = false, switchDpad_Down = false, switchDpad_Left = false, switchDpad_Right = false, switchA_and_Left_Trigger = false;
     public int tAPressed = 0, tBPressed = 0, tXPressed = 0, tYPressed = 0,
             tRightTriggerPressed = 0, tLeftTriggerPressed = 0, tRightBumperPressed = 0, tLeftBumperPressed = 0,
             tDpadDownPressed = 0, tDpadUpPressed = 0, tDpadLeftPressed = 0, tDpadRightPressed = 0,
-            tBackPressed, tStartPressed = 0;
+            tBackPressed, tStartPressed = 0, tA_and_Left_Trigger = 0;
+    public int iterNumA, iterNumB, iterNumX, iterNumY,
+            iterNumRTrigger, iterNumLTrigger, iterNumRBumper, iterNumLBumper,
+            iterNumDpadD, iterNumDpadU, iterNumDpadL, iterNumDpadR,
+            iterNumBack, iterNumStart, iterNumA_and_LTrigger;
 
     public JoystickActivityClass(Gamepad gamepad, OpMode op) {
         super(op.telemetry);
@@ -29,6 +32,8 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
     public JoystickActivityClass(OpMode op) {
         super(op.telemetry);
     }
+
+    private int iterationCount;
 
     @Override
     public void update() {
@@ -56,6 +61,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonA = !buttonA;
             switchA = true;
             tAPressed++;
+            iterNumA = iterationCount;
         }
         if(!playersGamepad.a && switchA){
             switchA = false;
@@ -70,6 +76,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonB = !buttonB;
             switchB = true;
             tBPressed++;
+            iterNumB = iterationCount;
         }
         if(!playersGamepad.b && switchB){
             switchB = false;
@@ -84,6 +91,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonX = !buttonX;
             switchX = true;
             tXPressed++;
+            iterNumX = iterationCount;
         }
         if(!playersGamepad.x && switchX){
             switchX = false;
@@ -98,6 +106,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonY = !buttonY;
             switchY = true;
             tYPressed++;
+            iterNumY = iterationCount;
         }
         if(!playersGamepad.y && switchY){
             switchY = false;
@@ -112,6 +121,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             triggerRight = !triggerRight;
             switchRightTrigger = true;
             tRightTriggerPressed++;
+            iterNumRTrigger = iterationCount;
         }
         if(playersGamepad.right_trigger < 0.05 && switchRightTrigger){
             switchRightTrigger = false;
@@ -126,6 +136,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             triggerLeft = !triggerLeft;
             switchLeftTrigger = true;
             tLeftTriggerPressed++;
+            iterNumLTrigger = iterationCount;
         }
         if(playersGamepad.left_trigger < 0.05 && switchLeftTrigger){
             switchLeftTrigger = false;
@@ -140,6 +151,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             bumperRight = !bumperRight;
             switchRightBumper = true;
             tRightBumperPressed++;
+            iterNumRBumper = iterationCount;
         }
         if(!playersGamepad.right_bumper && switchRightBumper){
             switchRightBumper = false;
@@ -154,6 +166,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             bumperLeft = !bumperLeft;
             switchLeftBumper = true;
             tLeftBumperPressed++;
+            iterNumLBumper = iterationCount;
         }
         if(!playersGamepad.left_bumper && switchLeftBumper){
             switchLeftBumper = false;
@@ -168,6 +181,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             dpad_Up = !dpad_Up;
             switchDpad_Up = true;
             tDpadUpPressed++;
+            iterNumDpadU = iterationCount;
         }
         if(!playersGamepad.dpad_up && switchDpad_Up){
             switchDpad_Up = false;
@@ -182,6 +196,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             dpad_Down = !dpad_Down;
             switchDpad_Down = true;
             tDpadDownPressed++;
+            iterNumDpadD = iterationCount;
         }
         if(!playersGamepad.dpad_down && switchDpad_Down){
             switchDpad_Down = false;
@@ -196,6 +211,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             dpad_Left = !dpad_Left;
             switchDpad_Left = true;
             tDpadLeftPressed++;
+            iterNumDpadL = iterationCount;
         }
         if(!playersGamepad.dpad_left && switchDpad_Left){
             switchDpad_Left = false;
@@ -210,6 +226,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             dpad_Right = !dpad_Right;
             switchDpad_Right = true;
             tDpadRightPressed++;
+            iterNumDpadR = iterationCount;
         }
         if(!playersGamepad.dpad_right && switchDpad_Right){
             switchDpad_Right = false;
@@ -224,6 +241,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonBack = !buttonBack;
             switchBack = true;
             tBackPressed++;
+            iterNumBack = iterationCount;
         }
         if(!playersGamepad.back && switchBack){
             switchBack = false;
@@ -238,10 +256,32 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             buttonStart = !buttonStart;
             switchStart = true;
             tStartPressed++;
+            iterNumStart = iterationCount;
         }
         if(!playersGamepad.start && switchStart){
             switchStart = false;
         }
+    }
+
+    @Override
+    public void isA_and_Left_Trigger() {
+        if(!(buttonA && triggerLeft) && !switchA_and_Left_Trigger) return;
+
+        if(buttonA && triggerLeft && !switchA_and_Left_Trigger && iterNumA == iterNumLTrigger){
+            buttonA = false;
+            triggerLeft = false;
+
+            a_and_Left_Trigger = !a_and_Left_Trigger;
+            switchA_and_Left_Trigger = true;
+            tA_and_Left_Trigger++;
+        }
+        if(!a_and_Left_Trigger && switchA_and_Left_Trigger){
+            switchA_and_Left_Trigger = false;
+        }
+    }
+
+    public void setIterationCount(int iterationCount) {
+        this.iterationCount = iterationCount;
     }
 
     @Override

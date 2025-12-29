@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
-public class TeamColorClass extends UpdatableModule {
+public class TeamClass extends UpdatableModule {
     public StartPos startPos;
     public Color color;
     public enum Color{
@@ -16,7 +16,7 @@ public class TeamColorClass extends UpdatableModule {
         Far_from_wall,
         Nevermind
     }
-    public TeamColorClass(Color color, StartPos startPos, OpMode op){
+    public TeamClass(Color color, StartPos startPos, OpMode op){
         super(op.telemetry);
         this.startPos = startPos;
         this.color = color;

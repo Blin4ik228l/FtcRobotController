@@ -1,0 +1,46 @@
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ButtonClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ColorSensorClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.DigitalCellsClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ServomotorsClass;
+
+public class Collector extends UpdatableModule {
+    public CollectorMotors motors;
+    public ServomotorsClass servos;
+    public ColorSensorClass colorSensorClass;
+    public DigitalCellsClass digitalCellsClass;
+    public ButtonClass buttonClass;
+    public Collector(OpMode op) {
+        super(op.telemetry);
+
+        motors = new CollectorMotors(op);
+
+        servos = new ServomotorsClass(op);
+        colorSensorClass = new ColorSensorClass(op);
+        buttonClass = new ButtonClass(op);
+
+        digitalCellsClass = new DigitalCellsClass(servos.getBaraban(), op);
+
+        telemetry.addLine("Collector inited");
+    }
+
+    @Override
+    public void update() {
+//           buttonClass.update();
+        colorSensorClass.update();
+    }
+
+    @Override
+    public void showData() {
+//           buttonClass.showData();
+        digitalCellsClass.showData();
+        colorSensorClass.showData();
+        servos.showData();
+        motors.showData();
+    }
+}

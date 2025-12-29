@@ -8,150 +8,99 @@ import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenCl
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
-import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
-import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 
 public abstract class TeleOpModernized extends OpMode {
     public RobotClass robot;
-    private PlayerClass1 player1;
-    private AutoPlayerClass autoPlayerClass;
-    private InnerWardenClass innerWarden;
-    private JoystickActivityClass joystickActivityClass;
-
-    private PositionFireLogic positionFireLogic;
-    public UpdatableModule moduleJoystickActivityPlayer1, moduleRobot, moduleInnerWarden;
-    public ExecutableModule modulePlayer1, moduleAutomatic;
+    public PlayerClass1 player1;
+    public AutoPlayerClass autoPlayerClass;
+    public InnerWardenClass innerWarden;
+    public JoystickActivityClass joystickActivityClass;
+    public JoystickActivityClass joystickActivityClass2;
+    public PositionFireLogic positionFireLogic;
+    public TelemetrySettings telemetrySettings;
+    public ElapsedTime updateTime;
+    public int iterationCount = 1;
 
     public void initAfterRobot(){
         joystickActivityClass = new JoystickActivityClass(gamepad1, this);
+        joystickActivityClass2 = new JoystickActivityClass(gamepad2, this);
 
-        player1 = new PlayerClass1(joystickActivityClass, robot.driveTrain, robot.innerTime,this);
-        autoPlayerClass = new AutoPlayerClass(joystickActivityClass, robot.collector, robot.innerTime,this);
+        player1 = new PlayerClass1(joystickActivityClass, robot.driveTrain, robot.innerRunTime,this);
+        autoPlayerClass = new AutoPlayerClass(joystickActivityClass, robot.collector, robot.innerRunTime,this);
 
         innerWarden = new InnerWardenClass(robot, player1, autoPlayerClass, this);
 
-        moduleRobot = robot;
-
-        moduleJoystickActivityPlayer1 = player1.joystickActivityClass;
-        joystickActivityClass2 = new JoystickActivityClass(gamepad2, this);
-
-        modulePlayer1 = player1;
-        moduleInnerWarden = innerWarden;
-        moduleAutomatic = autoPlayerClass;
-
         positionFireLogic = new PositionFireLogic(robot.driveTrain, this);
-    }
 
-    public void updateAll() {
-        moduleJoystickActivityPlayer1.update();
+        telemetrySettings = new TelemetrySettings(this, null);
+
+        robot.collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
+
+        updateTime = new ElapsedTime();
+    }
+    public void extUpdate(){
+
+    }
+    public void extExecute(){
+
+    }
+    public void extShow(){
+
+    }
+    private void setAll(){
+        joystickActivityClass.setIterationCount(iterationCount);
+        joystickActivityClass2.setIterationCount(iterationCount);
+        robot.setIterationCount(iterationCount);
+    }
+    private void updateAll() {
+        joystickActivityClass.update();
         joystickActivityClass2.update();
 
-        moduleRobot.update();
-        moduleInnerWarden.update();
-    }
-    public void executeAll(){
-        modulePlayer1.execute();
-        moduleAutomatic.execute();
-    }
-    public void showAll(){
-        moduleJoystickActivityPlayer1.showData();
+        telemetrySettings.update();
 
-        moduleRobot.showData();
+        robot.update();
+        innerWarden.update();
 
-        moduleAutomatic.showData();
+        extUpdate();
     }
-    JoystickActivityClass joystickActivityClass2;
-//    private double  P = 20.5, I, D = 1.5, F = 0.23;
-    private double  P = 19, I = 0.11, D = 3.0, F = 0.41;
-    private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
-    private int stepIndex;
-    private int index;
-public ElapsedTime time = new ElapsedTime();
+    private void executeAll(){
+        player1.execute();
+        autoPlayerClass.execute();
+
+        extExecute();
+    }
+    private void showAll(){
+        if(iterationCount % 5 == 0){
+            telemetrySettings.showData();
+        }
+
+        telemetry.addData("Update time / Frequency", "%2.f sec %s Hz", updateTime.seconds(), 1 / updateTime.seconds());
+    }
     @Override
     public void init_loop() {
+        setAll();
         updateAll();
         showAll();
     }
 
     @Override
     public void start() {
-        robot.start();
+        robot.startTimer();
     }
 
     @Override
     public void loop() {
+        setAll();
         updateAll();
-        if(joystickActivityClass2.bumperLeft){
-            stepIndex = (stepIndex + 1) % stepSize.length;
-            joystickActivityClass2.bumperLeft = false;
-        }
-
-        if(joystickActivityClass2.bumperRight){
-            stepIndex = Math.max(stepIndex - 1, 0);
-            joystickActivityClass2.bumperRight = false;
-        }
-
-        if(joystickActivityClass2.triggerLeft){
-            index = (index + 1) % 4;
-            joystickActivityClass2.triggerLeft = false;
-        }
-
-        if(joystickActivityClass2.triggerRight){
-            index = Math.max(index - 1, 0);
-            joystickActivityClass2.triggerRight = false;
-        }
-
-        if(joystickActivityClass2.dpad_Up){
-            switch (index){
-                case 0:
-                    P += stepSize[stepIndex];
-                    break;
-                case 1:
-                    I += stepSize[stepIndex];
-                    break;
-                case 2:
-                    D += stepSize[stepIndex];
-                    break;
-                case 3:
-                    F += stepSize[stepIndex];
-                    break;
-            }
-            joystickActivityClass2.dpad_Up = false;
-        }
-
-        if(joystickActivityClass2.dpad_Down){
-            switch (index){
-                case 0:
-                    P = Math.max(P - stepSize[stepIndex], 0);
-                    break;
-                case 1:
-                    I = Math.max(I - stepSize[stepIndex], 0);
-                    break;
-                case 2:
-                   D = Math.max(D - stepSize[stepIndex], 0);
-                    break;
-                case 3:
-                    F = Math.max(F - stepSize[stepIndex], 0);
-                    break;
-            }
-            joystickActivityClass2.dpad_Down = false;
-        }
-
-//        robot.collector.motors.setPIDF(P, I, D, F);
         executeAll();
-
         showAll();
-        telemetry.addData("P: ", P);
-        telemetry.addData("I: ", I);
-        telemetry.addData("D: ", D);
-        telemetry.addData("F: ", F);
-        telemetry.addData("Step index and size", "in: %s sz: %s", stepIndex, stepSize[stepIndex]);
-        telemetry.addData("Index", index);
-        telemetry.addData("t", time.seconds());
-        time.reset();
-    }
 
+        iterationCount++;
+        updateTime.reset();
+    }
 
     @Override
     public void stop() {

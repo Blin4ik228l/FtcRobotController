@@ -1,23 +1,22 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.OdometryClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 
 public class PositionRobotController extends UpdatableModule {
-    public PositionRobotController(OdometryClass odometryClass, TeamColorClass teamColorClass, CameraClass cameraClass, OpMode op) {
+    private TeamClass teamClass;
+    private OdometryClass odometryClass;
+    private CameraClass cameraClass;
+    public PositionRobotController(OdometryClass odometryClass, TeamClass teamClass, CameraClass cameraClass, OpMode op) {
         super(op.telemetry);
         this.odometryClass = odometryClass;
         this.cameraClass = cameraClass;
-        this.teamColorClass = teamColorClass;
+        this.teamClass = teamClass;
     }
-
-    private TeamColorClass teamColorClass;
-    private OdometryClass odometryClass;
-    private CameraClass cameraClass;
     private double kPower;
     private Position2D rawPosition2D;
 
@@ -56,7 +55,7 @@ public class PositionRobotController extends UpdatableModule {
         odometryClass.updateSpeed();
 
         cameraClass.update();
-        if(odometryClass.stopTime.seconds() < 1){
+        if(odometryClass.getStopTime().seconds() < 1){
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
 //            double targetWeight;
 //
@@ -133,18 +132,18 @@ public class PositionRobotController extends UpdatableModule {
         return range;
     }
     public void calcRange() {
-        range = new Vector2(teamColorClass.getTagCoord()[0] - odometryClass.encGlobalPosition2D.getX(), teamColorClass.getTagCoord()[1] - odometryClass.encGlobalPosition2D.getY()).length();
+        range = new Vector2(teamClass.getTagCoord()[0] - odometryClass.getEncGlobalPosition2D().getX(), teamClass.getTagCoord()[1] - odometryClass.getEncGlobalPosition2D().getY()).length();
     }
     public void calcAngle(){
         //TODO Изменить угол
-        double targX = teamColorClass.getPointVyr()[0] - odometryClass.encGlobalPosition2D.getX();
-        double targY = teamColorClass.getPointVyr()[1] - odometryClass.encGlobalPosition2D.getY();
+        double targX = teamClass.getPointVyr()[0] - odometryClass.getEncGlobalPosition2D().getX();
+        double targY = teamClass.getPointVyr()[1] - odometryClass.getEncGlobalPosition2D().getY();
 
         foundedAngle = new Position2D(0, 0, Math.atan2(-targY, -targX)).getHeading();
     }
 
     public void calcDeltaAngle() {
-        deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.encGlobalPosition2D.getHeading()).getHeading();
+        deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.getEncGlobalPosition2D().getHeading()).getHeading();
 
         if (Math.abs(deltaAngle) < Math.toRadians(2)) {
             deltaAngle = 0;
@@ -155,14 +154,14 @@ public class PositionRobotController extends UpdatableModule {
     }
 
     public Position2D getDeltaPos() {
-        Position2D targPos = new Position2D(teamColorClass.getClosestArtifacts()[0][0], teamColorClass.getClosestArtifacts()[0][1], teamColorClass.getClosestArtifacts()[0][3]);
+        Position2D targPos = new Position2D(teamClass.getClosestArtifacts()[0][0], teamClass.getClosestArtifacts()[0][1], teamClass.getClosestArtifacts()[0][3]);
 
-        return new Position2D(targPos.getX() - odometryClass.encGlobalPosition2D.getX(), targPos.getY() - odometryClass.encGlobalPosition2D.getY(), targPos.getHeading() - odometryClass.encGlobalPosition2D.getHeading());
+        return new Position2D(targPos.getX() - odometryClass.getEncGlobalPosition2D().getX(), targPos.getY() - odometryClass.getEncGlobalPosition2D().getY(), targPos.getHeading() - odometryClass.getEncGlobalPosition2D().getHeading());
     }
 
     public boolean isTagShouldBeInFov() {
-        double leftBorder = odometryClass.encGlobalPosition2D.getHeading() + (Math.signum(odometryClass.encGlobalPosition2D.getHeading()) * cameraFov / 4.0);
-        double rightBorder = odometryClass.encGlobalPosition2D.getHeading() - (Math.signum(odometryClass.encGlobalPosition2D.getHeading()) * cameraFov / 4.0);
+        double leftBorder = odometryClass.getEncGlobalPosition2D().getHeading() + (Math.signum(odometryClass.getEncGlobalPosition2D().getHeading()) * cameraFov / 4.0);
+        double rightBorder = odometryClass.getEncGlobalPosition2D().getHeading() - (Math.signum(odometryClass.getEncGlobalPosition2D().getHeading()) * cameraFov / 4.0);
 
         return !((Math.toRadians(45) < leftBorder && rightBorder < Math.toRadians(45))
                 ||
@@ -173,20 +172,20 @@ public class PositionRobotController extends UpdatableModule {
         return range < 200 && range > 40;
     }
     public void calcNearestFirePoses(){
-        Vector2 nearDelta = new Vector2(teamColorClass.getFireZones()[0][0] - odometryClass.encGlobalPosition2D.getX(), teamColorClass.getFireZones()[0][1] - odometryClass.encGlobalPosition2D.getY());
-        Vector2 farDelta = new Vector2(teamColorClass.getFireZones()[1][0] - odometryClass.encGlobalPosition2D.getX(), teamColorClass.getFireZones()[1][1] - odometryClass.encGlobalPosition2D.getY());
+        Vector2 nearDelta = new Vector2(teamClass.getFireZones()[0][0] - odometryClass.getEncGlobalPosition2D().getX(), teamClass.getFireZones()[0][1] - odometryClass.getEncGlobalPosition2D().getY());
+        Vector2 farDelta = new Vector2(teamClass.getFireZones()[1][0] - odometryClass.getEncGlobalPosition2D().getX(), teamClass.getFireZones()[1][1] - odometryClass.getEncGlobalPosition2D().getY());
 
         //Смотрим хватит ли напряжения на выстрел с дальней позиции
         if(kPower > 0.75){
             if(nearDelta.length() > farDelta.length()){
-                firePos = new Position2D(teamColorClass.getFireZones()[1][0], teamColorClass.getFireZones()[1][1], deltaAngle);
-            }else firePos = new Position2D(teamColorClass.getFireZones()[0][0], teamColorClass.getFireZones()[0][1], deltaAngle);
+                firePos = new Position2D(teamClass.getFireZones()[1][0], teamClass.getFireZones()[1][1], deltaAngle);
+            }else firePos = new Position2D(teamClass.getFireZones()[0][0], teamClass.getFireZones()[0][1], deltaAngle);
 
-        }else firePos = new Position2D(teamColorClass.getFireZones()[0][0], teamColorClass.getFireZones()[0][1], deltaAngle);
+        }else firePos = new Position2D(teamClass.getFireZones()[0][0], teamClass.getFireZones()[0][1], deltaAngle);
 
     }
     public Position2D getBasePos(){
-        return new Position2D(teamColorClass.getBaseCoord()[0], teamColorClass.getBaseCoord()[1], Math.toRadians(90));
+        return new Position2D(teamClass.getBaseCoord()[0], teamClass.getBaseCoord()[1], Math.toRadians(90));
     }
 
     public Position2D getFirePos() {

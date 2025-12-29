@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import android.util.Size;
 
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -24,13 +24,28 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class CameraClass extends UpdatableModule {
-    public CameraClass(OpMode op, TeamColorClass teamColorClass)  {
+    private final WebcamName webcamName;
+    private final Position cameraPosition;
+    private final YawPitchRollAngles cameraOrientation;
+    private final AprilTagProcessor aprilTagProcessor;
+    private final VisionPortal visionPortal;
+    public GeneralLogic generalLogic;
+    public CameraLogic cameraLogic;
+    public RandomizeStatus randomizeStatus;
+    public TagState tagState;
+    private Position2D lastRecordedPosition2D;
+    public ElapsedTime lastPosWasTaked;
+    public CameraClass(OpMode op)  {
         super(op.telemetry);
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
         cameraPosition = new Position(DistanceUnit.CM,-13 ,8,0, 0);//Позиция камеры относительно координат робота
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);//Насколько камера повёрнута относительно неё же
+
+//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
+        //Насколько камера повёрнута относительно неё же
+
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(0), Math.toRadians(0), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -52,8 +67,8 @@ public class CameraClass extends UpdatableModule {
                 .build();
 
         lastRecordedPosition2D = null;
-
-        lastPosWasTaked = new ElapsedTime();
+        randomizedArtifacts = new int[3];
+        lastRecordedDetection = new ArrayList<>();
 
         generalLogic = GeneralLogic.Check_camera_state;
         cameraLogic = CameraLogic.Check_condition;
@@ -61,30 +76,24 @@ public class CameraClass extends UpdatableModule {
         randomizeStatus = RandomizeStatus.UnDetected;
         tagState = TagState.UnDetected;
 
+        lastPosWasTaked = new ElapsedTime();
+
         telemetry.addLine("Camera Inited");
     }
-    private final Position cameraPosition;
-    private final YawPitchRollAngles cameraOrientation;
-    private final AprilTagProcessor aprilTagProcessor;
-    private final VisionPortal visionPortal;
-    private final WebcamName webcamName;
     private ExposureControl exposure;
     private GainControl gain;
-    public double robotFieldX, robotFieldY, robotFieldZ;
-    public double robotFieldPitch, robotFieldRoll, robotFieldYaw;
-    public double robotRangeToTag, cameraElevation, cameraBearing;
-    public ElapsedTime lastPosWasTaked;
-    private Position2D lastRecordedPosition2D;
-    public double desicionMargin = 0;
-    public double hamming = 0;
-    public double distanceWeight;
-    public double angleWeight;
-    public double qualityWeight;
-    public double combinedWeight;
-    public int index;
-    public int id;
-    public int[] randomizedArtifacts = new int[3];
-    public ArrayList <AprilTagDetection> lastRecordedDetection = new ArrayList<>();
+    private double robotFieldX, robotFieldY, robotFieldZ;
+    private double robotFieldPitch, robotFieldRoll, robotFieldYaw;
+    private double robotRangeToTag, cameraElevation, cameraBearing;
+    private double desicionMargin;
+    private double distanceWeight;
+    private double angleWeight;
+    private double qualityWeight;
+    private double combinedWeight;
+    private int index;
+    private int id;
+    private int[] randomizedArtifacts;
+    public ArrayList <AprilTagDetection> lastRecordedDetection;
     public enum TagState {
         Detected,
         UnDetected
@@ -104,10 +113,9 @@ public class CameraClass extends UpdatableModule {
         Stop
     }
 
-    public GeneralLogic generalLogic;
-    public CameraLogic cameraLogic;
-    public RandomizeStatus randomizeStatus;
-    public TagState tagState;
+    public int[] getRandomizedArtifacts() {
+        return randomizedArtifacts;
+    }
 
     @Override
     public void update(){
@@ -119,9 +127,11 @@ public class CameraClass extends UpdatableModule {
                     exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
 
                     gain = visionPortal.getCameraControl(GainControl.class);
-                    gain.setGain(190);//яркость
 
-                    aprilTagProcessor.setDecimation(2);
+                    //TODO яркость уменьшил
+                    gain.setGain(30);//яркость
+
+                    aprilTagProcessor.setDecimation(2.0f);
 
                     generalLogic = GeneralLogic.Check_obelisk_and_pos;
                     cameraLogic = CameraLogic.Check_condition;
@@ -148,7 +158,6 @@ public class CameraClass extends UpdatableModule {
                         id = detection.id;
 
                         desicionMargin = detection.decisionMargin;
-                        hamming = detection.hamming;
 
                         if(id == 21 || id == 22 || id == 23){
                             setRandomizedArtifactFromId(id);
@@ -162,22 +171,24 @@ public class CameraClass extends UpdatableModule {
                             }
                         }
 
-                        if((id == 20 || id == 24) ){
-                            robotFieldX = detection.robotPose.getPosition().x;
-                            robotFieldY = detection.robotPose.getPosition().y;
-                            robotFieldZ = detection.robotPose.getPosition().z;
+                        if (desicionMargin > 140){
+                            if((id == 20 || id == 24) ){
+                                robotFieldX = detection.robotPose.getPosition().x;
+                                robotFieldY = detection.robotPose.getPosition().y;
+                                robotFieldZ = detection.robotPose.getPosition().z;
 
-                            robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                            robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                                robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                                robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                                robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                            robotRangeToTag = detection.ftcPose.range;
-                            cameraElevation = detection.ftcPose.elevation;
-                            cameraBearing   = detection.ftcPose.bearing;
+                                robotRangeToTag = detection.ftcPose.range;
+                                cameraElevation = detection.ftcPose.elevation;
+                                cameraBearing   = detection.ftcPose.bearing;
 
-                            lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                                lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
-                            tagState = TagState.Detected;
+                                tagState = TagState.Detected;
+                            }
                         }
 
                         index++;
@@ -213,9 +224,8 @@ public class CameraClass extends UpdatableModule {
                         AprilTagDetection detection = lastRecordedDetection.get(index);
                         id = detection.id;
                         desicionMargin = detection.decisionMargin;
-                        hamming = detection.hamming;
 
-                        if((id == 20 || id == 24) ){
+                        if (desicionMargin > 140){
                             robotFieldX = detection.robotPose.getPosition().x;
                             robotFieldY = detection.robotPose.getPosition().y;
                             robotFieldZ = detection.robotPose.getPosition().z;
@@ -230,18 +240,18 @@ public class CameraClass extends UpdatableModule {
 
                             lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
-                            distanceWeight = getDistanceBasedWeight(detection.ftcPose.range);
-                            angleWeight = getAngleBasedWeight(
-                                    detection.ftcPose.bearing,
-                                    detection.ftcPose.elevation
-                            );
-                            qualityWeight = getQualityBasedWeight(detection);
-
-                            // Комбинируем все факторы (можно с разными весами)
-                            combinedWeight = distanceWeight * 0.5 + angleWeight * 0.3 + qualityWeight * 0.2;
-
                             tagState = TagState.Detected;
                         }
+
+//                        distanceWeight = getDistanceBasedWeight(detection.ftcPose.range);
+//                        angleWeight = getAngleBasedWeight(
+//                                detection.ftcPose.bearing,
+//                                detection.ftcPose.elevation
+//                        );
+//                        qualityWeight = getQualityBasedWeight(detection);
+//
+//                        // Комбинируем все факторы (можно с разными весами)
+//                        combinedWeight = distanceWeight * 0.5 + angleWeight * 0.3 + qualityWeight * 0.2;
 
                         index++;
 
@@ -322,12 +332,11 @@ public class CameraClass extends UpdatableModule {
         }
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("Tags Found", lastRecordedDetection.size());
-        telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addData("des", desicionMargin);
-        telemetry.addData("ham", hamming);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
+        telemetry.addData("Last Pos was taked", lastPosWasTaked.seconds());
         telemetry.addLine();
     }
 }

@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry;
+package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.EncoderClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.GyroscopeClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.EncoderClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.GyroscopeClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
 
 public class OdometryClass extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
@@ -28,18 +28,23 @@ public class OdometryClass extends UpdatableModule {
         robotCurVelocity = new Vector2();
         robotCurAccel = new Vector2();
 
+        moveState = MoveState.Stopped;
+        rotateState = RotateState.Stopped;
+
+        stopTime = new ElapsedTime();
+
         telemetry.addLine("ExOdometry Inited");
     }
     private GyroscopeClass gyro;
-    public EncoderClass encoderClass;
-    public final SelfMath selfMath;
-    public final Position2D gyroGlobalPosition2D;                                   // Относительное перемещение
-    public final Position2D encGlobalPosition2D;
-    public Vector2 robotCurVelocity;
-    public Vector2 robotCurAccel;
-    public double encHeadVel, encHeadAccel;
-    public double gyroHeadVel, gyroHeadAccel;
-    public ElapsedTime stopTime = new ElapsedTime();
+    private EncoderClass encoderClass;
+    private final SelfMath selfMath;
+    private final Position2D gyroGlobalPosition2D;                                   // Относительное перемещение
+    private final Position2D encGlobalPosition2D;
+    private Vector2 robotCurVelocity;
+    private Vector2 robotCurAccel;
+    private double encHeadVel, encHeadAccel;
+    private double gyroHeadVel, gyroHeadAccel;
+    private ElapsedTime stopTime;
     private double ticksToCm(double ticks){
         return ticks / encoderClass.COUNTS_PER_CM;
     }
@@ -54,13 +59,50 @@ public class OdometryClass extends UpdatableModule {
         Small_speed,
         Stopped
     }
-    public MoveState moveState = MoveState.Stopped;
-    public RotateState rotateState = RotateState.Stopped;
+    public MoveState moveState;
+    public RotateState rotateState;
     public void setPos(Position2D cameraPos){
         encGlobalPosition2D.setX(cameraPos.getX());
         encGlobalPosition2D.setY(cameraPos.getY());
         encGlobalPosition2D.setHeading(cameraPos.getHeading());
     }
+
+    public ElapsedTime getStopTime() {
+        return stopTime;
+    }
+
+    public double getEncHeadAccel() {
+        return encHeadAccel;
+    }
+
+    public double getEncHeadVel() {
+        return encHeadVel;
+    }
+
+    public double getGyroHeadAccel() {
+        return gyroHeadAccel;
+    }
+
+    public double getGyroHeadVel() {
+        return gyroHeadVel;
+    }
+
+    public Position2D getEncGlobalPosition2D() {
+        return encGlobalPosition2D;
+    }
+
+    public Position2D getGyroGlobalPosition2D() {
+        return gyroGlobalPosition2D;
+    }
+
+    public Vector2 getRobotCurVelocity() {
+        return robotCurVelocity;
+    }
+
+    public Vector2 getRobotCurAccel() {
+        return robotCurAccel;
+    }
+
     @Override
     public void update(){
         selfMath.calculateAll();
@@ -101,7 +143,7 @@ public class OdometryClass extends UpdatableModule {
         encoderClass.showData();
 
         telemetry.addLine("===ODOMETRY===");
-        telemetry.addData("Position from encoders", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
+        telemetry.addData("Position enc", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
 //        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s", robotCurVelocity.x, robotCurVelocity.y);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);

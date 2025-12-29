@@ -4,12 +4,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.ExecutableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Task;
 import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.Root;
 import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.TaskNode;
 
 public class AutomaticLogicTree extends ExecutableModule {
-    public AutomaticLogicTree(RobotClass.Collector collector, DriveTree driveTree, OpMode op){
+    public AutomaticLogicTree(Collector collector, DriveTree driveTree, OpMode op){
         super(op.telemetry);
 
         mainRoot = new Root();
@@ -20,7 +21,7 @@ public class AutomaticLogicTree extends ExecutableModule {
         mainRoot.root.stackNodes();
     }
     public Root mainRoot;
-    public RobotClass.Collector collector;
+    public Collector collector;
     private final DriveTree driveTree;
     private void loadProgram(){
         Task second = new Task(100, 0.5, collector, telemetry, 2);

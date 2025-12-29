@@ -4,19 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.OdometryClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DrivetrainParts.TeamColorClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
 
 public class PositionArtifactLogic extends UpdatableModule {
 
-    public PositionArtifactLogic(OdometryClass odometryClass, TeamColorClass teamColorClass, OpMode op) {
+    public PositionArtifactLogic(OdometryClass odometryClass, TeamClass teamClass, OpMode op) {
         super(op.telemetry);
 
         this.odometryClass = odometryClass;
-        this.teamColorClass = teamColorClass;
+        this.teamClass = teamClass;
     }
-    private final TeamColorClass teamColorClass;
+    private final TeamClass teamClass;
     private final OdometryClass odometryClass;
 
     public LogicStates logicStates = LogicStates.Check_Pos;
@@ -29,7 +29,7 @@ public class PositionArtifactLogic extends UpdatableModule {
         return posForSend;
     }
     public void deleteArtifact(){
-        teamColorClass.getClosestArtifacts()[minI][0] = 0;
+        teamClass.getClosestArtifacts()[minI][0] = 0;
     }
 
     int minI;
@@ -48,7 +48,7 @@ public class PositionArtifactLogic extends UpdatableModule {
         switch (logicStates){
             case Check_Pos:
                 //Корды робота
-                if(odometryClass.encGlobalPosition2D.getX() > 0){
+                if(odometryClass.getEncGlobalPosition2D().getX() > 0){
                     minI = 8;
                     movementLogic = MovementLogic.Down_to_up;
                 }else {
@@ -60,17 +60,17 @@ public class PositionArtifactLogic extends UpdatableModule {
             case Find_nearest_art:
                 switch (movementLogic){
                     case Down_to_up:
-                        if(minI == 0 && teamColorClass.getClosestArtifacts()[minI][0] == 0){
+                        if(minI == 0 && teamClass.getClosestArtifacts()[minI][0] == 0){
                             break;
                         }
-                        if(teamColorClass.getClosestArtifacts()[minI][0] == 0){
+                        if(teamClass.getClosestArtifacts()[minI][0] == 0){
                             minI --;
                             break;
                         }
 
                         break;
                     case Up_to_down:
-                        if(teamColorClass.getClosestArtifacts()[minI][0] == 0){
+                        if(teamClass.getClosestArtifacts()[minI][0] == 0){
                             minI --;
                             minI = Range.clip(minI, mn, mx);
                         }
@@ -89,16 +89,16 @@ public class PositionArtifactLogic extends UpdatableModule {
                         break;
                 }
 
-                foundedPos.setX(teamColorClass.getClosestArtifacts()[minI][1]);
-                foundedPos.setY(teamColorClass.getClosestArtifacts()[minI][2]);
-                foundedPos.setHeading(teamColorClass.getClosestArtifacts()[minI][4]);
+                foundedPos.setX(teamClass.getClosestArtifacts()[minI][1]);
+                foundedPos.setY(teamClass.getClosestArtifacts()[minI][2]);
+                foundedPos.setHeading(teamClass.getClosestArtifacts()[minI][4]);
 
                 posForSend = foundedPos;
                 logicStates = LogicStates.Send_founded_pos;
                 break;
 
             case Send_founded_pos:
-                if(teamColorClass.getClosestArtifacts()[minI][0] == 0){
+                if(teamClass.getClosestArtifacts()[minI][0] == 0){
                     logicStates = LogicStates.Check_Pos;
                 }
                 break;

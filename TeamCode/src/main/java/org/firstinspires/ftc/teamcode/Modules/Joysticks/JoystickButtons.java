@@ -15,4 +15,5 @@ public interface JoystickButtons {
     void isDpad_Right();
     void isBack_Button();
     void isStart_Button();
+    void isA_and_Left_Trigger();
 }

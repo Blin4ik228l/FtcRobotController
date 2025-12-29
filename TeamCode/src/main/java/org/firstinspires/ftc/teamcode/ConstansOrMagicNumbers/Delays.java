@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers;
 
 public interface Delays {
-    double BARABAN_DELAY_NEAR = 0.30;
+    double BARABAN_DELAY_NEAR = 0.40;
     double BARABAN_DELAY_FAR = BARABAN_DELAY_NEAR * 2.0;
 
     double PUSHERHOR_DELAY_NEAR = 0.1;

@@ -42,10 +42,10 @@ public class CameraClass extends UpdatableModule {
 
         cameraPosition = new Position(DistanceUnit.CM,-13 ,8,0, 0);//Позиция камеры относительно координат робота
 
-//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
 
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(0), Math.toRadians(0), 0);
+//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(0), Math.toRadians(0), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -129,7 +129,7 @@ public class CameraClass extends UpdatableModule {
                     gain = visionPortal.getCameraControl(GainControl.class);
 
                     //TODO яркость уменьшил
-                    gain.setGain(30);//яркость
+                    gain.setGain(190);//яркость
 
                     aprilTagProcessor.setDecimation(2.0f);
 
@@ -170,8 +170,6 @@ public class CameraClass extends UpdatableModule {
                                 setRandomizedArtifactFromId(randId);
                             }
                         }
-
-                        if (desicionMargin > 140){
                             if((id == 20 || id == 24) ){
                                 robotFieldX = detection.robotPose.getPosition().x;
                                 robotFieldY = detection.robotPose.getPosition().y;
@@ -189,7 +187,7 @@ public class CameraClass extends UpdatableModule {
 
                                 tagState = TagState.Detected;
                             }
-                        }
+
 
                         index++;
 
@@ -225,7 +223,6 @@ public class CameraClass extends UpdatableModule {
                         id = detection.id;
                         desicionMargin = detection.decisionMargin;
 
-                        if (desicionMargin > 140){
                             robotFieldX = detection.robotPose.getPosition().x;
                             robotFieldY = detection.robotPose.getPosition().y;
                             robotFieldZ = detection.robotPose.getPosition().z;
@@ -241,7 +238,6 @@ public class CameraClass extends UpdatableModule {
                             lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
                             tagState = TagState.Detected;
-                        }
 
 //                        distanceWeight = getDistanceBasedWeight(detection.ftcPose.range);
 //                        angleWeight = getAngleBasedWeight(

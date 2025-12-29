@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
@@ -13,15 +11,15 @@ public class TelemetrySettings extends UpdatableModule {
         this.teleOpModernized = teleOpModernized;
         this.linearOpModeModernized = linearOpModeModernized;
 
-        if(linearOpModeModernized == null) opMode = OpMode.Tele;
-        else opMode = OpMode.Auto;
+        if(linearOpModeModernized == null) opMode = Mode.Tele;
+        else opMode = Mode.Auto;
 
         telemetryMode = TelemetryMode.Show_all;
     }
     public TelemetryMode telemetryMode;
     public TeleOpModernized teleOpModernized;
     public LinearOpModeModernized linearOpModeModernized;
-    public OpMode opMode;
+    public Mode opMode;
     public enum TelemetryMode{
         Show_all,
         Show_joysticks,
@@ -35,7 +33,7 @@ public class TelemetrySettings extends UpdatableModule {
 
         Show_for_auto
     }
-    public enum OpMode{
+    public enum Mode {
         Auto,
         Tele
     }
@@ -43,10 +41,10 @@ public class TelemetrySettings extends UpdatableModule {
     @Override
     public void update() {
 
-        if(opMode == OpMode.Tele) {
-            teleOpModernized.joystickActivityClass.tA_and_Left_Trigger %= 9;
+        if(opMode == Mode.Tele) {
+            teleOpModernized.joystickActivityClass.tBPressed %= 9;
 
-            switch (teleOpModernized.joystickActivityClass.tA_and_Left_Trigger) {
+            switch (teleOpModernized.joystickActivityClass.tBPressed) {
                 case 0:
                     telemetryMode = TelemetryMode.Show_all;
                     break;
@@ -82,7 +80,7 @@ public class TelemetrySettings extends UpdatableModule {
     public void showData() {
         telemetry.addLine(telemetryMode.toString());
 
-        switch (telemetryMode){
+        switch (telemetryMode) {
             case Show_all:
                 teleOpModernized.joystickActivityClass.showData();
                 teleOpModernized.joystickActivityClass2.showData();

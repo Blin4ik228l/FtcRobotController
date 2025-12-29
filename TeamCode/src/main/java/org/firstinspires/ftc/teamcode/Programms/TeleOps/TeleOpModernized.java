@@ -73,11 +73,8 @@ public abstract class TeleOpModernized extends OpMode {
         extExecute();
     }
     private void showAll(){
-        if(iterationCount % 5 == 0){
-            telemetrySettings.showData();
-        }
-
-        telemetry.addData("Update time / Frequency", "%2.f sec %s Hz", updateTime.seconds(), 1 / updateTime.seconds());
+        telemetrySettings.showData();
+        telemetry.addData("Update time / Frequency", "%.2f sec %s Hz", updateTime.seconds(), 1 / updateTime.seconds());
     }
     @Override
     public void init_loop() {

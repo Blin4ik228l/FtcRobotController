@@ -163,11 +163,6 @@ public class CollectorMotors extends Module {
         motorLeft.setPower(pow * (p + i) );
         motorRight.setPower(-pow * (p + i));
 
-        pG = motorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER).p;
-        iG = motorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER).i;
-        dG = motorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER).d;
-        fG = motorRight.getPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER).f;
-
         calcCurSpeed();
 
         double error = targSpeed - curVel;

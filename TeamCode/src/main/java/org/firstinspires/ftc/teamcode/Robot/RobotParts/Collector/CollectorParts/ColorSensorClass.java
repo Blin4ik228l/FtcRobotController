@@ -28,8 +28,6 @@ public class ColorSensorClass extends UpdatableModule {
         colorSensorNear.setGain(gain);
         colorSensorFar.setGain(gain);
 
-        initLayout(op);
-
         colorState = ColorSensorState.No_Artifact_Detected;
 
         timeFromDetect = new ElapsedTime();
@@ -81,10 +79,10 @@ public class ColorSensorClass extends UpdatableModule {
         updateColorSensor0();
         updateColorSensor2();
 
-        Color.colorToHSV(sensorNearCol.toColor(), hsvValues);
-        if (relativeLayout != null && relativeLayout.isShown()) {
-            relativeLayout.setBackgroundColor(Color.HSVToColor(hsvValues));
-        }
+//        Color.colorToHSV(sensorNearCol.toColor(), hsvValues);
+//        if (relativeLayout != null && relativeLayout.isShown()) {
+//            relativeLayout.setBackgroundColor(Color.HSVToColor(hsvValues));
+//        }
         updateInAll();
     }
     public void updateColorSensor0(){
@@ -106,16 +104,16 @@ public class ColorSensorClass extends UpdatableModule {
         dist = (sensorNearDist + sensorFarDist) / 2.0;
 
         int foundColor;
-        if(r > g && r > b && r > 0.060) {
+        if(r > g && r > b && r > 0.075) {
             foundColor =  2;}
-        else if(b > r && b > g && b > 0.076) {
+        else if(b > r && b > g && b > 0.040) {
             foundColor =  2;}
-        else if(g > r && g > b && g > 0.099) {
+        else if(g > r && g > b && g > 0.078) {
             foundColor =  1;}
 
         else foundColor =  0;
 
-        int detectedDist = 4;
+        int detectedDist = 5;
 
         if(foundColor != 0 && dist < detectedDist) {
             colorState = ColorSensorState.Artifact_Detected;

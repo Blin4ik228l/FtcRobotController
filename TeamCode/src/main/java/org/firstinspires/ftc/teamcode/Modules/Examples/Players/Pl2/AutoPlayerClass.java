@@ -284,16 +284,18 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case Load_and_check:
-                            if (collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY){
-                                collector.digitalCellsClass.setColor(collector.colorSensorClass.getArtifactColor());
+//                            if (collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY){
+//
+//
+//                            }else attempts++;
 
-                                if(collector.digitalCellsClass.getArtifactCount() == 3){
-                                    loadState = LoadState.Idle;
-                                }else {
-                                    loadState = LoadState.Find_empty_cell;
-                                }
+                            collector.digitalCellsClass.setColor(collector.colorSensorClass.getArtifactColor());
 
-                            }else attempts++;
+                            if(collector.digitalCellsClass.getArtifactCount() == 3){
+                                loadState = LoadState.Idle;
+                            }else {
+                                loadState = LoadState.Find_empty_cell;
+                            }
 
                             if(attempts == 3) {
                                 loadState = LoadState.On_cell;

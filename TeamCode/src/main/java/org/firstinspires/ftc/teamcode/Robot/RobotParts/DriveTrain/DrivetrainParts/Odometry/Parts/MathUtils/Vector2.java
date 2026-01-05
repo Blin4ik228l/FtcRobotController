@@ -103,7 +103,6 @@ public class Vector2 {
     }
 
     public Vector2 rotateToGlobal(double Rad) {
-
         double oldX = x;
         double oldY = y;
 

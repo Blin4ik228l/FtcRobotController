@@ -35,7 +35,7 @@ public abstract class TeleOpModernized extends OpMode {
 
         positionFireLogic = new PositionFireLogic(robot.driveTrain, this);
 
-        telemetrySettings = new TelemetrySettings(this, null);
+        telemetrySettings = new TelemetrySettings(this, null, telemetry);
 
         robot.collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
 

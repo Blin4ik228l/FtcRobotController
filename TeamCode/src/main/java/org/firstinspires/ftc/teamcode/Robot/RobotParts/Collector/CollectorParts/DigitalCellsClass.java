@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 public class DigitalCellsClass extends Module {
     private final Servo baraban;
     private final Cell cell0, cell1, cell2;
+
     public DigitalCellsClass(Servo baraban, OpMode op){
         super(op.telemetry);
         this.baraban = baraban;
@@ -162,6 +163,7 @@ public class DigitalCellsClass extends Module {
         telemetry.addData("Randomized artifacts:", "%s %s %s", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]));
         telemetry.addData("Cur cell", curCell);
         telemetry.addData("Cells", "C0:%s C1:%s C2:%s", getColorFromNumber(cell0.table.color),getColorFromNumber(cell1.table.color),getColorFromNumber(cell2.table.color));
+        telemetry.addData("Cur pos", baraban.getPosition());
         telemetry.addLine();
     }
 }

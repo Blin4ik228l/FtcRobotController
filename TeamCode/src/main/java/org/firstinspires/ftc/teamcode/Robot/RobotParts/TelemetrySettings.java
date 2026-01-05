@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 
 public class TelemetrySettings extends UpdatableModule {
-    public TelemetrySettings(TeleOpModernized teleOpModernized, LinearOpModeModernized linearOpModeModernized) {
-        super(teleOpModernized.telemetry);
+    public TelemetrySettings(TeleOpModernized teleOpModernized, LinearOpModeModernized linearOpModeModernized, Telemetry telemetry) {
+        super(telemetry);
 
         this.teleOpModernized = teleOpModernized;
         this.linearOpModeModernized = linearOpModeModernized;
@@ -119,6 +120,13 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
             case Show_nothing:
                 break;
+            case Show_for_auto:
+                linearOpModeModernized.driveHandler.showData();
+
+                linearOpModeModernized.robot.driveTrain.odometryClass.showData();
+                linearOpModeModernized.robot.driveTrain.motors.showData();
+                break;
         }
+        teleOpModernized.autoPlayerClass.showData();
     }
 }

@@ -40,12 +40,12 @@ public class CameraClass extends UpdatableModule {
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,-13 ,8,0, 0);//Позиция камеры относительно координат робота
+        cameraPosition = new Position(DistanceUnit.CM,0, 0,20, 0);//Позиция камеры относительно координат робота
 
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
+//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
 
-//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(0), Math.toRadians(0), 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0) , Math.toRadians(0), Math.toRadians(90), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -159,17 +159,18 @@ public class CameraClass extends UpdatableModule {
 
                         desicionMargin = detection.decisionMargin;
 
-                        if(id == 21 || id == 22 || id == 23){
-                            setRandomizedArtifactFromId(id);
-                            randomizeStatus = RandomizeStatus.Detected;
-                        }else {
-                            if(randomizedArtifacts[0] == 0){
-                                int min = 21;
-                                int max = 23;
-                                int randId = (int)(Math.random() * (max - min + 1)) + min;
-                                setRandomizedArtifactFromId(randId);
+                        if (desicionMargin > 30){
+                            if(id == 21 || id == 22 || id == 23){
+                                setRandomizedArtifactFromId(id);
+                                randomizeStatus = RandomizeStatus.Detected;
+                            }else {
+                                if(randomizedArtifacts[0] == 0){
+                                    int min = 21;
+                                    int max = 23;
+                                    int randId = (int)(Math.random() * (max - min + 1)) + min;
+                                    setRandomizedArtifactFromId(randId);
+                                }
                             }
-                        }
                             if((id == 20 || id == 24) ){
                                 robotFieldX = detection.robotPose.getPosition().x;
                                 robotFieldY = detection.robotPose.getPosition().y;
@@ -187,7 +188,7 @@ public class CameraClass extends UpdatableModule {
 
                                 tagState = TagState.Detected;
                             }
-
+                        }
 
                         index++;
 
@@ -223,21 +224,26 @@ public class CameraClass extends UpdatableModule {
                         id = detection.id;
                         desicionMargin = detection.decisionMargin;
 
-                            robotFieldX = detection.robotPose.getPosition().x;
-                            robotFieldY = detection.robotPose.getPosition().y;
-                            robotFieldZ = detection.robotPose.getPosition().z;
+                        if(desicionMargin > 30){
+                            if((id == 20 || id == 24) ){
+                                robotFieldX = detection.robotPose.getPosition().x;
+                                robotFieldY = detection.robotPose.getPosition().y;
+                                robotFieldZ = detection.robotPose.getPosition().z;
 
-                            robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                            robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                                robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                                robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                                robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                            robotRangeToTag = detection.ftcPose.range;
-                            cameraElevation = detection.ftcPose.elevation;
-                            cameraBearing   = detection.ftcPose.bearing;
+                                robotRangeToTag = detection.ftcPose.range;
+                                cameraElevation = detection.ftcPose.elevation;
+                                cameraBearing   = detection.ftcPose.bearing;
 
-                            lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                                lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
-                            tagState = TagState.Detected;
+                                tagState = TagState.Detected;
+                            }
+                        }
+
 
 //                        distanceWeight = getDistanceBasedWeight(detection.ftcPose.range);
 //                        angleWeight = getAngleBasedWeight(

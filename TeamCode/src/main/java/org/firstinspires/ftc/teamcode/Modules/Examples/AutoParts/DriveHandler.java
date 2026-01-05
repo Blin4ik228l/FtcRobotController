@@ -16,8 +16,8 @@ public class DriveHandler extends ExecutableModule {
         super(op.telemetry);
         this.driveTrain = driveTrain;
 
-        pidLinearX = new PID(0.024,0.000000080,0.000, -1,1);
-        pidLinearY = new PID(0.024,0.000000080,0.000, -1,1);
+        pidLinearX = new PID(0.015,0.000000080,0.000, -1,1);
+        pidLinearY = new PID(0.015,0.000000080,0.000, -1,1);
         pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
     }
     public void setArgs(Args.DriveArgs driveArgs){
@@ -32,6 +32,15 @@ public class DriveHandler extends ExecutableModule {
     public PID pidLinearY;
     public PID pidAngular;
     public boolean isDone;
+
+    public double speedPIDX;
+    public double speedPIDY;
+    public double angularPID;
+
+    Position2D deltaPos = new Position2D();
+    Vector2 deltaSpeed = new Vector2();
+
+    public double linearVel;
     private double returnDistance(double VelMax, double accel ){
         return Math.pow(VelMax, 2) / (2 * accel);
     }
@@ -40,32 +49,26 @@ public class DriveHandler extends ExecutableModule {
         boolean errorPosDone = false;
         boolean errorHeadingDone = false;
 
-        double speedPIDX;
-        double speedPIDY;
-        double angularPID;
-
-        Position2D deltaPos = new Position2D(
+        deltaPos = new Position2D(
                 driveArgs.position2D.getX() - driveTrain.odometryClass.getEncGlobalPosition2D().getX(),
                 driveArgs.position2D.getY() - driveTrain.odometryClass.getEncGlobalPosition2D().getY(),
-                driveArgs.position2D.getHeading() - driveTrain.odometryClass.getEncGlobalPosition2D().getHeading());
+                0);
 
         // Находим ошибку положения
         // Направление движения
-        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.odometryClass.getEncGlobalPosition2D().getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
-
+        Vector2 deltaVector = deltaPos.toVector().rotateToGlobal(-(Math.toRadians(-90) + driveTrain.odometryClass.getEncGlobalPosition2D().getHeading()));// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
         double errorHeading = deltaPos.getHeading();//Turn
 
-        // Выбираем скорости в зависимости от величины ошибки
-        double linearVel = deltaVector.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;// Линейная скорость робота
+        deltaVector.normalize();
 
-        Vector2 deltaSpeed = new Vector2(
-                deltaVector.x * linearVel - driveTrain.odometryClass.getRobotCurVelocity().x,
-                deltaVector.y * linearVel - driveTrain.odometryClass.getRobotCurVelocity().y);
-        deltaSpeed.normalize();
+        // Выбираем скорости в зависимости от величины ошибки
+        linearVel = deltaVector.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;// Линейная скорость робота
+
+        deltaSpeed = new Vector2(deltaVector.x * linearVel, deltaVector.y * linearVel );
 
         // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
-        speedPIDX = pidLinearX.calculate(deltaSpeed.x);
-        speedPIDY = pidLinearY.calculate(deltaSpeed.y);
+        speedPIDX = pidLinearX.calculate(deltaSpeed.x, driveTrain.odometryClass.getRobotCurVelocity().x);
+        speedPIDY = pidLinearY.calculate(deltaSpeed.y, driveTrain.odometryClass.getRobotCurVelocity().y);
         angularPID = pidAngular.calculate(errorHeading);
 
         if (deltaVector.length() < 0.5){
@@ -81,8 +84,8 @@ public class DriveHandler extends ExecutableModule {
 
         if(errorPosDone && errorHeadingDone){
             isDone = true;
-            pidLinearX = new PID(0.024,0.000000080,0.000, -1,1);
-            pidLinearY = new PID(0.024,0.000000080,0.000, -1,1);
+            pidLinearX = new PID(0.010,0.000000080,0.000, -1,1);
+            pidLinearY = new PID(0.010,0.000000080,0.000, -1,1);
             pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
         }
 
@@ -94,7 +97,11 @@ public class DriveHandler extends ExecutableModule {
     public void showData() {
         telemetry.addLine("===DriveHandler===");
         telemetry.addData("isDone", isDone);
-        telemetry.addData("Drive args", "Targets X: %s Y: %s Head: %s Speed: %s", driveArgs.position2D.getX(), driveArgs.position2D.getY(), driveArgs.position2D.getHeading(), driveArgs.speed);
+        telemetry.addData("Vel", linearVel);
+        telemetry.addData("DeltaSpeed", "X: %.2f Y: %.2f Len: %.2f", deltaSpeed.x, deltaSpeed.y, deltaSpeed.length());
+        telemetry.addData("Speeds", "X: %.2f Y: %.2f H: %.2f", speedPIDX, speedPIDY, angularPID);
+        telemetry.addData("Deltas", "X: %.2f Y: %.2f H: %.2f", deltaPos.getX(), deltaPos.getY(), deltaPos.getY());
+        telemetry.addData("Drive args", "Targets X: %s Y: %s Head: %.2f Speed: %s", driveArgs.position2D.getX(), driveArgs.position2D.getY(), driveArgs.position2D.getHeading(), driveArgs.speed);
         telemetry.addLine();
     }
 }

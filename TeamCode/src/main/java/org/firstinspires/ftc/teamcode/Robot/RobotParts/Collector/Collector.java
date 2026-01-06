@@ -24,7 +24,7 @@ public class Collector extends UpdatableModule {
         colorSensorClass = new ColorSensorClass(op);
         buttonClass = new ButtonClass(op);
 
-        digitalCellsClass = new DigitalCellsClass(servos.getBaraban(), op);
+        digitalCellsClass = new DigitalCellsClass(servos, op);
 
         telemetry.addLine("Collector inited");
     }

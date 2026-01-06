@@ -54,11 +54,17 @@ public class DrivetrainMotors extends Module {
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
+        double minPow = 0.12 / kPower;
+
         if(kPower != 0){
             forwardPow = forwardPow * kPower;
             sidePow = sidePow * kPower;
             anglePow = anglePow * kPower;
         }
+
+        if(forwardPow != 0 && Math.abs(forwardPow) < minPow) forwardPow = Math.signum(forwardPow) * minPow;
+        if(sidePow != 0 &&  Math.abs(sidePow) < minPow) sidePow = Math.signum(sidePow) * minPow;
+        if(anglePow != 0 &&  Math.abs(anglePow) < minPow) anglePow = Math.signum(anglePow) * minPow;
 
         rightB.setPower(forwardPow - sidePow + anglePow);
         rightF.setPower(forwardPow + sidePow + anglePow);
@@ -68,7 +74,7 @@ public class DrivetrainMotors extends Module {
         curRightBPower = rightB.getPower();
         curRightFPower = rightF.getPower();
         curLeftBPower = leftB.getPower();
-        curLeftFPower = leftB.getPower();
+        curLeftFPower = leftF.getPower();
     }
 
     public void setKPower(double kPower){
@@ -78,8 +84,8 @@ public class DrivetrainMotors extends Module {
     @Override
     public void showData() {
         telemetry.addLine("===DRIVETRAIN MOTORS===");
-        telemetry.addData("Powers right side", "RF:%s RB:%s",curRightFPower, curRightBPower);
-        telemetry.addData("Powers left side", "LF:%s LB:%s",curLeftFPower, curLeftBPower);
+        telemetry.addData("Powers right side", "RF:%.2f RB:%.2f",curRightFPower, curRightBPower);
+        telemetry.addData("Powers left side", "LF:%.2f LB:%.2f",curLeftFPower, curLeftBPower);
         telemetry.addLine();
     }
 }

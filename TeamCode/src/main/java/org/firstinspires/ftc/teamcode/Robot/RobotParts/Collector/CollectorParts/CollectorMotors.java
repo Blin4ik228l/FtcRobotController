@@ -60,10 +60,11 @@ public class CollectorMotors extends Module {
     public double targSpeed;
 
 //    private double P = 18, I = 0.15, D = 3.0, F = 0.45;
-    private double P = 18, I = 0, D = 0, F = 0.45;
+//    private double  P = 30, I = 0.04, D = 0, F = 1;
+    private double  P = 11, I = 3, D = 0, F = 0;
     private double pG ,iG ,dG , fG;
     private double errorPart;
-    private final double p = 0.98;
+    private final double p = 0.95;
     private double i = 0;
     private int attempts;
     public enum FlyWheelStates{
@@ -86,6 +87,7 @@ public class CollectorMotors extends Module {
     public ElapsedTime getRunTimeIntake() {
         return runTimeIntake;
     }
+
     public void setPIDF(double P, double I, double D, double F){
         switch (controlMode){
             case By_power:
@@ -167,9 +169,10 @@ public class CollectorMotors extends Module {
 
         double error = targSpeed - curVel;
 
-        if(attempts > 20){
-            i += error / 700;
-        }
+//        if(attempts > 10){
+//
+//        }
+//        i += error / 1000;
 
         attempts++;
     }
@@ -188,7 +191,7 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        flyWheelStates = errorPart < 0.03 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
+        flyWheelStates = errorPart < 0.04 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
 
         if (flyWheelStates == FlyWheelStates.Unready) runTimeFlyWheel.reset();
     }
@@ -226,9 +229,9 @@ public class CollectorMotors extends Module {
         telemetry.addData("Units", units.toString());
         telemetry.addData("Targ","%.2f", targSpeed);
         telemetry.addData("Cur","%.2f", curVel);
-        telemetry.addData("error", "%s", errorPart);
-
+        telemetry.addData("error", "Proc %.2f", errorPart * 100);
         telemetry.addData("PIDF", "P %s I %s D %s F %s",pG, iG, dG, fG);
+        telemetry.addData("Pow", "L %.2f R %.2f", motorLeft.getPower(), motorRight.getPower());
 //        telemetry.addData("LM","%.2f /s", curLeftVel);
 //        telemetry.addData("RM","%.2f /s", curRightVel);
 //        telemetry.addData("InTake Power", inTakeCurPower);

@@ -117,6 +117,7 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
             case Show_other:
                 teleOpModernized.extShow();
+                teleOpModernized.robot.collector.motors.showData();
                 break;
             case Show_nothing:
                 break;
@@ -128,5 +129,6 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
         }
         teleOpModernized.autoPlayerClass.showData();
+        teleOpModernized.robot.collector.servos.showData();
     }
 }

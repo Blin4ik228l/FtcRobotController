@@ -37,7 +37,7 @@ public abstract class TeleOpModernized extends OpMode {
 
         telemetrySettings = new TelemetrySettings(this, null, telemetry);
 
-        robot.collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
+        robot.collector.motors.setPreferences(CollectorMotors.ControlMode.By_speed, CollectorMotors.Units.Rad_in_sec);
 
         updateTime = new ElapsedTime();
     }
@@ -74,7 +74,7 @@ public abstract class TeleOpModernized extends OpMode {
     }
     private void showAll(){
         telemetrySettings.showData();
-        telemetry.addData("Update time / Frequency", "%.2f sec %s Hz", updateTime.seconds(), 1 / updateTime.seconds());
+        telemetry.addData("Update time / Frequency", "%.2f sec %.2f Hz", updateTime.seconds(), 1 / updateTime.seconds());
     }
     @Override
     public void init_loop() {

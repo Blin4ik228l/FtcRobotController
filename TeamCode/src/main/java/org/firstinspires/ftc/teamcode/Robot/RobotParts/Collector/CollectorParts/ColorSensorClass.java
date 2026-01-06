@@ -37,7 +37,7 @@ public class ColorSensorClass extends UpdatableModule {
 
     public NormalizedRGBA sensorNearCol, sensorFarCol;
     private final float[] hsvValues = new float[3];
-    public double r, g, b;
+    public double r, g, b, a;
     public double dist;
     public double sensorNearDist, sensorFarDist;
     private int artifactColor;
@@ -100,24 +100,26 @@ public class ColorSensorClass extends UpdatableModule {
         r = (sensorNearCol.red + sensorFarCol.red) / 2.0;
         g = (sensorNearCol.green + sensorFarCol.green) / 2.0;
         b = (sensorNearCol.blue + sensorFarCol.blue) / 2.0;
+        a = (sensorNearCol.alpha + sensorFarCol.alpha) / 2.0;
 
         dist = (sensorNearDist + sensorFarDist) / 2.0;
 
+
         int foundColor;
-        if(r > g && r > b && r > 0.075) {
+        if(r > g && r > b && r > 0.065) {
             foundColor =  2;}
-        else if(b > r && b > g && b > 0.040) {
+        else if(b > r && b > g && b > 0.033) {
             foundColor =  2;}
-        else if(g > r && g > b && g > 0.078) {
+        else if(g > r && g > b && g > 0.07) {
             foundColor =  1;
         }
         else foundColor =  0;
 
         int detectedDist = 5;
 
+        artifactColor = foundColor;
         if(foundColor != 0 && dist < detectedDist) {
             colorState = ColorSensorState.Artifact_Detected;
-            artifactColor = foundColor;
         }
         else {
             colorState = ColorSensorState.No_Artifact_Detected;
@@ -174,7 +176,7 @@ public class ColorSensorClass extends UpdatableModule {
         telemetry.addData("Colors",  getColorFromNumber(artifactColor));
         telemetry.addData("Distance", dist);
         telemetry.addData("Time", timeFromDetect.seconds());
-        telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f", r, g, b);
+        telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
         telemetry.addData("Color sensor state", colorState.toString());
         telemetry.addLine();
     }

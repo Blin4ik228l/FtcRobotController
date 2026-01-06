@@ -6,12 +6,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class DigitalCellsClass extends Module {
-    private final Servo baraban;
+    private final ServomotorsClass servomotorsClass;
     private final Cell cell0, cell1, cell2;
 
-    public DigitalCellsClass(Servo baraban, OpMode op){
+    public DigitalCellsClass(ServomotorsClass servomotorsClass, OpMode op){
         super(op.telemetry);
-        this.baraban = baraban;
+        this.servomotorsClass = servomotorsClass;
 
         cell0 = new Cell(0, new Cell.Table(0, BARABAN_CELL0_POS));
         cell1 = new Cell(1, new Cell.Table(0, BARABAN_CELL1_POS));
@@ -41,19 +41,19 @@ public class DigitalCellsClass extends Module {
     }
 
     public void setColor(int color){
-        if(baraban.getPosition() == BARABAN_CELL0_POS){
+        if(servomotorsClass.curBarabanPos == BARABAN_CELL0_POS){
             cell0.table.color = color;
-        } else if (baraban.getPosition() == BARABAN_CELL1_POS) {
+        } else if (servomotorsClass.curBarabanPos == BARABAN_CELL1_POS) {
             cell1.table.color = color;
-        } else if (baraban.getPosition() == BARABAN_CELL2_POS) {
+        } else if (servomotorsClass.curBarabanPos == BARABAN_CELL2_POS) {
             cell2.table.color = color;
-        }
+        }else telemetry.addLine("there is nothing");
         checkNumberOfArtifacts();
     }
 
     public int getNextBarabanPos() {
 
-        if(baraban.getPosition() == BARABAN_CELL2_POS)
+        if(servomotorsClass.curBarabanPos == BARABAN_CELL2_POS)
         {
             curCell = 2;
             if(cell2.table.color == 0)
@@ -69,7 +69,7 @@ public class DigitalCellsClass extends Module {
                 targCell = 0;
             }
         }
-        else if (baraban.getPosition() == BARABAN_CELL1_POS)
+        else if (servomotorsClass.curBarabanPos == BARABAN_CELL1_POS)
         {
             curCell = 1;
             if(cell1.table.color == 0)
@@ -125,7 +125,7 @@ public class DigitalCellsClass extends Module {
         checkNumberOfArtifacts();
     }
     public Cell findNeededCell(){
-        return cell0.table.pos == baraban.getPosition() ? cell0 : (cell1.table.pos == baraban.getPosition() ? cell1 : cell2);
+        return cell0.table.pos == servomotorsClass.curBarabanPos ? cell0 : (cell1.table.pos == servomotorsClass.curBarabanPos ? cell1 : cell2);
     }
     public static class Cell{
         public Cell(int numCell, Table table){
@@ -163,7 +163,6 @@ public class DigitalCellsClass extends Module {
         telemetry.addData("Randomized artifacts:", "%s %s %s", getColorFromNumber(randomizedArtifact[0]), getColorFromNumber(randomizedArtifact[1]), getColorFromNumber(randomizedArtifact[2]));
         telemetry.addData("Cur cell", curCell);
         telemetry.addData("Cells", "C0:%s C1:%s C2:%s", getColorFromNumber(cell0.table.color),getColorFromNumber(cell1.table.color),getColorFromNumber(cell2.table.color));
-        telemetry.addData("Cur pos", baraban.getPosition());
         telemetry.addLine();
     }
 }

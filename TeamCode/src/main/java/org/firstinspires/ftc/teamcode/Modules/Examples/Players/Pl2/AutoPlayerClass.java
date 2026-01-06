@@ -234,6 +234,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Find_empty_cell:
                             int cell = collector.digitalCellsClass.getNextBarabanPos();
 
+                            telemetry.addData("cell", cell);
                             switch (cell){
                                 case 0:
                                     loadState = LoadState.Move_to_0_cell;
@@ -245,14 +246,26 @@ public class AutoPlayerClass extends PlayerClass{
                                     loadState = LoadState.Move_to_2_cell;
                                     break;
                             }
+//                            if(joystickActivityClass.dpad_Up){
+//
+//                                joystickActivityClass.dpad_Up = false;
+//                            }
+
                             break;
 
                         case Move_to_0_cell:
                             collector.servos.setBaraban(BARABAN_CELL0_POS);
                             cellNum = 0;
 
+
                             if(isRotateEndedToLoad()){
+                                telemetry.addData("isRotateEndedToLoad()", isRotateEndedToLoad());
+                                telemetry.addData("cellNum", cellNum);
                                 loadState = LoadState.On_cell;
+//                                if(joystickActivityClass.dpad_Up){
+//
+//                                    joystickActivityClass.dpad_Up = false;
+//                                }
                             }
                             break;
 
@@ -261,7 +274,13 @@ public class AutoPlayerClass extends PlayerClass{
                             cellNum = 1;
 
                             if(isRotateEndedToLoad()){
+                                telemetry.addData("isRotateEndedToLoad()", isRotateEndedToLoad());
+                                telemetry.addData("cellNum", cellNum);
                                 loadState = LoadState.On_cell;
+//                                if(joystickActivityClass.dpad_Up){
+//
+//                                    joystickActivityClass.dpad_Up = false;
+//                                }
                             }
                             break;
 
@@ -270,7 +289,13 @@ public class AutoPlayerClass extends PlayerClass{
                             cellNum = 2;
 
                             if(isRotateEndedToLoad()){
+                                telemetry.addData("isRotateEndedToLoad()", isRotateEndedToLoad());
+                                telemetry.addData("cellNum", cellNum);
                                 loadState = LoadState.On_cell;
+//                                if(joystickActivityClass.dpad_Up){
+//
+//                                    joystickActivityClass.dpad_Up = false;
+//                                }
                             }
                             break;
 
@@ -278,24 +303,34 @@ public class AutoPlayerClass extends PlayerClass{
                             collector.motors.onIntake();
 
                             if(collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.Artifact_Detected){
+                                telemetry.addData("colorState", collector.colorSensorClass.colorState);
                                 collector.motors.offIntake();
                                 loadState = LoadState.Load_and_check;
+//                                if(joystickActivityClass.dpad_Up){
+//
+//                                    joystickActivityClass.dpad_Up = false;
+//                                }
                             }
                             break;
 
                         case Load_and_check:
-//                            if (collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY){
+                            telemetry.addData("condition", collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY);
+                            telemetry.addData("setColor", collector.colorSensorClass.getArtifactColor());
+                            telemetry.addData("attempts", attempts);
+
+                            if (collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY){
+                                collector.digitalCellsClass.setColor(collector.colorSensorClass.getArtifactColor());
+                                if(collector.digitalCellsClass.getArtifactCount() == 3){
+                                    loadState = LoadState.Idle;
+                                }else {
+                                    loadState = LoadState.Find_empty_cell;
+                                }
+//                                if(joystickActivityClass.dpad_Up){
 //
 //
-//                            }else attempts++;
-
-                            collector.digitalCellsClass.setColor(collector.colorSensorClass.getArtifactColor());
-
-                            if(collector.digitalCellsClass.getArtifactCount() == 3){
-                                loadState = LoadState.Idle;
-                            }else {
-                                loadState = LoadState.Find_empty_cell;
-                            }
+//                                    joystickActivityClass.dpad_Up = false;
+//                                }
+                            }else attempts++;
 
                             if(attempts == 3) {
                                 loadState = LoadState.On_cell;
@@ -337,7 +372,7 @@ public class AutoPlayerClass extends PlayerClass{
                     collector.servos.setAngle(targetServoPos);
                     collector.motors.setSpeedFlyWheel(targetRadSpeed);
 //
-                    if (collector.motors.getRunTimeFlyWheel().seconds() < 0.5 || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
+                    if (collector.motors.getRunTimeFlyWheel().seconds() < 0.15 || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
                         if(fireState == FireState.On_cell_check_states) return;
                     }
 
@@ -403,7 +438,7 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case On_cell_check_states:
-                            if(vyrState == PositionRobotController.VyrState.Far_from_it
+                            if(vyrState == PositionRobotController.VyrState.Far_from_it || vyrState == PositionRobotController.VyrState.Near_from_it
                                     || moveState == OdometryClass.MoveState.High_speed
                                     || rotateState == OdometryClass.RotateState.High_speed) {
                                 return;//Программе дальше нет смысла идти пока не выполнятся условия

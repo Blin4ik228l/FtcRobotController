@@ -57,48 +57,8 @@ public class PositionRobotController extends UpdatableModule {
         cameraClass.update();
         if(odometryClass.getStopTime().seconds() < 1){
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
-//            double targetWeight;
-//
-//            // Ограничиваем и умножаем на MAX_CAMERA_WEIGHT
-//            targetWeight = Math.min(MAX_CAMERA_WEIGHT,
-//                    Math.max(0.1, cameraClass.combinedWeight * MAX_CAMERA_WEIGHT));
-//
-//            if (cameraWeight < targetWeight) {
-//                // Плавное появление камеры
-//                cameraWeight += FADE_IN_RATE;
-//                cameraWeight = Math.min(cameraWeight, targetWeight);
-//            } else if (cameraWeight > targetWeight) {
-//                // Плавное исчезновение камеры
-//                cameraWeight -= FADE_OUT_RATE;
-//                cameraWeight = Math.max(cameraWeight, targetWeight);
-//            }
-//
-//            if (cameraWeight > 0.01 && cameraClass.tagState == CameraClass.TagState.UnDetected) {
-//                double weight2 = 1.0 - cameraWeight;
-//
-//                calcPos = new Position2D(
-//                        cameraClass.getLastRecordedPosition2D().getX() * cameraWeight + exOdometry.encGlobalPosition2D.getX() * weight2,
-//                        cameraClass.getLastRecordedPosition2D().getY() * cameraWeight + exOdometry.encGlobalPosition2D.getY() * weight2,
-//                        cameraClass.getLastRecordedPosition2D().getHeading() * cameraWeight + exOdometry.encGlobalPosition2D.getHeading() * weight2
-//                );
-//
-//
-//                lastCameraPose = cameraClass.getLastRecordedPosition2D();
-//            } else {
-//                calcPos = exOdometry.encGlobalPosition2D; // Только одометрия
-//            }
-//
-//            if (filteredPose == null) {
-//                filteredPose = calcPos;
-//            }
-//
-//            filteredPose = new Position2D(
-//                    ALPHA * calcPos.getX() + (1-ALPHA) * filteredPose.getX(),
-//                    ALPHA * calcPos.getY() + (1-ALPHA) * filteredPose.getY(),
-//                    ALPHA * filteredPose.getHeading() + (1 - ALPHA) * calcPos.getHeading()
-//            );
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-//            cameraClass.generalLogic = CameraClass.GeneralLogic.Stop;
+                cameraClass.tagState = CameraClass.TagState.UnDetected;
             }else {
                 odometryClass.updatePoses();
             }

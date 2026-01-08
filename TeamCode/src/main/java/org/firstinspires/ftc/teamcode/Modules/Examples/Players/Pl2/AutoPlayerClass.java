@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -88,7 +89,7 @@ public class AutoPlayerClass extends PlayerClass{
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1.03;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1.01;
 
 //        if (range > 200) theta = 75;
 //        else theta = 30;
@@ -438,12 +439,15 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case On_cell_check_states:
-                            if(vyrState == PositionRobotController.VyrState.Far_from_it || vyrState == PositionRobotController.VyrState.Near_from_it
-                                    || moveState == OdometryClass.MoveState.High_speed
-                                    || rotateState == OdometryClass.RotateState.High_speed) {
-                                return;//Программе дальше нет смысла идти пока не выполнятся условия
-                            }else fireState = FireState.Push_artifact;
+                            collector.servos.setPusherVer(PUSHERVER_ENDING_POS);
 
+                            if(isPushVerEnded()){
+                                if(vyrState == PositionRobotController.VyrState.Far_from_it || vyrState == PositionRobotController.VyrState.Near_from_it
+                                        || moveState == OdometryClass.MoveState.High_speed
+                                        || rotateState == OdometryClass.RotateState.High_speed) {
+                                    return;//Программе дальше нет смысла идти пока не выполнятся условия
+                                }else fireState = FireState.Push_artifact;
+                            }
                             break;
 
                         case Push_artifact:
@@ -455,6 +459,7 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case Pusher_back:
+                            collector.servos.setPusherVer(PUSHERVER_START_POS);
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
                             if (isPushHorEnded()) {
@@ -503,7 +508,7 @@ public class AutoPlayerClass extends PlayerClass{
         return collector.colorSensorClass.getTimeFromDetect().seconds() > DETECT_DELAY;
     }
     public boolean isPushVerEnded(){
-        return collector.servos.runTimePusherVer.seconds() > PUSHERVER_DELAY;
+        return collector.servos.runTimePusherVer.seconds() > collector.servos.pusherVerDelay;
     }
     private void calcAngleToPos(){
         double rampAngle = Range.clip(90 - Math.toDegrees(targetAngle), MIN_ANGLE, MAX_ANGLE);

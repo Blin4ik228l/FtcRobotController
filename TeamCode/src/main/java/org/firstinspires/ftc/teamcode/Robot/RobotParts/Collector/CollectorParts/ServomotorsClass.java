@@ -115,10 +115,10 @@ public class ServomotorsClass extends Module {
 
     public void setPusherHor(double targetPusherPos){
         if(curPusherHorPos == targetPusherPos) return;
-        setPusherVer(targetPusherPos);
-
-        runTimePusherHor.reset();//Обнуляем время с момента попадания программы в эту часть
-        if(runTimePusherVer.seconds() < pusherVerDelay) return;
+//        setPusherVer(targetPusherPos);
+//
+//        runTimePusherHor.reset();//Обнуляем время с момента попадания программы в эту часть
+//        if(runTimePusherVer.seconds() < pusherVerDelay) return;
 
         pusherHor.setPosition(targetPusherPos);
         calculateDelayPusher(targetPusherPos);
@@ -128,12 +128,12 @@ public class ServomotorsClass extends Module {
         runTimePusherHor.reset();//Обнуляем время с момента попадания программы в эту часть
     }
     public void setPusherVer(double targetPusherPos){
-        if (targetPusherPos == PUSHERHOR_ENDING_POS){
-            targetPusherPos = PUSHERVER_ENDING_POS;
-            pusherVerDelay = PUSHERVER_DELAY;
-        }else {
-            pusherVerDelay = 0.0;
-            targetPusherPos = PUSHERVER_START_POS;}
+//        if (targetPusherPos == PUSHERHOR_ENDING_POS){
+//            targetPusherPos = PUSHERVER_ENDING_POS;
+//            pusherVerDelay = PUSHERVER_DELAY;
+//        }else {
+//            pusherVerDelay = 0.0;
+//            targetPusherPos = PUSHERVER_START_POS;}
 
         if(targetPusherPos == curPusherVerPos) return;
         pusherVer.setPosition(targetPusherPos);

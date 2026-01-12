@@ -144,7 +144,7 @@ public class OdometryClass extends UpdatableModule {
         encoderClass.showData();
 
         telemetry.addLine("===ODOMETRY===");
-        telemetry.addData("Position enc", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI);
+        telemetry.addData("Position enc", "X:%.1f Y:%.1f H:%.1f°", encGlobalPosition2D.getX(), encGlobalPosition2D.getY(), encGlobalPosition2D.getHeading() * 180/Math.PI );
 //        telemetry.addData("Position from gyro", "X:%.1f Y:%.1f H:%.1f°", gyroGlobalPosition2D.getX(), gyroGlobalPosition2D.getY(), gyroGlobalPosition2D.getHeading() * 180/Math.PI);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s, Len: %.2f", robotCurVelocity.x, robotCurVelocity.y, robotCurVelocity.length());
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", encHeadVel * 180/Math.PI, encHeadAccel * 180/Math.PI);

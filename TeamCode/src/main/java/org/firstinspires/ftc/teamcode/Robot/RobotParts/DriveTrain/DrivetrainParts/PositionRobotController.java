@@ -39,16 +39,18 @@ public class PositionRobotController extends UpdatableModule {
     @Override
     public void update() {
         odometryClass.updateSpeed();
+//        if(odometryClass.moveState != OdometryClass.MoveState.Stopped && odometryClass.rotateState != OdometryClass.RotateState.Stopped)
+//        {cameraClass.reset();}
 
-        cameraClass.update();
         if(odometryClass.getStopTime().seconds() < 1){
+            cameraClass.update();
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
 //                cameraClass.tagState = CameraClass.TagState.UnDetected;
             }else {
                 odometryClass.updatePoses();
             }
-        }
+        }else {cameraClass.reset();}
 
         calcRange();
         calcAngle();
@@ -69,14 +71,13 @@ public class PositionRobotController extends UpdatableModule {
     public void calcAngle(){
         double targX = teamClass.getPointVyr()[0] - odometryClass.getEncGlobalPosition2D().getX();
         double targY = teamClass.getPointVyr()[1] - odometryClass.getEncGlobalPosition2D().getY();
-
-        foundedAngle = new Position2D(0, 0, Math.atan2(-targY, -targX)).getHeading();
+//        -targY, -targX
+        foundedAngle = new Position2D(0, 0, Math.atan2(targX, -targY)).getHeading();
     }
 
     public void calcDeltaAngle() {
         /*Если позиция с камеры была хоть раз получена, значит робот выравниться в правильном направлении*/
-        if(cameraClass.onceSeen) deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.getEncGlobalPosition2D().getHeading()).getHeading();
-        else deltaAngle = 0;
+        deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.getEncGlobalPosition2D().getHeading()).getHeading();
 
         if (Math.abs(deltaAngle) < Math.toRadians(2)) {
             deltaAngle = 0;

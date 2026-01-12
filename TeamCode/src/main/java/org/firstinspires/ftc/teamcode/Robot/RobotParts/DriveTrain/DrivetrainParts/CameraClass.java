@@ -40,12 +40,12 @@ public class CameraClass extends UpdatableModule {
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,0, 0,20, 0);//Позиция камеры относительно координат робота
+        cameraPosition = new Position(DistanceUnit.CM,0, -22,0, 0);//Позиция камеры относительно координат робота
 
 //        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
 
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(0) , Math.toRadians(0), Math.toRadians(90), 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(-90), Math.toRadians(0), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -84,6 +84,7 @@ public class CameraClass extends UpdatableModule {
     private double robotFieldX, robotFieldY, robotFieldZ;
     private double robotFieldPitch, robotFieldRoll, robotFieldYaw;
     private double robotRangeToTag, cameraElevation, cameraBearing;
+    private double ftcYaw;
     private double desicionMargin;
     private int index;
     private int id;
@@ -127,11 +128,16 @@ public class CameraClass extends UpdatableModule {
                 }
                 break;
             case Processing:
-                if (!aprilTagProcessor.getDetections().isEmpty() && updateTime.seconds() > 0.3)
+                if (!aprilTagProcessor.getDetections().isEmpty() && updateTime.seconds() > 1)
                 {
-                    AprilTagDetection detection = aprilTagProcessor.getDetections().get(index);
-                    id = detection.id;
+                    index = index % aprilTagProcessor.getDetections().size();
 
+                    AprilTagDetection detection = aprilTagProcessor.getDetections().get(index);
+
+                    index++;
+
+
+                    id = detection.id;
                     desicionMargin = detection.decisionMargin;
 
                     if (desicionMargin > 30){
@@ -143,7 +149,9 @@ public class CameraClass extends UpdatableModule {
 
                         robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                         robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                        robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(-90) ;
+                        robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(0);
+
+                        ftcYaw = detection.ftcPose.yaw;
 
                         robotRangeToTag = detection.ftcPose.range;
                         cameraElevation = detection.ftcPose.elevation;
@@ -154,16 +162,13 @@ public class CameraClass extends UpdatableModule {
                         onceSeen = true;
                         tagState = TagState.Detected;
                     }
-                    index++;
-
-                    if(index == aprilTagProcessor.getDetections().size()){
-                        updateTime.reset();
-                    }
+                    updateTime.reset();
                 }
                 else
                 {
-                    tagState = TagState.UnDetected;
                     index = 0;
+                    id = 0;
+                    tagState = TagState.UnDetected;
                 }
                 break;
 
@@ -171,6 +176,11 @@ public class CameraClass extends UpdatableModule {
                 visionPortal.stopStreaming();
                 break;
         }
+    }
+    public void reset(){
+        index = 0;
+        id = 0;
+        tagState = TagState.UnDetected;
     }
     public Position2D getLastRecordedPosition2D(){
         return lastRecordedPosition2D;
@@ -202,12 +212,11 @@ public class CameraClass extends UpdatableModule {
     public void showData(){
         telemetry.addLine("===CAMERA===");
         telemetry.addData("General logic", generalLogic.toString());
-//        telemetry.addData("Camera logic", cameraLogic.toString());
         telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
-        telemetry.addData("Tags Found", lastRecordedDetection.size());
-        telemetry.addData("des", desicionMargin);
+        telemetry.addData("index/id", "%s %s",index, id);
+        telemetry.addData("des/yaw", "%s %s",desicionMargin, ftcYaw * RAD);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);

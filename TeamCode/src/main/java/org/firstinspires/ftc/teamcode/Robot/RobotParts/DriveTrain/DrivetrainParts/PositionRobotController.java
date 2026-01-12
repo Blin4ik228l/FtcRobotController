@@ -18,20 +18,6 @@ public class PositionRobotController extends UpdatableModule {
         this.teamClass = teamClass;
     }
     private double kPower;
-    private Position2D rawPosition2D;
-
-    private Position2D calcPos;        // Смешанная позиция
-    private Position2D lastCameraPose;   // Последняя поза с камеры
-    private double cameraWeight = 0; // Текущий вес камеры (0..1)
-
-    // Настройки
-    private static final double FADE_IN_RATE = 0.1;   // Скорость появления камеры
-    private static final double FADE_OUT_RATE = 0.05; // Скорость исчезновения
-    private static final double MAX_CAMERA_WEIGHT = 0.8; // Макс. доверие камере
-
-    private Position2D filteredPose = null;
-    private static final double ALPHA = 0.3;
-
     private double cameraFov = Math.toRadians(60);
     private double foundedAngle;
     private double deltaAngle;
@@ -40,9 +26,9 @@ public class PositionRobotController extends UpdatableModule {
 
     public enum VyrState {
         Straight_to_it,
-        Near_from_it,
         Far_from_it
     }
+
 
     public VyrState vyrState = VyrState.Far_from_it;
 
@@ -58,25 +44,11 @@ public class PositionRobotController extends UpdatableModule {
         if(odometryClass.getStopTime().seconds() < 1){
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-                cameraClass.tagState = CameraClass.TagState.UnDetected;
+//                cameraClass.tagState = CameraClass.TagState.UnDetected;
             }else {
                 odometryClass.updatePoses();
             }
         }
-
-
-
-//        if (odometryClass.robotCurVelocity.length() >= 15 || Math.abs(odometryClass.encHeadVel) >= Math.toRadians(5)) {
-//            cameraClass.cameraLogic = CameraClass.CameraLogic.Check_condition;
-//            cameraClass.tagState = CameraClass.TagState.UnDetected;
-//        } else {
-//
-//        }
-
-        //Проверяем если робот двигается
-
-        //Если камера увидела таг - обрабатываем
-
 
         calcRange();
         calcAngle();
@@ -95,7 +67,6 @@ public class PositionRobotController extends UpdatableModule {
         range = new Vector2(teamClass.getTagCoord()[0] - odometryClass.getEncGlobalPosition2D().getX(), teamClass.getTagCoord()[1] - odometryClass.getEncGlobalPosition2D().getY()).length();
     }
     public void calcAngle(){
-        //TODO Изменить угол
         double targX = teamClass.getPointVyr()[0] - odometryClass.getEncGlobalPosition2D().getX();
         double targY = teamClass.getPointVyr()[1] - odometryClass.getEncGlobalPosition2D().getY();
 
@@ -103,13 +74,16 @@ public class PositionRobotController extends UpdatableModule {
     }
 
     public void calcDeltaAngle() {
-        deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.getEncGlobalPosition2D().getHeading()).getHeading();
+        /*Если позиция с камеры была хоть раз получена, значит робот выравниться в правильном направлении*/
+        if(cameraClass.onceSeen) deltaAngle = new Position2D(0, 0, foundedAngle - odometryClass.getEncGlobalPosition2D().getHeading()).getHeading();
+        else deltaAngle = 0;
 
         if (Math.abs(deltaAngle) < Math.toRadians(2)) {
             deltaAngle = 0;
-            vyrState = VyrState.Straight_to_it;
-        } else if (Math.abs(deltaAngle) < Math.toRadians(7)) {
-            vyrState = VyrState.Near_from_it;
+
+            if(range >= 100 && cameraClass.tagState == CameraClass.TagState.Detected) vyrState = VyrState.Straight_to_it;
+            else if (range < 100 && cameraClass.onceSeen) vyrState = VyrState.Straight_to_it;
+
         } else vyrState = VyrState.Far_from_it;
     }
 

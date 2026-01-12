@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
@@ -25,6 +24,7 @@ public class DigitalCellsClass extends Module {
     private int artifactCount;
     private int targCell;
     private int curCell;
+    public boolean isMaxed;
 
     public int getArtifactCount() {
         return artifactCount;
@@ -49,10 +49,11 @@ public class DigitalCellsClass extends Module {
             cell2.table.color = color;
         }else telemetry.addLine("there is nothing");
         checkNumberOfArtifacts();
+
+        if (artifactCount == 3) isMaxed = true;
     }
 
-    public int getNextBarabanPos() {
-
+    public int getEmptyCell() {
         if(servomotorsClass.curBarabanPos == BARABAN_CELL2_POS)
         {
             curCell = 2;
@@ -93,6 +94,58 @@ public class DigitalCellsClass extends Module {
                 targCell = 0;
             }
             else if (cell1.table.color == 0)
+            {
+                targCell = 1;
+            }
+            else
+            {
+                targCell = 2;
+            }
+        }
+
+        return targCell;
+    }
+    public int getFullCell(){
+        if(servomotorsClass.curBarabanPos == BARABAN_CELL2_POS)
+        {
+            curCell = 2;
+            if(cell2.table.color != 0)
+            {
+                targCell = 2;
+            }
+            else if (cell1.table.color != 0)
+            {
+                targCell = 1;
+            }
+            else
+            {
+                targCell = 0;
+            }
+        }
+        else if (servomotorsClass.curBarabanPos == BARABAN_CELL1_POS)
+        {
+            curCell = 1;
+            if(cell1.table.color != 0)
+            {
+                targCell = 1;
+            }
+            else if (cell0.table.color != 0)
+            {
+                targCell = 0;
+            }
+            else
+            {
+                targCell = 2;
+            }
+        }
+        else
+        {
+            curCell = 0;
+            if(cell0.table.color != 0)
+            {
+                targCell = 0;
+            }
+            else if (cell1.table.color != 0)
             {
                 targCell = 1;
             }

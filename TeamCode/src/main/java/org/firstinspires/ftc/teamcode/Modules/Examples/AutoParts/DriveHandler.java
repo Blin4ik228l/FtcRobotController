@@ -53,18 +53,17 @@ public class DriveHandler extends ExecutableModule {
         deltaPos = new Position2D(
                 driveArgs.position2D.getX() - driveTrain.odometryClass.getEncGlobalPosition2D().getX(),
                 driveArgs.position2D.getY() - driveTrain.odometryClass.getEncGlobalPosition2D().getY(),
-                0);
+                driveArgs.position2D.getHeading() - driveTrain.odometryClass.getEncGlobalPosition2D().getHeading());
 
         // Находим ошибку положения
         // Направление движения
-//        deltaVector = deltaPos.toVector().rotateToGlobal((Math.toRadians(90) - driveTrain.odometryClass.getEncGlobalPosition2D().getHeading()));// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
+        deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.odometryClass.getEncGlobalPosition2D().getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
         double errorHeading = deltaPos.getHeading();//Turn
-
-        deltaVector = deltaPos.toVector();
-        deltaVector.normalize();
 
         // Выбираем скорости в зависимости от величины ошибки
         linearVel = deltaVector.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;// Линейная скорость робота
+
+        deltaVector.normalize();
 
         deltaSpeed = new Vector2(deltaVector.x * linearVel, deltaVector.y * linearVel );
 
@@ -92,7 +91,6 @@ public class DriveHandler extends ExecutableModule {
         }
 
         driveTrain.motors.setPower(speedPIDX, speedPIDY, angularPID);
-
     }
 
     @Override

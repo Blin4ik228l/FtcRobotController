@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
-public class LinearOpModeModernized extends LinearOpMode {
+public abstract class LinearOpModeModernized extends LinearOpMode {
     public RobotClass robot;
     private AutonomLogic autonomLogic;
     public TelemetrySettings telemetrySettings;

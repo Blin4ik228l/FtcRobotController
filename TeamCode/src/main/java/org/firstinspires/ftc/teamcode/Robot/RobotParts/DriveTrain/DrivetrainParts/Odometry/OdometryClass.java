@@ -308,8 +308,8 @@ public class OdometryClass extends UpdatableModule {
             encGlobalPosition2D.add(0, 0, encDeltaHeading * 1);
             gyroGlobalPosition2D.add(0, 0, gyroDeltaHeading * 1);
 
-            robotCurVelocity.rotateToGlobal(Math.toRadians(-90) + encGlobalPosition2D.getHeading());
-            robotCurAccel.rotateToGlobal(Math.toRadians(-90) + encGlobalPosition2D.getHeading());
+            robotCurVelocity.rotateToGlobal( encGlobalPosition2D.getHeading());
+            robotCurAccel.rotateToGlobal(encGlobalPosition2D.getHeading());
         }
 
         private void updateGlobalPosition() {
@@ -328,8 +328,8 @@ public class OdometryClass extends UpdatableModule {
             deltaX = encDeltaPositions[1] - encDeltaHeading * OFFSET_ENC_M_FROM_CENTER;
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            Position2D deltaPos = new Position2D(deltaX, deltaY, Math.toRadians(-90) + encGlobalPosition2D.getHeading());
-            Position2D deltaGyroPos = new Position2D(deltaX, deltaY, Math.toRadians(-90) + gyroGlobalPosition2D.getHeading());
+            Position2D deltaPos = new Position2D(deltaX, deltaY,  encGlobalPosition2D.getHeading());
+            Position2D deltaGyroPos = new Position2D(deltaX, deltaY, gyroGlobalPosition2D.getHeading());
 
             Vector2 rotatedVectorEnc = deltaPos.toVector().rotateToGlobal(deltaPos.getHeading());
             Vector2 rotatedVectorGyro = deltaGyroPos.toVector().rotateToGlobal(deltaGyroPos.getHeading());

@@ -145,7 +145,7 @@ public class AutonomLogic extends ExecutableModule {
                                 }
                                 break;
                             case Rotate_Baraban:
-                                double barabanPos = digitalCellsClass.getNextBarabanPos();
+                                double barabanPos = digitalCellsClass.getEmptyCell();
 
                                 collector.servos.setBaraban(barabanPos);
                                 if(isRotateEnded(delayToBaraban)){

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
@@ -64,6 +65,7 @@ public class AutoPlayerClass extends PlayerClass{
     }
     public enum AnotherStates{
         Push,
+        Waiting,
         Back
     }
     public void setFields(CameraClass.RandomizeStatus randomizeStatus,
@@ -84,11 +86,10 @@ public class AutoPlayerClass extends PlayerClass{
 
         targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1.01;
 
-        collector.servos.setAngle(targetServoPos);
 
         if(!joystickActivityClass.buttonX) {
-            double barabanPos;
             double pusherPos = PUSHER_START_POS;
+            collector.servos.setAngle(targetServoPos);
 
             if(joystickActivityClass.tDpadRightPressed == 1){
                 cellNum++;
@@ -114,6 +115,10 @@ public class AutoPlayerClass extends PlayerClass{
             }
 
             collector.servos.setPusherHor(pusherPos);
+            if(pusherPos == PUSHERHOR_ENDING_POS) {
+                collector.servos.setPusherVer(PUSHERVER_ENDING_POS);
+            }else  collector.servos.setPusherVer(PUSHERVER_START_POS);
+
 
             if(isPushHorEnded() && collector.servos.curPusherHorPos <= PUSHER_PREFIRE_POS){
                 rotateBaraban(cellNum);
@@ -151,8 +156,8 @@ public class AutoPlayerClass extends PlayerClass{
             }else {
                 loadState = LoadState.Prepare;
             }
-            generalState = GeneralState.LoadLogic;
 
+            generalState = GeneralState.LoadLogic;
             fireState = FireState.Prepare;
         }else{
             joystickActivityClass.tDpadUpPressed = 0;
@@ -172,7 +177,7 @@ public class AutoPlayerClass extends PlayerClass{
 
             switch (generalState){
                 case LoadLogic:
-                    collector.motors.setSpeedFlyWheel(targetRadSpeed / 2);
+                    collector.motors.setSpeedFlyWheel(0);
 
                     switch (loadState) {
                         case Prepare:
@@ -207,7 +212,7 @@ public class AutoPlayerClass extends PlayerClass{
                             if(isLoadEnded())
                             {
                                 collector.motors.reverseInTake();
-                                if (collector.motors.getRunTimeFlyWheel().seconds() > REVERSE_DELAY) {
+                                if (collector.motors.getRunTimeIntake().seconds() > REVERSE_DELAY) {
                                     collector.motors.offIntake();
 
                                     generalState = GeneralState.FireLogic;
@@ -228,8 +233,9 @@ public class AutoPlayerClass extends PlayerClass{
 
                 case FireLogic:
                     collector.motors.setSpeedFlyWheel(targetRadSpeed);
+                    collector.servos.setAngle(targetServoPos);
 
-                    if (collector.motors.getRunTimeFlyWheel().seconds() < 0.15 || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
+                    if (collector.motors.getRunTimeFlyWheel().seconds() < 0.5 || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready){
                         if(fireState == FireState.Fire && anotherStates == AnotherStates.Push) return;
                     }
 
@@ -266,11 +272,13 @@ public class AutoPlayerClass extends PlayerClass{
                                     {
                                         if(isPushVerEnded()){
                                             collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
-
-                                            if (isPushHorEnded()) {
-                                                anotherStates = AnotherStates.Back;
-                                            }
+                                            anotherStates = AnotherStates.Waiting;
                                         }
+                                    }
+                                    break;
+                                case Waiting:
+                                    if (isPushHorEnded()){
+                                        anotherStates = AnotherStates.Back;
                                     }
                                     break;
 
@@ -352,8 +360,9 @@ public class AutoPlayerClass extends PlayerClass{
     }
     private void calcAngle(){
         double alpha = Math.toRadians(theta);
+        int h = 79;
 
-        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (73) / range);
+        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
     }
@@ -374,9 +383,13 @@ public class AutoPlayerClass extends PlayerClass{
 
         if(generalState == GeneralState.LoadLogic){
             telemetry.addData("Load state", loadState.toString());
-        }else telemetry.addData("Fire state", fireState.toString());
+        }else
+        {
+            telemetry.addData("Fire state", fireState.toString());
+            telemetry.addData("Another state", anotherStates.toString());
+        }
 
-        telemetry.addData("Another state", anotherStates.toString());
+
         if(fireState == FireState.Fire && anotherStates == AnotherStates.Push)
         {
             telemetry.addData("FlyWheel", collector.motors.flyWheelStates.toString());

@@ -41,16 +41,15 @@ public class PositionRobotController extends UpdatableModule {
         odometryClass.updateSpeed();
 //        if(odometryClass.moveState != OdometryClass.MoveState.Stopped && odometryClass.rotateState != OdometryClass.RotateState.Stopped)
 //        {cameraClass.reset();}
-
+        cameraClass.update();
         if(odometryClass.getStopTime().seconds() < 1){
-            cameraClass.update();
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
 //                cameraClass.tagState = CameraClass.TagState.UnDetected;
             }else {
                 odometryClass.updatePoses();
             }
-        }else {cameraClass.reset();}
+        }
 
         calcRange();
         calcAngle();

@@ -48,6 +48,7 @@ public class DigitalCellsClass extends Module {
         } else if (servomotorsClass.curBarabanPos == BARABAN_CELL2_POS) {
             cell2.table.color = color;
         }else telemetry.addLine("there is nothing");
+
         checkNumberOfArtifacts();
 
         if (artifactCount == 3) isMaxed = true;
@@ -176,6 +177,7 @@ public class DigitalCellsClass extends Module {
     public void deleteColorFromCell(){
         findNeededCell().table.color = 0;
         checkNumberOfArtifacts();
+        if (artifactCount == 0) isMaxed = false;
     }
     public Cell findNeededCell(){
         return cell0.table.pos == servomotorsClass.curBarabanPos ? cell0 : (cell1.table.pos == servomotorsClass.curBarabanPos ? cell1 : cell2);

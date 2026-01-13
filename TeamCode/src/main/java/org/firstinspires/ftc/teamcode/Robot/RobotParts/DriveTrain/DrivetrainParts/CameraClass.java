@@ -45,7 +45,7 @@ public class CameraClass extends UpdatableModule {
 //        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
 
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(-90), Math.toRadians(0), 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(-85), Math.toRadians(0), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)

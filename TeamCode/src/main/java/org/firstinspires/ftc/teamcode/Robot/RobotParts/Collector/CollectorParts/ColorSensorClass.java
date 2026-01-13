@@ -106,16 +106,16 @@ public class ColorSensorClass extends UpdatableModule {
 
 
         int foundColor;
-        if(r > g && r > b && r > 0.065) {
+        if(r > g && r > b && r > 0.048) {
             foundColor =  2;}
-        else if(b > r && b > g && b > 0.033) {
+        else if(b > r && b > g && b > 0.064) {
             foundColor =  2;}
-        else if(g > r && g > b && g > 0.07) {
+        else if(g > r && g > b && g > 0.084) {
             foundColor =  1;
         }
         else foundColor =  0;
 
-        int detectedDist = 5;
+        int detectedDist = 7;
 
         artifactColor = foundColor;
         if(foundColor != 0 && dist < detectedDist) {

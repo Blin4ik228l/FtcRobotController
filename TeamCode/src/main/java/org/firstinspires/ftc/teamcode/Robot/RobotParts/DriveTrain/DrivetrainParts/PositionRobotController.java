@@ -81,8 +81,8 @@ public class PositionRobotController extends UpdatableModule {
         if (Math.abs(deltaAngle) < Math.toRadians(2)) {
             deltaAngle = 0;
 
-            if(range >= 100 && cameraClass.tagState == CameraClass.TagState.Detected) vyrState = VyrState.Straight_to_it;
-            else if (range < 100 && cameraClass.onceSeen) vyrState = VyrState.Straight_to_it;
+            if(range >= 150 && cameraClass.tagState == CameraClass.TagState.Detected) vyrState = VyrState.Straight_to_it;
+            else if (range < 150 && cameraClass.onceSeen) vyrState = VyrState.Straight_to_it;
 
         } else vyrState = VyrState.Far_from_it;
     }

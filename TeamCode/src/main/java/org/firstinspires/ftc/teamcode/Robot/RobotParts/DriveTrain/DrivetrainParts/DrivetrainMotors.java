@@ -54,7 +54,7 @@ public class DrivetrainMotors extends Module {
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
-        double minPow = 0.12 / kPower;
+        double minPow = 0.13 / kPower;
 
         if(kPower != 0){
             forwardPow = forwardPow * kPower;

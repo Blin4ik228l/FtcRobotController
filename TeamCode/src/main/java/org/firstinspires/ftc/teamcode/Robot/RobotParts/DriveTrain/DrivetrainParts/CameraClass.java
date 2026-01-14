@@ -40,7 +40,7 @@ public class CameraClass extends UpdatableModule {
 
         webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
 
-        cameraPosition = new Position(DistanceUnit.CM,0, -22,0, 0);//Позиция камеры относительно координат робота
+        cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
 
 //        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
@@ -52,7 +52,7 @@ public class CameraClass extends UpdatableModule {
                 .setDrawCubeProjection(false)
                 .setDrawTagID(true)
                 .setDrawTagOutline(false)
-                .setLensIntrinsics(708.013f, 708.013f, 311.973, 253.313f)
+                .setLensIntrinsics(708.013f, 708.013f, 311.973f, 253.313f)
                 .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
@@ -120,7 +120,7 @@ public class CameraClass extends UpdatableModule {
                     gain = visionPortal.getCameraControl(GainControl.class);
 
                     //TODO яркость уменьшить
-                    gain.setGain(190);//яркость
+                    gain.setGain(30);//яркость
 
                     aprilTagProcessor.setDecimation(2.0f);
 
@@ -141,26 +141,31 @@ public class CameraClass extends UpdatableModule {
                     desicionMargin = detection.decisionMargin;
 
                     if (desicionMargin > 30){
-                        setRandomizedArtifactFromId(id);
+                        if (!(id == 20 || id == 24)){
+                            setRandomizedArtifactFromId(id);
+                        }else {
+                            robotFieldX = detection.robotPose.getPosition().x;
+                            robotFieldY = detection.robotPose.getPosition().y;
+                            robotFieldZ = detection.robotPose.getPosition().z;
 
-                        robotFieldX = detection.robotPose.getPosition().x;
-                        robotFieldY = detection.robotPose.getPosition().y;
-                        robotFieldZ = detection.robotPose.getPosition().z;
+                            robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                            robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(0);
 
-                        robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                        robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                        robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(0);
+                            ftcYaw = detection.ftcPose.yaw;
 
-                        ftcYaw = detection.ftcPose.yaw;
+                            robotRangeToTag = detection.ftcPose.range;
+                            cameraElevation = detection.ftcPose.elevation;
+                            cameraBearing   = detection.ftcPose.bearing;
 
-                        robotRangeToTag = detection.ftcPose.range;
-                        cameraElevation = detection.ftcPose.elevation;
-                        cameraBearing   = detection.ftcPose.bearing;
+                            lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
-                        lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                            onceSeen = true;
+                            tagState = TagState.Detected;
+                        }
 
-                        onceSeen = true;
-                        tagState = TagState.Detected;
+
+
                     }
                     updateTime.reset();
                 }

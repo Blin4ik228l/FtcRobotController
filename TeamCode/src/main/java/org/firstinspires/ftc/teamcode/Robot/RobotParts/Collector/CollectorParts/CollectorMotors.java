@@ -55,14 +55,14 @@ public class CollectorMotors extends Module {
     public DcMotorEx getMotorRight() {
         return motorRight;
     }
-    private double curVel, curLeftVel, curRightVel, inTakeCurPower;
+    public double curVel, curLeftVel, curRightVel, inTakeCurPower;
     private double kPower;
     public double targSpeed;
 
 //    private double P = 18, I = 0.15, D = 3.0, F = 0.45;
 //    private double  P = 30, I = 0.04, D = 0, F = 1;
 //    private double  P = 11, I = 5, D = 1, F = 0;
-    private double  P = 30, I = 30, D = 0.0, F = 0;
+    private double  P = 32, I = 1.8, D = 0.0, F = 0;
     private double pG ,iG ,dG , fG;
     private double errorPart;
     private final double p = 0.95;
@@ -134,7 +134,7 @@ public class CollectorMotors extends Module {
         }
     }
     public void setSpeedFlyWheel(double speed){
-        targSpeed = speed ;
+        targSpeed = speed * 19.2;
 
         switch (controlMode){
             case By_speed:
@@ -163,8 +163,11 @@ public class CollectorMotors extends Module {
             i = 0;
         }
 
-        motorLeft.setPower(pow * (p + i) );
-        motorRight.setPower(-pow * (p + i));
+//        motorLeft.setPower(pow * (p + i) );
+//        motorRight.setPower(-pow * (p + i));
+
+        motorLeft.setPower(0.5);
+        motorRight.setPower(-0.5);
 
         calcCurSpeed();
 
@@ -178,8 +181,8 @@ public class CollectorMotors extends Module {
         attempts++;
     }
     public void calcCurSpeed(){
-        curLeftVel = motorLeft.getVelocity(AngleUnit.RADIANS);
-        curRightVel = motorRight.getVelocity(AngleUnit.RADIANS);
+        curLeftVel = motorLeft.getVelocity(AngleUnit.RADIANS) * 19.2;
+        curRightVel = motorRight.getVelocity(AngleUnit.RADIANS) * 19.2;
 
         curVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
 
@@ -192,7 +195,7 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        flyWheelStates = errorPart < 0.04 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
+        flyWheelStates = errorPart < 0.02 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
 
         if (flyWheelStates == FlyWheelStates.Unready) runTimeFlyWheel.reset();
     }

@@ -18,10 +18,11 @@ public class DriveHandler extends ExecutableModule {
 
         pidLinearX = new PID(0.01, 0.000000080,0.000, -1,1);
         pidLinearY = new PID(0.01,0.000000080,0.000, -1,1);
-        pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
+        pidAngular = new PID(2.5,0.000,0.00, -1,1);
     }
     public void setArgs(Args.DriveArgs driveArgs){
         this.driveArgs = driveArgs;
+        this.driveArgs.position2D.setHeading(driveArgs.position2D.getHeading() + Math.toRadians(-90));
     }
     public MecanumDrivetrain driveTrain;
     public Args.DriveArgs driveArgs;
@@ -36,7 +37,7 @@ public class DriveHandler extends ExecutableModule {
     public double speedPIDX;
     public double speedPIDY;
     public double angularPID;
-
+    double errorHeading;
     Position2D deltaPos = new Position2D();
     Vector2 deltaSpeed = new Vector2();
     Vector2 deltaVector = new Vector2();
@@ -58,39 +59,39 @@ public class DriveHandler extends ExecutableModule {
         // Находим ошибку положения
         // Направление движения
         deltaVector = deltaPos.toVector().rotateToGlobal(-driveTrain.odometryClass.getEncGlobalPosition2D().getHeading());// Здесь минус потому что направление движения поворачивается в обратную сторону относительно поворота робота!!!
-        double errorHeading = deltaPos.getHeading();//Turn
+        errorHeading = deltaPos.getHeading();//Turn
 
         // Выбираем скорости в зависимости от величины ошибки
         linearVel = deltaVector.length() > returnDistance(driveArgs.speed, MAX_LINEAR_ACCEL) ? driveArgs.speed : MIN_LINEAR_SPEED;// Линейная скорость робота
 
         deltaVector.normalize();
 
-        deltaSpeed = new Vector2(deltaVector.x * linearVel, deltaVector.y * linearVel );
+        deltaSpeed = new Vector2(deltaVector.x * linearVel, deltaVector.y * linearVel);
 
         // Передаем требуемые скорости в ПИД для расчета напряжения на моторы
         speedPIDX = pidLinearX.calculate(deltaVector.x);
         speedPIDY = pidLinearY.calculate(deltaVector.y);
-        angularPID = pidAngular.calculate(errorHeading);
+        angularPID = pidAngular.calculate(errorHeading) / Math.PI;
 
-        if (deltaVector.length() < 0.5){
-            errorPosDone = true;
-            speedPIDX = 0.0;
-            speedPIDY = 0.0;
-        }
+//        if (deltaPos.toVector().length() < 0.5){
+//            errorPosDone = true;
+//            speedPIDX = 0.0;
+//            speedPIDY = 0.0;
+//        }
+//
+//        if(Math.abs(errorHeading) < Math.toRadians(1) ){
+//            errorHeadingDone = true;
+//            angularPID = 0.0;
+//        }
+//
+//        if(errorPosDone && errorHeadingDone){
+//            isDone = true;
+//            pidLinearX = new PID(0.0050,0.000000080,0.000, -1,1);
+//            pidLinearY = new PID(0.0050,0.000000080,0.000, -1,1);
+//            pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
+//        }
 
-        if(Math.abs(errorHeading) < Math.toRadians(1) ){
-            errorHeadingDone = true;
-            angularPID = 0.0;
-        }
-
-        if(errorPosDone && errorHeadingDone){
-            isDone = true;
-            pidLinearX = new PID(0.0050,0.000000080,0.000, -1,1);
-            pidLinearY = new PID(0.0050,0.000000080,0.000, -1,1);
-            pidAngular = new PID(2.5,0.0000000,0.00, -1,1);
-        }
-
-        driveTrain.motors.setPower(speedPIDX, speedPIDY, angularPID);
+        driveTrain.motors.setPower(speedPIDY, speedPIDX, angularPID);
     }
 
     @Override
@@ -98,6 +99,8 @@ public class DriveHandler extends ExecutableModule {
         telemetry.addLine("===DriveHandler===");
         telemetry.addData("isDone", isDone);
         telemetry.addData("Vel", linearVel);
+        telemetry.addData("HEad", Math.toDegrees(errorHeading));
+        telemetry.addData("Len", deltaPos.toVector().length());
         telemetry.addData("DeltaSpeed", "X: %.2f Y: %.2f Len: %.2f", deltaSpeed.x, deltaSpeed.y, deltaSpeed.length());
         telemetry.addData("Speeds", "X: %.2f Y: %.2f H: %.2f", speedPIDX, speedPIDY, angularPID);
         telemetry.addData("Deltas Pos", "X: %.2f Y: %.2f H: %.2f", deltaPos.getX(), deltaPos.getY(), deltaPos.getY());

@@ -62,7 +62,7 @@ public class CollectorMotors extends Module {
 //    private double P = 18, I = 0.15, D = 3.0, F = 0.45;
 //    private double  P = 30, I = 0.04, D = 0, F = 1;
 //    private double  P = 11, I = 5, D = 1, F = 0;
-    private double  P = 32, I = 1.8, D = 0.0, F = 0;
+    private double  P = 10, I = 2, D = 4, F = 1.3;
     private double pG ,iG ,dG , fG;
     private double errorPart;
     private final double p = 0.95;
@@ -195,9 +195,14 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        flyWheelStates = errorPart < 0.02 ? CollectorMotors.FlyWheelStates.Ready : CollectorMotors.FlyWheelStates.Unready;
-
-        if (flyWheelStates == FlyWheelStates.Unready) runTimeFlyWheel.reset();
+        if (errorPart > 0.02)
+        {
+            flyWheelStates = FlyWheelStates.Unready;
+            runTimeFlyWheel.reset();
+        }
+        else {
+            if (runTimeFlyWheel.seconds() > 0.25) flyWheelStates = FlyWheelStates.Ready;
+        }
     }
 
     public void onIntake(){

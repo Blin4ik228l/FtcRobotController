@@ -25,7 +25,7 @@ public class AutoTest extends LinearOpModeModernized {
     public void extRun() {
         driveHandler = new DriveHandler(robot.driveTrain, this);
         driveHandler.setArgs(new Args.DriveArgs(
-                new Position2D(100, 0 , 0), 200
+                new Position2D(0, 0 , Math.toRadians(90)), 50
         ));
 
         while (!isStarted()){

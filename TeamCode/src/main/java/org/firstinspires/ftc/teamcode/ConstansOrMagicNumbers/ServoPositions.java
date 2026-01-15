@@ -11,7 +11,7 @@ public interface ServoPositions {
     double ANGLE_UPPER_POS = 0.0;
     double ANGLE_LOWER_POS = 0.98;
 
-    double PUSHER_START_POS = 0.07;
+    double PUSHER_START_POS = 0.05;
     double PUSHER_PREFIRE_POS = 0.39;
     double PUSHERHOR_ENDING_POS = 0.52;
 }

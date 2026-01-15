@@ -24,6 +24,7 @@ public class PositionRobotController extends UpdatableModule {
     private double range;
     private Position2D firePos;
 
+    public boolean flag;
     public enum VyrState {
         Straight_to_it,
         Far_from_it
@@ -39,16 +40,17 @@ public class PositionRobotController extends UpdatableModule {
     @Override
     public void update() {
         odometryClass.updateSpeed();
-//        if(odometryClass.moveState != OdometryClass.MoveState.Stopped && odometryClass.rotateState != OdometryClass.RotateState.Stopped)
-//        {cameraClass.reset();}
         cameraClass.update();
-        if(odometryClass.getStopTime().seconds() < 1){
-            if (cameraClass.tagState == CameraClass.TagState.Detected) {
+
+        if (odometryClass.moveState == OdometryClass.MoveState.Stopped && odometryClass.rotateState == OdometryClass.RotateState.Stopped)
+        {
+            if (cameraClass.tagState == CameraClass.TagState.Detected && !flag) {
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-//                cameraClass.tagState = CameraClass.TagState.UnDetected;
-            }else {
-                odometryClass.updatePoses();
+                flag = true;
             }
+        }else {
+            odometryClass.updatePoses();
+            flag = false;
         }
 
         calcRange();

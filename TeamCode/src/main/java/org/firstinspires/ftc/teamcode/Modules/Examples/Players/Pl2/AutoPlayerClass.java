@@ -40,7 +40,7 @@ public class AutoPlayerClass extends PlayerClass{
     private double targetAngle, targetServoPos;
     private double targetSpeed, targetRadSpeedRed, targetRadSpeed;
     private int cellNum, attempts;
-    private double theta = 30;
+    private double theta = 0;
     private int flag = 0;
     private GeneralState generalState;
     private LoadState loadState;
@@ -76,27 +76,36 @@ public class AutoPlayerClass extends PlayerClass{
         this.vyrState = vyrState;
         this.moveState = moveState;
         this.rotateState = rotateState;
-        this.range = range;
+        this.range = range - 8;
     }
 
     @Override
     public void execute(){
-        if (range < 250)
+        double b  = 1;
+//        if (range < 250)
+//        {
+//            theta = 75;
+//            b = 0.785;
+//        }
+//        else {
+//            theta = 60;
+//            b = 1.15;
+//        }
+        if (range <= 50)
         {
-            theta = 45;
+            theta = 80;
         }
-        else {
-            theta = 35;
-
-        }
+        else if (range <= 100){
+            theta = 75;
+        }else theta = 60;
 
 //        range /= 1.75;
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 0.8;
-        targetRadSpeedRed = targetRadSpeed * 1.18;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * b;
+        targetRadSpeedRed = targetRadSpeed ;
 
 
         if(!joystickActivityClass.buttonX) {
@@ -279,8 +288,7 @@ public class AutoPlayerClass extends PlayerClass{
                                     collector.servos.setPusherVer(PUSHERVER_ENDING_POS);
 
                                     collector.update();
-                                    if (!(vyrState == PositionRobotController.VyrState.Far_from_it
-                                            || moveState == OdometryClass.MoveState.High_speed
+                                    if (!( moveState == OdometryClass.MoveState.High_speed
                                             || rotateState == OdometryClass.RotateState.High_speed
                                             || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready))
                                     {
@@ -337,7 +345,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Idle:
                             if (collector.digitalCellsClass.getArtifactCount() == 0)
                             {
-
+                                joystickActivityClass.buttonY = false;
                                 generalState = GeneralState.LoadLogic;
                                 loadState = LoadState.Prepare;
                             }
@@ -398,15 +406,18 @@ public class AutoPlayerClass extends PlayerClass{
         double alpha = Math.toRadians(theta);
         int h = 79;
 
-        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
+//        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
+
+        targetAngle = alpha;
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private void calcSpeed(){
         double alpha = Math.toRadians(theta);
 
-        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
+//        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
 
+        targetSpeed = Math.sqrt((981 * Math.pow(range, 2)) / (2 * Math.pow(Math.cos(alpha), 2) * (range * Math.tan(alpha) - (79))))/ 100;
         targetSpeed = Math.round(targetSpeed * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private boolean isLoadEnded(){

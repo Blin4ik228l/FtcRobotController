@@ -13,7 +13,7 @@ public class PIDFTuner extends TeleOpModernized {
 //    private double  P = 19, I = 0.11, D = 3.0, F = 0.41;
 //    private double  P = 10, I = 0, D = 3.0, F = 0;
 //    private double  P = 17, I = 0.2, D = 3.0, F = 0.08;
-private double  P = 30, I = 0.04, D = 0, F = 1;
+private double  P = 0, I = 0, D = 0, F = 0;
     private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex;
     private int index;

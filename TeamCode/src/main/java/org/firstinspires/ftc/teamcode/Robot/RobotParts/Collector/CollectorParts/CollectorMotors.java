@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.PID;
 
 public class CollectorMotors extends Module {
     private final DcMotor inTakeMotor;
@@ -62,9 +63,15 @@ public class CollectorMotors extends Module {
 //    private double P = 18, I = 0.15, D = 3.0, F = 0.45;
 //    private double  P = 30, I = 0.04, D = 0, F = 1;
 //    private double  P = 11, I = 5, D = 1, F = 0;
-    private double  P = 10, I = 2, D = 4, F = 1.3;
+//    private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.1;
+
+    private double  P = 4.7, I = 5.8, D = 0.99, F = 0;
     private double pG ,iG ,dG , fG;
     private double errorPart;
+    private PID pid = new PID(P, I, D, -100, 100);
+    double filteredLeftVel = 0;
+    double filteredRightVel = 0;
+    double alpha = 0.3;
     private final double p = 0.95;
     private double i = 0;
     private int attempts;
@@ -97,6 +104,7 @@ public class CollectorMotors extends Module {
                 motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
                 break;
             case By_speed:
+//                pid = new PID(P, I, D, -100, 100);
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
                 motorRight.setVelocityPIDFCoefficients(P, I, D, F);
                 break;
@@ -125,8 +133,8 @@ public class CollectorMotors extends Module {
                 motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 break;
             case By_speed:
-                motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
-                motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
+                motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
                 motorRight.setVelocityPIDFCoefficients(P, I, D, F);
@@ -181,10 +189,16 @@ public class CollectorMotors extends Module {
         attempts++;
     }
     public void calcCurSpeed(){
+
+
         curLeftVel = motorLeft.getVelocity(AngleUnit.RADIANS) * 19.2;
         curRightVel = motorRight.getVelocity(AngleUnit.RADIANS) * 19.2;
 
-        curVel = curLeftVel != 0 && curRightVel != 0 ? (curLeftVel + curRightVel) / 2.0 : curLeftVel + curRightVel;
+        filteredLeftVel  = alpha * filteredLeftVel  + (1 - alpha) * curLeftVel;
+        filteredRightVel = alpha * filteredRightVel + (1 - alpha) * curRightVel;
+
+
+        curVel = filteredLeftVel != 0 && filteredRightVel != 0 ? (filteredLeftVel + filteredRightVel) / 2.0 : filteredLeftVel + filteredRightVel;
 
         if (units == Units.Meters_in_sec)
         {
@@ -195,13 +209,13 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        if (errorPart > 0.02)
+        if (errorPart > 0.04 || curVel < targSpeed)
         {
             flyWheelStates = FlyWheelStates.Unready;
             runTimeFlyWheel.reset();
         }
         else {
-            if (runTimeFlyWheel.seconds() > 0.25) flyWheelStates = FlyWheelStates.Ready;
+            flyWheelStates = FlyWheelStates.Ready;
         }
     }
 

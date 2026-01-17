@@ -13,6 +13,9 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionRobotController;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 public class AutoPlayerClass extends PlayerClass{
     public AutoPlayerClass(JoystickActivityClass joystickActivityClass, Collector collector, ElapsedTime elapsedTime, OpMode op) {
         super(joystickActivityClass, op.telemetry);
@@ -30,7 +33,7 @@ public class AutoPlayerClass extends PlayerClass{
         fireState = FireState.Prepare;
         anotherStates = AnotherStates.Push;
     }
-    private Collector collector;
+    public Collector collector;
     private PositionRobotController.VyrState vyrState;
     private OdometryClass.MoveState moveState;
     private OdometryClass.RotateState rotateState;
@@ -38,16 +41,16 @@ public class AutoPlayerClass extends PlayerClass{
     private double range;
     private ElapsedTime innerTime;
     private double targetAngle, targetServoPos;
-    private double targetSpeed, targetRadSpeedRed, targetRadSpeed;
+    public double targetSpeed, targetRadSpeedRed, targetRadSpeed;
     private int cellNum, attempts;
     private double theta = 0;
     private int flag = 0;
-    private GeneralState generalState;
+    public GeneralState generalState;
     private LoadState loadState;
     private FireState fireState;
     private AnotherStates anotherStates;
-    int ind1, ind2;
-    private double []speeds = {0, 100, 0, 100, 0, 100, 1};
+    public int ind1 = 0, ind2 = 1, ind3 = 2;
+    public double []speeds = {0, 0, 100, 0, 0, 100, 0, 0, 100};
     public enum GeneralState {
         LoadLogic,
         FireLogic
@@ -107,6 +110,24 @@ public class AutoPlayerClass extends PlayerClass{
         targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * b;
         targetRadSpeedRed = targetRadSpeed ;
 
+//        switch (collector.digitalCellsClass.getArtifactCount()){
+//            case 3:
+//                ind1 = 0;
+//                ind2 = 1;
+//                ind3 = 2;
+//                break;
+//            case 2:
+//                ind1 = 3;
+//                ind2 = 4;
+//                ind3 = 5;
+//                break;
+//            case 1:
+//                ind1 = 6;
+//                ind2 = 7;
+//                ind3 = 8;
+//                break;
+//        }
+
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;
@@ -158,6 +179,8 @@ public class AutoPlayerClass extends PlayerClass{
             }else {
                 collector.motors.setSpeedFlyWheel(0);
             }
+            speeds[0] = targetRadSpeedRed * 19.2;
+            speeds[1] = collector.motors.curVel;
 
             if(joystickActivityClass.bumperLeft && collector.servos.curPusherHorPos == PUSHER_START_POS){
                 collector.motors.onIntake();
@@ -255,12 +278,11 @@ public class AutoPlayerClass extends PlayerClass{
 
                 case FireLogic:
                     collector.motors.setSpeedFlyWheel(targetRadSpeedRed);
-
                     collector.servos.setAngle(targetServoPos);
 
                     switch (fireState) {
                         case Prepare:
-                            speeds = new double[]{0, 100, 0, 100, 0, 100, 1};
+                            speeds = new double[]{0, 0, 100, 0, 0, 100, 0, 0, 100};
 
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
@@ -292,26 +314,8 @@ public class AutoPlayerClass extends PlayerClass{
                                             || rotateState == OdometryClass.RotateState.High_speed
                                             || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready))
                                     {
-
-                                        switch (collector.digitalCellsClass.getArtifactCount()){
-                                            case 3:
-                                                ind1 = 0;
-                                                ind2 = 1;
-                                                break;
-                                            case 2:
-                                                ind1 = 2;
-                                                ind2 = 3;
-                                                break;
-                                            case 1:
-                                                ind1 = 4;
-                                                ind2 = 5;
-                                                break;
-                                        }
                                         if(isPushVerEnded()){
-                                            speeds[ind1] = collector.motors.curVel;
-
                                             collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
-                                            speeds[6] = targetRadSpeed * 19.2;
 
                                             anotherStates = AnotherStates.Waiting;
                                         }
@@ -320,7 +324,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                                 case Waiting:
                                     if (isPushHorEnded()){
-                                        speeds[ind2] = Math.min(collector.motors.curVel, speeds[ind2]);
+                                        speeds[ind3] = Math.min(collector.motors.curVel, speeds[ind2]);
                                         anotherStates = AnotherStates.Back;
                                     }
                                     break;

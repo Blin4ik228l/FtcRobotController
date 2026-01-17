@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenCl
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
+import org.firstinspires.ftc.teamcode.Robot.FileSystem;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
@@ -22,6 +23,7 @@ public abstract class TeleOpModernized extends OpMode {
     public PositionFireLogic positionFireLogic;
     public TelemetrySettings telemetrySettings;
     public ElapsedTime updateTime;
+    public FileSystem fileSystem;
     public int iterationCount = 1;
 
     public void initAfterRobot(){
@@ -34,6 +36,8 @@ public abstract class TeleOpModernized extends OpMode {
         innerWarden = new InnerWardenClass(robot, player1, autoPlayerClass, this);
 
         positionFireLogic = new PositionFireLogic(robot.driveTrain, this);
+
+        fileSystem = new FileSystem(autoPlayerClass, robot,this);
 
         telemetrySettings = new TelemetrySettings(this, null, telemetry);
 
@@ -63,6 +67,8 @@ public abstract class TeleOpModernized extends OpMode {
 
         robot.update();
         innerWarden.update();
+
+        fileSystem.update();
 
         extUpdate();
     }
@@ -101,7 +107,7 @@ public abstract class TeleOpModernized extends OpMode {
 
     @Override
     public void stop() {
-
+        fileSystem.stop();
     }
 }
 

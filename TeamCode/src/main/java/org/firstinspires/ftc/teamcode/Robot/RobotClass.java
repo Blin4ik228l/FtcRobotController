@@ -42,8 +42,9 @@ public class RobotClass extends UpdatableModule {
     @Override
     public void update() {
         driveTrain.update();
+        collector.update();
 
-        if (iterationCount % 2 == 0) collector.update();
+//        if (iterationCount % 2 == 0)
         if (iterationCount % 10 == 0) voltageSensor.update();
     }
 

@@ -17,7 +17,7 @@ public class CollectorMotors extends Module {
     private final DcMotorEx motorLeft;
     private Units units;
     private ControlMode controlMode;
-    private ElapsedTime runTimeFlyWheel, runTimeIntake;
+    private ElapsedTime runTimeFlyWheel, runTimeIntake, innerTime;
     public FlyWheelStates flyWheelStates;
     public CollectorMotors(OpMode op){
         super(op.telemetry);
@@ -43,6 +43,7 @@ public class CollectorMotors extends Module {
 
         runTimeFlyWheel = new ElapsedTime();
         runTimeIntake = new ElapsedTime();
+        innerTime = new ElapsedTime();
 
         telemetry.addLine("Motors on collector inited");
     }
@@ -65,7 +66,7 @@ public class CollectorMotors extends Module {
 //    private double  P = 11, I = 5, D = 1, F = 0;
 //    private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.1;
 
-    private double  P = 4.7, I = 5.8, D = 0.99, F = 0;
+    public double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
     private double pG ,iG ,dG , fG;
     private double errorPart;
     private PID pid = new PID(P, I, D, -100, 100);
@@ -143,6 +144,7 @@ public class CollectorMotors extends Module {
     }
     public void setSpeedFlyWheel(double speed){
         targSpeed = speed * 19.2;
+        if (targSpeed == 0) innerTime.reset();
 
         switch (controlMode){
             case By_speed:
@@ -189,8 +191,6 @@ public class CollectorMotors extends Module {
         attempts++;
     }
     public void calcCurSpeed(){
-
-
         curLeftVel = motorLeft.getVelocity(AngleUnit.RADIANS) * 19.2;
         curRightVel = motorRight.getVelocity(AngleUnit.RADIANS) * 19.2;
 
@@ -209,7 +209,7 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        if (errorPart > 0.04 || curVel < targSpeed)
+        if (errorPart > 0.02 || curVel < targSpeed || innerTime.seconds() < 1)
         {
             flyWheelStates = FlyWheelStates.Unready;
             runTimeFlyWheel.reset();

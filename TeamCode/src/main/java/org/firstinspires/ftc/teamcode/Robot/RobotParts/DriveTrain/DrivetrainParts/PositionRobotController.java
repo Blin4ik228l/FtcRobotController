@@ -49,8 +49,11 @@ public class PositionRobotController extends UpdatableModule {
                 flag = true;
             }
         }else {
-            odometryClass.updatePoses();
-            flag = false;
+            if (cameraClass.onceSeen)
+            {
+                odometryClass.updatePoses();
+                flag = false;
+            }
         }
 
         calcRange();

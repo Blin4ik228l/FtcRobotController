@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
@@ -38,17 +39,18 @@ public class AutoPlayerClass extends PlayerClass{
     private OdometryClass.MoveState moveState;
     private OdometryClass.RotateState rotateState;
     private CameraClass.RandomizeStatus randomizeStatus;
-    private double range;
+    public double range;
     private ElapsedTime innerTime;
-    private double targetAngle, targetServoPos;
+    public double targetAngle, targetServoPos;
     public double targetSpeed, targetRadSpeedRed, targetRadSpeed;
     private int cellNum, attempts;
-    private double theta = 0;
+    public double theta = 35;
     private int flag = 0;
     public GeneralState generalState;
     private LoadState loadState;
     private FireState fireState;
     private AnotherStates anotherStates;
+    boolean once;
     public int ind1 = 0, ind2 = 1, ind3 = 2;
     public double []speeds = {0, 0, 100, 0, 0, 100, 0, 0, 100};
     public enum GeneralState {
@@ -74,12 +76,13 @@ public class AutoPlayerClass extends PlayerClass{
     }
     public void setFields(CameraClass.RandomizeStatus randomizeStatus,
                           PositionRobotController.VyrState vyrState,
-                          OdometryClass.MoveState moveState, OdometryClass.RotateState rotateState, double range){
+                          OdometryClass.MoveState moveState, OdometryClass.RotateState rotateState, double range, boolean once){
         this.randomizeStatus = randomizeStatus;
         this.vyrState = vyrState;
         this.moveState = moveState;
         this.rotateState = rotateState;
-        this.range = range - 8;
+        this.range = range;
+        this.once = once;
     }
 
     @Override
@@ -87,12 +90,12 @@ public class AutoPlayerClass extends PlayerClass{
         double b  = 1;
 //        if (range < 250)
 //        {
-//            theta = 75;
-//            b = 0.785;
+//            theta = 80;
+////            b = 0.785;
 //        }
 //        else {
-//            theta = 60;
-//            b = 1.15;
+//            theta = 58;
+////            b = 1.15;
 //        }
         if (range <= 50)
         {
@@ -100,14 +103,14 @@ public class AutoPlayerClass extends PlayerClass{
         }
         else if (range <= 100){
             theta = 75;
-        }else theta = 60;
+        }else theta = 55;
 
 //        range /= 1.75;
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * b;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 0.92;
         targetRadSpeedRed = targetRadSpeed ;
 
 //        switch (collector.digitalCellsClass.getArtifactCount()){
@@ -128,6 +131,9 @@ public class AutoPlayerClass extends PlayerClass{
 //                break;
 //        }
 
+        speeds[0] = targetRadSpeedRed * 19.2;
+        speeds[1] = collector.motors.curVel;
+        speeds[2] = 0;
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;
@@ -179,8 +185,6 @@ public class AutoPlayerClass extends PlayerClass{
             }else {
                 collector.motors.setSpeedFlyWheel(0);
             }
-            speeds[0] = targetRadSpeedRed * 19.2;
-            speeds[1] = collector.motors.curVel;
 
             if(joystickActivityClass.bumperLeft && collector.servos.curPusherHorPos == PUSHER_START_POS){
                 collector.motors.onIntake();
@@ -259,7 +263,7 @@ public class AutoPlayerClass extends PlayerClass{
                                 collector.motors.reverseInTake();
                                 if (collector.motors.getRunTimeIntake().seconds() > REVERSE_DELAY) {
                                     collector.motors.offIntake();
-
+                                    joystickActivityClass.buttonY = true;
                                     generalState = GeneralState.FireLogic;
                                     fireState = FireState.Prepare;
                                 }
@@ -282,7 +286,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                     switch (fireState) {
                         case Prepare:
-                            speeds = new double[]{0, 0, 100, 0, 0, 100, 0, 0, 100};
+                            speeds = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
 
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
@@ -312,7 +316,8 @@ public class AutoPlayerClass extends PlayerClass{
                                     collector.update();
                                     if (!( moveState == OdometryClass.MoveState.High_speed
                                             || rotateState == OdometryClass.RotateState.High_speed
-                                            || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready))
+                                            || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready
+                                    || !once))
                                     {
                                         if(isPushVerEnded()){
                                             collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
@@ -324,7 +329,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                                 case Waiting:
                                     if (isPushHorEnded()){
-                                        speeds[ind3] = Math.min(collector.motors.curVel, speeds[ind2]);
+                                        speeds[2] = collector.motors.curVel;
                                         anotherStates = AnotherStates.Back;
                                     }
                                     break;
@@ -349,6 +354,7 @@ public class AutoPlayerClass extends PlayerClass{
                         case Idle:
                             if (collector.digitalCellsClass.getArtifactCount() == 0)
                             {
+                                collector.servos.setAngle(ANGLE_UPPER_POS);
                                 joystickActivityClass.buttonY = false;
                                 generalState = GeneralState.LoadLogic;
                                 loadState = LoadState.Prepare;

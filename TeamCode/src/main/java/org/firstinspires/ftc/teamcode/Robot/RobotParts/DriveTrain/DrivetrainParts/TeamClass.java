@@ -76,14 +76,14 @@ public class TeamClass extends UpdatableModule {
             0
     };
     private final double[] bluePointVyrCoord = new double[]{
-            -180,
-            -180,
+            -155,
+            -155,
             2.54 * (29.5),//Z
             0//Угол относительно поля
     };
     private final double[] redPointVyrCoord = new double[]{
-            -180,
-            180,
+            -155,
+            155,
             2.54 * (29.5),//Z
             0//Угол относительно поля
     };

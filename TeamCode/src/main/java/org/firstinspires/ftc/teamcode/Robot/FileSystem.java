@@ -14,7 +14,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class FileSystem extends UpdatableModule {
@@ -32,11 +34,15 @@ public class FileSystem extends UpdatableModule {
     private AutoPlayerClass autoPlayerClass;
     private RobotClass robotClass;
     private int attempts;
+    private Date date = new Date();
 
     @Override
     public void update() {
 
-        String s1 = String.format("Target speed:%.2f Cur:%.2f After shot:%.2f Time:%.2f %n",autoPlayerClass.targetRadSpeedRed * 19.2, autoPlayerClass.collector.motors.curVel, autoPlayerClass.speeds[2], robotClass.innerRunTime.milliseconds());
+        String s1 = String.format("Target speed:%.2f Cur:%.2f After shot:%.2f Time:%.2f P:%s I:%s D:%s F:%s Global:%s Angle:%s Distance:%s %n",
+                autoPlayerClass.targetRadSpeedRed * 19.2, autoPlayerClass.collector.motors.curVel, autoPlayerClass.speeds[2], robotClass.innerRunTime.milliseconds(),
+                autoPlayerClass.collector.motors.P, autoPlayerClass.collector.motors.I, autoPlayerClass.collector.motors.D, autoPlayerClass.collector.motors.F,
+                date.getTime(), Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
 //      String s2 = String.format("Target speed:%.2f Cur:%.2f After shot:%.2f Time:%.2f %n",autoPlayerClass.speeds[3],autoPlayerClass.speeds[4], autoPlayerClass.speeds[5], robotClass.innerRunTime.milliseconds());
 //      String s3 = String.format("Target speed:%.2f Cur:%.2f After shot:%.2f Time:%.2f %n", autoPlayerClass.speeds[6],autoPlayerClass.speeds[7], autoPlayerClass.speeds[8], robotClass.innerRunTime.milliseconds());
         logBuffer.add(s1);

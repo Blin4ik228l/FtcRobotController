@@ -140,7 +140,7 @@ public class CameraClass extends UpdatableModule {
                     id = detection.id;
                     desicionMargin = detection.decisionMargin;
 
-                    if (desicionMargin > 30){
+                    if (desicionMargin > 10){
                         if (!(id == 20 || id == 24)){
                             setRandomizedArtifactFromId(id);
                         }else {
@@ -150,7 +150,7 @@ public class CameraClass extends UpdatableModule {
 
                             robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                             robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS) + Math.toRadians(0);
+                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
                             ftcYaw = detection.ftcPose.yaw;
 
@@ -220,6 +220,7 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
+        telemetry.addData("onceSeen", onceSeen);
         telemetry.addData("index/id", "%s %s",index, id);
         telemetry.addData("des/yaw", "%s %s",desicionMargin, ftcYaw * RAD);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);

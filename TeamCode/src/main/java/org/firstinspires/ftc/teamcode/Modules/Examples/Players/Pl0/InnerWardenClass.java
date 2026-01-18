@@ -29,6 +29,6 @@ public class InnerWardenClass extends UpdatableModule {
                 robotClass.driveTrain.positionRobotController.vyrState,
                 robotClass.driveTrain.odometryClass.moveState,
                 robotClass.driveTrain.odometryClass.rotateState,
-                robotClass.driveTrain.positionRobotController.getRange());
+                robotClass.driveTrain.positionRobotController.getRange(), robotClass.driveTrain.cameraClass.onceSeen);
     }
 }

@@ -9,12 +9,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class EncoderClass extends Module {
-    public EncoderClass(@NonNull OpMode op){
-        super(op.telemetry);
+    public EncoderClass(OpMode op){
+        super(op);
 
-        encLeft = op.hardwareMap.get(DcMotorEx.class, "leftF");
-        encMid = op.hardwareMap.get(DcMotorEx.class, "rightB" );
-        encRight = op.hardwareMap.get(DcMotorEx.class, "rightF");
+        encLeft = hardwareMap.get(DcMotorEx.class, "leftF");
+        encMid = hardwareMap.get(DcMotorEx.class, "rightB" );
+        encRight = hardwareMap.get(DcMotorEx.class, "rightF");
 
         encRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем правый энкодер
         encLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);                  // обновляем левый энкодер

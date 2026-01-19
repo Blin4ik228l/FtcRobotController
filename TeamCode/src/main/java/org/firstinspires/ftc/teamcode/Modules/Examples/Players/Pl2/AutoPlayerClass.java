@@ -4,25 +4,22 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ColorSensorClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionRobotController;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.PositionRobotController;
 
 public class AutoPlayerClass extends PlayerClass{
-    public AutoPlayerClass(JoystickActivityClass joystickActivityClass, Collector collector, ElapsedTime elapsedTime, OpMode op) {
-        super(joystickActivityClass, op.telemetry);
+    public AutoPlayerClass(JoystickActivityClass joystickActivityClass, Collector collector, ElapsedTime matchTime,OpMode op) {
+        super(joystickActivityClass, op);
         this.collector = collector;
 
-        innerTime = elapsedTime;
+        this.matchTime = matchTime;
 
         vyrState = PositionRobotController.VyrState.Far_from_it;
         moveState = OdometryClass.MoveState.High_speed;
@@ -32,27 +29,28 @@ public class AutoPlayerClass extends PlayerClass{
         generalState = GeneralState.LoadLogic;
         loadState = LoadState.Prepare;
         fireState = FireState.Prepare;
-        anotherStates = AnotherStates.Push;
+        anotherStates = AnotherStates.Prepare;
     }
+
     public Collector collector;
     private PositionRobotController.VyrState vyrState;
     private OdometryClass.MoveState moveState;
     private OdometryClass.RotateState rotateState;
     private CameraClass.RandomizeStatus randomizeStatus;
     public double range;
-    private ElapsedTime innerTime;
     public double targetAngle, targetServoPos;
     public double targetSpeed, targetRadSpeedRed, targetRadSpeed;
-    private int cellNum, attempts;
-    public double theta = 35;
+    private int cellNum;
+    public double theta;
     private int flag = 0;
     public GeneralState generalState;
     private LoadState loadState;
     private FireState fireState;
     public AnotherStates anotherStates;
     boolean once;
-    public double []speeds = new double[3];
+    public ElapsedTime matchTime;
     public enum GeneralState {
+        Stop,
         LoadLogic,
         FireLogic
     }
@@ -74,66 +72,36 @@ public class AutoPlayerClass extends PlayerClass{
         Waiting,
         Back
     }
-    public void setFields(CameraClass.RandomizeStatus randomizeStatus,
-                          PositionRobotController.VyrState vyrState,
-                          OdometryClass.MoveState moveState, OdometryClass.RotateState rotateState, double range, boolean once){
-        this.randomizeStatus = randomizeStatus;
-        this.vyrState = vyrState;
-        this.moveState = moveState;
-        this.rotateState = rotateState;
-        this.range = range;
-        this.once = once;
+    public void setFields(PositionRobotController positionRobotController){
+        this.randomizeStatus = positionRobotController.getCameraClass().randomizeStatus;
+        this.once = positionRobotController.getCameraClass().onceSeen;
+        this.vyrState = positionRobotController.vyrState;
+        this.moveState = positionRobotController.getOdometryClass().moveState;
+        this.rotateState = positionRobotController.getOdometryClass().rotateState;
+        this.range = positionRobotController.getRange();
     }
 
     @Override
     public void execute(){
-        double b  = 1;
-//        if (range < 250)
-//        {
-//            theta = 80;
-////            b = 0.785;
-//        }
-//        else {
-//            theta = 58;
-////            b = 1.15;
-//        }
-        if (range <= 50)
+        if (range <= 200)
         {
             theta = 80;
-        }
-        else if (range <= 100){
-            theta = 75;
-        }else theta = 55;
+        }else theta = 45;
 
-//        range /= 1.75;
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 0.92;
-        targetRadSpeedRed = targetRadSpeed ;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 0.9;
+        targetRadSpeedRed = targetRadSpeed;
 
-//        switch (collector.digitalCellsClass.getArtifactCount()){
-//            case 3:
-//                ind1 = 0;
-//                ind2 = 1;
-//                ind3 = 2;
-//                break;
-//            case 2:
-//                ind1 = 3;
-//                ind2 = 4;
-//                ind3 = 5;
-//                break;
-//            case 1:
-//                ind1 = 6;
-//                ind2 = 7;
-//                ind3 = 8;
-//                break;
-//        }
-
-        speeds[0] = targetRadSpeedRed * 19.2;
-        speeds[1] = collector.motors.curVel;
-        speeds[2] = 0;
+        switch (GeneralInformation.current.programName){
+            case TeleOp:
+                break;
+            case Auto:
+                joystickActivityClass.buttonX = true;
+                break;
+        }
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;
@@ -221,9 +189,13 @@ public class AutoPlayerClass extends PlayerClass{
             }else {
                 if(flag == 1) collector.motors.offIntake();
                 flag = 0;
-               }
+            }
 
             switch (generalState){
+                case Stop:
+                    collector.motors.setSpeedFlyWheel(0);
+                    collector.motors.offIntake();
+                    break;
                 case LoadLogic:
                     collector.motors.setSpeedFlyWheel(0);
 
@@ -294,12 +266,18 @@ public class AutoPlayerClass extends PlayerClass{
                             break;
 
                         case Find:
-//                            int targetCellIndex = 3 - collector.digitalCellsClass.getArtifactCount(); // 3→0, 2→1, 1→2
-//                            int targetColor = collector.digitalCellsClass.getRandomizedArtifact()[targetCellIndex];
-//
-//                            int targCell = collector.digitalCellsClass.findNeededCell(targetColor);
+                            int targCell = 0;
+                            switch (GeneralInformation.current.programName){
+                                case TeleOp:
+                                    targCell = collector.digitalCellsClass.getFullCell();
+                                    break;
+                                case Auto:
+                                    int targetCellIndex = 3 - collector.digitalCellsClass.getArtifactCount(); // 3→0, 2→1, 1→2
+                                    int targetColor = collector.digitalCellsClass.getRandomizedArtifact()[targetCellIndex];
 
-                            int targCell = collector.digitalCellsClass.getFullCell();
+                                    targCell = collector.digitalCellsClass.findNeededCell(targetColor);
+                                    break;
+                            }
 
                             rotateBaraban(targCell);
 
@@ -321,7 +299,7 @@ public class AutoPlayerClass extends PlayerClass{
                                     if (!(moveState == OdometryClass.MoveState.High_speed || rotateState == OdometryClass.RotateState.High_speed
                                             || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready || !once))
                                     {
-                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3] * 1.05);
+                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3]);
                                         anotherStates = AnotherStates.Push;
                                     }
                                     break;
@@ -345,7 +323,7 @@ public class AutoPlayerClass extends PlayerClass{
                                             fireState = FireState.Idle;
                                         }
 
-                                        anotherStates = AnotherStates.Push;
+                                        anotherStates = AnotherStates.Prepare;
                                     }
                                     break;
                             }
@@ -417,18 +395,18 @@ public class AutoPlayerClass extends PlayerClass{
         double alpha = Math.toRadians(theta);
         int h = 79;
 
-//        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
+        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
 
-        targetAngle = alpha;
+//        targetAngle = alpha;
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private void calcSpeed(){
         double alpha = Math.toRadians(theta);
 
-//        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
+        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
 
-        targetSpeed = Math.sqrt((981 * Math.pow(range, 2)) / (2 * Math.pow(Math.cos(alpha), 2) * (range * Math.tan(alpha) - (79))))/ 100;
+//        targetSpeed = Math.sqrt((981 * Math.pow(range, 2)) / (2 * Math.pow(Math.cos(alpha), 2) * (range * Math.tan(alpha) - (79))))/ 100;
         targetSpeed = Math.round(targetSpeed * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private boolean isLoadEnded(){
@@ -456,7 +434,6 @@ public class AutoPlayerClass extends PlayerClass{
             telemetry.addData("MoveState", moveState.toString());
             telemetry.addData("RotateState", rotateState.toString());
         }
-        telemetry.addData("speeds", "1: [%.2f %.2f] 2: [%.2f %.2f] 3: [%.2f %.2f] targ: %.2f", speeds[0], speeds[1], speeds[2], speeds[3], speeds[4], speeds[5], speeds[6]);
         telemetry.addLine();
     }
 

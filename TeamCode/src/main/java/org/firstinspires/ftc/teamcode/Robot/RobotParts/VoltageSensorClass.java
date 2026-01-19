@@ -1,20 +1,18 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
-public class VoltageSensorClass extends UpdatableModule {
-    private HardwareMap hardwareMap;
-    public VoltageSensorClass(OpMode op){
-        super(op.telemetry);
-        hardwareMap = op.hardwareMap;
-    }
+public class VoltageSensorClass extends UpdatableModule{
     private double curVoltage;
     private double MAX_VOL;
     private double kPower;
+
+    public VoltageSensorClass(OpMode op) {
+        super(op);
+    }
 
     public double getkPower() {
         return kPower;

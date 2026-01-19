@@ -1,10 +1,16 @@
 package org.firstinspires.ftc.teamcode.Modules.Types;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class UpdatableModule extends Module{
-    public UpdatableModule(Telemetry telemetry) {
-        super(telemetry);
+public class UpdatableModule extends Module implements InterUpdate{
+    public UpdatableModule(OpMode op) {
+        super(op);
     }
-    public void update(){}
+    @Override
+    public void update() {
+
+    }
 }

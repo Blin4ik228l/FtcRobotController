@@ -13,13 +13,13 @@ public class ServomotorsClass extends Module {
     private final Servo baraban, baraban2;
     public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusherHor, runTimePusherVer;
     public ServomotorsClass(OpMode op){
-        super(op.telemetry);
+        super(op);
 
-        pusherHor = op.hardwareMap.get(Servo.class, "pusher");
-        pusherVer = op.hardwareMap.get(Servo.class, "pusher2");
-        baraban = op.hardwareMap.get(Servo.class, "baraban");
-        baraban2 = op.hardwareMap.get(Servo.class, "baraban2");
-        angle = op.hardwareMap.get(Servo.class, "angle");
+        pusherHor = hardwareMap.get(Servo.class, "pusher");
+        pusherVer = hardwareMap.get(Servo.class, "pusher2");
+        baraban = hardwareMap.get(Servo.class, "baraban");
+        baraban2 = hardwareMap.get(Servo.class, "baraban2");
+        angle = hardwareMap.get(Servo.class, "angle");
 
         runTimeBaraban = new ElapsedTime();
         runTimeAngle = new ElapsedTime();

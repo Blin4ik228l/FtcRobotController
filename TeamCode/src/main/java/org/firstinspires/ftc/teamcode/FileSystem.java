@@ -24,7 +24,7 @@ public class FileSystem extends UpdatableModule {
     private RobotClass robotClass;
     private Date date;
     public FileSystem(AutoPlayerClass autoPlayerClass, RobotClass robotClass, OpMode op){
-        super(op.telemetry);
+        super(op);
 
         this.autoPlayerClass = autoPlayerClass;
         this.robotClass = robotClass;
@@ -44,13 +44,12 @@ public class FileSystem extends UpdatableModule {
 
         String targSpeed = String.valueOf(autoPlayerClass.targetRadSpeedRed * 19.2);
         String curVel = String.valueOf(autoPlayerClass.collector.motors.curVel);
-        String velAfterShot = String.valueOf(autoPlayerClass.speeds[2]);
         String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass.collector.motors.getPIDF()[0], autoPlayerClass.collector.motors.getPIDF()[1], autoPlayerClass.collector.motors.getPIDF()[2], autoPlayerClass.collector.motors.getPIDF()[3]);
         String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
         String states = String.format("General: %s Another: %s", autoPlayerClass.generalState.toString(), autoPlayerClass.anotherStates.toString());
         String dat = String.valueOf(date.getTime());
 
-        logBuffer.add(String.format("Speeds[T: %s C: %s AS: %s]", targSpeed, curVel, velAfterShot));
+        logBuffer.add(String.format("Speeds[T: %s C: %s]", targSpeed, curVel));
         logBuffer.add(kPIDF);
         logBuffer.add(params);
         logBuffer.add(String.format("Date in milliseconds: %s", dat));

@@ -1,13 +1,15 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 
 public class TelemetrySettings extends UpdatableModule {
-    public TelemetrySettings(TeleOpModernized teleOpModernized, LinearOpModeModernized linearOpModeModernized, Telemetry telemetry) {
-        super(telemetry);
+    public TelemetrySettings(TeleOpModernized teleOpModernized, LinearOpModeModernized linearOpModeModernized, OpMode op) {
+        super(op);
 
         this.teleOpModernized = teleOpModernized;
         this.linearOpModeModernized = linearOpModeModernized;
@@ -96,16 +98,16 @@ public class TelemetrySettings extends UpdatableModule {
                 teleOpModernized.joystickActivityClass2.showData();
                 break;
             case Show_motors:
-                teleOpModernized.robot.driveTrain.motors.showData();
+                teleOpModernized.robot.drivetrain.motors.showData();
                 teleOpModernized.robot.collector.motors.showData();
                 break;
             case Show_voltage:
                 teleOpModernized.robot.voltageSensor.showData();
                 break;
             case Show_navigation:
-                teleOpModernized.robot.driveTrain.positionRobotController.showData();
-                teleOpModernized.robot.driveTrain.cameraClass.showData();
-                teleOpModernized.robot.driveTrain.odometryClass.showData();
+                teleOpModernized.robot.drivetrain.positionRobotController.showData();
+                teleOpModernized.robot.drivetrain.cameraClass.showData();
+                teleOpModernized.robot.drivetrain.odometryClass.showData();
                 break;
             case Show_sorting_system:
                 teleOpModernized.robot.collector.colorSensorClass.showData();
@@ -126,8 +128,8 @@ public class TelemetrySettings extends UpdatableModule {
             case Show_for_auto:
                 linearOpModeModernized.driveHandler.showData();
 
-                linearOpModeModernized.robot.driveTrain.odometryClass.showData();
-                linearOpModeModernized.robot.driveTrain.motors.showData();
+                linearOpModeModernized.robot.drivetrain.odometryClass.showData();
+                linearOpModeModernized.robot.drivetrain.motors.showData();
                 break;
         }
 

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
 
 public class PlayerClass2 extends PlayerClass {
    public PlayerClass2(JoystickActivityClass joystickActivityClass, Collector teleskope, OpMode op){
-       super(joystickActivityClass, op.telemetry);
+       super(joystickActivityClass, op);
 
 
     }

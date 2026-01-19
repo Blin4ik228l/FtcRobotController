@@ -20,20 +20,15 @@ public class CollectorMotors extends Module {
     private ElapsedTime runTimeFlyWheel, runTimeIntake, innerTime;
     public FlyWheelStates flyWheelStates;
     public CollectorMotors(OpMode op){
-        super(op.telemetry);
+        super(op);
 
-        inTakeMotor = op.hardwareMap.get(DcMotor.class, "inTake");
-        motorRight = op.hardwareMap.get(DcMotorEx.class, "flyWheelRight");
-        motorLeft = op.hardwareMap.get(DcMotorEx.class, "flyWheelLeft");
+        inTakeMotor = hardwareMap.get(DcMotor.class, "inTake");
+        motorRight = hardwareMap.get(DcMotorEx.class, "flyWheelRight");
+        motorLeft = hardwareMap.get(DcMotorEx.class, "flyWheelLeft");
 
         inTakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем правый энкодер
         motorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);// обновляем левый энкодер
-
-        units = Units.Rad_in_sec;
-        controlMode = ControlMode.By_power;
-
-        setPreferences(controlMode, units);
 
         inTakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         motorRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -65,11 +60,11 @@ public class CollectorMotors extends Module {
 //    private double  P = 30, I = 0.04, D = 0, F = 1;
 //    private double  P = 11, I = 5, D = 1, F = 0;
 //    private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.1;
+//    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
 
-    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
+    private double  P = 0.8, I = 0.03, D = 0, F = 14;
     private double pG ,iG ,dG , fG;
     private double errorPart;
-    private PID pid = new PID(P, I, D, -100, 100);
     double filteredLeftVel = 0;
     double filteredRightVel = 0;
     double alpha = 0.3;
@@ -108,7 +103,6 @@ public class CollectorMotors extends Module {
                 motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
                 break;
             case By_speed:
-//                pid = new PID(P, I, D, -100, 100);
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
                 motorRight.setVelocityPIDFCoefficients(P, I, D, F);
                 break;
@@ -143,8 +137,8 @@ public class CollectorMotors extends Module {
                 motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 break;
             case By_speed:
-                motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);//Запускаем
-                motorRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);//Запускаем
+                motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
                 motorRight.setVelocityPIDFCoefficients(P, I, D, F);

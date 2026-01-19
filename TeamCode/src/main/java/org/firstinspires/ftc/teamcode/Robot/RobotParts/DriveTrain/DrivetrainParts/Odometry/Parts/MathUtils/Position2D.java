@@ -82,6 +82,9 @@ public class Position2D {
         this.y += vector2.y;
         this.heading += heading;
     }
+    public Position2D minus (Position2D position2D){
+        return new Position2D(x - position2D.getX(), y - position2D.getY(), heading - position2D.getHeading());
+    }
 
 
     @NonNull

@@ -3,24 +3,19 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts.PositionFireLogic;
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenClass;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
 import org.firstinspires.ftc.teamcode.FileSystem;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 
 public abstract class TeleOpModernized extends OpMode {
     public RobotClass robot;
     public PlayerClass1 player1;
     public AutoPlayerClass autoPlayerClass;
-    public InnerWardenClass innerWarden;
     public JoystickActivityClass joystickActivityClass;
     public JoystickActivityClass joystickActivityClass2;
-    public PositionFireLogic positionFireLogic;
     public TelemetrySettings telemetrySettings;
     public ElapsedTime updateTime;
     public FileSystem fileSystem;
@@ -30,18 +25,12 @@ public abstract class TeleOpModernized extends OpMode {
         joystickActivityClass = new JoystickActivityClass(gamepad1, this);
         joystickActivityClass2 = new JoystickActivityClass(gamepad2, this);
 
-        player1 = new PlayerClass1(joystickActivityClass, robot.driveTrain, robot.innerRunTime,this);
+        player1 = new PlayerClass1(joystickActivityClass, robot.drivetrain, robot.innerRunTime,this);
         autoPlayerClass = new AutoPlayerClass(joystickActivityClass, robot.collector, robot.innerRunTime,this);
-
-        innerWarden = new InnerWardenClass(robot, player1, autoPlayerClass, this);
-
-        positionFireLogic = new PositionFireLogic(robot.driveTrain, this);
 
         fileSystem = new FileSystem(autoPlayerClass, robot,this);
 
-        telemetrySettings = new TelemetrySettings(this, null, telemetry);
-
-        robot.collector.motors.setPreferences(CollectorMotors.ControlMode.By_speed, CollectorMotors.Units.Rad_in_sec);
+        telemetrySettings = new TelemetrySettings(this, null, this);
 
         updateTime = new ElapsedTime();
     }
@@ -54,7 +43,7 @@ public abstract class TeleOpModernized extends OpMode {
 
     @Override
     public void start() {
-        robot.startTimer();
+        robot.resetTimer();
     }
 
     @Override
@@ -94,7 +83,8 @@ public abstract class TeleOpModernized extends OpMode {
         telemetrySettings.update();
 
         robot.update();
-        innerWarden.update();
+
+        autoPlayerClass.setFields(robot.drivetrain.positionRobotController);
 
         fileSystem.update();
 

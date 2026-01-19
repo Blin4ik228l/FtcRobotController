@@ -3,37 +3,38 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.VoltageSensorClass;
 
-public class RobotClass extends UpdatableModule {
+public class RobotClass extends UpdatableModule{
    /* Основная идея данного класса:
     Робот - это как конструктор, он состоит из разных частей
     Моя задача как программиста расписать каждый модуль(часть робота)
     Чтобы в дальнейшем ими легко управлять
     */
-    public GeneralInformation generalInformation;
-    public MecanumDrivetrain driveTrain;
+    public MecanumDrivetrain drivetrain;
     public Collector collector;
-    public VoltageSensorClass voltageSensor;
-    public ElapsedTime innerRunTime;
     private int iterationCount;
 
-    public RobotClass(OpMode op ){
-        super(op.telemetry);
+    public RobotClass(OpMode op){
+        super(op);
 
-        driveTrain = new MecanumDrivetrain(op);
+        drivetrain = new MecanumDrivetrain(op);
         collector = new Collector(op);
-        voltageSensor = new VoltageSensorClass(op);
-        innerRunTime = new ElapsedTime();
+
+        collector.motors.setPreferences(CollectorMotors.ControlMode.By_speed, CollectorMotors.Units.Rad_in_sec);
     }
-    public void setGeneralInformation(GeneralInformation.ProgramName programName, GeneralInformation.Color color, GeneralInformation.StartPos startPos){
-        generalInformation = new GeneralInformation(programName, color, startPos);
+
+    @Override
+    public void resetTimer() {
+        innerRunTime.reset();
+
+        drivetrain.resetTimer();
+        collector.resetTimer();
     }
+
     public void setIterationCount(int iterationCount) {
         this.iterationCount = iterationCount;
     }
@@ -44,17 +45,19 @@ public class RobotClass extends UpdatableModule {
 
     @Override
     public void update() {
-        driveTrain.update();
+        drivetrain.update();
 
         if (iterationCount % 2 == 0) collector.update();
         if (iterationCount % 10 == 0) voltageSensor.update();
+
+        collector.digitalCellsClass.setRandomizedArtifact(drivetrain.cameraClass.getRandomizedArtifacts());
     }
 
     @Override
     public void showData(){
         telemetry.addData("Match time:", innerRunTime.seconds());
         voltageSensor.showData();
-        driveTrain.showData();
+        drivetrain.showData();
         collector.showData();
     }
 }

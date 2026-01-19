@@ -36,9 +36,9 @@ public class CameraClass extends UpdatableModule {
     public ElapsedTime updateTime;
     public boolean onceSeen;
     public CameraClass(OpMode op)  {
-        super(op.telemetry);
+        super(op);
 
-        webcamName = op.hardwareMap.get(WebcamName.class, "Webcam 1");
+        webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
 
         cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
 
@@ -84,7 +84,6 @@ public class CameraClass extends UpdatableModule {
     private double robotFieldX, robotFieldY, robotFieldZ;
     private double robotFieldPitch, robotFieldRoll, robotFieldYaw;
     private double robotRangeToTag, cameraElevation, cameraBearing;
-    private double ftcYaw;
     private double desicionMargin;
     private int index;
     private int id;
@@ -128,7 +127,7 @@ public class CameraClass extends UpdatableModule {
                 }
                 break;
             case Processing:
-                if (!aprilTagProcessor.getDetections().isEmpty() && updateTime.seconds() > 1)
+                if (!aprilTagProcessor.getDetections().isEmpty() && updateTime.seconds() > 0.1)
                 {
                     index = index % aprilTagProcessor.getDetections().size();
 
@@ -151,8 +150,6 @@ public class CameraClass extends UpdatableModule {
                             robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                             robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
                             robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
-
-                            ftcYaw = detection.ftcPose.yaw;
 
                             robotRangeToTag = detection.ftcPose.range;
                             cameraElevation = detection.ftcPose.elevation;
@@ -222,7 +219,7 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("onceSeen", onceSeen);
         telemetry.addData("index/id", "%s %s",index, id);
-        telemetry.addData("des/yaw", "%s %s",desicionMargin, ftcYaw * RAD);
+        telemetry.addData("des/yaw", "%s",desicionMargin);
         telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
         telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
         telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);

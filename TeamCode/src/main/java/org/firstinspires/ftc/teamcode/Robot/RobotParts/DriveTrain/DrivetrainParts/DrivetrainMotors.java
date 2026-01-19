@@ -6,17 +6,18 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
-public class DrivetrainMotors extends Module {
+public class DrivetrainMotors extends Module{
     private final DcMotor leftB;
     private final DcMotor leftF;
     private final DcMotor rightB;
     private final DcMotor rightF;
     public DrivetrainMotors(OpMode op) {
-        super(op.telemetry);
-        rightB = op.hardwareMap.get(DcMotor.class, "rightB");
-        rightF = op.hardwareMap.get(DcMotor.class, "rightF");
-        leftF = op.hardwareMap.get(DcMotor.class, "leftF");
-        leftB = op.hardwareMap.get(DcMotor.class, "leftB");
+        super(op);
+
+        rightB = hardwareMap.get(DcMotor.class, "rightB");
+        rightF = hardwareMap.get(DcMotor.class, "rightF");
+        leftF = hardwareMap.get(DcMotor.class, "leftF");
+        leftB = hardwareMap.get(DcMotor.class, "leftB");
 
         rightB.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightF.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -77,9 +78,6 @@ public class DrivetrainMotors extends Module {
         curLeftFPower = leftF.getPower();
     }
 
-    public void setKPower(double kPower){
-        this.kPower = kPower;
-    }
 
     @Override
     public void showData() {

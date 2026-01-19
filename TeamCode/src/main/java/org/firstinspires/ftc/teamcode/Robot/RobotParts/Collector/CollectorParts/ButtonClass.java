@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public class ButtonClass extends UpdatableModule {
     public ButtonClass(OpMode op) {
-        super(op.telemetry);
-        button = op.hardwareMap.get(DistanceSensor.class, "dist");
+        super(op);
+        button = hardwareMap.get(DistanceSensor.class, "dist");
 
         telemetry.addLine("Button is Inited");
     }

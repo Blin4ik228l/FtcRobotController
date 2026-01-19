@@ -20,10 +20,10 @@ public class ColorSensorClass extends UpdatableModule {
     public ColorSensorState colorState;
     private ElapsedTime timeFromDetect;
     public ColorSensorClass(OpMode op){
-        super(op.telemetry);
+        super(op);
 
-        colorSensorNear = op.hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
-        colorSensorFar = op.hardwareMap.get(NormalizedColorSensor.class, "sensor_color2");
+        colorSensorNear = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        colorSensorFar = hardwareMap.get(NormalizedColorSensor.class, "sensor_color2");
 
         colorSensorNear.setGain(gain);
         colorSensorFar.setGain(gain);

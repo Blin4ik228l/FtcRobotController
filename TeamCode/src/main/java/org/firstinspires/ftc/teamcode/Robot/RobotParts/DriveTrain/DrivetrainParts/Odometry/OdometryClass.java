@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.EncoderClass;
@@ -13,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 public class OdometryClass extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
     public OdometryClass(OpMode op){
-        super(op.telemetry);
+        super(op);
 
         gyro = new GyroscopeClass(op);
         encoderClass = new EncoderClass(op);
@@ -35,6 +37,14 @@ public class OdometryClass extends UpdatableModule {
 
         telemetry.addLine("ExOdometry Inited");
     }
+
+    @Override
+    public void resetTimer() {
+        innerRunTime.reset();
+        gyro.resetTimer();
+        encoderClass.resetTimer();
+    }
+
     private GyroscopeClass gyro;
     private EncoderClass encoderClass;
     private final SelfMath selfMath;

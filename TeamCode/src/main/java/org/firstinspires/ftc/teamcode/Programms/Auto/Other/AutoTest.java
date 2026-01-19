@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.Modules.Examples.AutoParts.DriveHandler;
+import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.DriveHandler;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
@@ -18,14 +17,14 @@ public class AutoTest extends LinearOpModeModernized {
     public void runOpMode() throws InterruptedException {
         robot = new RobotClass(this);
         robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Near_wall);
-        telemetrySettings = new TelemetrySettings(null, this, telemetry);
+        telemetrySettings = new TelemetrySettings(null, this, this);
 
         extRun();
     }
 
     @Override
     public void extRun() {
-        driveHandler = new DriveHandler(robot.driveTrain, this);
+        driveHandler = new DriveHandler(robot.drivetrain, this);
         driveHandler.setArgs(new Args.DriveArgs(
                 new Position2D(0, 0 , Math.toRadians(90)), 50
         ));

@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.Programms.TeleOps.Other;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
 
 @TeleOp(name = "PIDFTuner")
 public class PIDFTuner extends TeleOpModernized {
@@ -20,7 +19,7 @@ public class PIDFTuner extends TeleOpModernized {
 //    private double  P = 5.226, I = 9.897, D = 0.690, F = 0.1;
 //    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.082;
 
-    private double  P = 5.15 , I = 5.1, D = 0.99, F = 0.082;
+    private double  P = 0.8, I = 0.03, D = 0, F = 14;
 
     private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex;
@@ -28,7 +27,8 @@ public class PIDFTuner extends TeleOpModernized {
 
     @Override
     public void init() {
-        robot = new RobotClass(TeamClass.Color.Blue, TeamClass.StartPos.Nevermind, this);
+        robot = new RobotClass(this);
+        robot.setGeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
 
         initAfterRobot();
     }

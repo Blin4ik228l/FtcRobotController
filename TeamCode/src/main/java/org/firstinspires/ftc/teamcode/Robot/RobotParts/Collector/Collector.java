@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.DigitalCellsClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ServomotorsClass;
 
-public class Collector extends RobotClass {
+public class Collector extends UpdatableModule {
     public CollectorMotors motors;
     public ServomotorsClass servos;
     public ColorSensorClass colorSensorClass;
@@ -18,7 +18,7 @@ public class Collector extends RobotClass {
     public ButtonClass buttonClass;
 
     public Collector(OpMode op) {
-        super(op.telemetry);
+        super(op);
 
         motors = new CollectorMotors(op);
 
@@ -29,6 +29,16 @@ public class Collector extends RobotClass {
         digitalCellsClass = new DigitalCellsClass(servos, op);
 
         telemetry.addLine("Collector inited");
+    }
+
+    @Override
+    public void resetTimer() {
+        innerRunTime.reset();
+        motors.resetTimer();
+        servos.resetTimer();
+        colorSensorClass.resetTimer();
+        buttonClass.resetTimer();
+        digitalCellsClass.resetTimer();
     }
 
     @Override

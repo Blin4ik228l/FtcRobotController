@@ -9,7 +9,7 @@ public class DigitalCellsClass extends Module {
     private final Cell cell0, cell1, cell2;
 
     public DigitalCellsClass(ServomotorsClass servomotorsClass, OpMode op){
-        super(op.telemetry);
+        super(op);
         this.servomotorsClass = servomotorsClass;
 
         cell0 = new Cell(0, new Cell.Table(0, BARABAN_CELL0_POS));

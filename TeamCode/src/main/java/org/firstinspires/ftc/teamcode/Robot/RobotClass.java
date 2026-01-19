@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.Collector;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
@@ -15,22 +16,24 @@ public class RobotClass extends UpdatableModule {
     Моя задача как программиста расписать каждый модуль(часть робота)
     Чтобы в дальнейшем ими легко управлять
     */
+    public GeneralInformation generalInformation;
     public MecanumDrivetrain driveTrain;
     public Collector collector;
     public VoltageSensorClass voltageSensor;
     public ElapsedTime innerRunTime;
     private int iterationCount;
 
-    public RobotClass(TeamClass.Color color, TeamClass.StartPos startPos, OpMode op ){
+    public RobotClass(OpMode op ){
         super(op.telemetry);
 
-        driveTrain = new MecanumDrivetrain(color, startPos, op);
+        driveTrain = new MecanumDrivetrain(op);
         collector = new Collector(op);
         voltageSensor = new VoltageSensorClass(op);
-
         innerRunTime = new ElapsedTime();
     }
-
+    public void setGeneralInformation(GeneralInformation.ProgramName programName, GeneralInformation.Color color, GeneralInformation.StartPos startPos){
+        generalInformation = new GeneralInformation(programName, color, startPos);
+    }
     public void setIterationCount(int iterationCount) {
         this.iterationCount = iterationCount;
     }
@@ -42,9 +45,8 @@ public class RobotClass extends UpdatableModule {
     @Override
     public void update() {
         driveTrain.update();
-        collector.update();
 
-//        if (iterationCount % 2 == 0)
+        if (iterationCount % 2 == 0) collector.update();
         if (iterationCount % 10 == 0) voltageSensor.update();
     }
 

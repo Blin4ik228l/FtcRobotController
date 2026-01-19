@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Red;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
 
@@ -10,8 +11,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 public class AutoRedNear extends LinearOpModeModernized {
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new RobotClass(TeamClass.Color.Red, TeamClass.StartPos.Near_wall, this);
-
+        robot = new RobotClass(this);
+        robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Red, GeneralInformation.StartPos.Near_wall);
         run();
     }
 }

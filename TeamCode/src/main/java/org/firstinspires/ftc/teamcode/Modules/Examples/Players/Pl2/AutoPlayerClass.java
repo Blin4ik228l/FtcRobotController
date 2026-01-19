@@ -49,10 +49,9 @@ public class AutoPlayerClass extends PlayerClass{
     public GeneralState generalState;
     private LoadState loadState;
     private FireState fireState;
-    private AnotherStates anotherStates;
+    public AnotherStates anotherStates;
     boolean once;
-    public int ind1 = 0, ind2 = 1, ind3 = 2;
-    public double []speeds = {0, 0, 100, 0, 0, 100, 0, 0, 100};
+    public double []speeds = new double[3];
     public enum GeneralState {
         LoadLogic,
         FireLogic
@@ -70,6 +69,7 @@ public class AutoPlayerClass extends PlayerClass{
         Idle
     }
     public enum AnotherStates{
+        Prepare,
         Push,
         Waiting,
         Back
@@ -286,11 +286,11 @@ public class AutoPlayerClass extends PlayerClass{
 
                     switch (fireState) {
                         case Prepare:
-                            speeds = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-
                             collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
-                            fireState = FireState.Find;
+                            if (isPushHorEnded()){
+                                fireState = FireState.Find;
+                            }
                             break;
 
                         case Find:
@@ -310,26 +310,26 @@ public class AutoPlayerClass extends PlayerClass{
 
                         case Fire:
                             switch (anotherStates){
-                                case Push:
+                                case Prepare:
                                     collector.servos.setPusherVer(PUSHERVER_ENDING_POS);
-
-                                    collector.update();
-                                    if (!( moveState == OdometryClass.MoveState.High_speed
-                                            || rotateState == OdometryClass.RotateState.High_speed
-                                            || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready
-                                    || !once))
-                                    {
-                                        if(isPushVerEnded()){
-                                            collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
-
-                                            anotherStates = AnotherStates.Waiting;
-                                        }
+                                    if(isPushVerEnded()){
+                                        anotherStates = AnotherStates.Waiting;
                                     }
                                     break;
 
                                 case Waiting:
+                                    if (!(moveState == OdometryClass.MoveState.High_speed || rotateState == OdometryClass.RotateState.High_speed
+                                            || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready || !once))
+                                    {
+                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3] * 1.05);
+                                        anotherStates = AnotherStates.Push;
+                                    }
+                                    break;
+
+                                case Push:
+                                    collector.servos.setPusherHor(PUSHERHOR_ENDING_POS);
                                     if (isPushHorEnded()){
-                                        speeds[2] = collector.motors.curVel;
+                                        collector.motors.resetPIDF();
                                         anotherStates = AnotherStates.Back;
                                     }
                                     break;
@@ -356,6 +356,7 @@ public class AutoPlayerClass extends PlayerClass{
                             {
                                 collector.servos.setAngle(ANGLE_UPPER_POS);
                                 joystickActivityClass.buttonY = false;
+
                                 generalState = GeneralState.LoadLogic;
                                 loadState = LoadState.Prepare;
                             }

@@ -5,34 +5,24 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 
 public class TeamClass extends UpdatableModule {
-    public StartPos startPos;
-    public Color color;
-    public enum Color{
-        Red,
-        Blue
-    }
-    public enum StartPos{
-        Near_wall,
-        Far_from_wall,
-        Nevermind
-    }
-    public TeamClass(Color color, StartPos startPos, OpMode op){
+
+    public TeamClass( OpMode op){
         super(op.telemetry);
-        this.startPos = startPos;
-        this.color = color;
-
-        blueTagCoord[3] = Math.atan2(blueTagCoord[1], blueTagCoord[0]);
-        redTagCoord[3] = Math.atan2(redTagCoord[1], redTagCoord[0]);
-
-        bluePointVyrCoord[3] = Math.atan2(bluePointVyrCoord[1], bluePointVyrCoord[0]);
-        redPointVyrCoord[3] = Math.atan2(redPointVyrCoord[1], redPointVyrCoord[0]);
-
-        aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
-        tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
-        pointVyr = color == Color.Red ? redPointVyrCoord : bluePointVyrCoord;
-        fireZones = color == Color.Red ? fireZonesRed : fireZonesBlue;
-        baseCoord = color == Color.Red ? baseRedCoord : baseBlueCoord;
-        artifactsCoord = color == Color.Red ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
+//        this.startPos = startPos;
+//        this.color = color;
+//
+//        blueTagCoord[3] = Math.atan2(blueTagCoord[1], blueTagCoord[0]);
+//        redTagCoord[3] = Math.atan2(redTagCoord[1], redTagCoord[0]);
+//
+//        bluePointVyrCoord[3] = Math.atan2(bluePointVyrCoord[1], bluePointVyrCoord[0]);
+//        redPointVyrCoord[3] = Math.atan2(redPointVyrCoord[1], redPointVyrCoord[0]);
+//
+//        aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
+//        tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
+//        pointVyr = color == Color.Red ? redPointVyrCoord : bluePointVyrCoord;
+//        fireZones = color == Color.Red ? fireZonesRed : fireZonesBlue;
+//        baseCoord = color == Color.Red ? baseRedCoord : baseBlueCoord;
+//        artifactsCoord = color == Color.Red ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
     }
     private int[] aprilTagIds;
     private double[] tagCoord;

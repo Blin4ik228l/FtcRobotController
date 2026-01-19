@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl0.InnerWardenCl
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.PlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
-import org.firstinspires.ftc.teamcode.Robot.FileSystem;
+import org.firstinspires.ftc.teamcode.FileSystem;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
@@ -45,6 +45,34 @@ public abstract class TeleOpModernized extends OpMode {
 
         updateTime = new ElapsedTime();
     }
+    @Override
+    public void init_loop() {
+        setAll();
+        updateAll();
+        showAll();
+    }
+
+    @Override
+    public void start() {
+        robot.startTimer();
+    }
+
+    @Override
+    public void loop() {
+        setAll();
+        updateAll();
+        executeAll();
+        showAll();
+
+        iterationCount++;
+        updateTime.reset();
+    }
+
+    @Override
+    public void stop() {
+        fileSystem.stop();
+    }
+
     public void extUpdate(){
 
     }
@@ -81,33 +109,6 @@ public abstract class TeleOpModernized extends OpMode {
     private void showAll(){
         telemetrySettings.showData();
         telemetry.addData("Update time / Frequency", "%.2f sec %.2f Hz", updateTime.seconds(), 1 / updateTime.seconds());
-    }
-    @Override
-    public void init_loop() {
-        setAll();
-        updateAll();
-        showAll();
-    }
-
-    @Override
-    public void start() {
-        robot.startTimer();
-    }
-
-    @Override
-    public void loop() {
-        setAll();
-        updateAll();
-        executeAll();
-        showAll();
-
-        iterationCount++;
-        updateTime.reset();
-    }
-
-    @Override
-    public void stop() {
-        fileSystem.stop();
     }
 }
 

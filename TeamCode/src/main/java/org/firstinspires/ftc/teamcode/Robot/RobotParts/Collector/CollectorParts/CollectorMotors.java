@@ -66,7 +66,7 @@ public class CollectorMotors extends Module {
 //    private double  P = 11, I = 5, D = 1, F = 0;
 //    private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.1;
 
-    public double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
+    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
     private double pG ,iG ,dG , fG;
     private double errorPart;
     private PID pid = new PID(P, I, D, -100, 100);
@@ -96,6 +96,9 @@ public class CollectorMotors extends Module {
     public ElapsedTime getRunTimeIntake() {
         return runTimeIntake;
     }
+    public double[] getPIDF(){
+        return new double[]{P, I, D, F};
+    }
 
     public void setPIDF(double P, double I, double D, double F){
         switch (controlMode){
@@ -110,6 +113,12 @@ public class CollectorMotors extends Module {
                 motorRight.setVelocityPIDFCoefficients(P, I, D, F);
                 break;
         }
+    }
+    public void resetPIDF(){
+        P = FLYWHEEL[0];
+        I = FLYWHEEL[1];
+        D = FLYWHEEL[2];
+        F = FLYWHEEL[3];
     }
     public void setKPower(double kPower){
         this.kPower = kPower;

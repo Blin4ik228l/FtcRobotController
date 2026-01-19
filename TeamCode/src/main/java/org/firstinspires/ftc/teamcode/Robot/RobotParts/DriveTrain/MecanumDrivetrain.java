@@ -3,22 +3,24 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.CameraClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionRobotController;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.TeamClass;
 
-public class MecanumDrivetrain extends UpdatableModule {
+public class MecanumDrivetrain extends RobotClass {
     //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
     public TeamClass teamClass;
     public DrivetrainMotors motors;
     public OdometryClass odometryClass;
     public CameraClass cameraClass;
     public PositionRobotController positionRobotController;
-    public MecanumDrivetrain(TeamClass.Color color, TeamClass.StartPos startPos, OpMode op){
+    public MecanumDrivetrain(OpMode op){
         super(op.telemetry);
-        teamClass = new TeamClass(color, startPos, op);
+
+        teamClass = new TeamClass( op);
 
         motors = new DrivetrainMotors(op);
 

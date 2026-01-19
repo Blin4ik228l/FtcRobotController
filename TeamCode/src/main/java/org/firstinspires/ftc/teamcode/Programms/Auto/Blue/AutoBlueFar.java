@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 public class AutoBlueFar extends LinearOpModeModernized {
     @Override
     public void runOpMode() throws InterruptedException {
-        robot = new RobotClass(this);
-        robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Far_from_wall);
+        robot = new RobotClass(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Far_from_wall,this);
+        robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Far_from_wall, this);
 
         run();
     }

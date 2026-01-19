@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.TaskNode;
 
 public class DriveTree extends ExecutableModule {
     public DriveTree(MecanumDrivetrain drivetrain, AutomaticLogicTree automaticLogicTree, OpMode op){
-        super(op.telemetry);
+        super(op);
         mainRoot = new Root();
 
         this.drivetrain = drivetrain;

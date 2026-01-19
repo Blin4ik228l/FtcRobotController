@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Trees.BehaviorTree.TaskNode;
 
 public class AutomaticLogicTree extends ExecutableModule {
     public AutomaticLogicTree(Collector collector, DriveTree driveTree, OpMode op){
-        super(op.telemetry);
+        super(op);
 
         mainRoot = new Root();
 

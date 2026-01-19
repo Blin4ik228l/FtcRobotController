@@ -6,11 +6,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.MagneticFlux;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.EncoderClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
 
 public class OdometryClass extends UpdatableModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
@@ -318,12 +321,12 @@ public class OdometryClass extends UpdatableModule {
 
         private void updateGlobalPosition() {
             // Если перемещения не было - выходим из метода
-            if (!(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0)) {
-                flag = false;
-            }
-            if (flag) {
-                return;
-            }
+//            if (!(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0)) {
+//                flag = false;
+//            }
+//            if (flag) {
+//                return;
+//            }
 
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
@@ -342,9 +345,9 @@ public class OdometryClass extends UpdatableModule {
             gyroGlobalPosition2D.add(rotatedVectorGyro.x * 1, rotatedVectorGyro.y * 1, 0);
 
 
-            if (encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
-                flag = true;
-            }
+//            if (encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) {
+//                flag = true;
+//            }
         }
     }
 }

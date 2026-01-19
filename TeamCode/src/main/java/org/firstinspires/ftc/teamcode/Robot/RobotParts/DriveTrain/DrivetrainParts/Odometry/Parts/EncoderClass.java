@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 
 public class EncoderClass extends Module {
     public EncoderClass(OpMode op){

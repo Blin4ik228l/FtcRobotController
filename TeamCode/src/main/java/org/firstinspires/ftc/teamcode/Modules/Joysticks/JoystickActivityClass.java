@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 
 public class JoystickActivityClass extends UpdatableModule implements JoystickButtons {
     public Gamepad playersGamepad;
@@ -26,11 +27,8 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             iterNumBack, iterNumStart, iterNumA_and_LTrigger;
 
     public JoystickActivityClass(Gamepad gamepad, OpMode op) {
-        super(op.telemetry);
+        super( op);
         playersGamepad = gamepad;
-    }
-    public JoystickActivityClass(OpMode op) {
-        super(op.telemetry);
     }
 
     private int iterationCount;

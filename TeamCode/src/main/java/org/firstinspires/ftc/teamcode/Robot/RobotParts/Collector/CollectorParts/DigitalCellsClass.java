@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
+import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 
 public class DigitalCellsClass extends Module {
     private final ServomotorsClass servomotorsClass;

@@ -16,29 +16,29 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
 
     }
     public void run(){
-        autonomLogic = new AutonomLogic(robot, this);
-
-        while (!isStarted()){
-            robot.update();
-
-            robot.showData();
-            autonomLogic.showData();
-
-            telemetry.update();
-        }
-
-        robot.startTimer();
-
-        while (!isStopRequested() && opModeIsActive()){
-            robot.update();
-
-            autonomLogic.execute();
-
-            autonomLogic.showData();
-            robot.showData();
-
-            telemetry.update();
-        }
+//        autonomLogic = new AutonomLogic(robot, this);
+//
+//        while (!isStarted()){
+//            robot.update();
+//
+//            robot.showData();
+//            autonomLogic.showData();
+//
+//            telemetry.update();
+//        }
+//
+//        robot.startTimer();
+//
+//        while (!isStopRequested() && opModeIsActive()){
+//            robot.update();
+//
+//            autonomLogic.execute();
+//
+//            autonomLogic.showData();
+//            robot.showData();
+//
+//            telemetry.update();
+//        }
     }
     public void extRun(){
 

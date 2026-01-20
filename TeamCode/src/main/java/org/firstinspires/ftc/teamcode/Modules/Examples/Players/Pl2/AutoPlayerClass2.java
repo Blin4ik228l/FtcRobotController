@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
@@ -14,8 +15,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.OdometryClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.PositionRobotController;
 
-public class AutoPlayerClass extends PlayerClass{
-    public AutoPlayerClass(JoystickActivityClass joystickActivityClass, Collector collector, ElapsedTime matchTime,OpMode op) {
+public class AutoPlayerClass2 extends PlayerClass{
+    public AutoPlayerClass2(JoystickActivityClass joystickActivityClass, Collector collector, ElapsedTime matchTime, OpMode op) {
         super(joystickActivityClass, op);
         this.collector = collector;
 
@@ -83,16 +84,16 @@ public class AutoPlayerClass extends PlayerClass{
 
     @Override
     public void execute(){
-        if (range <= 200)
-        {
-            theta = 80;
-        }else theta = 45;
+        if (range >= 290) theta = 50;
+        else if(range >= 150) theta = 60;
+        else if(range >= 65) theta = 70;
+        else theta = 80;
 
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 0.9;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1;
         targetRadSpeedRed = targetRadSpeed;
 
         switch (GeneralInformation.current.programName){
@@ -105,8 +106,6 @@ public class AutoPlayerClass extends PlayerClass{
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;
-            collector.servos.setAngle(targetServoPos);
-
             if(joystickActivityClass.tDpadRightPressed == 1){
                 cellNum++;
                 cellNum = Range.clip(cellNum, 0, 2);
@@ -149,8 +148,10 @@ public class AutoPlayerClass extends PlayerClass{
             }
 
             if (joystickActivityClass.bumperRight) {
+                collector.servos.setAngle(targetServoPos);
                 collector.motors.setSpeedFlyWheel(targetRadSpeedRed);
             }else {
+                collector.servos.setAngle(ANGLE_UPPER_POS);
                 collector.motors.setSpeedFlyWheel(0);
             }
 
@@ -176,21 +177,26 @@ public class AutoPlayerClass extends PlayerClass{
             generalState = GeneralState.LoadLogic;
             fireState = FireState.Prepare;
         }else{
-            joystickActivityClass.tDpadUpPressed = 0;
-            joystickActivityClass.bumperRight = false;
-            joystickActivityClass.bumperLeft = false;
-            joystickActivityClass.tLeftBumperPressed = 0;
-            joystickActivityClass.tRightBumperPressed = 0;
+            switch (GeneralInformation.current.programName){
+                case TeleOp:
+                    joystickActivityClass.tDpadUpPressed = 0;
+                    joystickActivityClass.bumperRight = false;
+                    joystickActivityClass.bumperLeft = false;
+                    joystickActivityClass.tLeftBumperPressed = 0;
+                    joystickActivityClass.tRightBumperPressed = 0;
 
-            if(joystickActivityClass.playersGamepad.back){
-                collector.motors.reverseInTake();
-                flag = 1;
-                return;
-            }else {
-                if(flag == 1) collector.motors.offIntake();
-                flag = 0;
+                    if(joystickActivityClass.playersGamepad.back){
+                        collector.motors.reverseInTake();
+                        flag = 1;
+                        return;
+                    }else {
+                        if(flag == 1) collector.motors.offIntake();
+                        flag = 0;
+                    }
+                    break;
+                case Auto:
+                    break;
             }
-
             switch (generalState){
                 case Stop:
                     collector.motors.setSpeedFlyWheel(0);
@@ -201,12 +207,14 @@ public class AutoPlayerClass extends PlayerClass{
 
                     switch (loadState) {
                         case Prepare:
+                            if(innerRunTime.seconds() > 1.5){
+                                collector.servos.setAngle(ANGLE_UPPER_POS);
+                                collector.motors.offIntake();
+                                collector.servos.setPusherHor(PUSHER_START_POS);
 
-                            collector.motors.offIntake();
-                            collector.servos.setPusherHor(PUSHER_START_POS);
-
-                            if(isPushHorEnded()){
-                                loadState = LoadState.Find;
+                                if(isPushHorEnded()){
+                                    loadState = LoadState.Find;
+                                }
                             }
                             break;
 
@@ -299,7 +307,7 @@ public class AutoPlayerClass extends PlayerClass{
                                     if (!(moveState == OdometryClass.MoveState.High_speed || rotateState == OdometryClass.RotateState.High_speed
                                             || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready || !once))
                                     {
-                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3]);
+                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3] * 1.05);
                                         anotherStates = AnotherStates.Push;
                                     }
                                     break;
@@ -337,6 +345,7 @@ public class AutoPlayerClass extends PlayerClass{
 
                                 generalState = GeneralState.LoadLogic;
                                 loadState = LoadState.Prepare;
+                                innerRunTime.reset();
                             }
                             else fireState = FireState.Find;
 
@@ -392,21 +401,24 @@ public class AutoPlayerClass extends PlayerClass{
         targetServoPos = Math.round(targetServoPos * Math.pow(10, 2)) / Math.pow(10, 2);
     }
     private void calcAngle(){
-        double alpha = Math.toRadians(theta);
-        int h = 79;
+        double alpha = Math.toRadians(theta); // Желаемый угол влёта
+        int h = 79; //Разность высот(корзина - запуск)
 
-        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
-
-//        targetAngle = alpha;
+//        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
+        targetAngle = alpha;
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private void calcSpeed(){
         double alpha = Math.toRadians(theta);
 
-        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
+//        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle))
+//                * Math.pow(Math.cos(targetAngle), 2)))) / 100;
 
-//        targetSpeed = Math.sqrt((981 * Math.pow(range, 2)) / (2 * Math.pow(Math.cos(alpha), 2) * (range * Math.tan(alpha) - (79))))/ 100;
+        targetSpeed = range/ Math.cos(alpha) * Math.sqrt(981 / ( Math.abs(2 * (range * Math.tan(alpha) - 80)))) / 100;
+
+        if(range * Math.tan(alpha) - 80 < 0) targetSpeed = 0;
+
         targetSpeed = Math.round(targetSpeed * Math.pow(10, 1)) / Math.pow(10, 1);
     }
     private boolean isLoadEnded(){
@@ -415,6 +427,7 @@ public class AutoPlayerClass extends PlayerClass{
     @Override
     public void showData(){
         telemetry.addLine("===AUTO PLAYER===");
+        telemetry.addData("Program state", GeneralInformation.current.programName.toString());
         telemetry.addData("Automatic state", generalState.toString());
 
         if(generalState == GeneralState.LoadLogic){
@@ -426,7 +439,7 @@ public class AutoPlayerClass extends PlayerClass{
         }
 
 
-        if(fireState == FireState.Fire && anotherStates == AnotherStates.Push)
+        if(fireState == FireState.Fire && anotherStates == AnotherStates.Waiting)
         {
             telemetry.addData("FlyWheel", collector.motors.flyWheelStates.toString());
             telemetry.addData("Randomize", randomizeStatus.toString());

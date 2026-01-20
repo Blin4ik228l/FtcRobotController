@@ -16,7 +16,7 @@ public class RobotClass extends UpdatableModule{
     */
     public MecanumDrivetrain drivetrain;
     public Collector collector;
-    private int iterationCount;
+
 
     public RobotClass(OpMode op){
         super(op);
@@ -24,7 +24,7 @@ public class RobotClass extends UpdatableModule{
         drivetrain = new MecanumDrivetrain(op);
         collector = new Collector(op);
 
-        collector.motors.setPreferences(CollectorMotors.ControlMode.By_speed, CollectorMotors.Units.Rad_in_sec);
+        collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
     }
 
     @Override
@@ -35,8 +35,11 @@ public class RobotClass extends UpdatableModule{
         collector.resetTimer();
     }
 
-    public void setIterationCount(int iterationCount) {
-        this.iterationCount = iterationCount;
+    @Override
+    public void setIteration(int iteration) {
+        super.setIteration(iteration);
+        drivetrain.setIteration(iteration);
+        collector.setIteration(iteration);
     }
 
     public void startTimer(){
@@ -50,7 +53,7 @@ public class RobotClass extends UpdatableModule{
         if (iterationCount % 2 == 0) collector.update();
         if (iterationCount % 10 == 0) voltageSensor.update();
 
-        collector.digitalCellsClass.setRandomizedArtifact(drivetrain.cameraClass.getRandomizedArtifacts());
+        collector.digitalCellsClass.setRandomizedArtifact(drivetrain.positionRobotController.getCameraClass().getRandomizedArtifacts());
     }
 
     @Override

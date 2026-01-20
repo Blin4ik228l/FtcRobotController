@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 public class MecanumDrivetrain extends UpdatableModule {
     //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
     public DrivetrainMotors motors;
-    public OdometryClass odometryClass;
-    public CameraClass cameraClass;
     public PositionRobotController positionRobotController;
     public MecanumDrivetrain(OpMode op){
         super(op);
@@ -22,6 +20,13 @@ public class MecanumDrivetrain extends UpdatableModule {
         positionRobotController = new PositionRobotController(op);
 
         telemetry.addLine("Drivetrain Inited");
+    }
+
+    @Override
+    public void setIteration(int iteration) {
+        super.setIteration(iteration);
+        motors.setIteration(iteration);
+        positionRobotController.setIteration(iteration);
     }
 
     @Override
@@ -39,8 +44,6 @@ public class MecanumDrivetrain extends UpdatableModule {
 
     @Override
     public void showData() {
-        cameraClass.showData();
-        odometryClass.showData();
         positionRobotController.showData();
         motors.showData();
     }

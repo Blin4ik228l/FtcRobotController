@@ -62,6 +62,13 @@ public class OdometryClass extends UpdatableModule {
         return ticks / encoderClass.COUNTS_PER_CM;
     }
 
+    @Override
+    public void setIteration(int iteration) {
+        super.setIteration(iteration);
+        gyro.setIteration(iteration);
+        encoderClass.setIteration(iteration);
+    }
+
     public enum MoveState{
         High_speed,
         Small_speed,
@@ -131,13 +138,13 @@ public class OdometryClass extends UpdatableModule {
 
         selfMath.calculateSpeeds();
 
-        if(robotCurVelocity.length() == 0){
+        if(robotCurVelocity.length() <= 0.1){
             moveState = MoveState.Stopped;
         }else {
             moveState = MoveState.High_speed;
             stopTime.reset();}
 
-        if(encHeadVel == 0){
+        if(Math.abs(encHeadVel) <= Math.toRadians(1)){
             rotateState = RotateState.Stopped;
         }else {
             rotateState = RotateState.High_speed;

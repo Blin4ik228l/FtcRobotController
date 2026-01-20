@@ -86,17 +86,20 @@ public class PositionRobotController extends UpdatableModule {
             case TeleOp:
                 break;
             case Auto:
-                switch (autoState){
-                    case Find_and_go_to_fire_pos:
-                        if(cameraClass.randomizeStatus == CameraClass.RandomizeStatus.UnDetected && cameraClass.onceSeen){
-                            if(GeneralInformation.current.color == GeneralInformation.Color.Blue && GeneralInformation.current.startPos == GeneralInformation.StartPos.Near_wall){
-                                targetPos = new Position2D(firePos.getX(), firePos.getY(), Math.toRadians(45 - 90));
-                                driveArgs = new Args.DriveArgs(targetPos.minus(odometryClass.getEncGlobalPosition2D()), 20);
-                                allowMove = true;
-                            }
-                        }
-                        break;
-                }
+                targetPos = new Position2D(100, 0, Math.toRadians(0));
+                driveArgs = new Args.DriveArgs(targetPos.minus(odometryClass.getEncGlobalPosition2D()), 20);
+                allowMove = true;
+//                switch (autoState){
+//                    case Find_and_go_to_fire_pos:
+//                        if(cameraClass.randomizeStatus == CameraClass.RandomizeStatus.UnDetected && cameraClass.onceSeen){
+//                            if(GeneralInformation.current.color == GeneralInformation.Color.Blue && GeneralInformation.current.startPos == GeneralInformation.StartPos.Near_wall){
+//                                targetPos = new Position2D(firePos.getX(), firePos.getY(), Math.toRadians(45 - 90));
+//                                driveArgs = new Args.DriveArgs(targetPos.minus(odometryClass.getEncGlobalPosition2D()), 20);
+//                                allowMove = true;
+//                            }
+//                        }
+//                        break;
+//                }
                 break;
         }
     }
@@ -161,5 +164,8 @@ public class PositionRobotController extends UpdatableModule {
         telemetry.addData("Target angle", "%.1f°", deltaAngle * RAD);
         telemetry.addData("Range to target", "%.1f cm", range);
         telemetry.addLine();
+
+        cameraClass.showData();
+        odometryClass.showData();
     }
 }

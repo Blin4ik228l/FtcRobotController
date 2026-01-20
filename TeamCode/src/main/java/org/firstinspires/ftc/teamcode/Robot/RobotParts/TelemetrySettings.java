@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
@@ -89,7 +88,7 @@ public class TelemetrySettings extends UpdatableModule {
                 teleOpModernized.joystickActivityClass2.showData();
 
                 teleOpModernized.player1.showData();
-                teleOpModernized.autoPlayerClass.showData();
+                teleOpModernized.autoPlayerClass2.showData();
 
                 teleOpModernized.robot.showData();
                 break;
@@ -106,8 +105,8 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
             case Show_navigation:
                 teleOpModernized.robot.drivetrain.positionRobotController.showData();
-                teleOpModernized.robot.drivetrain.cameraClass.showData();
-                teleOpModernized.robot.drivetrain.odometryClass.showData();
+                teleOpModernized.robot.drivetrain.positionRobotController.getCameraClass().showData();
+                teleOpModernized.robot.drivetrain.positionRobotController.getOdometryClass().showData();
                 break;
             case Show_sorting_system:
                 teleOpModernized.robot.collector.colorSensorClass.showData();
@@ -115,20 +114,18 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
             case Show_players:
                 teleOpModernized.player1.showData();
-                teleOpModernized.autoPlayerClass.showData();
+                teleOpModernized.autoPlayerClass2.showData();
                 break;
             case Show_other:
                 teleOpModernized.extShow();
                 teleOpModernized.robot.collector.motors.showData();
-                teleOpModernized.autoPlayerClass.showData();
+                teleOpModernized.autoPlayerClass2.showData();
                 teleOpModernized.robot.collector.servos.showData();
                 break;
             case Show_nothing:
                 break;
             case Show_for_auto:
-                linearOpModeModernized.driveHandler.showData();
-
-                linearOpModeModernized.robot.drivetrain.odometryClass.showData();
+                linearOpModeModernized.robot.drivetrain.positionRobotController.getOdometryClass().showData();
                 linearOpModeModernized.robot.drivetrain.motors.showData();
                 break;
         }

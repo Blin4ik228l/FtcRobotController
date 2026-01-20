@@ -8,8 +8,6 @@ public class ExecutableModule extends Module implements InterExecute{
     public ExecutableModule(OpMode op) {
         super(op);
     }
-
-
     @Override
     public void execute() {
 

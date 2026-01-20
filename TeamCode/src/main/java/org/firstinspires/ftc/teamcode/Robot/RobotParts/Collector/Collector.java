@@ -33,6 +33,16 @@ public class Collector extends UpdatableModule {
     }
 
     @Override
+    public void setIteration(int iteration) {
+        super.setIteration(iteration);
+        motors.setIteration(iteration);
+        servos.setIteration(iteration);
+        colorSensorClass.setIteration(iteration);
+        buttonClass.setIteration(iteration);
+        digitalCellsClass.setIteration(iteration);
+    }
+
+    @Override
     public void resetTimer() {
         innerRunTime.reset();
         motors.resetTimer();

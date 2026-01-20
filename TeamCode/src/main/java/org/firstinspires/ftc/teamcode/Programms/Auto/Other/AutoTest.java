@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.DriveHandler;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
@@ -15,8 +14,8 @@ public class AutoTest extends LinearOpModeModernized {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Near_wall);
         robot = new RobotClass(this);
-        robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Near_wall);
         telemetrySettings = new TelemetrySettings(null, this, this);
 
         extRun();
@@ -24,10 +23,6 @@ public class AutoTest extends LinearOpModeModernized {
 
     @Override
     public void extRun() {
-        driveHandler = new DriveHandler(robot.drivetrain, this);
-        driveHandler.setArgs(new Args.DriveArgs(
-                new Position2D(0, 0 , Math.toRadians(90)), 50
-        ));
 
         while (!isStarted()){
             robot.update();
@@ -41,8 +36,6 @@ public class AutoTest extends LinearOpModeModernized {
         while (!isStopRequested() && opModeIsActive()){
             robot.update();
             telemetrySettings.update();
-
-            driveHandler.execute();
 
             telemetrySettings.showData();
 

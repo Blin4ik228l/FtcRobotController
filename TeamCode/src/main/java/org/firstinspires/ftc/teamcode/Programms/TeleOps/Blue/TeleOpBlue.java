@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 public class TeleOpBlue extends TeleOpModernized {
     @Override
     public void init() {
-        robot = new RobotClass(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind,this);
-        robot.setGeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind, this);
+        new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
+        robot = new RobotClass(this);
 
         initAfterRobot();
     }

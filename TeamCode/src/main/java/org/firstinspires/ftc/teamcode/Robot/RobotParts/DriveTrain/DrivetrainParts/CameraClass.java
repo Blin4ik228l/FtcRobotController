@@ -127,7 +127,7 @@ public class CameraClass extends UpdatableModule {
                 }
                 break;
             case Processing:
-                if (!aprilTagProcessor.getDetections().isEmpty() && updateTime.seconds() > 0.1)
+                if (!aprilTagProcessor.getDetections().isEmpty())
                 {
                     index = index % aprilTagProcessor.getDetections().size();
 
@@ -135,36 +135,31 @@ public class CameraClass extends UpdatableModule {
 
                     index++;
 
-
                     id = detection.id;
                     desicionMargin = detection.decisionMargin;
 
-                    if (desicionMargin > 10){
-                        if (!(id == 20 || id == 24)){
-                            setRandomizedArtifactFromId(id);
-                        }else {
-                            robotFieldX = detection.robotPose.getPosition().x;
-                            robotFieldY = detection.robotPose.getPosition().y;
-                            robotFieldZ = detection.robotPose.getPosition().z;
+                    setRandomizedArtifactFromId(id);
 
-                            robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
-                            robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
-                            robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
+                    if (desicionMargin > 10 && updateTime.seconds() > 0.2){
+                        robotFieldX = detection.robotPose.getPosition().x;
+                        robotFieldY = detection.robotPose.getPosition().y;
+                        robotFieldZ = detection.robotPose.getPosition().z;
 
-                            robotRangeToTag = detection.ftcPose.range;
-                            cameraElevation = detection.ftcPose.elevation;
-                            cameraBearing   = detection.ftcPose.bearing;
+                        robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
+                        robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
+                        robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                            lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
+                        robotRangeToTag = detection.ftcPose.range;
+                        cameraElevation = detection.ftcPose.elevation;
+                        cameraBearing   = detection.ftcPose.bearing;
 
-                            onceSeen = true;
-                            tagState = TagState.Detected;
-                        }
+                        lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
+                        onceSeen = true;
+                        tagState = TagState.Detected;
 
-
+                        updateTime.reset();
                     }
-                    updateTime.reset();
                 }
                 else
                 {

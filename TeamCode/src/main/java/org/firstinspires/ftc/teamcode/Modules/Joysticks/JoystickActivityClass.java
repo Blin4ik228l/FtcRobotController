@@ -26,14 +26,9 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
             iterNumBack, iterNumStart, iterNumA_and_LTrigger;
 
     public JoystickActivityClass(Gamepad gamepad, OpMode op) {
-        super(op.telemetry);
+        super(op);
         playersGamepad = gamepad;
     }
-    public JoystickActivityClass(OpMode op) {
-        super(op.telemetry);
-    }
-
-    private int iterationCount;
 
     @Override
     public void update() {

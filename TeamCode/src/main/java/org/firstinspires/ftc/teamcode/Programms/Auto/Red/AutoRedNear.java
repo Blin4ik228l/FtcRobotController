@@ -10,8 +10,8 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 public class AutoRedNear extends LinearOpModeModernized {
     @Override
     public void runOpMode() throws InterruptedException {
+        new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Red, GeneralInformation.StartPos.Near_wall);
         robot = new RobotClass(this);
-        robot.setGeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Red, GeneralInformation.StartPos.Near_wall);
         run();
     }
 }

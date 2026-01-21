@@ -51,16 +51,17 @@ public class DrivetrainMotors extends Module{
     public DcMotor getRightF() {
         return rightF;
     }
-    private double kPower;
     private double curLeftBPower, curLeftFPower, curRightFPower, curRightBPower;
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
-        double minPow = 0.13 / kPower;
+        voltageSensor.update();
 
-        if(kPower != 0){
-            forwardPow = forwardPow * kPower;
-            sidePow = sidePow * kPower;
-            anglePow = anglePow * kPower;
+        double minPow = 0.13 / voltageSensor.getkPower();
+
+        if(voltageSensor.getkPower() != 0){
+            forwardPow = forwardPow * voltageSensor.getkPower();
+            sidePow = sidePow * voltageSensor.getkPower();
+            anglePow = anglePow * voltageSensor.getkPower();
         }
 
 //        if(forwardPow != 0 && Math.abs(forwardPow) < minPow) forwardPow = Math.signum(forwardPow) * minPow;

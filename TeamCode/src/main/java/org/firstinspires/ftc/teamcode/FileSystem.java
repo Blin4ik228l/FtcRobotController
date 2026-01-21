@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.annotation.SuppressLint;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass;
+import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass2;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
@@ -20,16 +18,16 @@ import java.util.Locale;
 public class FileSystem extends UpdatableModule {
     private File file;
     private List<String> logBuffer ;
-    private AutoPlayerClass autoPlayerClass;
+    private AutoPlayerClass2 autoPlayerClass2;
     private RobotClass robotClass;
     private Date date;
-    public FileSystem(AutoPlayerClass autoPlayerClass, RobotClass robotClass, OpMode op){
+    public FileSystem(AutoPlayerClass2 autoPlayerClass2, RobotClass robotClass, OpMode op){
         super(op);
 
-        this.autoPlayerClass = autoPlayerClass;
+        this.autoPlayerClass2 = autoPlayerClass2;
         this.robotClass = robotClass;
 
-        file = AppUtil.getInstance().getSettingsFile("mydata.txt");
+        file = AppUtil.getInstance().getSettingsFile("Data.txt");
         logBuffer = new ArrayList<>();
         date = new Date();
     }
@@ -42,17 +40,19 @@ public class FileSystem extends UpdatableModule {
 //                autoPlayerClass.collector.motors.P, autoPlayerClass.collector.motors.I, autoPlayerClass.collector.motors.D, autoPlayerClass.collector.motors.F,
 //                date.getTime(), Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
 
-        String targSpeed = String.valueOf(autoPlayerClass.targetRadSpeedRed * 19.2);
-        String curVel = String.valueOf(autoPlayerClass.collector.motors.curVel);
-        String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass.collector.motors.getPIDF()[0], autoPlayerClass.collector.motors.getPIDF()[1], autoPlayerClass.collector.motors.getPIDF()[2], autoPlayerClass.collector.motors.getPIDF()[3]);
-        String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
-        String states = String.format("General: %s Another: %s", autoPlayerClass.generalState.toString(), autoPlayerClass.anotherStates.toString());
+        String targSpeed = String.valueOf(autoPlayerClass2.targetRadSpeed * 19.2);
+        String curVel = String.valueOf(autoPlayerClass2.collector.motors.curVel);
+        String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass2.collector.motors.getPIDF()[0], autoPlayerClass2.collector.motors.getPIDF()[1], autoPlayerClass2.collector.motors.getPIDF()[2], autoPlayerClass2.collector.motors.getPIDF()[3]);
+        String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass2.targetAngle), autoPlayerClass2.range);
+        String states = String.format("General: %s Another: %s", autoPlayerClass2.generalState.toString(), autoPlayerClass2.anotherStates.toString());
         String dat = String.valueOf(date.getTime());
 
         logBuffer.add(String.format("Speeds[T: %s C: %s]", targSpeed, curVel));
         logBuffer.add(kPIDF);
         logBuffer.add(params);
+        logBuffer.add(states);
         logBuffer.add(String.format("Date in milliseconds: %s", dat));
+        logBuffer.add("");
     }
 
     public void delete(){

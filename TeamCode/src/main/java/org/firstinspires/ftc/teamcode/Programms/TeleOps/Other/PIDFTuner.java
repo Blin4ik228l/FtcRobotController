@@ -2,24 +2,14 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 
 @TeleOp(name = "PIDFTuner")
-public class PIDFTuner extends TeleOpModernized {
-    //    private double  P = 20.5, I, D = 1.5, F = 0.23;
-//    private double  P = 19, I = 0.11, D = 3.0, F = 0.41;
-//    private double  P = 10, I = 0, D = 3.0, F = 0;
-//    private double  P = 17, I = 0.2, D = 3.0, F = 0.08;
-//private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.05;
-//    private double  P = 9, I = 0, D = 0, F = 0.25;
-//    private double  P = 5.4, I = 10.227, D = 0.712, F = 0.15;
-//    private double  P = 8.71, I = 0, D = 0, F = 0;
-//    private double  P = 5.226, I = 9.897, D = 0.690, F = 0.1;
-//    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.082;
-
-    private double  P = 0.8, I = 0.03, D = 0, F = 14;
+public class PIDFTuner extends TeleOpModernized implements kPIDS {
+    private double  P = FLYWHEEL[0], I = FLYWHEEL[0], D = FLYWHEEL[0], F = FLYWHEEL[0];
 
     private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex;
@@ -27,8 +17,8 @@ public class PIDFTuner extends TeleOpModernized {
 
     @Override
     public void init() {
+        new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
         robot = new RobotClass(this);
-        robot.setGeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
 
         initAfterRobot();
     }

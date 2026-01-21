@@ -39,6 +39,13 @@ public class OdometryClass extends UpdatableModule {
     }
 
     @Override
+    public void setIteration(int iterationCount) {
+        super.setIteration(iterationCount);
+        gyro.setIteration(iterationCount);
+        encoderClass.setIteration(iterationCount);
+    }
+
+    @Override
     public void resetTimer() {
         innerRunTime.reset();
         gyro.resetTimer();
@@ -128,13 +135,13 @@ public class OdometryClass extends UpdatableModule {
 
         selfMath.calculateSpeeds();
 
-        if(robotCurVelocity.length() == 0){
+        if(robotCurVelocity.length() <= 1){
             moveState = MoveState.Stopped;
         }else {
             moveState = MoveState.High_speed;
             stopTime.reset();}
 
-        if(encHeadVel == 0){
+        if(encHeadVel <= Math.toRadians(2)){
             rotateState = RotateState.Stopped;
         }else {
             rotateState = RotateState.High_speed;

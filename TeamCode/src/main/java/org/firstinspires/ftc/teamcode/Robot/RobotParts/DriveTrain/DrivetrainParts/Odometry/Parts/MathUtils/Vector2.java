@@ -5,6 +5,8 @@ public class Vector2 {
     public double y;
     private double vectorLength;
 
+    private double scalingK;
+
     public Vector2(double x, double y) {
         this.x = x;
         this.y = y;
@@ -73,6 +75,8 @@ public class Vector2 {
     public void normalize() {
         double mag = length();
 
+        scalingK = mag;
+
         if (mag == 0) {
             return;
         }
@@ -110,6 +114,11 @@ public class Vector2 {
         y = oldX*Math.sin(Rad) + oldY*Math.cos(Rad);
 
         return new Vector2(x, y);
+    }
+    public void scale(){
+        x *= scalingK;
+        y *= scalingK;
+        vectorLength *= scalingK;
     }
 
     public static Vector2 rotateToGlobalVector(Vector2 vector, double Rad) {

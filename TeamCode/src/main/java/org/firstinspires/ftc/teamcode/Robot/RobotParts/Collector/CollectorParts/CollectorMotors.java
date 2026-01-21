@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -62,15 +63,15 @@ public class CollectorMotors extends Module {
 //    private double  P = 5.64, I = 4.512, D = 1.7625, F = 0.1;
 //    private double  P = 4.7, I = 5.8, D = 0.99, F = 0.086;
 
-    private double  P = 0.8, I = 0.03, D = 0, F = 14;
+    private double  P = FLYWHEEL[0], I = FLYWHEEL[1], D = FLYWHEEL[2], F = FLYWHEEL[3];
     private double pG ,iG ,dG , fG;
     private double errorPart;
     double filteredLeftVel = 0;
     double filteredRightVel = 0;
     double alpha = 0.3;
-    private final double p = 0.95;
-    private double i = 0;
-    private int attempts;
+    public boolean flag;
+    public int stopTimes;
+    public double lastPower;
     public enum FlyWheelStates{
         Ready,
         Unready
@@ -98,9 +99,10 @@ public class CollectorMotors extends Module {
     public void setPIDF(double P, double I, double D, double F){
         switch (controlMode){
             case By_power:
-                PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, I, D, F);
-                motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
-                motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
+                this.P = P;
+                this.I = I;
+                this.D = D;
+                this.F = F;
                 break;
             case By_speed:
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
@@ -114,10 +116,10 @@ public class CollectorMotors extends Module {
         D = FLYWHEEL[2];
         F = FLYWHEEL[3];
     }
-    public void setKPower(double kPower){
-        this.kPower = kPower;
-    }
     public void setPower(double targetIntakePow){
+        voltageSensor.update();
+        targetIntakePow *= voltageSensor.getkPower();
+
         if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
 
         inTakeMotor.setPower(targetIntakePow);
@@ -162,36 +164,105 @@ public class CollectorMotors extends Module {
                 calcCurSpeed();
                 break;
             case By_power:
-                setPowerFlyWheel(speed / MAX_RAD_SPEED);
+                setPowerFlyWheel(speed);
                 break;
         }
 
         checkReadiness();
     }
 
-    public void setPowerFlyWheel(double pow){
-        if (pow == 0)
-        {
-            attempts = 0;
-            i = 0;
-        }
-
-//        motorLeft.setPower(pow * (p + i) );
-//        motorRight.setPower(-pow * (p + i));
-
-        motorLeft.setPower(0.5);
-        motorRight.setPower(-0.5);
+    public void setPowerFlyWheel(double speed){
+        voltageSensor.update();
 
         calcCurSpeed();
 
+        double feedForward = targSpeed * F;
+
         double error = targSpeed - curVel;
+        double pid = error * P;
 
-//        if(attempts > 10){
-//
-//        }
-//        i += error / 1000;
+        double power = feedForward + pid;
 
-        attempts++;
+        // 3. Компенсация напряжения
+        double currentVoltage = voltageSensor.getCurVoltage();
+        if (currentVoltage <= 0) currentVoltage = 12;
+
+        double voltageMultiplier = 12 / currentVoltage;
+
+        power *= voltageMultiplier;
+
+        power = Range.clip(power, -1.0, 1.0);
+
+        if (speed == 0){
+            if (flag) {
+                lastPower = Math.abs(power);
+                flag = false;
+            }
+            switch (stopTimes){
+                case 0:
+                    power = lastPower * 0.9;
+                    stopTimes++;
+                    break;
+                case 1:
+                    power = lastPower * 0.85;
+                    stopTimes++;
+                    break;
+                case 2:
+                    power = lastPower * 0.8;
+                    stopTimes++;
+                    break;
+                case 3:
+                    power = lastPower * 0.75;
+                    stopTimes++;
+                    break;
+                case 4:
+                    power = lastPower * 0.7;
+                    stopTimes++;
+                    break;
+                case 5:
+                    power = lastPower * 0.65;
+                    stopTimes++;
+                    break;
+                case 6:
+                    power = lastPower * 0.6;
+                    stopTimes++;
+                    break;
+                case 7:
+                    power = lastPower * 0.55;
+                    stopTimes++;
+                    break;
+                case 8:
+                    power = lastPower * 0.5;
+                    stopTimes++;
+                    break;
+                case 9:
+                    power = lastPower * 0.4;
+                    stopTimes++;
+                    break;
+                case 10:
+                    power = lastPower * 0.3;
+                    stopTimes++;
+                    break;
+                case 11:
+                    power = lastPower * 0.2;
+                    stopTimes++;
+                    break;
+                case 12:
+                    power = lastPower * 0.1;
+                    stopTimes++;
+                    break;
+                case 13:
+                    power = 0;
+                    break;
+            }
+        }else
+        {
+            flag = true;
+            stopTimes = 0;
+        }
+
+        motorLeft.setPower(power);
+        motorRight.setPower(-power);
     }
     public void calcCurSpeed(){
         curLeftVel = motorLeft.getVelocity(AngleUnit.RADIANS) * 19.2;
@@ -212,7 +283,7 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        if (errorPart > 0.02 || curVel < targSpeed || innerTime.seconds() < 1)
+        if (errorPart > 0.01)
         {
             flyWheelStates = FlyWheelStates.Unready;
             runTimeFlyWheel.reset();
@@ -223,12 +294,12 @@ public class CollectorMotors extends Module {
     }
 
     public void onIntake(){
-        double targetInTakePower = -1 * kPower;
+        double targetInTakePower = -1;
 
         setPower(targetInTakePower);
     }
     public void reverseInTake(){
-        double targetInTakePower = 1 * kPower;
+        double targetInTakePower = 1;
 
         setPower(targetInTakePower);
     }
@@ -256,13 +327,8 @@ public class CollectorMotors extends Module {
         telemetry.addData("Targ","%.2f", targSpeed);
         telemetry.addData("Cur","%.2f", curVel);
         telemetry.addData("error", "Proc %.2f", errorPart * 100);
-        telemetry.addData("PIDF", "P %s I %s D %s F %s",pG, iG, dG, fG);
+        telemetry.addData("PIDF", "P %s I %s D %s F %s",P, I, D, F);
         telemetry.addData("Pow", "L %.2f R %.2f", motorLeft.getPower(), motorRight.getPower());
-//        telemetry.addData("LM","%.2f /s", curLeftVel);
-//        telemetry.addData("RM","%.2f /s", curRightVel);
-//        telemetry.addData("InTake Power", inTakeCurPower);
-//        telemetry.addData("Run time intake", runTimeIntake);
-//        telemetry.addData("Run time flywhell", runTimeFlyWheel);
         telemetry.addLine();
     }
 }

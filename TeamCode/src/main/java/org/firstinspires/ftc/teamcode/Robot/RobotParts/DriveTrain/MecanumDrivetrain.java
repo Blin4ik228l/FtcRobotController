@@ -23,10 +23,10 @@ public class MecanumDrivetrain extends UpdatableModule {
     }
 
     @Override
-    public void setIteration(int iteration) {
-        super.setIteration(iteration);
-        motors.setIteration(iteration);
-        positionRobotController.setIteration(iteration);
+    public void setIteration(int iterationCount) {
+        super.setIteration(iterationCount);
+        motors.setIteration(iterationCount);
+        positionRobotController.setIteration(iterationCount);
     }
 
     @Override

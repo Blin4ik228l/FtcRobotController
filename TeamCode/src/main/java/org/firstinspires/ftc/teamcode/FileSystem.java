@@ -27,26 +27,32 @@ public class FileSystem extends UpdatableModule {
         this.autoPlayerClass2 = autoPlayerClass2;
         this.robotClass = robotClass;
 
-        file = AppUtil.getInstance().getSettingsFile("mydata.txt");
+        file = AppUtil.getInstance().getSettingsFile("Data.txt");
         logBuffer = new ArrayList<>();
         date = new Date();
     }
 
+
     @Override
     public void update() {
-        String targSpeed = String.valueOf(autoPlayerClass2.targetRadSpeedRed * 19.2);
+//        String s1 = String.format("Target speed:%.2f Cur:%.2f After shot:%.2f Time:%.2f P:%s I:%s D:%s F:%s Global:%s Angle:%s Distance:%s %n",
+//                autoPlayerClass.targetRadSpeedRed * 19.2, autoPlayerClass.collector.motors.curVel, autoPlayerClass.speeds[2], robotClass.innerRunTime.milliseconds(),
+//                autoPlayerClass.collector.motors.P, autoPlayerClass.collector.motors.I, autoPlayerClass.collector.motors.D, autoPlayerClass.collector.motors.F,
+//                date.getTime(), Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
+
+        String targSpeed = String.valueOf(autoPlayerClass2.targetRadSpeed * 19.2);
         String curVel = String.valueOf(autoPlayerClass2.collector.motors.curVel);
         String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass2.collector.motors.getPIDF()[0], autoPlayerClass2.collector.motors.getPIDF()[1], autoPlayerClass2.collector.motors.getPIDF()[2], autoPlayerClass2.collector.motors.getPIDF()[3]);
         String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass2.targetAngle), autoPlayerClass2.range);
         String states = String.format("General: %s Another: %s", autoPlayerClass2.generalState.toString(), autoPlayerClass2.anotherStates.toString());
-        String dat = String.valueOf(robotClass.innerRunTime.seconds());
+        String dat = String.valueOf(date.getTime());
 
-        logBuffer.add(String.format("Speeds[T: %s C: %s] %n", targSpeed, curVel));
-        logBuffer.add(String.format("%s %n", kPIDF));
-        logBuffer.add(String.format("%s %n", params));
-        logBuffer.add(String.format("%s %n", states));
-        logBuffer.add(String.format("Inner time: %s %n", dat));
-        logBuffer.add(String.format("%n"));
+        logBuffer.add(String.format("Speeds[T: %s C: %s]", targSpeed, curVel));
+        logBuffer.add(kPIDF);
+        logBuffer.add(params);
+        logBuffer.add(states);
+        logBuffer.add(String.format("Date in milliseconds: %s", dat));
+        logBuffer.add("");
     }
 
     public void delete(){

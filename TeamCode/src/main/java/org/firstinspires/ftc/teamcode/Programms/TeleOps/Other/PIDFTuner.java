@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 public class PIDFTuner extends TeleOpModernized implements kPIDS {
     private double  P = FLYWHEEL[0], I = FLYWHEEL[1], D = FLYWHEEL[2], F = FLYWHEEL[3];
 
-    private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001,  0.00000001,  0.000000001,  0.0000000001};
+    private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex;
     private int index;
 

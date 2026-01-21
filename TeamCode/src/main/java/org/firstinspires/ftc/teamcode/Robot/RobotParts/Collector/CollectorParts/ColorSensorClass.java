@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 
 public class ColorSensorClass extends UpdatableModule {
     private final NormalizedColorSensor colorSensorNear, colorSensorFar;

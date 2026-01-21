@@ -11,7 +11,6 @@ public class AutoBlueNear extends LinearOpModeModernized {
     @Override
     public void runOpMode() throws InterruptedException {
         new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Near_wall);
-
         robot = new RobotClass(this);
         run();
     }

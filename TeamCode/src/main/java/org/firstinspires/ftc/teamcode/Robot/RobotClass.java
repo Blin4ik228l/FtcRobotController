@@ -17,7 +17,6 @@ public class RobotClass extends UpdatableModule{
     public MecanumDrivetrain drivetrain;
     public Collector collector;
 
-
     public RobotClass(OpMode op){
         super(op);
 
@@ -36,16 +35,12 @@ public class RobotClass extends UpdatableModule{
     }
 
     @Override
-    public void setIteration(int iteration) {
-        super.setIteration(iteration);
-        drivetrain.setIteration(iteration);
-        collector.setIteration(iteration);
-    }
+    public void setIteration(int iterationCount) {
+        super.setIteration(iterationCount);
 
-    public void startTimer(){
-        innerRunTime.reset();
+        drivetrain.setIteration(iterationCount);
+        collector.setIteration(iterationCount);
     }
-
     @Override
     public void update() {
         drivetrain.update();

@@ -114,12 +114,12 @@ public class CameraClass extends UpdatableModule {
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
                     exposure = visionPortal.getCameraControl(ExposureControl.class);
                     exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
-                    exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
+                    exposure.setExposure(10, TimeUnit.MILLISECONDS);//Экспозиция
 
                     gain = visionPortal.getCameraControl(GainControl.class);
 
                     //TODO яркость уменьшить
-                    gain.setGain(30);//яркость
+                    gain.setGain(190);//яркость
 
                     aprilTagProcessor.setDecimation(2.0f);
 
@@ -140,7 +140,7 @@ public class CameraClass extends UpdatableModule {
 
                     setRandomizedArtifactFromId(id);
 
-                    if (desicionMargin > 10 && updateTime.seconds() > 0.2){
+                    if ((id == 20 || id == 24) && desicionMargin > 89 && updateTime.seconds() > 0.2){
                         robotFieldX = detection.robotPose.getPosition().x;
                         robotFieldY = detection.robotPose.getPosition().y;
                         robotFieldZ = detection.robotPose.getPosition().z;

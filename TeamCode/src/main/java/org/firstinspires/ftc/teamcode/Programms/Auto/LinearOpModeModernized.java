@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Modules.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl1.SemiAutoPlayerClass1;
 import org.firstinspires.ftc.teamcode.Modules.Examples.Players.Pl2.AutoPlayerClass2;
 import org.firstinspires.ftc.teamcode.Modules.Joysticks.JoystickActivityClass;
@@ -12,8 +13,9 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 public abstract class LinearOpModeModernized extends LinearOpMode {
     public RobotClass robot;
     public TelemetrySettings telemetrySettings;
-    public AutoPlayerClass2 autoPlayerClass2;
     public SemiAutoPlayerClass1 semiAutoPlayerClass1;
+    public AutoPlayerClass2 autoPlayerClass2;
+    public MainSystem mainSystem;
     public JoystickActivityClass joystickActivityClass;
     public int iterationCount = 1;
     public ElapsedTime updateTime;
@@ -23,39 +25,44 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
     }
     public void run(){
         joystickActivityClass = new JoystickActivityClass(null, this);
-        telemetrySettings = new TelemetrySettings(null, this, this);
-        autoPlayerClass2 = new AutoPlayerClass2(joystickActivityClass, robot.collector, new ElapsedTime(), this);
+
         semiAutoPlayerClass1 = new SemiAutoPlayerClass1(joystickActivityClass, robot.drivetrain, new ElapsedTime(), this);
+        autoPlayerClass2 = new AutoPlayerClass2(joystickActivityClass, robot.collector, new ElapsedTime(), this);
+
+        mainSystem = new MainSystem(semiAutoPlayerClass1, autoPlayerClass2, this);
+
+        telemetrySettings = new TelemetrySettings(null, this, this);
+
         updateTime = new ElapsedTime();
 
-        while (!isStarted()){
+        while (!isStarted() && !isStopRequested()){
+            robot.setIteration(iterationCount);
             robot.update();
 
-            robot.showData();
+            telemetrySettings.update();
 
-            autoPlayerClass2.showData();
+            telemetrySettings.showData();
             telemetry.update();
         }
 
-        robot.startTimer();
+        robot.resetTimer();
 
         while (!isStopRequested() && opModeIsActive()){
             robot.setIteration(iterationCount);
-
             robot.update();
+            telemetrySettings.update();
 
             autoPlayerClass2.setFields(robot.drivetrain.positionRobotController);
 
+            mainSystem.execute();
             semiAutoPlayerClass1.execute();
-//            autoPlayerClass.execute();
+            autoPlayerClass2.execute();
 
-            semiAutoPlayerClass1.showData();
-            autoPlayerClass2.showData();
-            robot.showData();
+            telemetrySettings.showData();
+            telemetry.update();
 
             iterationCount++;
             updateTime.reset();
-            telemetry.update();
         }
     }
     public void extRun(){

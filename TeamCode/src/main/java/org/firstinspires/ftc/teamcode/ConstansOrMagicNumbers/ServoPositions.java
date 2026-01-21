@@ -5,7 +5,7 @@ public interface ServoPositions {
     double PUSHERVER_ENDING_POS = 0.21;
 
     double BARABAN_CELL0_POS = 0.11;
-    double BARABAN_CELL1_POS = 0.27;
+    double BARABAN_CELL1_POS = 0.26;
     double BARABAN_CELL2_POS = 0.43;
 
     double ANGLE_UPPER_POS = 0.0;
@@ -14,5 +14,4 @@ public interface ServoPositions {
     double PUSHER_START_POS = 0.05;
     double PUSHER_PREFIRE_POS = 0.39;
     double PUSHERHOR_ENDING_POS = 0.52;
-
 }

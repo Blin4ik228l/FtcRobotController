@@ -40,15 +40,15 @@ public class AutoPlayerClass2 extends PlayerClass{
     private CameraClass.RandomizeStatus randomizeStatus;
     public double range;
     public double targetAngle, targetServoPos;
-    public double targetSpeed, targetRadSpeedRed, targetRadSpeed;
+    public double targetSpeed, targetRadSpeed;
     private int cellNum;
     public double theta;
     private int flag = 0;
     public GeneralState generalState;
-    private LoadState loadState;
-    private FireState fireState;
+    public LoadState loadState;
+    public FireState fireState;
     public AnotherStates anotherStates;
-    boolean once;
+    public boolean once;
     public ElapsedTime matchTime;
     public enum GeneralState {
         Stop,
@@ -85,16 +85,15 @@ public class AutoPlayerClass2 extends PlayerClass{
     @Override
     public void execute(){
         if (range >= 290) theta = 50;
-        else if(range >= 150) theta = 60;
-        else if(range >= 65) theta = 70;
+        else if (range >= 150) theta = 60;
+        else if (range >= 70) theta = 70;
         else theta = 80;
 
         calcAngle();
         calcAngleToPos();
         calcSpeed();
 
-        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 1;
-        targetRadSpeedRed = targetRadSpeed;
+        targetRadSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED);
 
         switch (GeneralInformation.current.programName){
             case TeleOp:
@@ -106,6 +105,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;
+
             if(joystickActivityClass.tDpadRightPressed == 1){
                 cellNum++;
                 cellNum = Range.clip(cellNum, 0, 2);
@@ -147,9 +147,9 @@ public class AutoPlayerClass2 extends PlayerClass{
                 }
             }
 
-            if (joystickActivityClass.bumperRight) {
+            if (joystickActivityClass.buttonBack) {
                 collector.servos.setAngle(targetServoPos);
-                collector.motors.setSpeedFlyWheel(targetRadSpeedRed);
+                collector.motors.setSpeedFlyWheel(targetRadSpeed);
             }else {
                 collector.servos.setAngle(ANGLE_UPPER_POS);
                 collector.motors.setSpeedFlyWheel(0);
@@ -177,15 +177,17 @@ public class AutoPlayerClass2 extends PlayerClass{
             generalState = GeneralState.LoadLogic;
             fireState = FireState.Prepare;
         }else{
-            switch (GeneralInformation.current.programName){
-                case TeleOp:
-                    joystickActivityClass.tDpadUpPressed = 0;
-                    joystickActivityClass.bumperRight = false;
-                    joystickActivityClass.bumperLeft = false;
-                    joystickActivityClass.tLeftBumperPressed = 0;
-                    joystickActivityClass.tRightBumperPressed = 0;
+            joystickActivityClass.tDpadUpPressed = 0;
+            joystickActivityClass.buttonBack = false;
+            joystickActivityClass.bumperLeft = false;
+            joystickActivityClass.tLeftBumperPressed = 0;
+            joystickActivityClass.tRightBumperPressed = 0;
 
-                    if(joystickActivityClass.playersGamepad.back){
+            switch (GeneralInformation.current.programName){
+                case Auto:
+                    break;
+                case TeleOp:
+                    if(joystickActivityClass.playersGamepad.right_bumper){
                         collector.motors.reverseInTake();
                         flag = 1;
                         return;
@@ -194,9 +196,8 @@ public class AutoPlayerClass2 extends PlayerClass{
                         flag = 0;
                     }
                     break;
-                case Auto:
-                    break;
             }
+
             switch (generalState){
                 case Stop:
                     collector.motors.setSpeedFlyWheel(0);
@@ -204,17 +205,15 @@ public class AutoPlayerClass2 extends PlayerClass{
                     break;
                 case LoadLogic:
                     collector.motors.setSpeedFlyWheel(0);
-
                     switch (loadState) {
                         case Prepare:
-                            if(innerRunTime.seconds() > 1.5){
-                                collector.servos.setAngle(ANGLE_UPPER_POS);
-                                collector.motors.offIntake();
-                                collector.servos.setPusherHor(PUSHER_START_POS);
+                            collector.servos.setAngle(ANGLE_UPPER_POS);
 
-                                if(isPushHorEnded()){
-                                    loadState = LoadState.Find;
-                                }
+                            collector.motors.offIntake();
+                            collector.servos.setPusherHor(PUSHER_START_POS);
+
+                            if(isPushHorEnded()){
+                                loadState = LoadState.Find;
                             }
                             break;
 
@@ -261,7 +260,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                     break;
 
                 case FireLogic:
-                    collector.motors.setSpeedFlyWheel(targetRadSpeedRed);
+                    collector.motors.setSpeedFlyWheel(targetRadSpeed);
                     collector.servos.setAngle(targetServoPos);
 
                     switch (fireState) {
@@ -277,7 +276,15 @@ public class AutoPlayerClass2 extends PlayerClass{
                             int targCell = 0;
                             switch (GeneralInformation.current.programName){
                                 case TeleOp:
-                                    targCell = collector.digitalCellsClass.getFullCell();
+                                    if(innerRunTime.seconds() > 120)
+                                    {
+                                        targCell = collector.digitalCellsClass.getFullCell();
+                                    }else {
+                                        int targetCellIndex = 3 - collector.digitalCellsClass.getArtifactCount(); // 3→0, 2→1, 1→2
+                                        int targetColor = collector.digitalCellsClass.getRandomizedArtifact()[targetCellIndex];
+
+                                        targCell = collector.digitalCellsClass.findNeededCell(targetColor);
+                                    }
                                     break;
                                 case Auto:
                                     int targetCellIndex = 3 - collector.digitalCellsClass.getArtifactCount(); // 3→0, 2→1, 1→2
@@ -307,7 +314,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                                     if (!(moveState == OdometryClass.MoveState.High_speed || rotateState == OdometryClass.RotateState.High_speed
                                             || collector.motors.flyWheelStates == CollectorMotors.FlyWheelStates.Unready || !once))
                                     {
-                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3] * 1.05);
+                                        collector.motors.setPIDF(collector.motors.getPIDF()[0], collector.motors.getPIDF()[1], collector.motors.getPIDF()[2], collector.motors.getPIDF()[3] * 1.05) ;
                                         anotherStates = AnotherStates.Push;
                                     }
                                     break;
@@ -345,7 +352,6 @@ public class AutoPlayerClass2 extends PlayerClass{
 
                                 generalState = GeneralState.LoadLogic;
                                 loadState = LoadState.Prepare;
-                                innerRunTime.reset();
                             }
                             else fireState = FireState.Find;
 
@@ -401,10 +407,11 @@ public class AutoPlayerClass2 extends PlayerClass{
         targetServoPos = Math.round(targetServoPos * Math.pow(10, 2)) / Math.pow(10, 2);
     }
     private void calcAngle(){
-        double alpha = Math.toRadians(theta); // Желаемый угол влёта
-        int h = 79; //Разность высот(корзина - запуск)
-
+        double alpha = Math.toRadians(theta);
+//        int h = 79;
+//
 //        targetAngle =  Math.atan(Math.tan(alpha) + 2 * (h) / range);
+
         targetAngle = alpha;
 
         targetAngle = Math.round(targetAngle * Math.pow(10, 1)) / Math.pow(10, 1);
@@ -412,12 +419,13 @@ public class AutoPlayerClass2 extends PlayerClass{
     private void calcSpeed(){
         double alpha = Math.toRadians(theta);
 
-//        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle))
-//                * Math.pow(Math.cos(targetAngle), 2)))) / 100;
+//        targetSpeed =  Math.sqrt(Math.abs(981 * range / ((Math.tan(alpha) + Math.tan(targetAngle)) * Math.pow(Math.cos(targetAngle), 2)))) / 100;
 
-        targetSpeed = range/ Math.cos(alpha) * Math.sqrt(981 / ( Math.abs(2 * (range * Math.tan(alpha) - 80)))) / 100;
+//        targetSpeed = Math.sqrt((981 * Math.pow(range, 2)) / (2 * Math.pow(Math.cos(alpha), 2) * (range * Math.tan(alpha) - (79))))/ 100;
 
-        if(range * Math.tan(alpha) - 80 < 0) targetSpeed = 0;
+        targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(981 / (2 * (range * Math.tan(alpha) - 80)))) / 100;
+
+        if (981 / (2 * (range * Math.tan(alpha) - 80)) < 0) targetSpeed = 0;
 
         targetSpeed = Math.round(targetSpeed * Math.pow(10, 1)) / Math.pow(10, 1);
     }
@@ -427,7 +435,6 @@ public class AutoPlayerClass2 extends PlayerClass{
     @Override
     public void showData(){
         telemetry.addLine("===AUTO PLAYER===");
-        telemetry.addData("Program state", GeneralInformation.current.programName.toString());
         telemetry.addData("Automatic state", generalState.toString());
 
         if(generalState == GeneralState.LoadLogic){
@@ -439,7 +446,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         }
 
 
-        if(fireState == FireState.Fire && anotherStates == AnotherStates.Waiting)
+        if(fireState == FireState.Fire && anotherStates == AnotherStates.Push)
         {
             telemetry.addData("FlyWheel", collector.motors.flyWheelStates.toString());
             telemetry.addData("Randomize", randomizeStatus.toString());

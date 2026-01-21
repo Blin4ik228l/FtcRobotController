@@ -5,16 +5,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
-import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
-import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
 
 public class DrivetrainMotors extends Module{
     private final DcMotor leftB;
     private final DcMotor leftF;
     private final DcMotor rightB;
     private final DcMotor rightF;
-
     public DrivetrainMotors(OpMode op) {
         super(op);
 
@@ -60,13 +56,17 @@ public class DrivetrainMotors extends Module{
     public void setPower(double forwardPow, double sidePow, double anglePow){
         voltageSensor.update();
 
-        double minPow = 0.13 / voltageSensor.getCurVoltage();
+        double minPow = 0.13 / voltageSensor.getkPower();
 
-//        if(voltageSensor.getkPower() != 0){
-//            forwardPow = forwardPow / voltageSensor.getCurVoltage();
-//            sidePow = sidePow / voltageSensor.getCurVoltage();
-//            anglePow = anglePow / voltageSensor.getCurVoltage();
-//        }
+        if(voltageSensor.getkPower() != 0){
+            forwardPow = forwardPow * voltageSensor.getkPower();
+            sidePow = sidePow * voltageSensor.getkPower();
+            anglePow = anglePow * voltageSensor.getkPower();
+        }
+
+//        if(forwardPow != 0 && Math.abs(forwardPow) < minPow) forwardPow = Math.signum(forwardPow) * minPow;
+//        if(sidePow != 0 &&  Math.abs(sidePow) < minPow) sidePow = Math.signum(sidePow) * minPow;
+//        if(anglePow != 0 &&  Math.abs(anglePow) < minPow) anglePow = Math.signum(anglePow) * minPow;
 
         rightB.setPower(forwardPow - sidePow + anglePow);
         rightF.setPower(forwardPow + sidePow + anglePow);

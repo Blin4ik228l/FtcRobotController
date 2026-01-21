@@ -30,41 +30,196 @@ public class MainSystem extends ExecutableModule {
     public PositionRobotController.GeneralState generalState2;
     @Override
     public void execute() {
-        if (semiAutoPlayerClass1.drivetrain.positionRobotController.autoState == PositionRobotController.AutoState.Check_readiness_for_start){
-            if (autoPlayerClass2.generalState == AutoPlayerClass2.GeneralState.FireLogic && autoPlayerClass2.fireState == AutoPlayerClass2.FireState.Fire) {
-                generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
-                fireState = AutoPlayerClass2.FireState.Fire;
-                autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
-            }
+        //Смотрим на состояние сборщика, если что отключаем какого то из игроков
+        switch (semiAutoPlayerClass1.drivetrain.positionRobotController.generalState){
+            //Робот куда то едет
+            case EXECUTE_IN_PROCCESS:
+                switch (semiAutoPlayerClass1.drivetrain.positionRobotController.autoState) {
+                    case CHECK_READINESS_FOR_START:
+                        switch (autoPlayerClass2.generalState){
+                            case Stop:
+                                break;
+                            case LoadLogic:
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        //Запоминаем состояния
+                                        generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
+                                        fireState = AutoPlayerClass2.FireState.Fire;
+
+                                        //Останавливаем работу сборщика
+                                        autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    case FIND_AND_GO_TO_FIRE_POS:
+                        switch (autoPlayerClass2.generalState){
+                            case Stop:
+                                break;
+                            case LoadLogic:
+                                switch (autoPlayerClass2.loadState){
+                                    case Find:
+                                        break;
+                                    case Load:
+                                        //Сборщик возможно до сих пор не увидел все 3 шара, пока бездействуем
+                                        break;
+                                    case Idle:
+                                        break;
+                                }
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        //Останавливаем пргограмму
+                                        generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
+                                        fireState = AutoPlayerClass2.FireState.Fire;
+
+                                        autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                        //Переходим к сбору артефактов
+                    case FIND_AND_GO_TO_ARTIFACTS:
+                        switch (autoPlayerClass2.generalState){
+                            case Stop:
+                                break;
+                            case LoadLogic:
+                                switch (loadState){
+                                    case Idle:
+                                        //Возможно программа считала "фантомный шар" но если он уже что то собрал переходим к сбору следующего
+                                        semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DONE;
+                                        break;
+                                }
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+                // Робот остановился
+            case DONE:
+                switch (semiAutoPlayerClass1.drivetrain.positionRobotController.autoState) {
+                    case CHECK_READINESS_FOR_START:
+                        //Считываем предзагрузочные
+                        switch (autoPlayerClass2.generalState){
+                            //Возвращаем программу в исходное состояние
+                            case Stop:
+                                if (generalState1 != null) autoPlayerClass2.generalState = generalState1;
+                                if (fireState != null) autoPlayerClass2.fireState = fireState;
+
+                                generalState1 = null;
+                                fireState = null;
+
+                                semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                break;
+                            case LoadLogic:
+                                switch (autoPlayerClass2.loadState){
+                                    case Idle:
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3) semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                        break;
+                                }
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
+                                        fireState = AutoPlayerClass2.FireState.Fire;
+
+                                        autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    case FIND_AND_GO_TO_FIRE_POS:
+                        switch (autoPlayerClass2.generalState){
+                            case Stop:
+                                if (generalState1 != null) autoPlayerClass2.generalState = generalState1;
+                                if (fireState != null) autoPlayerClass2.fireState = fireState;
+
+                                generalState1 = null;
+                                fireState = null;
+                                break;
+                            case LoadLogic:
+                                switch (autoPlayerClass2.loadState){
+                                    case Find:
+                                        //TODO устанавливаем вариант езды туда сюда чтобы датчик цвета увидел предзагрузочный
+                                        break;
+                                    case Idle:
+                                        break;
+                                }
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        //TODO Если не можем разогнаться то подъедем ближе или дальше
+                                        break;
+                                    case Idle:
+                                        if (semiAutoPlayerClass1.drivetrain.positionRobotController.shootedArtifacts == 9) //Опускаем заслонку
+                                        //Отстрелялись
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 0) semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    case FIND_AND_GO_TO_ARTIFACTS:
+                        switch (autoPlayerClass2.generalState){
+                            case Stop:
+                                break;
+                            case LoadLogic:
+                                switch (loadState){
+                                    case Find:
+                                        //TODO что делать если потеряли
+                                        semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DELETE_ARTIFACT;
+                                        break;
+                                    case Idle:
+                                        //Убираем артефакт из общего массива данных
+                                        semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DELETE_ARTIFACT;
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3) semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
+                                        break;
+                                }
+                                break;
+                            case FireLogic:
+                                switch (autoPlayerClass2.fireState){
+                                    case Fire:
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void showData() {
+        telemetry.addLine("===MAIN SYSTEM===");
+        telemetry.addLine("=PositionRobotController=");
+        telemetry.addData("GeneralState", semiAutoPlayerClass1.drivetrain.positionRobotController.generalState.toString());
+        telemetry.addData("AutoState", semiAutoPlayerClass1.drivetrain.positionRobotController.autoState.toString());
+        telemetry.addLine("=AutoPlayerClass2=");
+        telemetry.addData("GeneralState", autoPlayerClass2.generalState.toString());
+
+        if(autoPlayerClass2.generalState == AutoPlayerClass2.GeneralState.LoadLogic){
+            telemetry.addData("LoadState", autoPlayerClass2.loadState.toString());
         }else {
-            if (autoPlayerClass2.generalState == AutoPlayerClass2.GeneralState.Stop) {
-                if (generalState1 != null) autoPlayerClass2.generalState = generalState1;
-                if (fireState != null) autoPlayerClass2.fireState = fireState;
-
-                generalState1 = null;
-                fireState = null;
-            }
+            telemetry.addData("FireState", autoPlayerClass2.fireState.toString());
+            telemetry.addData("AnotherStates", autoPlayerClass2.anotherStates.toString());
         }
 
-        if (semiAutoPlayerClass1.drivetrain.positionRobotController.generalState == PositionRobotController.GeneralState.Execute_in_proccess
-                && semiAutoPlayerClass1.drivetrain.positionRobotController.autoState == PositionRobotController.AutoState.Find_and_go_to_artifacts){
-            if (autoPlayerClass2.generalState == AutoPlayerClass2.GeneralState.FireLogic && autoPlayerClass2.fireState == AutoPlayerClass2.FireState.Fire) {
-                generalState2 = semiAutoPlayerClass1.drivetrain.positionRobotController.generalState;
-                semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Stop;
-            }
-        }else {
-            if (autoPlayerClass2.generalState == AutoPlayerClass2.GeneralState.LoadLogic) {
-                if (generalState2 != null) semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = generalState2;
-
-                generalState2 = null;
-            }
-        }
-
-        if (semiAutoPlayerClass1.drivetrain.positionRobotController.generalState == PositionRobotController.GeneralState.Execute_in_proccess
-                && semiAutoPlayerClass1.drivetrain.positionRobotController.autoState == PositionRobotController.AutoState.Find_and_go_to_artifacts && autoPlayerClass2.collector.digitalCellsClass.isMaxed) {
-
-            semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
-            semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.Find_and_go_to_fire_pos;
-        }
+        telemetry.addLine();
     }
 }

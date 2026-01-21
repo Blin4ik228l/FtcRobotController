@@ -87,7 +87,7 @@ public class TelemetrySettings extends UpdatableModule {
                 teleOpModernized.joystickActivityClass.showData();
                 teleOpModernized.joystickActivityClass2.showData();
 
-                teleOpModernized.player1.showData();
+                teleOpModernized.semiAutoPlayerClass1.showData();
                 teleOpModernized.autoPlayerClass2.showData();
 
                 teleOpModernized.robot.showData();
@@ -113,7 +113,7 @@ public class TelemetrySettings extends UpdatableModule {
                 teleOpModernized.robot.collector.digitalCellsClass.showData();
                 break;
             case Show_players:
-                teleOpModernized.player1.showData();
+                teleOpModernized.semiAutoPlayerClass1.showData();
                 teleOpModernized.autoPlayerClass2.showData();
                 break;
             case Show_other:
@@ -125,8 +125,14 @@ public class TelemetrySettings extends UpdatableModule {
             case Show_nothing:
                 break;
             case Show_for_auto:
-                linearOpModeModernized.robot.drivetrain.positionRobotController.getOdometryClass().showData();
+                linearOpModeModernized.mainSystem.showData();
+                linearOpModeModernized.autoPlayerClass2.showData();
+                linearOpModeModernized.semiAutoPlayerClass1.showData();
+
+                linearOpModeModernized.robot.collector.digitalCellsClass.showData();
+
                 linearOpModeModernized.robot.drivetrain.motors.showData();
+                linearOpModeModernized.robot.drivetrain.positionRobotController.showData();
                 break;
         }
 

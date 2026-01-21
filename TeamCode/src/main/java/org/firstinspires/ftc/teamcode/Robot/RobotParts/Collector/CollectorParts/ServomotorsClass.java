@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
-import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 
 public class ServomotorsClass extends Module {
     private final Servo angle;

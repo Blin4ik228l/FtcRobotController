@@ -10,19 +10,24 @@ import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.AnotherConsts;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Delays;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
+import org.firstinspires.ftc.teamcode.Modules.Types.Interfaces.InterIter;
+import org.firstinspires.ftc.teamcode.Modules.Types.Interfaces.InterResetTime;
+import org.firstinspires.ftc.teamcode.Modules.Types.Interfaces.InterShow;
+import org.firstinspires.ftc.teamcode.Modules.Types.Interfaces.InterUpdate;
 
-public class Module implements InterShow, InterResetTime, InterSetIter, Delays, AnotherConsts, kPIDS, ServoPositions{
+
+public class Module implements InterShow, InterResetTime, InterIter,Delays, AnotherConsts, kPIDS, ServoPositions{
      public HardwareMap hardwareMap;
      public Telemetry telemetry;
      public VoltageSensorClass voltageSensor;
+     public int iterationCount = 1;
      public ElapsedTime innerRunTime;
-     public int iterationCount;
 
      public Module(OpMode op){
           this.hardwareMap = op.hardwareMap;
           this.telemetry = op.telemetry;
-          this.innerRunTime = new ElapsedTime();
           this.voltageSensor = new VoltageSensorClass();
+          this.innerRunTime = new ElapsedTime();
      }
 
      @Override
@@ -36,11 +41,11 @@ public class Module implements InterShow, InterResetTime, InterSetIter, Delays, 
      }
 
      @Override
-     public void setIteration(int iteration) {
-          this.iterationCount = iteration;
+     public void setIteration(int iterationCount) {
+          this.iterationCount = iterationCount;
      }
 
-     public class VoltageSensorClass implements InterShow, InterUpdate{
+     public class VoltageSensorClass implements InterShow, InterUpdate {
           private double curVoltage;
           private double MAX_VOL;
           private double kPower;
@@ -53,9 +58,13 @@ public class Module implements InterShow, InterResetTime, InterSetIter, Delays, 
                return curVoltage;
           }
 
+          public double getMAX_VOL() {
+               return MAX_VOL;
+          }
+
           @Override
           public void update() {
-               if(iterationCount % 10 == 0){
+               if (iterationCount % 10 == 0){
                     double result = Double.POSITIVE_INFINITY;
 
                     for (VoltageSensor sensor : hardwareMap.voltageSensor) {
@@ -68,7 +77,7 @@ public class Module implements InterShow, InterResetTime, InterSetIter, Delays, 
                     curVoltage = result;
                     if(curVoltage > MAX_VOL) MAX_VOL = curVoltage;
 
-                    kPower = curVoltage / MAX_VOL;
+                    kPower = MAX_VOL / curVoltage;
                }
           }
 

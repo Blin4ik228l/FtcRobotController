@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Modules.Types.UpdatableModule;
-import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 import org.firstinspires.ftc.teamcode.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.ButtonClass;
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.Collector.CollectorParts.CollectorMotors;
@@ -33,13 +32,13 @@ public class Collector extends UpdatableModule {
     }
 
     @Override
-    public void setIteration(int iteration) {
-        super.setIteration(iteration);
-        motors.setIteration(iteration);
-        servos.setIteration(iteration);
-        colorSensorClass.setIteration(iteration);
-        buttonClass.setIteration(iteration);
-        digitalCellsClass.setIteration(iteration);
+    public void setIteration(int iterationCount) {
+        super.setIteration(iterationCount);
+        motors.setIteration(iterationCount);
+        servos.setIteration(iterationCount);
+        colorSensorClass.setIteration(iterationCount);
+        buttonClass.setIteration(iterationCount);
+        digitalCellsClass.setIteration(iterationCount);
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -21,6 +22,7 @@ public class CollectorMotors extends Module {
     public FlyWheelStates flyWheelStates;
     public CollectorMotors(OpMode op){
         super(op);
+
         inTakeMotor = hardwareMap.get(DcMotor.class, "inTake");
         motorRight = hardwareMap.get(DcMotorEx.class, "flyWheelRight");
         motorLeft = hardwareMap.get(DcMotorEx.class, "flyWheelLeft");
@@ -67,9 +69,9 @@ public class CollectorMotors extends Module {
     double filteredLeftVel = 0;
     double filteredRightVel = 0;
     double alpha = 0.3;
-    double lastPow;
-    boolean flag = true;
-    int stopCount;
+    public boolean flag;
+    public int stopTimes;
+    public double lastPower;
     public enum FlyWheelStates{
         Ready,
         Unready
@@ -101,9 +103,6 @@ public class CollectorMotors extends Module {
                 this.I = I;
                 this.D = D;
                 this.F = F;
-//                PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, I, D, F);
-//                motorLeft.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
-//                motorRight.setPIDFCoefficients(DcMotor.RunMode.RUN_WITHOUT_ENCODER, pidfCoefficients);
                 break;
             case By_speed:
                 motorLeft.setVelocityPIDFCoefficients(P, I, D, F);
@@ -118,6 +117,9 @@ public class CollectorMotors extends Module {
         F = FLYWHEEL[3];
     }
     public void setPower(double targetIntakePow){
+        voltageSensor.update();
+        targetIntakePow *= voltageSensor.getkPower();
+
         if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
 
         inTakeMotor.setPower(targetIntakePow);
@@ -171,77 +173,92 @@ public class CollectorMotors extends Module {
 
     public void setPowerFlyWheel(double speed){
         voltageSensor.update();
+
         calcCurSpeed();
 
-        double feedforward = F * speed;
+        double feedForward = targSpeed * F;
 
-        double error = speed - curVel / 19.2;
-        double pidTerm = P * error;
+        double error = targSpeed - curVel;
+        double pid = error * P;
 
-        double targetVoltage = feedforward + pidTerm;
+        double power = feedForward + pid;
 
-        double power = targetVoltage / voltageSensor.getCurVoltage();
+        // 3. Компенсация напряжения
+        double currentVoltage = voltageSensor.getCurVoltage();
+        if (currentVoltage <= 0) currentVoltage = 11.5;
 
-        power = Math.max(-1.0, Math.min(1.0, power));
+        double voltageMultiplier = 11.5 / currentVoltage;
 
-        if (speed == 0) {
-            if(flag){
-                lastPow = Math.abs(power);
+        power *= voltageMultiplier;
+
+        power = Range.clip(power, -1.0, 1.0);
+
+        if (speed == 0){
+            if (flag) {
+                lastPower = Math.abs(power);
                 flag = false;
             }
-            switch (stopCount){
+            switch (stopTimes){
                 case 0:
-                    power = 0.95 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.9;
+                    stopTimes++;
                     break;
                 case 1:
-                    power = 0.87 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.85;
+                    stopTimes++;
                     break;
                 case 2:
-                    power = 0.8 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.8;
+                    stopTimes++;
                     break;
                 case 3:
-                    power = 0.73 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.75;
+                    stopTimes++;
                     break;
                 case 4:
-                    power = 0.65 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.7;
+                    stopTimes++;
                     break;
                 case 5:
-                    power = 0.55 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.65;
+                    stopTimes++;
                     break;
                 case 6:
-                    power = 0.45 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.6;
+                    stopTimes++;
                     break;
                 case 7:
-                    power = 0.35 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.55;
+                    stopTimes++;
                     break;
                 case 8:
-                    power = 0.25 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.5;
+                    stopTimes++;
                     break;
                 case 9:
-                    power = 0.20 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.4;
+                    stopTimes++;
                     break;
                 case 10:
-                    power = 0.15 * lastPow;
-                    stopCount++;
+                    power = lastPower * 0.3;
+                    stopTimes++;
                     break;
                 case 11:
+                    power = lastPower * 0.2;
+                    stopTimes++;
+                    break;
+                case 12:
+                    power = lastPower * 0.1;
+                    stopTimes++;
+                    break;
+                case 13:
                     power = 0;
                     break;
             }
         }else
         {
-            stopCount = 0;
             flag = true;
+            stopTimes = 0;
         }
 
         motorLeft.setPower(power);
@@ -254,6 +271,7 @@ public class CollectorMotors extends Module {
         filteredLeftVel  = alpha * filteredLeftVel  + (1 - alpha) * curLeftVel;
         filteredRightVel = alpha * filteredRightVel + (1 - alpha) * curRightVel;
 
+
         curVel = filteredLeftVel != 0 && filteredRightVel != 0 ? (filteredLeftVel + filteredRightVel) / 2.0 : filteredLeftVel + filteredRightVel;
 
         if (units == Units.Meters_in_sec)
@@ -265,26 +283,23 @@ public class CollectorMotors extends Module {
     public void checkReadiness(){
         errorPart = Math.abs(curVel / targSpeed - 1);
 
-        if (errorPart > 0.01 )
+        if (errorPart > 0.01)
         {
             flyWheelStates = FlyWheelStates.Unready;
             runTimeFlyWheel.reset();
         }
         else {
-            if(runTimeFlyWheel.seconds() >= 0.1) flyWheelStates = FlyWheelStates.Ready;
+            flyWheelStates = FlyWheelStates.Ready;
         }
     }
 
     public void onIntake(){
-        voltageSensor.update();
-
-        double targetInTakePower = -1 * voltageSensor.getkPower();
+        double targetInTakePower = -1;
 
         setPower(targetInTakePower);
     }
     public void reverseInTake(){
-        voltageSensor.update();
-        double targetInTakePower = 1 * voltageSensor.getkPower();
+        double targetInTakePower = 1;
 
         setPower(targetInTakePower);
     }
@@ -312,13 +327,10 @@ public class CollectorMotors extends Module {
         telemetry.addData("Targ","%.2f", targSpeed);
         telemetry.addData("Cur","%.2f", curVel);
         telemetry.addData("error", "Proc %.2f", errorPart * 100);
-        telemetry.addData("PIDF", "P %s I %s D %s F %s", P, I, D, F);
+        telemetry.addData("PIDF", "P %s I %s D %s F %s",P, I, D, F);
         telemetry.addData("Pow", "L %.2f R %.2f", motorLeft.getPower(), motorRight.getPower());
-//        telemetry.addData("LM","%.2f /s", curLeftVel);
-//        telemetry.addData("RM","%.2f /s", curRightVel);
-//        telemetry.addData("InTake Power", inTakeCurPower);
-//        telemetry.addData("Run time intake", runTimeIntake);
-//        telemetry.addData("Run time flywhell", runTimeFlyWheel);
         telemetry.addLine();
+
+        voltageSensor.showData();
     }
 }

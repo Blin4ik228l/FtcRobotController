@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.Modules.Types;
+package org.firstinspires.ftc.teamcode.Modules.Types.Interfaces;
 
 import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
 

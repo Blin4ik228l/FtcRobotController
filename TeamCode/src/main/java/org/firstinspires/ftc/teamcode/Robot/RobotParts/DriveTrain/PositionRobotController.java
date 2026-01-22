@@ -22,8 +22,16 @@ public class PositionRobotController extends UpdatableModule {
 
         vyrState = VyrState.Far_from_it;
 
-        generalState = GeneralState.Get_pos;
-        autoState = AutoState.CHECK_READINESS_FOR_START;
+        switch (GeneralInformation.current.programName){
+            case TeleOp:
+                generalState = GeneralState.STOP;
+                break;
+            case Auto:
+                generalState = GeneralState.Get_pos;
+                autoState = AutoState.CHECK_READINESS_FOR_START;
+                break;
+        }
+
     }
     private double foundedAngle;
     private double deltaAngle;

@@ -313,6 +313,9 @@ public class MainSystem extends ExecutableModule {
                                         if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3){
                                             semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
                                             semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
+                                        }else {
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.GO_TO_LOAD_POS;
                                         }
                                         break;
                                 }

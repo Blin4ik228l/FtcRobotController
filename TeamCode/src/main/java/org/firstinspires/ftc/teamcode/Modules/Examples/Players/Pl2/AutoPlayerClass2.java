@@ -331,7 +331,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                                     collector.servos.setPusherVer(PUSHERVER_START_POS);
                                     collector.servos.setPusherHor(PUSHER_PREFIRE_POS);
 
-                                    if (isPushHorEnded()) {
+                                    if (isPushHorEnded()){
                                         if (collector.colorSensorClass.colorState == ColorSensorClass.ColorSensorState.No_Artifact_Detected)
                                         {
                                             collector.digitalCellsClass.deleteColorFromCell();

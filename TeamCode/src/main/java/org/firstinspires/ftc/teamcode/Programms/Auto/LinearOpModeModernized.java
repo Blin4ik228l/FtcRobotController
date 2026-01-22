@@ -59,6 +59,7 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
             autoPlayerClass2.execute();
 
             telemetrySettings.showData();
+            telemetry.addData("Update time / Frequency", "%.2f sec %.2f Hz", updateTime.seconds(), 1 / updateTime.seconds());
             telemetry.update();
 
             iterationCount++;

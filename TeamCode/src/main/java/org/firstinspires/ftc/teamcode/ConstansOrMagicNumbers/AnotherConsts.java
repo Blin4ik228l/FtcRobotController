@@ -50,14 +50,14 @@ public interface AnotherConsts {
     double TICK_PER_CM_BARABAN = TPR_WHEEL/ROUND_BARABAN;
 
     // СКОРОСТИ И УСКОРЕНИЯ РОБОТА
-    double MAX_LINEAR_SPEED = 160;
+    double MAX_LINEAR_SPEED = 140;
     double MAX_LINEAR_FORWARD = 220;
     double MAX_LINEAR_SIDE = 190;
     double MAX_ANGULAR_SPEED = 6.28;
     double MAX_LINEAR_ACCEL = 1000;
     double MAX_ANGULAR_ACCEL = 60;
     double MID_LINEAR_SPEED = 40;
-    double MIN_LINEAR_SPEED = 20;    //25
+    double MIN_LINEAR_SPEED = 15;    //25
     double MIN_ANGULAR_SPEED = 2;
     double MIN_LINEAR_ACCEL = 1;
     double MIN_ANGULAR_ACCEL = 1;

@@ -83,10 +83,10 @@ public class CameraClass extends UpdatableModule {
     private GainControl gain;
     private double robotFieldX, robotFieldY, robotFieldZ;
     private double robotFieldPitch, robotFieldRoll, robotFieldYaw;
-    private double robotRangeToTag, cameraElevation, cameraBearing;
+    public double robotRangeToTag, cameraElevation, cameraBearing;
     private double desicionMargin;
     private int index;
-    private int id;
+    public int id;
     private int[] randomizedArtifacts;
     public ArrayList <AprilTagDetection> lastRecordedDetection;
     public enum TagState {
@@ -140,7 +140,9 @@ public class CameraClass extends UpdatableModule {
 
                     setRandomizedArtifactFromId(id);
 
-                    if ((id == 20 || id == 24) && desicionMargin > 89 && updateTime.seconds() > 0.2){
+                    tagState = TagState.UnDetected;
+
+                    if ((id == 20 || id == 24) && desicionMargin > 30 && updateTime.seconds() > 0.1){
                         robotFieldX = detection.robotPose.getPosition().x;
                         robotFieldY = detection.robotPose.getPosition().y;
                         robotFieldZ = detection.robotPose.getPosition().z;

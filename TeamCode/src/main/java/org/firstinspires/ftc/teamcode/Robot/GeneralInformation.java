@@ -45,14 +45,14 @@ public class GeneralInformation {
         baseCoord = color == Color.Red ? baseRedCoord : baseBlueCoord;
         artifactsCoord = color == Color.Red ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }
-        private int[] aprilTagIds;
+        public int[] aprilTagIds;
         private double[] tagCoord;
         private double[][] artifactsCoord;
         private double[][] fireZones;
         private double[] pointVyr;
         private double[] baseCoord;
-        private final int[] aprilTagBlueIds = {20};
-        private final int[] aprilTagRedIds = {24};
+        public final int[] aprilTagBlueIds = {20};
+        public final int[] aprilTagRedIds = {24};
 
         public int[] getAprilTagIds() {
             return aprilTagIds;

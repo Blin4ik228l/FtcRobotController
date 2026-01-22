@@ -126,10 +126,10 @@ public class TelemetrySettings extends UpdatableModule {
                 break;
             case Show_for_auto:
                 linearOpModeModernized.mainSystem.showData();
-                linearOpModeModernized.autoPlayerClass2.showData();
+//                linearOpModeModernized.autoPlayerClass2.showData();
                 linearOpModeModernized.semiAutoPlayerClass1.showData();
 
-                linearOpModeModernized.robot.collector.digitalCellsClass.showData();
+//                linearOpModeModernized.robot.collector.digitalCellsClass.showData();
 
                 linearOpModeModernized.robot.drivetrain.motors.showData();
                 linearOpModeModernized.robot.drivetrain.positionRobotController.showData();

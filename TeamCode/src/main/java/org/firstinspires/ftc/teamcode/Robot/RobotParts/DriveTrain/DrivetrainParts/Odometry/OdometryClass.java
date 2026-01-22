@@ -52,7 +52,7 @@ public class OdometryClass extends UpdatableModule {
         encoderClass.resetTimer();
     }
 
-    private GyroscopeClass gyro;
+    public GyroscopeClass gyro;
     private EncoderClass encoderClass;
     private final SelfMath selfMath;
     private final Position2D gyroGlobalPosition2D;                                   // Относительное перемещение

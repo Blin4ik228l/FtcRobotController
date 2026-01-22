@@ -59,9 +59,9 @@ public class DrivetrainMotors extends Module{
         double minPow = 0.13 / voltageSensor.getkPower();
 
         if(voltageSensor.getkPower() != 0){
-            forwardPow = forwardPow * voltageSensor.getkPower();
-            sidePow = sidePow * voltageSensor.getkPower();
-            anglePow = anglePow * voltageSensor.getkPower();
+            forwardPow = forwardPow * 12.5 / voltageSensor.getCurVoltage();
+            sidePow = sidePow * 12.5 / voltageSensor.getCurVoltage();
+            anglePow = anglePow * 12.5 / voltageSensor.getCurVoltage();
         }
 
 //        if(forwardPow != 0 && Math.abs(forwardPow) < minPow) forwardPow = Math.signum(forwardPow) * minPow;

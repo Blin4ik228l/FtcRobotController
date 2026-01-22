@@ -40,16 +40,24 @@ public class MainSystem extends ExecutableModule {
                             case Stop:
                                 break;
                             case LoadLogic:
+                                switch (autoPlayerClass2.loadState){
+                                    case Load:
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3)
+                                        {
+                                            //Запоминаем состояния
+                                            generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
+                                            fireState = AutoPlayerClass2.FireState.Fire;
+
+                                            //Останавливаем работу сборщика
+                                            autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
+                                        }
+                                        break;
+                                }
                                 break;
                             case FireLogic:
                                 switch (autoPlayerClass2.fireState){
                                     case Fire:
-                                        //Запоминаем состояния
-                                        generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
-                                        fireState = AutoPlayerClass2.FireState.Fire;
 
-                                        //Останавливаем работу сборщика
-                                        autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
                                         break;
                                 }
                                 break;
@@ -58,6 +66,7 @@ public class MainSystem extends ExecutableModule {
                     case FIND_AND_GO_TO_FIRE_POS:
                         switch (autoPlayerClass2.generalState){
                             case Stop:
+
                                 break;
                             case LoadLogic:
                                 switch (autoPlayerClass2.loadState){
@@ -89,10 +98,14 @@ public class MainSystem extends ExecutableModule {
                             case Stop:
                                 break;
                             case LoadLogic:
-                                switch (loadState){
+                                switch (autoPlayerClass2.loadState){
                                     case Idle:
                                         //Возможно программа считала "фантомный шар" но если он уже что то собрал переходим к сбору следующего
-                                        semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DONE;
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3)
+                                        {
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
+                                        }else semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DONE;
                                         break;
                                 }
                                 break;
@@ -114,18 +127,21 @@ public class MainSystem extends ExecutableModule {
                         switch (autoPlayerClass2.generalState){
                             //Возвращаем программу в исходное состояние
                             case Stop:
-                                if (generalState1 != null) autoPlayerClass2.generalState = generalState1;
-                                if (fireState != null) autoPlayerClass2.fireState = fireState;
-
-                                generalState1 = null;
-                                fireState = null;
-
                                 semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
                                 break;
                             case LoadLogic:
                                 switch (autoPlayerClass2.loadState){
                                     case Idle:
-                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3) semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3)
+                                        {
+                                            //Запоминаем состояния
+                                            generalState1 = AutoPlayerClass2.GeneralState.FireLogic;
+                                            fireState = AutoPlayerClass2.FireState.Fire;
+
+                                            //Останавливаем работу сборщика
+                                            autoPlayerClass2.generalState = AutoPlayerClass2.GeneralState.Stop;
+                                        }
                                         break;
                                 }
                                 break;
@@ -144,6 +160,7 @@ public class MainSystem extends ExecutableModule {
                     case FIND_AND_GO_TO_FIRE_POS:
                         switch (autoPlayerClass2.generalState){
                             case Stop:
+
                                 if (generalState1 != null) autoPlayerClass2.generalState = generalState1;
                                 if (fireState != null) autoPlayerClass2.fireState = fireState;
 
@@ -165,9 +182,12 @@ public class MainSystem extends ExecutableModule {
                                         //TODO Если не можем разогнаться то подъедем ближе или дальше
                                         break;
                                     case Idle:
-                                        if (semiAutoPlayerClass1.drivetrain.positionRobotController.shootedArtifacts == 9) //Опускаем заслонку
+                                        if (semiAutoPlayerClass1.drivetrain.positionRobotController.shootedArtifacts == 9){} //Опускаем заслонку
                                         //Отстрелялись
-                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 0) semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 0) {
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_ARTIFACTS;
+                                        }
                                         break;
                                 }
                                 break;
@@ -178,15 +198,21 @@ public class MainSystem extends ExecutableModule {
                             case Stop:
                                 break;
                             case LoadLogic:
-                                switch (loadState){
+                                switch (autoPlayerClass2.loadState){
                                     case Find:
+                                        break;
+                                    case Load:
                                         //TODO что делать если потеряли
                                         semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DELETE_ARTIFACT;
                                         break;
                                     case Idle:
                                         //Убираем артефакт из общего массива данных
                                         semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.DELETE_ARTIFACT;
-                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3) semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
+                                        if (autoPlayerClass2.collector.digitalCellsClass.getArtifactCount() == 3)
+                                        {
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                                            semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_FIRE_POS;
+                                        }
                                         break;
                                 }
                                 break;
@@ -198,7 +224,12 @@ public class MainSystem extends ExecutableModule {
                                 break;
                         }
                         break;
+
                 }
+                break;
+            case DELETE_ARTIFACT:
+                semiAutoPlayerClass1.drivetrain.positionRobotController.generalState = PositionRobotController.GeneralState.Get_pos;
+                semiAutoPlayerClass1.drivetrain.positionRobotController.autoState = PositionRobotController.AutoState.FIND_AND_GO_TO_ARTIFACTS;
                 break;
         }
 

@@ -329,6 +329,7 @@ public class CollectorMotors extends Module {
         telemetry.addData("error", "Proc %.2f", errorPart * 100);
         telemetry.addData("PIDF", "P %s I %s D %s F %s",P, I, D, F);
         telemetry.addData("Pow", "L %.2f R %.2f", motorLeft.getPower(), motorRight.getPower());
+        telemetry.addData("Time", runTimeIntake.seconds());
         telemetry.addLine();
 
         voltageSensor.showData();

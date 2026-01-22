@@ -54,6 +54,7 @@ public class CollectorMotors extends Module {
         return motorRight;
     }
     public double curVel, curLeftVel, curRightVel, inTakeCurPower;
+    public double lastIntakePower;
     private double kPower;
     public double targSpeed;
 
@@ -120,7 +121,10 @@ public class CollectorMotors extends Module {
         voltageSensor.update();
         targetIntakePow *= voltageSensor.getkPower();
 
-        if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
+        if (targetIntakePow == lastIntakePower) return;
+//        if(Math.abs(inTakeCurPower - targetIntakePow) < 0.1) return;
+
+        lastIntakePower = targetIntakePow;
 
         inTakeMotor.setPower(targetIntakePow);
 

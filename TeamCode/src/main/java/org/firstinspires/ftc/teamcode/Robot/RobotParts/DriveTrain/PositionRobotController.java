@@ -42,11 +42,15 @@ public class PositionRobotController extends UpdatableModule {
         EXECUTE_IN_PROCCESS,
         DONE,
         DELETE_ARTIFACT,
-        Stop
+        STOP,
+        EMERGENCY_RATTLING
+
     }
     public enum AutoState{
         CHECK_READINESS_FOR_START,
         FIND_AND_GO_TO_FIRE_POS,
+        GO_TO_LOAD_POS,
+        GO_AFORE_ARTIFACTS,
         FIND_AND_GO_TO_ARTIFACTS
     }
 
@@ -73,6 +77,7 @@ public class PositionRobotController extends UpdatableModule {
 
     public VyrState vyrState;
     public Args.DriveArgs driveArgs;
+    public Args.DriveArgs[] pathDriveArgs = new Args.DriveArgs[2];
 
     public MovementLogic movementLogic;
     public int minI;
@@ -86,35 +91,76 @@ public class PositionRobotController extends UpdatableModule {
         odometryClass.updateSpeed();
         cameraClass.update();
 
-//        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.toRadians(odometryClass.getEncHeadVel()) < Math.toRadians(20))
+        //TODO поменял местами
+        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.toRadians(odometryClass.getEncHeadVel()) < Math.toRadians(20))
+        {
+            if (cameraClass.tagState == CameraClass.TagState.Detected) {
+                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
+            }else odometryClass.updatePoses();
+        }else {
+            odometryClass.updatePoses();
+        }
+
+//        if (odometryClass.rotateState == OdometryClass.RotateState.Stopped && odometryClass.moveState == OdometryClass.MoveState.Stopped)
 //        {
 //            if (cameraClass.tagState == CameraClass.TagState.Detected && !flag) {
 //                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
 //                flag = true;
-//            }else odometryClass.updatePoses();
+//            }
 //        }else {
 //            odometryClass.updatePoses();
 //            flag = false;
 //        }
-
-        if (odometryClass.rotateState == OdometryClass.RotateState.Stopped && odometryClass.moveState == OdometryClass.MoveState.Stopped)
-        {
-            if (cameraClass.tagState == CameraClass.TagState.Detected && !flag) {
-                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-                flag = true;
-            }
-        }else {
-            odometryClass.updatePoses();
-            flag = false;
-        }
 
         calcRange();
         calcAngle();
         calcDeltaAngle();
         getNearestFirePos();
 
+        //TODO подправить позиции на стрельбу и скорость увеличить
         switch (GeneralInformation.current.programName){
             case TeleOp:
+                switch (generalState){
+                    case Test:
+                        targetPos = new Position2D(0, 0, deltaAngle);
+                        driveArgs = new Args.DriveArgs(targetPos, 50);
+
+                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
+                        break;
+                    case Get_pos:
+                        switch (autoState){
+                            case FIND_AND_GO_TO_FIRE_POS:
+                                targetPos = getNearestFirePos();
+                                driveArgs = new Args.DriveArgs(targetPos, 30);
+
+                                needVyr = true;
+                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+                                break;
+                            case GO_TO_LOAD_POS:
+                                switch (GeneralInformation.current.color){
+                                    case Blue:
+                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() + 30, toGlobalAngle(90));
+                                        driveArgs = new Args.DriveArgs(targetPos, 30);
+
+                                        needVyr = false;
+                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
+                                        break;
+                                    case Red:
+                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() - 30, toGlobalAngle(-90));
+                                        driveArgs = new Args.DriveArgs(targetPos, 30);
+
+                                        needVyr = false;
+                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
+                                        break;
+                                }
+                                break;
+                        }
+                        break;
+                    case EXECUTE_IN_PROCCESS:
+                        break;
+                    case STOP:
+                        break;
+                }
                 break;
             case Auto:
                 switch (generalState){
@@ -137,18 +183,15 @@ public class PositionRobotController extends UpdatableModule {
 
                                                     generalState = GeneralState.EXECUTE_IN_PROCCESS;
 
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
                                                     targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
                                                     driveArgs = new Args.DriveArgs(targetPos, 20);
 
-
                                                     generalState = GeneralState.EXECUTE_IN_PROCCESS;
 
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
@@ -160,8 +203,7 @@ public class PositionRobotController extends UpdatableModule {
 
                                                     generalState = GeneralState.EXECUTE_IN_PROCCESS;
 
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
                                                     targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
@@ -169,8 +211,7 @@ public class PositionRobotController extends UpdatableModule {
 
                                                     generalState = GeneralState.EXECUTE_IN_PROCCESS;
 
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
@@ -180,56 +221,65 @@ public class PositionRobotController extends UpdatableModule {
                                         case Red:
                                             switch (GeneralInformation.current.startPos){
                                                 case Near_wall:
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
+                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
+                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
                                         case Blue:
                                             switch (GeneralInformation.current.startPos){
                                                 case Near_wall:
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
+                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+
+                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
+                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
                                     }
                                 }else {
+                                    generalState = GeneralState.DONE;
                                     switch (GeneralInformation.current.color){
                                         case Red:
                                             switch (GeneralInformation.current.startPos){
                                                 case Near_wall:
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
                                         case Blue:
                                             switch (GeneralInformation.current.startPos){
                                                 case Near_wall:
-                                                    minI = 2;
-                                                    movementLogic = MovementLogic.Up_to_down;
+                                                    setUpToDown();
                                                     break;
                                                 case Far_from_wall:
-                                                    minI = 8;
-                                                    movementLogic = MovementLogic.Down_to_up;
+                                                    setDownToUp();
                                                     break;
                                             }
                                             break;
                                     }
-                                    generalState = GeneralState.DONE;
                                 }
                                 break;
                             case FIND_AND_GO_TO_FIRE_POS:
@@ -239,10 +289,28 @@ public class PositionRobotController extends UpdatableModule {
                                 needVyr = true;
                                 generalState = GeneralState.EXECUTE_IN_PROCCESS;
                                 break;
-                            case FIND_AND_GO_TO_ARTIFACTS:
+
+                            case GO_AFORE_ARTIFACTS:
+                                Position2D forwardArtifact = new Position2D();
+                                switch (GeneralInformation.current.color){
+                                    case Blue:
+                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() + 20, getArtifactPos().getHeading());
+                                        break;
+                                    case Red:
+                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() - 20, getArtifactPos().getHeading());
+                                        break;
+                                }
                                 needVyr = false;
-                                targetPos = getArtifactPos();
-                                driveArgs = new Args.DriveArgs(targetPos, 30);
+                                driveArgs = new Args.DriveArgs(forwardArtifact, 30);
+                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+                                break;
+
+                            case FIND_AND_GO_TO_ARTIFACTS:
+                                Position2D artifactPos = getArtifactPos();
+
+                                needVyr = false;
+
+                                driveArgs = new Args.DriveArgs(artifactPos, 30);
 
                                 generalState = GeneralState.EXECUTE_IN_PROCCESS;
                                 break;
@@ -255,14 +323,25 @@ public class PositionRobotController extends UpdatableModule {
                     case DELETE_ARTIFACT:
                         deleteArtifact();
                         break;
-                    case Stop:
+                    case STOP:
                         break;
+                    case EMERGENCY_RATTLING:
+                        break;
+
                 }
 
                 break;
         }
     }
 
+    private void setUpToDown(){
+        minI = 2;
+        movementLogic = MovementLogic.Up_to_down;
+    }
+    private void setDownToUp(){
+        minI = 8;
+        movementLogic = MovementLogic.Down_to_up;
+    }
     public double toGlobalAngle(double angle){
         return Math.toRadians(angle) - Math.toRadians(90);
     }
@@ -308,7 +387,7 @@ public class PositionRobotController extends UpdatableModule {
         Position2D artifactsPos = new Position2D();
 
         switch (movementLogic){
-            case Down_to_up:
+            case Up_to_down:
                 if(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][0] == 0){
                     minI --;
                     minI = Range.clip(minI, mn, mx);
@@ -327,15 +406,15 @@ public class PositionRobotController extends UpdatableModule {
                 }
 
                 break;
-            case Up_to_down:
+            case Down_to_up:
                 if(minI == 0 && GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][0] == 0){
                     break;
                 }
+
                 if(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][0] == 0){
                     minI --;
                     break;
                 }
-
                 break;
         }
 
@@ -343,12 +422,13 @@ public class PositionRobotController extends UpdatableModule {
         artifactsPos.setY(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][2]);
         artifactsPos.setHeading(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][4]);
 
+        //TODO Если что подправить угол
         return new Position2D(artifactsPos.getX(), artifactsPos.getY(), artifactsPos.getHeading());
     }
     public Position2D getNearestFirePos(){
         Position2D firePos;
-        Vector2 nearDelta = new Vector2(GeneralInformation.current.generalObjects.getFireZones()[0][0], GeneralInformation.current.generalObjects.getFireZones()[0][1]);
-        Vector2 farDelta = new Vector2(GeneralInformation.current.generalObjects.getFireZones()[1][0] , GeneralInformation.current.generalObjects.getFireZones()[1][1]);
+        Vector2 nearDelta = new Vector2(GeneralInformation.current.generalObjects.getFireZones()[0][0] - odometryClass.getEncGlobalPosition2D().getX(), GeneralInformation.current.generalObjects.getFireZones()[0][1] - odometryClass.getEncGlobalPosition2D().getY());
+        Vector2 farDelta = new Vector2(GeneralInformation.current.generalObjects.getFireZones()[1][0] - odometryClass.getEncGlobalPosition2D().getX(), GeneralInformation.current.generalObjects.getFireZones()[1][1] - odometryClass.getEncGlobalPosition2D().getY());
 
         //TODO Если наложиться угол
         if(nearDelta.length() > farDelta.length()){
@@ -363,7 +443,10 @@ public class PositionRobotController extends UpdatableModule {
 
     @Override
     public void showData() {
+
         telemetry.addLine("===POS CONTROLLER===");
+        telemetry.addData("ShootedArtifacts", shootedArtifacts);
+
 //        telemetry.addData("Founded Robot Angle", "%.1f°", foundedAngle * RAD);
         telemetry.addData("Target angle", "%.1f°", deltaAngle * RAD);
         telemetry.addData("Range to target", "%.1f cm", range);

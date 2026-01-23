@@ -97,11 +97,17 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         switch (GeneralInformation.current.programName){
             case TeleOp:
+                if (joystickActivityClass.playersGamepad.ps){
+                    collector.servos.init();
+                    return;
+                }
+
                 break;
             case Auto:
                 joystickActivityClass.buttonX = true;
                 break;
         }
+
 
         if(!joystickActivityClass.buttonX) {
             double pusherPos = PUSHER_START_POS;

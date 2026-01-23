@@ -100,7 +100,7 @@ public class PositionRobotController extends UpdatableModule {
         cameraClass.update();
 
         //TODO поменял местами
-        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.toRadians(odometryClass.getEncHeadVel()) < Math.toRadians(20))
+        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.abs(odometryClass.getEncHeadVel()) < Math.toRadians(20))
         {
             if (cameraClass.tagState == CameraClass.TagState.Detected) {
                 odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
@@ -292,7 +292,7 @@ public class PositionRobotController extends UpdatableModule {
                                 break;
                             case FIND_AND_GO_TO_FIRE_POS:
                                 targetPos = getNearestFirePos();
-                                driveArgs = new Args.DriveArgs(targetPos, 30);
+                                driveArgs = new Args.DriveArgs(targetPos, 100);
 
                                 needVyr = true;
                                 generalState = GeneralState.EXECUTE_IN_PROCCESS;
@@ -300,16 +300,27 @@ public class PositionRobotController extends UpdatableModule {
 
                             case GO_AFORE_ARTIFACTS:
                                 Position2D forwardArtifact = new Position2D();
+
                                 switch (GeneralInformation.current.color){
                                     case Blue:
-                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() + 20, getArtifactPos().getHeading());
+                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() + 60, getArtifactPos().getHeading());
                                         break;
                                     case Red:
-                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() - 20, getArtifactPos().getHeading());
+                                        forwardArtifact = new Position2D(getArtifactPos().getX() , getArtifactPos().getY() - 60, getArtifactPos().getHeading());
                                         break;
                                 }
+
+//                                switch (GeneralInformation.current.color){
+//                                    case Blue:
+//                                        forwardArtifact = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), getArtifactPos().getHeading());
+//                                        break;
+//                                    case Red:
+//                                        forwardArtifact = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), getArtifactPos().getHeading());
+//                                        break;
+//                                }
+
                                 needVyr = false;
-                                driveArgs = new Args.DriveArgs(forwardArtifact, 30);
+                                driveArgs = new Args.DriveArgs(forwardArtifact, 100);
                                 generalState = GeneralState.EXECUTE_IN_PROCCESS;
                                 break;
 
@@ -431,7 +442,7 @@ public class PositionRobotController extends UpdatableModule {
         artifactsPos.setHeading(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][4]);
 
         //TODO Если что подправить угол
-        return new Position2D(artifactsPos.getX(), artifactsPos.getY(), artifactsPos.getHeading());
+        return new Position2D(artifactsPos.getX(), artifactsPos.getY(), toGlobalAngle(Math.toDegrees(artifactsPos.getHeading())));
     }
     public Position2D getNearestFirePos(){
         Position2D firePos;

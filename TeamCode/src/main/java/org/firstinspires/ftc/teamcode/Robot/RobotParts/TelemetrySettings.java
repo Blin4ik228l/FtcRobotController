@@ -125,6 +125,7 @@ public class TelemetrySettings extends UpdatableModule {
             case Show_nothing:
                 break;
             case Show_for_auto:
+                linearOpModeModernized.joystickActivityClass.showData();
                 linearOpModeModernized.mainSystem.showData();
 //                linearOpModeModernized.autoPlayerClass2.showData();
                 linearOpModeModernized.semiAutoPlayerClass1.showData();

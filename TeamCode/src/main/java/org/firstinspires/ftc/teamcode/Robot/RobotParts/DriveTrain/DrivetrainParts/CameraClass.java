@@ -210,17 +210,17 @@ public class CameraClass extends UpdatableModule {
 
     public void showData(){
         telemetry.addLine("===CAMERA===");
-        telemetry.addData("General logic", generalLogic.toString());
-        telemetry.addData("Tag status", tagState.toString());
+//        telemetry.addData("General logic", generalLogic.toString());
+//        telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("onceSeen", onceSeen);
-        telemetry.addData("index/id", "%s %s",index, id);
-        telemetry.addData("des/yaw", "%s",desicionMargin);
-        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
-        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
-        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
-        telemetry.addData("Last Pos was taked", updateTime.seconds());
+//        telemetry.addData("index/id", "%s %s",index, id);
+//        telemetry.addData("des/yaw", "%s",desicionMargin);
+//        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
+//        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
+//        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
+//        telemetry.addData("Last Pos was taked", updateTime.seconds());
         telemetry.addLine();
     }
 }

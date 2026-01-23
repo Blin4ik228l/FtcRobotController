@@ -12,9 +12,9 @@ public class GeneralInformation {
         this.color = color;
         this.startPos = startPos;
 
-        generalObjects = new GeneralObjects();
-
         current = this;
+
+        generalObjects = new GeneralObjects();
     }
 
     public enum Color{
@@ -41,7 +41,16 @@ public class GeneralInformation {
         aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
         tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
         pointVyr = color == Color.Red ? redPointVyrCoord : bluePointVyrCoord;
-        fireZones = color == Color.Red ? fireZonesRed : fireZonesBlue;
+
+        switch (GeneralInformation.current.programName){
+            case Auto:
+                fireZones = color == Color.Red ? fireZonesRed : fireZonesBlue;
+                break;
+            case TeleOp:
+                fireZones = color == Color.Red ? fireZonesBlue : fireZonesRed;
+                break;
+        }
+
         baseCoord = color == Color.Red ? baseRedCoord : baseBlueCoord;
         artifactsCoord = color == Color.Red ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }
@@ -109,16 +118,16 @@ public class GeneralInformation {
         };
 
         public final double[][]artifactsUnderRedWallCoord = new double[][]{
-                new double[]{2, -30.401, 108.188 ,6.264 , Math.toRadians(90)}, new double[] {2, -30.401,122.888 ,6.264 , Math.toRadians(90)}, new double[]{1, -30.401, 133.588,6.264 , Math.toRadians(90)},
-                new double[]{2, 29.607 ,108.188,6.264 , Math.toRadians(90)}, new double[] {1, 29.607 ,122.888,6.264 , Math.toRadians(90)}, new double[]{2, 29.607 ,133.588,6.264 , Math.toRadians(90)},
-                new double[]{1, 89.614 ,108.188 ,6.264 , Math.toRadians(90)}, new double[]{2, 89.614 ,122.888 ,6.264 , Math.toRadians(90)}, new double[]{2, 89.614 , 133.588,6.264 , Math.toRadians(90)}  ,
+                new double[]{1, -30.401, 133.588,6.264 , Math.toRadians(90)}, new double[] {2, -30.401,122.888 ,6.264 , Math.toRadians(90)},  new double[]{2, -30.401, 108.188 ,6.264 , Math.toRadians(90)},
+                new double[]{2, 29.607 ,133.588,6.264 , Math.toRadians(90)}, new double[] {1, 29.607 ,122.888,6.264 , Math.toRadians(90)},new double[]{2, 29.607 ,108.188,6.264 , Math.toRadians(90)} ,
+                new double[]{2, 89.614 , 133.588,6.264 , Math.toRadians(90)}, new double[]{2, 89.614 ,122.888 ,6.264 , Math.toRadians(90)},   new double[]{1, 89.614 ,108.188 ,6.264 , Math.toRadians(90)},
         };
 
         public final double[][] fireZonesRed = new double[][]{
-                new double[]{-61, 61}, new double[]{150, 15}
+                new double[]{-61, 61}, new double[]{140, 15}
         };
         public final double[][] fireZonesBlue = new double[][]{
-                new double[]{-61, -61}, new double[]{150, -15}
+                new double[]{-61, -61}, new double[]{140, -15}
         };
 
         public final double[] baseBlueCoord = new double[]{

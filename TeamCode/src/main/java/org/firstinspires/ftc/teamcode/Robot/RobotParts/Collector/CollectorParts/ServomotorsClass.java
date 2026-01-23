@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Modules.Types.Module;
 
 public class ServomotorsClass extends Module {
-    private final Servo angle;
-    private final Servo pusherHor, pusherVer;
-    private final Servo baraban, baraban2;
+    private Servo angle;
+    private Servo pusherHor, pusherVer;
+    private Servo baraban, baraban2;
     public ElapsedTime runTimeBaraban, runTimeAngle, runTimePusherHor, runTimePusherVer;
     public ServomotorsClass(OpMode op){
         super(op);
@@ -33,6 +33,24 @@ public class ServomotorsClass extends Module {
         setBaraban(BARABAN_CELL0_POS);
 
         telemetry.addLine("Servos Inited");
+    }
+    public void init(){
+        pusherHor = hardwareMap.get(Servo.class, "pusher");
+        pusherVer = hardwareMap.get(Servo.class, "pusher2");
+        baraban = hardwareMap.get(Servo.class, "baraban");
+        baraban2 = hardwareMap.get(Servo.class, "baraban2");
+        angle = hardwareMap.get(Servo.class, "angle");
+
+        runTimeBaraban = new ElapsedTime();
+        runTimeAngle = new ElapsedTime();
+        runTimePusherHor = new ElapsedTime();
+        runTimePusherVer = new ElapsedTime();
+
+        //Устанавливаем в начальное положение
+        setPusherVer(PUSHERVER_START_POS);
+        setPusherHor(PUSHER_START_POS);
+        setAngle(ANGLE_LOWER_POS);
+        setBaraban(BARABAN_CELL0_POS);
     }
     public Servo getBaraban() {
         return baraban;

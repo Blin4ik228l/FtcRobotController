@@ -15,7 +15,7 @@ public class MecanumDrivetrain extends UpdatableModule {
     public MecanumDrivetrain(OpMode op){
         super(op);
 
-        motors = new DrivetrainMotors(op);
+//        motors = new DrivetrainMotors(op);
 
         positionRobotController = new PositionRobotController(op);
 

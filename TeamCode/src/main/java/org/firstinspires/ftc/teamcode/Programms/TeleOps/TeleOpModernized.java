@@ -40,22 +40,22 @@ public abstract class TeleOpModernized extends OpMode {
     }
     @Override
     public void init_loop() {
-        setAll();
+//        setAll();
         updateAll();
-        showAll();
+//        showAll();
     }
 
     @Override
     public void start() {
-        robot.resetTimer();
+//        robot.resetTimer();
     }
 
     @Override
     public void loop() {
-        setAll();
+//        setAll();
         updateAll();
-        executeAll();
-        showAll();
+//        executeAll();
+//        showAll();
 
         iterationCount++;
         updateTime.reset();
@@ -88,7 +88,7 @@ public abstract class TeleOpModernized extends OpMode {
 
         robot.update();
 
-        autoPlayerClass2.setFields(robot.drivetrain.positionRobotController);
+//        autoPlayerClass2.setFields(robot.drivetrain.positionRobotController);
 
 //        fileSystem.update();
 

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 import org.firstinspires.ftc.teamcode.Robot.RobotParts.TelemetrySettings;
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
-@Autonomous(name = "Test", group = "Unknown")
+@Autonomous(name = "TestAuto", group = "Unknown")
 public class AutoTest extends LinearOpModeModernized {
 
     @Override

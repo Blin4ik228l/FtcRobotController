@@ -21,9 +21,9 @@ public class RobotClass extends UpdatableModule{
         super(op);
 
         drivetrain = new MecanumDrivetrain(op);
-        collector = new Collector(op);
+//        collector = new Collector(op);
 
-        collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
+//        collector.motors.setPreferences(CollectorMotors.ControlMode.By_power, CollectorMotors.Units.Rad_in_sec);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class RobotClass extends UpdatableModule{
         if (iterationCount % 2 == 0) collector.update();
         if (iterationCount % 10 == 0) voltageSensor.update();
 
-        collector.digitalCellsClass.setRandomizedArtifact(drivetrain.positionRobotController.getCameraClass().getRandomizedArtifacts());
+//        collector.digitalCellsClass.setRandomizedArtifact(drivetrain.positionRobotController.getCameraClass().getRandomizedArtifacts());
     }
 
     @Override

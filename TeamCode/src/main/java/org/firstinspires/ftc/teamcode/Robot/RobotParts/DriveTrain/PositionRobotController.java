@@ -12,12 +12,12 @@ import org.firstinspires.ftc.teamcode.Robot.RobotParts.DriveTrain.DrivetrainPart
 import org.firstinspires.ftc.teamcode.TaskAndArgs.Args;
 
 public class PositionRobotController extends UpdatableModule {
-    private final OdometryClass odometryClass;
+    private OdometryClass odometryClass;
     private final CameraClass cameraClass;
     public PositionRobotController(OpMode op) {
         super(op);
 
-        this.odometryClass = new OdometryClass(op);
+//        this.odometryClass = new OdometryClass(op);
         this.cameraClass = new CameraClass(op);
 
         vyrState = VyrState.Far_from_it;
@@ -96,261 +96,239 @@ public class PositionRobotController extends UpdatableModule {
     boolean isFlag = false;
     @Override
     public void update() {
-        odometryClass.updateSpeed();
+//        odometryClass.updateSpeed();
         cameraClass.update();
 
         //TODO поменял местами
-        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.abs(odometryClass.getEncHeadVel()) < Math.toRadians(20))
-        {
-            if (cameraClass.tagState == CameraClass.TagState.Detected) {
-                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-            }else odometryClass.updatePoses();
-        }else {
-            odometryClass.updatePoses();
-        }
-
-//        if (odometryClass.rotateState == OdometryClass.RotateState.Stopped && odometryClass.moveState == OdometryClass.MoveState.Stopped)
+//        if (odometryClass.getRobotCurVelocity().length() < 30 && Math.toRadians(odometryClass.getEncHeadVel()) < Math.toRadians(20))
 //        {
-//            if (cameraClass.tagState == CameraClass.TagState.Detected && !flag) {
+//            if (cameraClass.tagState == CameraClass.TagState.Detected) {
 //                odometryClass.setPos(cameraClass.getLastRecordedPosition2D());
-//                flag = true;
-//            }
+//            }else odometryClass.updatePoses();
 //        }else {
 //            odometryClass.updatePoses();
-//            flag = false;
 //        }
 
-        calcRange();
-        calcAngle();
-        calcDeltaAngle();
-        getNearestFirePos();
-
-        //TODO подправить позиции на стрельбу и скорость увеличить
-        switch (GeneralInformation.current.programName){
-            case TeleOp:
-                switch (generalState){
-                    case Test:
-                        targetPos = new Position2D(0, 0, deltaAngle);
-                        driveArgs = new Args.DriveArgs(targetPos, 50);
-
-                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                        break;
-                    case Get_pos:
-                        switch (autoState){
-                            case FIND_AND_GO_TO_FIRE_POS:
-                                targetPos = getNearestFirePos();
-                                driveArgs = new Args.DriveArgs(targetPos, 30);
-
-                                needVyr = true;
-                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                break;
-                            case GO_TO_LOAD_POS:
-                                switch (GeneralInformation.current.color){
-                                    case Blue:
-                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() + 30, toGlobalAngle(90));
-                                        driveArgs = new Args.DriveArgs(targetPos, 30);
-
-                                        needVyr = false;
-                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                        break;
-                                    case Red:
-                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() - 30, toGlobalAngle(-90));
-                                        driveArgs = new Args.DriveArgs(targetPos, 30);
-
-                                        needVyr = false;
-                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                        break;
-                                }
-                                break;
-                        }
-                        break;
-                    case EXECUTE_IN_PROCCESS:
-                        break;
-                    case STOP:
-                        break;
-                }
-                break;
-            case Auto:
-                switch (generalState){
-                    case Test:
-                        targetPos = new Position2D(0, 0, deltaAngle);
-                        driveArgs = new Args.DriveArgs(targetPos, 50);
-
-                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                        break;
-                    case Get_pos:
-                        switch (autoState){
-                            case CHECK_READINESS_FOR_START:
-                                if(cameraClass.randomizeStatus == CameraClass.RandomizeStatus.UnDetected && cameraClass.onceSeen){
-                                    switch (GeneralInformation.current.color){
-                                        case Blue:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(-45));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                        case Red:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(45));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                } else if (cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected && !cameraClass.onceSeen) {
-                                    switch (GeneralInformation.current.color){
-                                        case Red:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                        case Blue:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
-                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
-                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
-
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                }else {
-                                    generalState = GeneralState.DONE;
-                                    switch (GeneralInformation.current.color){
-                                        case Red:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                        case Blue:
-                                            switch (GeneralInformation.current.startPos){
-                                                case Near_wall:
-                                                    setUpToDown();
-                                                    break;
-                                                case Far_from_wall:
-                                                    setDownToUp();
-                                                    break;
-                                            }
-                                            break;
-                                    }
-                                }
-                                break;
-                            case FIND_AND_GO_TO_FIRE_POS:
-                                targetPos = getNearestFirePos();
-                                driveArgs = new Args.DriveArgs(targetPos, 100);
-
-                                needVyr = true;
-                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                break;
-
-                            case GO_AFORE_ARTIFACTS:
-                                Position2D forwardArtifact = new Position2D();
-
-                                switch (GeneralInformation.current.color){
-                                    case Blue:
-                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() + 60, getArtifactPos().getHeading());
-                                        break;
-                                    case Red:
-                                        forwardArtifact = new Position2D(getArtifactPos().getX() , getArtifactPos().getY() - 60, getArtifactPos().getHeading());
-                                        break;
-                                }
-
+//        calcRange();
+//        calcAngle();
+//        calcDeltaAngle();
+//        getNearestFirePos();
+//
+//        //TODO подправить позиции на стрельбу и скорость увеличить
+//        switch (GeneralInformation.current.programName){
+//            case TeleOp:
+//                switch (generalState){
+//                    case Test:
+//                        targetPos = new Position2D(0, 0, deltaAngle);
+//                        driveArgs = new Args.DriveArgs(targetPos, 50);
+//
+//                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                        break;
+//                    case Get_pos:
+//                        switch (autoState){
+//                            case FIND_AND_GO_TO_FIRE_POS:
+//                                targetPos = getNearestFirePos();
+//                                driveArgs = new Args.DriveArgs(targetPos, 30);
+//
+//                                needVyr = true;
+//                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                                break;
+//                            case GO_TO_LOAD_POS:
 //                                switch (GeneralInformation.current.color){
 //                                    case Blue:
-//                                        forwardArtifact = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), getArtifactPos().getHeading());
+//                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() + 30, toGlobalAngle(90));
+//                                        driveArgs = new Args.DriveArgs(targetPos, 30);
+//
+//                                        needVyr = false;
+//                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
 //                                        break;
 //                                    case Red:
-//                                        forwardArtifact = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), getArtifactPos().getHeading());
+//                                        targetPos = new Position2D(getNearestFirePos().getX(), getNearestFirePos().getY() - 30, toGlobalAngle(-90));
+//                                        driveArgs = new Args.DriveArgs(targetPos, 30);
+//
+//                                        needVyr = false;
+//                                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
 //                                        break;
 //                                }
-
-                                needVyr = false;
-                                driveArgs = new Args.DriveArgs(forwardArtifact, 100);
-                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                break;
-
-                            case FIND_AND_GO_TO_ARTIFACTS:
-                                Position2D artifactPos = getArtifactPos();
-
-                                needVyr = false;
-
-                                driveArgs = new Args.DriveArgs(artifactPos, 30);
-
-                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
-                                break;
-                        }
-                        break;
-                    case EXECUTE_IN_PROCCESS:
-                        break;
-                    case DONE:
-                        break;
-                    case DELETE_ARTIFACT:
-                        deleteArtifact();
-                        break;
-                    case STOP:
-                        break;
-                    case EMERGENCY_RATTLING:
-                        break;
-
-                }
-
-                break;
-        }
+//                                break;
+//                        }
+//                        break;
+//                    case EXECUTE_IN_PROCCESS:
+//                        break;
+//                    case STOP:
+//                        break;
+//                }
+//                break;
+//            case Auto:
+//                switch (generalState){
+//                    case Test:
+//                        targetPos = new Position2D(0, 0, deltaAngle);
+//                        driveArgs = new Args.DriveArgs(targetPos, 50);
+//
+//                        generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                        break;
+//                    case Get_pos:
+//                        switch (autoState){
+//                            case CHECK_READINESS_FOR_START:
+//                                if(cameraClass.randomizeStatus == CameraClass.RandomizeStatus.UnDetected && cameraClass.onceSeen){
+//                                    switch (GeneralInformation.current.color){
+//                                        case Blue:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(-45));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                        case Red:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(45));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), toGlobalAngle(0));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                    }
+//                                } else if (cameraClass.randomizeStatus == CameraClass.RandomizeStatus.Detected && !cameraClass.onceSeen) {
+//                                    switch (GeneralInformation.current.color){
+//                                        case Red:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), -Math.toRadians(30));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                        case Blue:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    targetPos = new Position2D(odometryClass.getEncGlobalPosition2D().getX(), odometryClass.getEncGlobalPosition2D().getY(), Math.toRadians(30));
+//                                                    driveArgs = new Args.DriveArgs(targetPos, 20);
+//                                                    generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                    }
+//                                }else {
+//                                    generalState = GeneralState.DONE;
+//                                    switch (GeneralInformation.current.color){
+//                                        case Red:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                        case Blue:
+//                                            switch (GeneralInformation.current.startPos){
+//                                                case Near_wall:
+//                                                    setUpToDown();
+//                                                    break;
+//                                                case Far_from_wall:
+//                                                    setDownToUp();
+//                                                    break;
+//                                            }
+//                                            break;
+//                                    }
+//                                }
+//                                break;
+//                            case FIND_AND_GO_TO_FIRE_POS:
+//                                targetPos = getNearestFirePos();
+//                                driveArgs = new Args.DriveArgs(targetPos, 30);
+//
+//                                needVyr = true;
+//                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                                break;
+//
+//                            case GO_AFORE_ARTIFACTS:
+//                                Position2D forwardArtifact = new Position2D();
+//                                switch (GeneralInformation.current.color){
+//                                    case Blue:
+//                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() + 20, getArtifactPos().getHeading());
+//                                        break;
+//                                    case Red:
+//                                        forwardArtifact = new Position2D(getArtifactPos().getX(), getArtifactPos().getY() - 20, getArtifactPos().getHeading());
+//                                        break;
+//                                }
+//                                needVyr = false;
+//                                driveArgs = new Args.DriveArgs(forwardArtifact, 30);
+//                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                                break;
+//
+//                            case FIND_AND_GO_TO_ARTIFACTS:
+//                                Position2D artifactPos = getArtifactPos();
+//
+//                                needVyr = false;
+//
+//                                driveArgs = new Args.DriveArgs(artifactPos, 30);
+//
+//                                generalState = GeneralState.EXECUTE_IN_PROCCESS;
+//                                break;
+//                        }
+//                        break;
+//                    case EXECUTE_IN_PROCCESS:
+//                        break;
+//                    case DONE:
+//                        break;
+//                    case DELETE_ARTIFACT:
+//                        deleteArtifact();
+//                        break;
+//                    case STOP:
+//                        break;
+//                    case EMERGENCY_RATTLING:
+//                        break;
+//
+//                }
+//
+//                break;
+//        }
     }
 
     private void setUpToDown(){
@@ -442,7 +420,7 @@ public class PositionRobotController extends UpdatableModule {
         artifactsPos.setHeading(GeneralInformation.current.generalObjects.getClosestArtifacts()[minI][4]);
 
         //TODO Если что подправить угол
-        return new Position2D(artifactsPos.getX(), artifactsPos.getY(), toGlobalAngle(Math.toDegrees(artifactsPos.getHeading())));
+        return new Position2D(artifactsPos.getX(), artifactsPos.getY(), artifactsPos.getHeading());
     }
     public Position2D getNearestFirePos(){
         Position2D firePos;

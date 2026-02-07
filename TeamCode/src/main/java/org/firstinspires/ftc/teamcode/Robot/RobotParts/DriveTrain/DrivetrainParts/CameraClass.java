@@ -81,8 +81,11 @@ public class CameraClass extends UpdatableModule {
     }
     private ExposureControl exposure;
     private GainControl gain;
-    private double robotFieldX, robotFieldY, robotFieldZ;
-    private double robotFieldPitch, robotFieldRoll, robotFieldYaw;
+    public double ftcFieldX, ftcFieldY, ftcFieldZ;
+    public double ftcFieldPitch, ftcFieldRoll, ftcFieldYaw;
+    public double centerX, centerY;
+    public double robotFieldX, robotFieldY, robotFieldZ;
+    public double robotFieldPitch, robotFieldRoll, robotFieldYaw;
     public double robotRangeToTag, cameraElevation, cameraBearing;
     private double desicionMargin;
     private int index;
@@ -142,7 +145,7 @@ public class CameraClass extends UpdatableModule {
 
                     tagState = TagState.UnDetected;
 
-                    if ((id == 20 || id == 24) && desicionMargin > 30 && updateTime.seconds() > 0.1){
+                    if ( (id == 20 || id == 24) && desicionMargin > 30 && updateTime.seconds() > 0.1){
                         robotFieldX = detection.robotPose.getPosition().x;
                         robotFieldY = detection.robotPose.getPosition().y;
                         robotFieldZ = detection.robotPose.getPosition().z;
@@ -154,6 +157,17 @@ public class CameraClass extends UpdatableModule {
                         robotRangeToTag = detection.ftcPose.range;
                         cameraElevation = detection.ftcPose.elevation;
                         cameraBearing   = detection.ftcPose.bearing;
+
+                        ftcFieldYaw = detection.ftcPose.yaw;
+                        ftcFieldPitch = detection.ftcPose.pitch;
+                        ftcFieldRoll = detection.ftcPose.roll;
+
+                        ftcFieldX = detection.ftcPose.x;
+                        ftcFieldY = detection.ftcPose.y;
+                        ftcFieldZ = detection.ftcPose.z;
+
+                        centerX = detection.center.x;
+                        centerY = detection.center.y;
 
                         lastRecordedPosition2D = new Position2D(robotFieldX, robotFieldY, robotFieldYaw);
 
@@ -210,17 +224,20 @@ public class CameraClass extends UpdatableModule {
 
     public void showData(){
         telemetry.addLine("===CAMERA===");
-//        telemetry.addData("General logic", generalLogic.toString());
-//        telemetry.addData("Tag status", tagState.toString());
+        telemetry.addData("General logic", generalLogic.toString());
+        telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
         telemetry.addData("onceSeen", onceSeen);
-//        telemetry.addData("index/id", "%s %s",index, id);
-//        telemetry.addData("des/yaw", "%s",desicionMargin);
-//        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
-//        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
-//        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
-//        telemetry.addData("Last Pos was taked", updateTime.seconds());
+        telemetry.addData("index/id", "%s %s",index, id);
+        telemetry.addData("des/yaw", "%s",desicionMargin);
+        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
+        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
+        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", robotRangeToTag, cameraElevation * RAD, cameraBearing * RAD);
+        telemetry.addData("FTC Pos", "X:%.2f Y:%.2f Z:%.2f", ftcFieldX, ftcFieldY, ftcFieldZ);
+        telemetry.addData("FTC Angles", "R:%.1f P:%.1f Y:%.1f", ftcFieldRoll * RAD, ftcFieldPitch * RAD, ftcFieldYaw * RAD);
+        telemetry.addData("Center", "X:%.1f Y:%.1f", centerX, centerY);
+        telemetry.addData("Last Pos was taked", updateTime.seconds());
         telemetry.addLine();
     }
 }

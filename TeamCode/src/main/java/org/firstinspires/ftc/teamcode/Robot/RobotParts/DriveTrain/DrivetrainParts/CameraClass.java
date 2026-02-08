@@ -201,25 +201,27 @@ public class CameraClass extends UpdatableModule {
     public void setRandomizedArtifactFromId(int id) {
         int green = 1;
         int purple = 2;
+        randomizedArtifacts = new int[] {green, purple, purple};
+        randomizeStatus = RandomizeStatus.Detected;
 
 //        if(id != 21 || id != 22 || id != 23){
 //            int min = 21;
 //            int max = 23;
 //            id = (int)(Math.random() * (max - min + 1)) + min;
 //        }
-
-        if(id == 21){
-            randomizedArtifacts = new int[] {green, purple, purple};
-            randomizeStatus = RandomizeStatus.Detected;
-        }
-        if(id == 22){
-            randomizedArtifacts = new int[] {purple, green, purple};
-            randomizeStatus = RandomizeStatus.Detected;
-        }
-        if(id == 23){
-            randomizedArtifacts = new int[] {purple, purple, green};
-            randomizeStatus = RandomizeStatus.Detected;
-        }
+//
+//        if(id == 21){
+//
+//            randomizeStatus = RandomizeStatus.Detected;
+//        }
+//        if(id == 22){
+//            randomizedArtifacts = new int[] {purple, green, purple};
+//            randomizeStatus = RandomizeStatus.Detected;
+//        }
+//        if(id == 23){
+//            randomizedArtifacts = new int[] {purple, purple, green};
+//            randomizeStatus = RandomizeStatus.Detected;
+//        }
     }
 
     public void showData(){

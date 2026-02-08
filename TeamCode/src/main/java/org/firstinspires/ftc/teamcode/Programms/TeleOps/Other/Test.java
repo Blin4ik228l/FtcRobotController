@@ -74,7 +74,7 @@ public class Test extends OpMode {
         runTime = new ElapsedTime();
 
         adafruitI2cColorSensor.setGain(15f);
-        turretPID = new PID(0.01, 0.0001,0, -1, 1);
+        turretPID = new PID(0.0001, 0.0001,0, -1, 1);
     }
 
     @Override
@@ -122,8 +122,8 @@ public class Test extends OpMode {
                 target = cameraClass.cameraBearing;
                 break;
             case UnDetected:
-                deltaAngle += deltaPos / outPutRes;
-                target = cameraClass.cameraBearing + deltaAngle;
+//                deltaAngle += deltaPos / outPutRes;
+//                target = cameraClass.cameraBearing + deltaAngle;
                 break;
         }
         switch (turretState){
@@ -133,21 +133,28 @@ public class Test extends OpMode {
                 break;
             case Return_to_zero:
                 target = 0 - m1.getCurrentPosition() / outPutRes;
+
+                if (Math.abs(target) < Math.toRadians(3)) {
+                    target = 0;
+                    turretState = TurretState.Idle;
+                }
+
+                vyrVoltage = turretPID.calculate(target);
                 break;
             case Rotate_to_target:
+                if (Math.abs(m1.getCurrentPosition()) > outPutRes){
+                    turretState = TurretState.Return_to_zero;
+                }
+
+                if (Math.abs(target) < Math.toRadians(3) && cameraClass.onceSeen) {
+                    target = 0;
+                    turretState = TurretState.Idle;
+                }
 
                 vyrVoltage = turretPID.calculate(target);
                 break;
             case LOST:
                 break;
-        }
-        if (Math.abs(m1.getCurrentPosition()) > outPutRes){
-            turretState = TurretState.Return_to_zero;
-            return;
-        }
-        if (Math.abs(target) < Math.toRadians(3) && cameraClass.onceSeen) {
-            vyrVoltage = 0;
-            turretState = TurretState.Idle;
         }
         m1.setPower(vyrVoltage);
 

@@ -83,23 +83,23 @@ public abstract class TeleOpModernized extends OpMode {
     private void updateAll() {
         joystickActivityClass.update();
         joystickActivityClass2.update();
-
+//
         telemetrySettings.update();
 
         robot.update();
 
 //        autoPlayerClass2.setFields(robot.drivetrain.positionRobotController);
 
-//        fileSystem.update();
+        fileSystem.update();
 
         extUpdate();
     }
     private void executeAll(){
         mainSystem.execute();
-
+//
         semiAutoPlayerClass1.execute();
         autoPlayerClass2.execute();
-
+//
         extExecute();
     }
     private void showAll(){

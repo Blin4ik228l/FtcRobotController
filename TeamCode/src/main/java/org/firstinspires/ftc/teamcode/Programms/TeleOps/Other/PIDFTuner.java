@@ -3,28 +3,34 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps.Other;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
-import org.firstinspires.ftc.teamcode.Robot.GeneralInformation;
-import org.firstinspires.ftc.teamcode.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
 @TeleOp(name = "PIDFTuner")
 public class PIDFTuner extends TeleOpModernized implements kPIDS {
     private double  P = FLYWHEEL[0], I = FLYWHEEL[1], D = FLYWHEEL[2], F = FLYWHEEL[3];
-
     private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
     private int stepIndex;
     private int index;
-
+    private JoystickActivityClass joystickActivityClass2;
     @Override
     public void init() {
-        new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
-        robot = new RobotClass(this);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
 
         initAfterRobot();
+
+        joystickActivityClass2 = opDataContainer.autoPlayerClass2.joystickActivityClass;
+    }
+
+    @Override
+    public void extUpdate() {
+
     }
 
     @Override
     public void extExecute() {
+
         if(joystickActivityClass2.bumperLeft){
             stepIndex = Math.max(stepIndex - 1, 0);
             joystickActivityClass2.bumperLeft = false;
@@ -81,7 +87,7 @@ public class PIDFTuner extends TeleOpModernized implements kPIDS {
             joystickActivityClass2.dpad_Down = false;
         }
 
-        robot.collector.motors.setPIDF(P, I, D, F);
+        opDataContainer.robot.hoodedShoter.motors.setPIDF(P, I, D, F);
     }
 
     @Override

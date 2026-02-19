@@ -1,0 +1,93 @@
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.MathUtils;
+
+import androidx.annotation.NonNull;
+
+public class Position2D {
+    private double x;
+    private double y;
+    private double heading;
+
+    public Position2D(double x , double y, double heading){
+        this.x = x;
+        this.y = y;
+        this.heading = heading;
+    }
+
+    public Position2D(Position2D position2D){
+        this.x = position2D.x;
+        this.y = position2D.y;
+        this.heading = position2D.heading;
+    }
+
+    public Position2D(Vector2 vector2, double heading){
+        this.x = vector2.x;
+        this.y = vector2.y;
+        this.heading = heading;
+
+    }
+
+    public Position2D(){
+        this.x = 0;
+        this.y = 0;
+
+        this.heading = 0;
+    }
+
+    public Vector2 toVector(){
+        return new Vector2(this.x, this.y);
+    }
+
+    public void setX(double x){
+        this.x = x;
+    }
+
+    public void setY(double y){
+        this.y = y;
+    }
+
+    public void setHeading(double heading){
+        this.heading = heading;
+    }
+
+    public double getX(){
+        return this.x;
+    }
+
+    public double getY(){
+        return this.y;
+    }
+    public void add(double X, double Y, double Rad){
+        this.x += X;
+        this.y += Y;
+        this.heading += Rad;
+    }
+
+    public double getHeading(){
+        //Нормализуем угол
+        if (this.heading < -Math.PI) {
+            this.heading += 2 * Math.PI;
+        }
+
+        if (this.heading > Math.PI) {
+            this.heading -= 2 * Math.PI;
+        }
+
+        return heading;
+    }
+
+    public void add(@NonNull Vector2 vector2, double heading){
+        this.x += vector2.x;
+        this.y += vector2.y;
+        this.heading += heading;
+    }
+    public Position2D minus (Position2D position2D){
+        return new Position2D(x - position2D.getX(), y - position2D.getY(), heading - position2D.getHeading());
+    }
+
+
+    @NonNull
+    public Position2D clone(){
+        return new Position2D(this);
+    }
+
+}

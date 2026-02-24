@@ -46,13 +46,13 @@ public class UpdatableContainer extends Container {
     }
 
     public void update() {
-        for (UpdatableModule module : modules){
-            if(module.isInizialized) {module.update();
-            module.increaseIteration();}
-        };
-
-        if (modulesCollector.teleOpModernized != null){
-            modulesCollector.teleOpModernized.extUpdate();
-        }
+//        for (UpdatableModule module : modules){
+//            if(module.isInizialized) {module.update();
+//            module.increaseIteration();}
+//        };
+//
+//        if (modulesCollector.teleOpModernized != null){
+//            modulesCollector.teleOpModernized.extUpdate();
+//        }
     }
 }

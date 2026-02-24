@@ -1,4 +1,4 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
 
-public class Distance {
+public class ControlHubDevices {
 }

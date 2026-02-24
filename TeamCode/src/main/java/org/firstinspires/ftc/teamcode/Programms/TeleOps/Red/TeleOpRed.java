@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInfor
 public class TeleOpRed extends TeleOpModernized {
     @Override
     public void init() {
-        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Red, GeneralInformation.StartPos.Nevermind);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.TeleOp, TeamAliance.RED, GeneralInformation.StartPos.Nevermind);
         initAfterRobot();
     }
 

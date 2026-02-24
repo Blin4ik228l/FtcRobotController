@@ -52,18 +52,6 @@ public class ModulesCollector{
         };
 
         matchTimer = new ElapsedTime();
-        setMatchTimer(matchTimer);
-    }
-    public void setMatchTimer(ElapsedTime matchTimer){
-        for (Module module : modules) {
-            module.setMatchTimer(matchTimer);
-        }
-    }
-
-    public void resetTimer(){
-        for (Module module : modules) {
-            module.resetTimer();
-        }
     }
     public void increaseIteration(Module...modules){
         for (Module module : modules) {

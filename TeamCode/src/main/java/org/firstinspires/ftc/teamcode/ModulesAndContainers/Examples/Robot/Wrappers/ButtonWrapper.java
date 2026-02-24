@@ -4,15 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
-public class ButtonClass extends UpdatableModule {
-    public ButtonClass(OpMode op) {
+public class ButtonWrapper extends DeviceUpdaterWrapper {
+    public ButtonWrapper(OpMode op) {
         super(op);
         try {
 
         } catch (Exception e) {
-            isInizialized = false;
+            isInitialized = false;
             return;
         }
         button = hardwareMap.get(DistanceSensor.class, "dist");

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts;
 
 import android.util.Size;
 
@@ -13,8 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.OdometryData;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -37,12 +37,10 @@ public class CameraClass extends UpdatableModule {
     public boolean onceSeen;
     public CameraClass(OpMode op)  {
         super(op);
-
         try {
             webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        } catch (Exception e) {
-            isInizialized = false;
-            return;
+        }catch (Exception e){
+            isInitialized = false;
         }
 
         cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
@@ -50,7 +48,7 @@ public class CameraClass extends UpdatableModule {
 //        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
         //Насколько камера повёрнута относительно неё же
 
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(180) , Math.toRadians(-85), Math.toRadians(0), 0);
+        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(270) , Math.toRadians(-85), Math.toRadians(0), 0);
 
         aprilTagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(false)
@@ -80,8 +78,7 @@ public class CameraClass extends UpdatableModule {
         absoluteData = new OdometryData();
 
         updateTime = new ElapsedTime();
-
-        telemetry.addLine("Camera Inited");
+        sayInited();
     }
     public OdometryData absoluteData;
     private ExposureControl exposure;
@@ -128,19 +125,19 @@ public class CameraClass extends UpdatableModule {
     public int[] motif = new int[3];
     @Override
     public void update(){
-        if (!isInizialized) return;
-
+        if (!isInitialized) return;
         switch (generalLogic){
             case Check_camera_state:
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
+
                     exposure = visionPortal.getCameraControl(ExposureControl.class);
                     exposure.setMode(ExposureControl.Mode.Manual);//Если камера не поддерживает настройку экспозиции
-                    exposure.setExposure(20, TimeUnit.MILLISECONDS);//Экспозиция
+                    exposure.setExposure(5, TimeUnit.MILLISECONDS);//Экспозиция
 
                     gain = visionPortal.getCameraControl(GainControl.class);
 
-                    //TODO яркость уменьшить
-                    gain.setGain(190);//яркость
+                    //утром 130 - вечером 170
+                    gain.setGain(130);//яркость
 
                     aprilTagProcessor.setDecimation(2.0f);
 
@@ -192,7 +189,7 @@ public class CameraClass extends UpdatableModule {
                         if (rangeToTag > 300){
                             decisionMargin = 0;
                         }
-                        absoluteData.setRobotPosition(new Position2D(robotFieldX, robotFieldY, robotFieldYaw));
+                        absoluteData.setPosition(new Position2D(robotFieldX, robotFieldY, robotFieldYaw));
                     }
                     else{
                         decisionMargin = 0;
@@ -245,25 +242,20 @@ public class CameraClass extends UpdatableModule {
     }
     @Override
     public void showData(){
-        telemetry.addLine("===CAMERA===");
-        if (isInizialized) {
-            telemetry.addLine();
-            telemetry.addData("General logic", generalLogic.toString());
-            telemetry.addData("Tag status", tagState.toString());
-            telemetry.addData("Randomize status", randomizeStatus.toString());
-            telemetry.addData("Camera state", visionPortal.getCameraState().toString());
-            telemetry.addData("onceSeen", onceSeen);
-            telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
-            telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
-            telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", rangeToTag, cameraElevation * RAD, cameraBearing * RAD);
-            telemetry.addData("FTC Pos", "X:%.2f Y:%.2f Z:%.2f", ftcFieldX, ftcFieldY, ftcFieldZ);
-            telemetry.addData("FTC Angles", "R:%.1f P:%.1f Y:%.1f", ftcFieldRoll * RAD, ftcFieldPitch * RAD, ftcFieldYaw * RAD);
-            telemetry.addData("Center", "X:%.1f Y:%.1f", centerX, centerY);
-            telemetry.addData("Last Pos was taked", updateTime.seconds());
-        }else{
-            telemetry.addLine("DEVICE NOT FOUND");
-        }
-
+        sayModuleName();
+        telemetry.addData("General logic", generalLogic.toString());
+        telemetry.addData("Tag status", tagState.toString());
+        telemetry.addData("Randomize status", randomizeStatus.toString());
+        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
+//        telemetry.addData("onceSeen", onceSeen);
+        telemetry.addData("Des", absoluteData.getDesisionMarg());
+//        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
+//        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
+//        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", rangeToTag, cameraElevation * RAD, cameraBearing * RAD);
+//        telemetry.addData("FTC Pos", "X:%.2f Y:%.2f Z:%.2f", ftcFieldX, ftcFieldY, ftcFieldZ);
+//        telemetry.addData("FTC Angles", "R:%.1f P:%.1f Y:%.1f", ftcFieldRoll * RAD, ftcFieldPitch * RAD, ftcFieldYaw * RAD);
+//        telemetry.addData("Center", "X:%.1f Y:%.1f", centerX, centerY);
+//        telemetry.addData("Last Pos was taked", updateTime.seconds());
         telemetry.addLine();
     }
 }

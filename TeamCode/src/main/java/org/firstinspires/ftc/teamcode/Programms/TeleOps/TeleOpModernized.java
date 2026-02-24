@@ -4,13 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
 
 public abstract class TeleOpModernized extends OpMode {
     public GeneralInformation generalInformation;
-    public OpDataContainer opDataContainer;
+    public MainSystem mainSystem;
 
     public void initAfterRobot(){
-        opDataContainer = new OpDataContainer(generalInformation, this);
+        mainSystem = new MainSystem(generalInformation, this);
     }
     @Override
     public void init_loop() {
@@ -18,19 +19,20 @@ public abstract class TeleOpModernized extends OpMode {
 
     @Override
     public void start() {
-        opDataContainer.start();
-        opDataContainer.resetTimer();
+        mainSystem.startExecuting();
+//        telemetry.setAutoClear(false);
     }
 
     @Override
     public void loop() {
-        opDataContainer.telemetryContainer.showData();
+        mainSystem.update();
         extShow();
+        mainSystem.showData();
     }
 
     @Override
     public void stop() {
-        opDataContainer.interrupt();
+        mainSystem.interrupt();
     }
 
     //Ваша будущая реализация

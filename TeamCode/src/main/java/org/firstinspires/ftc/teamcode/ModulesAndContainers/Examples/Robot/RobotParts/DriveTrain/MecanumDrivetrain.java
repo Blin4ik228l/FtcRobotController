@@ -2,27 +2,26 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.CameraClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.Odometry;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.OdometryData;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
 
 public class MecanumDrivetrain extends UpdatableModule {
-    //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.
+    //Телега робота(моторы + колёса) с энкодерами и гироскопом .
     public DrivetrainMotors motors;
+    public GyroscopeClass gyro;
     public MecanumDrivetrain(OpMode op, VoltageSensorClass voltageSensorClass){
         super(op);
-        try {
-            motors = new DrivetrainMotors(op);
-        }catch (Exception e){
-            motors.isInizialized = false;
-        }
+
+        gyro = new GyroscopeClass(op);
+        motors = new DrivetrainMotors(op, gyro);
+
 
         motors.setVoltageSensorClass(voltageSensorClass);
 
-        telemetry.addLine("Drivetrain Inited");
+        this.isInitialized = motors.isInitialized && gyro.isInitialized;
+        sayInited();
     }
     public void setVoltageSensor(VoltageSensorClass voltageSensor){
         motors.setVoltageSensorClass(voltageSensor);
@@ -37,5 +36,6 @@ public class MecanumDrivetrain extends UpdatableModule {
     public void showData() {
         telemetry.addLine("===DRIVETRAIN DATA===");
         motors.showData();
+        telemetry.addLine();
     }
 }

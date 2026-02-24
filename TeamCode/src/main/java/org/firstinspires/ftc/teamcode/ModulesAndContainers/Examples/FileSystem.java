@@ -34,19 +34,19 @@ public class FileSystem{
 //                autoPlayerClass.collector.motors.P, autoPlayerClass.collector.motors.I, autoPlayerClass.collector.motors.D, autoPlayerClass.collector.motors.F,
 //                date.getTime(), Math.toDegrees(autoPlayerClass.targetAngle), autoPlayerClass.range);
 
-        String targSpeed = String.valueOf(autoPlayerClass2.targetRadSpeed * 19.2);
-        String curVel = String.valueOf(autoPlayerClass2.hoodedShoter.motors.curVel);
-        String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass2.hoodedShoter.motors.getPIDF()[0], autoPlayerClass2.hoodedShoter.motors.getPIDF()[1], autoPlayerClass2.hoodedShoter.motors.getPIDF()[2], autoPlayerClass2.hoodedShoter.motors.getPIDF()[3]);
-        String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass2.targetAngle), autoPlayerClass2.range);
-        String states = String.format("General: %s Another: %s", autoPlayerClass2.generalState.toString(), autoPlayerClass2.anotherStates.toString());
-        String dat = String.valueOf(date.getTime());
-
-        logBuffer.add(String.format("Speeds[T: %s C: %s]", targSpeed, curVel));
-        logBuffer.add(kPIDF);
-        logBuffer.add(params);
-        logBuffer.add(states);
-        logBuffer.add(String.format("Date in milliseconds: %s", dat));
-        logBuffer.add("");
+//        String targSpeed = String.valueOf(autoPlayerClass2.targetRadSpeed * 19.2);
+//        String curVel = String.valueOf(autoPlayerClass2.hoodedShoter.motors.curVel);
+//        String kPIDF = String.format("P: %s I: %s D: %s F: %s", autoPlayerClass2.hoodedShoter.motors.getPIDF()[0], autoPlayerClass2.hoodedShoter.motors.getPIDF()[1], autoPlayerClass2.hoodedShoter.motors.getPIDF()[2], autoPlayerClass2.hoodedShoter.motors.getPIDF()[3]);
+//        String params = String.format(Locale.ENGLISH, "Angle: %.2f Range: %.2f", Math.toDegrees(autoPlayerClass2.targetAngle), autoPlayerClass2.range);
+//        String states = String.format("General: %s Another: %s", autoPlayerClass2.generalState.toString(), autoPlayerClass2.anotherStates.toString());
+//        String dat = String.valueOf(date.getTime());
+//
+//        logBuffer.add(String.format("Speeds[T: %s C: %s]", targSpeed, curVel));
+//        logBuffer.add(kPIDF);
+//        logBuffer.add(params);
+//        logBuffer.add(states);
+//        logBuffer.add(String.format("Date in milliseconds: %s", dat));
+//        logBuffer.add("");
     }
 
     public void delete(){

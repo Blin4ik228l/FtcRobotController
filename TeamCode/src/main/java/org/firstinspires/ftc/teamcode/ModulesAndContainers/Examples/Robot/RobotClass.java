@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.CameraClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.Odometry;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Odometry;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
@@ -16,12 +16,12 @@ public class RobotClass extends UpdatableModule{
     Чтобы в дальнейшем ими легко управлять
     */
     private VoltageSensorClass voltageSensor;
-
     public MecanumDrivetrain drivetrain;
     public HoodedShoter hoodedShoter;
 
     public Odometry odometry;
-
+    public ElapsedTime updateTime;
+    public double hz;
     public RobotClass(OpMode op){
         super(op);
         voltageSensor = new VoltageSensorClass(op);
@@ -30,20 +30,29 @@ public class RobotClass extends UpdatableModule{
         hoodedShoter = new HoodedShoter(op, voltageSensor);
 
         odometry = new Odometry(op, drivetrain, hoodedShoter);
+
+        this.isInitialized = voltageSensor.isInitialized && drivetrain.isInitialized && hoodedShoter.isInitialized && odometry.isInitialized;
+        updateTime = new ElapsedTime();
+        sayInited();
     }
 
     @Override
     public void update() {
         voltageSensor.update();
         odometry.update();
+        drivetrain.update();
+        hoodedShoter.update();
+        hz = 1 / updateTime.seconds();
+        updateTime.reset();
     }
 
     @Override
     public void showData(){
-        telemetry.addData("Match time:", matchTimer.seconds());
+        telemetry.addLine("===Robot===");
+        telemetry.addData("Update time/hz", hz);
         voltageSensor.showData();
-        drivetrain.showData();
-        hoodedShoter.showData();
+        odometry.showData();
+        telemetry.addLine();
     }
 }
 

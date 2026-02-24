@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Other;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInfor
 public class AutoTest extends LinearOpModeModernized {
     @Override
     public void initialization() {
-        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, TeamAliance.BLUE, GeneralInformation.StartPos.Nevermind);
     }
 
     @Override

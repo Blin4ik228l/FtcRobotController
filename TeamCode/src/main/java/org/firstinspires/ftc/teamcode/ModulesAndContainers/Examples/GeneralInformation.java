@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.GameState;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.Odometry.Parts.MathUtils.Dot;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.TeamAliance;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.GameTactick;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Dot;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TelemetryPages;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeleOpStage;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.ZonesDataClass;
 
 import java.util.ArrayList;
@@ -13,7 +15,9 @@ public class GeneralInformation {
     public StartPos startPos;
     public TeamAliance teamAliance;
     public ProgramName programName;
-    public GameState gameState;
+    public GameTactick gameTactick;
+    public TeleOpStage teleOpStage;
+    public TelemetryPages telemetryPages;
 
     public GeneralInformation(ProgramName programName, TeamAliance teamAliance, StartPos startPos){
         this.programName = programName;
@@ -21,6 +25,9 @@ public class GeneralInformation {
         this.startPos = startPos;
 
         this.generalObjects = new GeneralObjects();
+
+        gameTactick = GameTactick.Fire;
+        telemetryPages = TelemetryPages.Show_all;
     }
 
     public enum Color{
@@ -46,11 +53,9 @@ public class GeneralInformation {
 
 //        aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
 //        tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
-//        pointVyr = color == Color.Red ? redPointVyrCoord : bluePointVyrCoord;
+        pointVyr = teamAliance == TeamAliance.RED ? redPointVyrCoord : bluePointVyrCoord;
 //
-//
-//        baseCoord = color == Color.Red ? baseRedCoord : baseBlueCoord;
-//        artifactsCoord = color == Color.Red ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
+        artifactsCoord = teamAliance == TeamAliance.RED ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }
 
         public int[] aprilTagIds;

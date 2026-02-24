@@ -38,12 +38,12 @@ public class ExecutableContainer extends Container {
     }
 
     public void execute() {
-        for (ExecutableModule module : modules){
-            if(module.isInizialized) module.execute();
-        }
-
-        if (modulesCollector.teleOpModernized != null){
-            modulesCollector.teleOpModernized.extExecute();
-        }
+//        for (ExecutableModule module : modules){
+//            if(module.isInizialized) module.execute();
+//        }
+//
+//        if (modulesCollector.teleOpModernized != null){
+//            modulesCollector.teleOpModernized.extExecute();
+//        }
     }
 }

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.CameraClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.CameraClass;
 
 @TeleOp(name = "TestTeleop", group = "Test")
 public class Test extends OpMode {
@@ -15,40 +15,10 @@ public class Test extends OpMode {
     public AdafruitI2cColorSensor adafruitI2cColorSensor;
     public NormalizedRGBA normalizedRGBA;
     public ElapsedTime runTime;
-    public NavigationSystem navigationSystem;
+
 
     @Override
     public void init() {
-//        cameraClass = new CameraClass(this);
-
-        new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Red, GeneralInformation.StartPos.Nevermind);
-
-        navigationSystem = new NavigationSystem(this);
-
-//        adafruitI2cColorSensor = hardwareMap.get(AdafruitI2cColorSensor.class, "color");
-//        try {
-//            AMSColorSensor.class.getDeclaredField("AMS_TCS34725_ADDRESS").setAccessible(true);
-//
-//            AMSColorSensor.Parameters parameters = new AMSColorSensor.Parameters(AMS_TCS34725_ADDRESS, 0x4D);
-//
-//            Field paramField = I2cDeviceSynchDeviceWithParameters.class.getDeclaredField("parameters");
-//
-//            paramField.setAccessible(true);
-//
-//            try {
-//                paramField.set(adafruitI2cColorSensor, parameters);
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            adafruitI2cColorSensor.initialize();
-//        } catch (NoSuchFieldException e) {
-//            throw new RuntimeException("color sensor hack not successful");
-//        }
-
-        runTime = new ElapsedTime();
-
-//        adafruitI2cColorSensor.setGain(15f);
 
     }
 
@@ -91,13 +61,9 @@ public class Test extends OpMode {
 //        telemetry.addData("red", normalizedRGBA.red);
 //        telemetry.addData("green", normalizedRGBA.green);
 //        telemetry.addData("blue", normalizedRGBA.blue);
-        navigationSystem.showData();
+
 //        telemetry.addData("updt time sec/Hz", "%.2f %.2f",runTime.seconds(),  1/ runTime.seconds());
         runTime.reset();
     }
 
-    @Override
-    public void stop() {
-        navigationSystem.odometry.thread.interrupt();
-    }
 }

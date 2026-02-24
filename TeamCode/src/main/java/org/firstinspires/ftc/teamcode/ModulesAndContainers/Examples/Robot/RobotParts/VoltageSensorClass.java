@@ -12,6 +12,7 @@ public class VoltageSensorClass extends UpdatableModule {
 
     public VoltageSensorClass(OpMode op) {
         super(op);
+        sayInited();
     }
     public double getkPower() {
         return kPower;

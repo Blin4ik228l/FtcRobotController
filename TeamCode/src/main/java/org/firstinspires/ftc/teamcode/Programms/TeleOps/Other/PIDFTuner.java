@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
@@ -16,11 +17,11 @@ public class PIDFTuner extends TeleOpModernized implements kPIDS {
     private JoystickActivityClass joystickActivityClass2;
     @Override
     public void init() {
-        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.TeleOp, GeneralInformation.Color.Blue, GeneralInformation.StartPos.Nevermind);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.TeleOp, TeamAliance.BLUE, GeneralInformation.StartPos.Nevermind);
 
         initAfterRobot();
 
-        joystickActivityClass2 = opDataContainer.autoPlayerClass2.joystickActivityClass;
+
     }
 
     @Override
@@ -87,7 +88,7 @@ public class PIDFTuner extends TeleOpModernized implements kPIDS {
             joystickActivityClass2.dpad_Down = false;
         }
 
-        opDataContainer.robot.hoodedShoter.motors.setPIDF(P, I, D, F);
+//        opDataContainer.robot.hoodedShoter.motors.setPIDF(P, I, D, F);
     }
 
     @Override

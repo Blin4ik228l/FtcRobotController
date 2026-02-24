@@ -1,32 +1,55 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
 
+import static com.qualcomm.hardware.ams.AMSColorSensor.AMS_TCS34725_ADDRESS;
+
 import android.widget.RelativeLayout;
 
+import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
+import com.qualcomm.hardware.ams.AMSColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchDeviceWithParameters;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.HardwareBuilder;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
-public class ColorSensorWrapper extends UpdatableModule {
-    private NormalizedColorSensor colorSensor;
+public class ColorSensorWrapper extends DeviceUpdaterWrapper {
+//    private NormalizedColorSensor colorSensor;
+    private AdafruitI2cColorSensor colorSensor;
     private RelativeLayout relativeLayout;
     public NormalizedRGBA rgba;
     public ColorSensorWrapper(OpMode op, String deviceName){
         super(op);
 
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, deviceName);
+        this.deviceName = deviceName;
+        try {
+            colorSensor = hardwareMap.get(AdafruitI2cColorSensor.class, deviceName);
+            AMSColorSensor.class.getDeclaredField("AMS_TCS34725_ADDRESS").setAccessible(true);
+
+            AMSColorSensor.Parameters parameters = new AMSColorSensor.Parameters(AMS_TCS34725_ADDRESS, 0x4D);
+
+            Field paramField = I2cDeviceSynchDeviceWithParameters.class.getDeclaredField("parameters");
+
+            paramField.setAccessible(true);
+
+            try {
+                paramField.set(colorSensor, parameters);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            colorSensor.initialize();
+            colorSensor.setGain(gain);
+        }catch (Exception e){
+            isInitialized = false;
+        }
 
         tresholder = new double[4];
-
-        colorSensor.setGain(gain);
-
-        telemetry.addLine("ColorSensor Inited");
+        sayInited();
     }
     private float gain = 15f;
     private double[] tresholder;
@@ -41,6 +64,7 @@ public class ColorSensorWrapper extends UpdatableModule {
         compareColor();
     }
     private void updateData(){
+        if (!isInitialized) return;
         rgba = colorSensor.getNormalizedColors();
         r = rgba.red;
         g = rgba.green;
@@ -95,12 +119,15 @@ public class ColorSensorWrapper extends UpdatableModule {
     }
     @Override
     public void showData(){
-        telemetry.addLine("==="+ colorSensor.getDeviceName() +"===");
-        telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
-        //Для отладки
-        telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
-        telemetry.addData("Distance", distance);
-        telemetry.addLine();
+        if(!isInitialized) telemetry.addLine("color" + " " + deviceName + "Not Found/Attached");
+        else {
+            telemetry.addLine("==="+ colorSensor.getDeviceName() +"===");
+            telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
+            //Для отладки
+            telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
+            telemetry.addData("Distance", distance);
+            telemetry.addLine();
+        }
     }
     public static class Builder extends HardwareBuilder {
         private HashMap<String, ColorSensorWrapper> sensors = new HashMap<>();
@@ -129,6 +156,12 @@ public class ColorSensorWrapper extends UpdatableModule {
             }
             return color;
         }
+        public boolean isInited(){
+            boolean isInited = true;
+            for (ColorSensorWrapper sensor : sensors.values()) {
+                isInited &= sensor.isInitialized;
+            }
+            return isInited;        }
         public void showData(){
             for (ColorSensorWrapper sensor: sensors.values()) {
                 sensor.showData();

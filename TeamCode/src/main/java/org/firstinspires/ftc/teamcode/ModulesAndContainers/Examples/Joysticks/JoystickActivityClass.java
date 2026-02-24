@@ -50,7 +50,7 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
 
         cosA = playersGamepad.left_stick_x;
         sinA = -playersGamepad.left_stick_y;
-        cosB = playersGamepad.right_stick_x;
+        cosB = -playersGamepad.right_stick_x;
         sinB = -playersGamepad.right_stick_y;
         right_trigger = playersGamepad.right_trigger;
         left_trigger =  playersGamepad.left_trigger;

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.CameraClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.AngleController;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.Collector;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.FlyWheelClass;
@@ -12,36 +11,42 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Upd
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.DigitalCellsClass;
 
 public class HoodedShoter extends UpdatableModule {
-    public CameraClass cameraClass;
     public AngleController angleController;
     public TurretMotor turretMotor;
     public FlyWheelClass flyWheelClass;
     public Collector collector;
     public DigitalCellsClass digitalCellsClass;
 
-    public  HoodedShoter(OpMode op, VoltageSensorClass voltageSensorClass) {
+    public HoodedShoter(OpMode op, VoltageSensorClass voltageSensorClass) {
         super(op);
         turretMotor = new TurretMotor(op);
-
         flyWheelClass = new FlyWheelClass(op);
         collector = new Collector(op);
-        angleController = new AngleController(op);
 
-        cameraClass = new CameraClass(op);
+        turretMotor.setVoltageSensorClass(voltageSensorClass);
+        flyWheelClass.setVoltageSensorClass(voltageSensorClass);
+        collector.setVoltageSensorClass(voltageSensorClass);
 
-        telemetry.addLine(getClass().getName());
+        angleController = new AngleController(op, "servo1");
+
+        digitalCellsClass = new DigitalCellsClass(op);
+
+        this.isInitialized = turretMotor.isInitialized && flyWheelClass.isInitialized && collector.isInitialized && angleController.isInitialized && digitalCellsClass.isInitialized;
+        sayInited();
     }
 
     @Override
     public void update() {
         digitalCellsClass.update();
-        turretMotor.turretOdometry.update();
     }
 
     @Override
     public void showData() {
         telemetry.addLine("===COLLECTOR DATA===");
-        digitalCellsClass.showData();
-
+//        digitalCellsClass.showData();
+        turretMotor.showData();
+//        collector.showData();
+//        flyWheelClass.showData();
+        telemetry.addLine();
     }
 }

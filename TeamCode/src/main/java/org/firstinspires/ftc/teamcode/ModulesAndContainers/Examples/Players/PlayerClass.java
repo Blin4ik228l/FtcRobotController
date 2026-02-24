@@ -1,14 +1,15 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
 public abstract class PlayerClass extends ExecutableModule {
-    public GeneralInformation generalInformation;
-    public JoystickActivityClass joystickActivityClass;
+    protected GeneralInformation generalInformation;
+    protected JoystickActivityClass joystickActivityClass;
     public PlayerClass(GeneralInformation generalInformation, String name, OpMode op) {
         super(op, name);
         this.generalInformation = generalInformation;

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.ProgramState;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 import java.util.ArrayDeque;
@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.Deque;
 
 public abstract class ExecutableModule extends Module {
-    public ProgramState programState;
-    public ArrayList<Builder> programs;
+    public ProgramState programState = ProgramState.Waiting_For_Start;
+    public ArrayList<Builder> builderPrograms;
+    public boolean isInterrupted;
 
     public abstract ProgramState execute();
     public ExecutableModule(OpMode op, String name){

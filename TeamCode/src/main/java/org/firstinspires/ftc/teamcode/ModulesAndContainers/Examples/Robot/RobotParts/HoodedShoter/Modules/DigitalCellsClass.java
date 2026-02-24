@@ -35,6 +35,8 @@ public class DigitalCellsClass extends UpdatableModule {
                                 .initialize(op, "color6")
                                 .setFields("color6", new double[]{}),
                         new ServoMotorWrapper(op, "servo3"));
+        this.isInitialized = cells.isInited();
+        sayInited();
 
     }
     /*1 - в массиве это зелёный шар
@@ -78,19 +80,21 @@ public class DigitalCellsClass extends UpdatableModule {
     public void showData() {
         telemetry.addLine("===DIGITAL CELLS===");
         telemetry.addData("Count", artifactCount);
-        telemetry.addData("Cells", "C0:%s C1:%s C2:%s", "");
+        telemetry.addData("Cells", "C0:%s C1:%s C2:%s", 1,1,1);
         telemetry.addLine();
     }
 
-    public static class CellWrapper{
+    public static class CellWrapper {
         public ColorSensorWrapper.Builder sensorsWrapper;
         public ServoMotorWrapper servoWrapper;
-        public CellWrapper(String name, ColorSensorWrapper.Builder sensorsWrapper, ServoMotorWrapper servoWrapper){
+        public boolean isInit;
+        public String name;
+        public CellWrapper(String cellName, ColorSensorWrapper.Builder sensorsWrapper, ServoMotorWrapper servoWrapper){
             this.sensorsWrapper = sensorsWrapper;
             this.servoWrapper = servoWrapper;
-            this.name = name;
+            this.name = cellName;
+            this.isInit = this.servoWrapper.isInitialized && sensorsWrapper.isInited();
         }
-        public String name;
         public String getColorFromNumber(double number){
             return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
         }
@@ -129,6 +133,13 @@ public class DigitalCellsClass extends UpdatableModule {
                    if (cell.sensorsWrapper.foundedColor() == 0) return cell;
                 }
                 return reserveCell;
+            }
+            public boolean isInited(){
+                boolean isInited = true;
+                for (CellWrapper cell:cells) {
+                    isInited &= cell.isInit;
+                }
+                return isInited;
             }
             public CellWrapper getCell(String name){
                 CellWrapper reserveCell = cells.get(0);

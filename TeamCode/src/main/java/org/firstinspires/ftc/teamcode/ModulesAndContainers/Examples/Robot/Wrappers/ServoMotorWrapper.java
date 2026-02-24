@@ -5,24 +5,31 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.HardwareBuilder;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 import java.util.HashMap;
 
-public class ServoMotorWrapper extends Module {
+public class ServoMotorWrapper extends DeviceWrapper {
     private ElapsedTime signalTime;
     public Servo servo;
     public ServoMotorWrapper(OpMode op, String deviceName) {
         super(op);
-        servo = hardwareMap.get(Servo.class, deviceName);
+
+        this.deviceName = deviceName;
+        try {
+            servo = hardwareMap.get(Servo.class, deviceName);
+        }catch (Exception e){
+            isInitialized = false;
+        }
 
         signalTime = new ElapsedTime();
+        sayInited();
     }
     private double servoSpeed;
     private double servoMaxAngle;
     private double delayTime;
     private boolean isBusy;
     public boolean setSignal(double position){
+        if(!isInitialized) return false;
         //По сути метод нужен для серваков без обратной связи
         if (position != servo.getPosition()) signalTime.reset();
 
@@ -34,17 +41,23 @@ public class ServoMotorWrapper extends Module {
     }
 
     public boolean isBusy(){
+        if(!isInitialized) return false;
         return signalTime.seconds() > delayTime;
     }
     //Этот метод по - хорошему использовать с обратной связью
     public void setPosition(double position){
+        if(!isInitialized) return;
         servo.setPosition(position);
     }
 
     @Override
     public void showData() {
-        telemetry.addLine("===" + servo.getDeviceName() + "===");
-        telemetry.addData("Position", servo.getPosition());
+
+        if(!isInitialized) telemetry.addLine("servo" + " " + deviceName + "Not Found/Attached");
+        else {
+            telemetry.addLine("===" + servo.getDeviceName() + "===");
+            telemetry.addData("Position", servo.getPosition());
+        }
         telemetry.addLine();
     }
     public static class Builder extends HardwareBuilder {

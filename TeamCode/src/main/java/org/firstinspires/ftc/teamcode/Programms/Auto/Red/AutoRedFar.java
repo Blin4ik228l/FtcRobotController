@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInfor
 public class AutoRedFar extends LinearOpModeModernized {
     @Override
     public void initialization() {
-        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Red, GeneralInformation.StartPos.Far_from_wall);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, TeamAliance.RED, GeneralInformation.StartPos.Far_from_wall);
     }
 
     @Override

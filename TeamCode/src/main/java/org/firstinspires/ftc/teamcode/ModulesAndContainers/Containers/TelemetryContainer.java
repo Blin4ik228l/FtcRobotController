@@ -37,7 +37,7 @@ public class TelemetryContainer extends Container {
 
         //Вывод джойстиков
         modules.add(new Module[]{
-                modulesCollector.semiAutoPlayerClass1.joystickActivityClass, modulesCollector.autoPlayerClass2.joystickActivityClass
+                modulesCollector.semiAutoPlayerClass1, modulesCollector.autoPlayerClass2
         });
     }
 
@@ -55,15 +55,15 @@ public class TelemetryContainer extends Container {
     }
     public void showData(){
         //По нажатию кнопки меняем вывод
-        int index = modulesCollector.semiAutoPlayerClass1.joystickActivityClass.tBPressed % modules.size();
+        int index = 0;
 
-        for (Module module : modules.get(index)){
-            if(module.isInizialized) module.showData();
-        };
-
-        if (modulesCollector.teleOpModernized != null){
-            modulesCollector.teleOpModernized.extShow();
-        }
+//        for (Module module : modules.get(index)){
+//            if(module.isInizialized) module.showData();
+//        };
+//
+//        if (modulesCollector.teleOpModernized != null){
+//            modulesCollector.teleOpModernized.extShow();
+//        }
     }
 
 }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 
@@ -9,7 +10,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInfor
 public class AutoRedNear extends LinearOpModeModernized {
     @Override
     public void initialization() {
-        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, GeneralInformation.Color.Red, GeneralInformation.StartPos.Near_wall);
+        generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, TeamAliance.RED, GeneralInformation.StartPos.Near_wall);
     }
 
     @Override

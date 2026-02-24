@@ -8,22 +8,32 @@ import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.AnotherConsts;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Delays;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.ControlHubDevices;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.DevicesConfig;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.ExpansionHubDevices;
 
 
-public abstract class Module implements  Delays, AnotherConsts, kPIDS, ServoPositions{
+public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPositions{
+     protected ControlHubDevices controlHubDevices;
+     protected ExpansionHubDevices expansionHubDevices;
+
      protected HardwareMap hardwareMap;
      protected Telemetry telemetry;
      protected int iterationCount = 1;
 
      public Module(OpMode op){
-          this.hardwareMap = op.hardwareMap;
-          this.telemetry = op.telemetry;
+          hardwareMap = op.hardwareMap;
+          telemetry = op.telemetry;
+
+          controlHubDevices = new ControlHubDevices();
+          expansionHubDevices = new ExpansionHubDevices();
      }
      public boolean isInitialized = true;
      public void increaseIteration() {
          iterationCount++;
      }
      public abstract void showData();
+
      public void sayModuleName(){
           telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");
      }

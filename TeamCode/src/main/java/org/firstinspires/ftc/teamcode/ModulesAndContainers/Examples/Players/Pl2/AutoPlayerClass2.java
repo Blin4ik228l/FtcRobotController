@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.ServoMotorWrapper;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(GeneralInformation generalInformation, RobotClass robotClass, OpMode op) {
@@ -23,11 +24,14 @@ public class AutoPlayerClass2 extends PlayerClass{
         this.hoodedShoter = robotClass.hoodedShoter;
         this.odometry = robotClass.odometry;
 
+        pusher1 = new ServoMotorWrapper(op, "pusher1");
         trackEmulator = new TrackEmulator(op);
         speedController = new SpeedController(op);
         pidfTunner = new PIDFTunner();
         updateTime = new ElapsedTime();
     }
+    public ServoMotorWrapper pusher1;
+
     public HoodedShoter hoodedShoter;
     public Odometry odometry;
     public ElapsedTime updateTime;
@@ -145,12 +149,12 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     @Override
     public void buttonAReleased() {
-
+        pusher1.setPosition(0.35);
     }
 
     @Override
     public void buttonAUnReleased() {
-
+        pusher1.setPosition(0);
     }
 
     @Override

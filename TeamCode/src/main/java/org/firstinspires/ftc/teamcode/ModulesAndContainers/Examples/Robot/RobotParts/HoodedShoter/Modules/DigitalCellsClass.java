@@ -81,7 +81,7 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     public static class CellWrapper extends Module {
-        public ArrayList<ColorSensorWrapper> sensorsWrapper;
+        public ArrayList<ColorSensorWrapper> sensorsWrapper = new ArrayList<>();
         public ServoMotorWrapper servoWrapper;
         public boolean isInit;
         public String name;

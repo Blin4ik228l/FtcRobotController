@@ -10,32 +10,34 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MotorModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
 public class TurretMotor extends MotorModule {
-    private MotorWrapper motorWrapper;
+    public String turretMotor = expansionHubDevices.getMotor(1);
     public TurretOdometry turretOdometry;
+
     public boolean isInterrupted;
-    public String deviceName = "m1";
-    public TurretMotor(OpMode op, MotorWrapper motorWrapper) {
+
+    public TurretMotor(OpMode op, VoltageSensorClass voltageSensorClass) {
         super(op);
-        this.motorWrapper = motorWrapper;
+        motorWrapper = motorBuilder.initialize(op, turretMotor).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .setFields(voltageSensorClass, 12.5, 1).get();
 
         turretOdometry = new TurretOdometry(op);
         sayInited();
     }
     public void setPower(double power){
-        motorWrapper.setPower(power);
-    }
-    public MotorWrapper getWrapper(){
-        return motorsWrapper.get(deviceName);
+        if(!motorWrapper.isInitialized) return;
+        motorsWrapper.get(turretMotor).setPower(power);
     }
     @Override
     public void showData() {
         sayModuleName();
         motorsWrapper.showData();
+        turretOdometry.showData();
     }
     public class TurretOdometry extends UpdatableModule {
         public TurretOdometry(OpMode op) {
@@ -73,11 +75,12 @@ public class TurretMotor extends MotorModule {
             }
             private double curTime, deltaTime, lastTime;
             public void calculateAll(){
+                if(!motorWrapper.isInitialized) return;
                 double filtr = 1;
                 //Тиков на оборот мотора
                 double outPutResolution = 288;
 
-                curMotorPos = motorWrapper.getMotor().getCurrentPosition();
+                curMotorPos = motorsWrapper.get(turretMotor).getMotor().getCurrentPosition();
                 deltaPos = lastMotorPos - curMotorPos;
                 lastMotorPos = curMotorPos;
 
@@ -89,7 +92,7 @@ public class TurretMotor extends MotorModule {
 
                 double headVel = deltaHead / (deltaTime / 1000);
 
-                double headVel2 = motorWrapper.getMotorEx().getVelocity(AngleUnit.RADIANS);
+                double headVel2 = motorsWrapper.get(turretMotor).getMotorEx().getVelocity(AngleUnit.RADIANS);
 
                 filteredTurretVelocity = filtr * headVel + (1 - filtr) * filteredTurretVelocity;
 

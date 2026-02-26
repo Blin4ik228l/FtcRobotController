@@ -57,7 +57,7 @@ public class MainSystem extends UpdatableModule {
         }
     }
     public void startExecuting(){
-        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2).createRunnable(robotClass);
+        createRunnable(autoPlayerClass2).createRunnable(robotClass);
 
         for (Thread thread: threads) {
             thread.start();

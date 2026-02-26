@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.HardwareBuilder;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.HardwareBuilder;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceWrapper;
 
@@ -55,15 +55,14 @@ public class MotorWrapper extends DeviceWrapper {
     }
 
     public boolean isBusy(double delayTime){
-        return signalTime.seconds() > delayTime;
+        return signalTime.seconds() < delayTime;
     }
     public DcMotorEx getMotorEx(){
         if(motor instanceof DcMotorEx) return (DcMotorEx) motor;
         else return null;
     }
     public DcMotor getMotor(){
-        if(motor instanceof DcMotor) return motor;
-        else return null;
+       return motor;
     }
     public MotorConfigurationType getMotorConfigurationType(){
         return motorConfigurationType;
@@ -90,14 +89,17 @@ public class MotorWrapper extends DeviceWrapper {
             return this;
         }
         public Builder setDirection(DcMotorSimple.Direction direction){
+            if(!motorWrapper.isInitialized) return this;
             motorWrapper.motor.setDirection(direction);
             return this;
         }
         public Builder setMode(DcMotor.RunMode runMode){
+            if(!motorWrapper.isInitialized) return this;
             motorWrapper.motor.setMode(runMode);
             return this;
         }
         public Builder setBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+            if(!motorWrapper.isInitialized) return this;
             motorWrapper.motor.setZeroPowerBehavior(zeroPowerBehavior);
             return this;
         }

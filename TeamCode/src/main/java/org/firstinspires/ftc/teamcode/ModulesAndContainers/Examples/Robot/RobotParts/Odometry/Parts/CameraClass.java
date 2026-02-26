@@ -31,50 +31,44 @@ public class CameraClass extends UpdatableModule {
     private VisionPortal visionPortal;
     public GeneralLogic generalLogic;
     public RandomizeStatus randomizeStatus;
-    public TagState tagState;
-    private Position2D lastRecordedPosition2D;
     public ElapsedTime updateTime;
-    public boolean onceSeen;
     public CameraClass(OpMode op)  {
         super(op);
         try {
-            webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+            webcamName = hardwareMap.get(WebcamName.class, controlHubDevices.webcam1);
+            cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
+
+            cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(270) , Math.toRadians(-85), Math.toRadians(0), 0);
+
+            aprilTagProcessor = new AprilTagProcessor.Builder()
+                    .setDrawAxes(false)
+                    .setDrawCubeProjection(false)
+                    .setDrawTagID(true)
+                    .setDrawTagOutline(false)
+                    .setLensIntrinsics(708.013f, 708.013f, 311.973f, 253.313f)
+                    .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                    .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
+                    .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
+                    .setCameraPose(cameraPosition, cameraOrientation)
+                    .build();
+
+            visionPortal = new VisionPortal.Builder()
+                    .addProcessor(aprilTagProcessor)
+                    .setCamera(webcamName)
+                    .setCameraResolution(new Size(640, 480))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                    .enableLiveView(true)
+                    .build();
+
+
+
         }catch (Exception e){
             isInitialized = false;
         }
 
-        cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
-
-//        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(90) * 1, Math.toRadians(-80) * 1, Math.toRadians(0) * 1, 0);
-        //Насколько камера повёрнута относительно неё же
-
-        cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(270) , Math.toRadians(-85), Math.toRadians(0), 0);
-
-        aprilTagProcessor = new AprilTagProcessor.Builder()
-                .setDrawAxes(false)
-                .setDrawCubeProjection(false)
-                .setDrawTagID(true)
-                .setDrawTagOutline(false)
-                .setLensIntrinsics(708.013f, 708.013f, 311.973f, 253.313f)
-                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
-                .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
-                .setCameraPose(cameraPosition, cameraOrientation)
-                .build();
-
-        visionPortal = new VisionPortal.Builder()
-                .addProcessor(aprilTagProcessor)
-                .setCamera(webcamName)
-                .setCameraResolution(new Size(640, 480))
-                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-                .enableLiveView(true)
-                .build();
-
         generalLogic = GeneralLogic.Check_camera_state;
 
         randomizeStatus = RandomizeStatus.UnDetected;
-        tagState = TagState.UnDetected;
-
         absoluteData = new OdometryData();
 
         updateTime = new ElapsedTime();
@@ -84,10 +78,7 @@ public class CameraClass extends UpdatableModule {
     private ExposureControl exposure;
     private GainControl gain;
     private int index;
-    public enum TagState {
-        Detected,
-        UnDetected
-    }
+
     public enum RandomizeStatus{
         Detected,
         UnDetected
@@ -200,7 +191,6 @@ public class CameraClass extends UpdatableModule {
                 {
                     absoluteData.setDesisionMarg(0);
                     index = 0;
-                    tagState = TagState.UnDetected;
                 }
                 break;
 
@@ -244,7 +234,6 @@ public class CameraClass extends UpdatableModule {
     public void showData(){
         sayModuleName();
         telemetry.addData("General logic", generalLogic.toString());
-        telemetry.addData("Tag status", tagState.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("Camera state", visionPortal.getCameraState().toString());
 //        telemetry.addData("onceSeen", onceSeen);

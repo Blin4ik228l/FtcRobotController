@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -24,7 +24,7 @@ public class GyroscopeClass extends UpdatableModule {
         // and named "imu".
         
         try {
-            imu = hardwareMap.get(IMU.class, "imu");
+            imu = hardwareMap.get(IMU.class, controlHubDevices.gyroskope);
         } catch (Exception e) {
             isInitialized = false;
         }
@@ -54,9 +54,13 @@ public class GyroscopeClass extends UpdatableModule {
 
     @Override
     public void showData(){
-        telemetry.addLine("===GYRO===");
-        telemetry.addData("Yaw", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-        telemetry.addLine();
+        sayModuleName();
+        if(!isInitialized) telemetry.addLine("imu not exist");
+        else {
+            telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
+            telemetry.addLine();
+        }
+
     }
     private class SelfMath{
         private OdometryData rawData;

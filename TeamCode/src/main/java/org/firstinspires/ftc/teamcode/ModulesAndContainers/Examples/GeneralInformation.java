@@ -5,7 +5,6 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TelemetryPages;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeleOpStage;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.ZonesDataClass;
 
 import java.util.ArrayList;
 import java.util.List;

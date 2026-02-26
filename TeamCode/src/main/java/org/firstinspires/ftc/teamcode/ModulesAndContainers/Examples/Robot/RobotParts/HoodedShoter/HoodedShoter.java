@@ -17,19 +17,16 @@ public class HoodedShoter extends UpdatableModule {
     public AngleController angleController;
     public TurretMotor turretMotor;
     public FlyWheelClass flyWheelClass;
-    public MotorWrapper collector;
+    public Collector collector;
     public DigitalCellsClass digitalCellsClass;
 
     public HoodedShoter(OpMode op, VoltageSensorClass voltageSensorClass) {
         super(op);
-        turretMotor = new TurretMotor(op, new MotorWrapper.Builder().initialize(op, controlHubDevices.getMotor(1)).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(voltageSensorClass, 12.5, 1).get());
+        turretMotor = new TurretMotor(op, voltageSensorClass);
         flyWheelClass = new FlyWheelClass(op, voltageSensorClass);
+        collector = new Collector(op, voltageSensorClass);
 
-        collector = new MotorWrapper.Builder().initialize(op, controlHubDevices.getMotor(1)).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(voltageSensorClass, 12.5, 1).get();
-
-        angleController = new AngleController(op, "servo1");
+        angleController = new AngleController(op);
 
         digitalCellsClass = new DigitalCellsClass(op);
 
@@ -45,10 +42,10 @@ public class HoodedShoter extends UpdatableModule {
     @Override
     public void showData() {
         telemetry.addLine("===COLLECTOR DATA===");
-//        digitalCellsClass.showData();
+        digitalCellsClass.showData();
         turretMotor.showData();
-//        collector.showData();
-//        flyWheelClass.showData();
+        collector.showData();
+        flyWheelClass.showData();
         telemetry.addLine();
     }
 }

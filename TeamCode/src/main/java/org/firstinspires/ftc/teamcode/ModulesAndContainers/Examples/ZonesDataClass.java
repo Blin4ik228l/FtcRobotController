@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples;
 
 import static java.util.Collections.max;
 import static java.util.Collections.min;
@@ -28,64 +28,7 @@ public abstract class ZonesDataClass  {
         PARKING,
         FIRE
     }
-    public static class Builder extends ZonesDataClass{
-        private ArrayList<ZonesDataClass> zones;
-        public Builder(){
-            zones = new ArrayList<>();
-        }
 
-        public Builder createZone(TeamAliance teamAliance, ZoneRole zoneRole, Dot...dots){
-            if(dots.length == 3){
-                TriangleZone triangleZone = new ZonesDataClass.TriangleZone(dots[0], dots[1], dots[2]);
-                triangleZone.setInformation(teamAliance, zoneRole);
-                zones.add(triangleZone);
-            }else if (dots.length == 2){
-                RectangleZone rectangleZone = new ZonesDataClass.RectangleZone(dots[0], dots[1]);
-                rectangleZone.setInformation(teamAliance, zoneRole);
-                zones.add(rectangleZone);
-            };
-            return this;
-        }
-        public Builder createZone(TeamAliance teamAliance, ZoneRole zoneRole, Dot dot, double radius){
-            RoundZone roundZone = new ZonesDataClass.RoundZone(dot, radius);
-            roundZone.setInformation(teamAliance, zoneRole);
-            zones.add(roundZone);
-
-            return this;
-        }
-        public ZonesDataClass getParkingZone(){
-            ZonesDataClass zonesDataClass = null;
-            for (ZonesDataClass zone : zones) {
-                if (zone.teamAliance == teamAliance && zone.zoneRole == ZoneRole.PARKING){
-                    zonesDataClass = zone;
-                }
-            }
-            return zonesDataClass;
-        }
-        @Override
-        public boolean isDotInIt(Dot dot) {
-            boolean inIt = false;
-
-            for (ZonesDataClass zone : zones) {
-                inIt |= zone.isDotInIt(dot);
-            }
-            return inIt;
-        }
-
-        @Override
-        public Dot getNearestDot(Dot from) {
-            Dot near = zones.get(0).getNearestDot(from);
-            Vector2 nearV = near.toVector();
-
-            for (ZonesDataClass zone : zones) {
-                Vector2 result = zone.getNearestDot(from).toVector();
-                if(result.length() < nearV.length()){
-                    nearV = result;
-                }
-            }
-            return nearV.toDot();
-        }
-    }
 
     protected static class RectangleZone extends ZonesDataClass{
         //Ближе к 0
@@ -206,6 +149,66 @@ public abstract class ZonesDataClass  {
             double area3 = getArea(dot, a, b);
 
             return Math.abs(fullArea - (area1 + area2 + area3)) < EPSILON;
+        }
+    }
+
+
+    public static class Builder extends ZonesDataClass{
+        private ArrayList<ZonesDataClass> zones;
+        public Builder(){
+            zones = new ArrayList<>();
+        }
+
+        public Builder createZone(TeamAliance teamAliance, ZoneRole zoneRole, Dot...dots){
+            if(dots.length == 3){
+                TriangleZone triangleZone = new ZonesDataClass.TriangleZone(dots[0], dots[1], dots[2]);
+                triangleZone.setInformation(teamAliance, zoneRole);
+                zones.add(triangleZone);
+            }else if (dots.length == 2){
+                RectangleZone rectangleZone = new ZonesDataClass.RectangleZone(dots[0], dots[1]);
+                rectangleZone.setInformation(teamAliance, zoneRole);
+                zones.add(rectangleZone);
+            };
+            return this;
+        }
+        public Builder createZone(TeamAliance teamAliance, ZoneRole zoneRole, Dot dot, double radius){
+            RoundZone roundZone = new ZonesDataClass.RoundZone(dot, radius);
+            roundZone.setInformation(teamAliance, zoneRole);
+            zones.add(roundZone);
+
+            return this;
+        }
+        public ZonesDataClass getParkingZone(){
+            ZonesDataClass zonesDataClass = null;
+            for (ZonesDataClass zone : zones) {
+                if (zone.teamAliance == teamAliance && zone.zoneRole == ZoneRole.PARKING){
+                    zonesDataClass = zone;
+                }
+            }
+            return zonesDataClass;
+        }
+        @Override
+        public boolean isDotInIt(Dot dot) {
+            boolean inIt = false;
+
+            for (ZonesDataClass zone : zones) {
+                inIt |= zone.isDotInIt(dot);
+            }
+            return inIt;
+        }
+
+        @Override
+        public Dot getNearestDot(Dot from) {
+            Dot near = zones.get(0).getNearestDot(from);
+            Vector2 nearV = near.toVector();
+
+            for (ZonesDataClass zone : zones) {
+                Vector2 result = zone.getNearestDot(from).toVector();
+                if(result.length() < nearV.length()){
+                    nearV = result;
+                }
+            }
+            return nearV.toDot();
         }
     }
 }

@@ -21,7 +21,7 @@ public class FlyWheelClass extends MotorModule {
                 .add(op, motorBuilder.initialize(op, motorLeft).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get());
 
-        motorsWrapper.get(motorLeft).getMotorConfigurationType().setMaxRPM(1111);
+//        motorsWrapper.get(motorLeft).getMotorConfigurationType().setMaxRPM(1111);
 
         flyWheelOdometry = new FlyWheelOdometry(op);
         sayInited();
@@ -30,12 +30,14 @@ public class FlyWheelClass extends MotorModule {
     private String motorLeft = expansionHubDevices.getMotor(1);
 
     public double getTargetSpeed(double theta, double range){
-         double alpha = Math.toRadians(theta);
+        double alpha = Math.toRadians(theta);
+        double underRoot = 981 / (2 * (range * Math.tan(alpha) - 80));
 
-        double targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(981 / (2 * (range * Math.tan(alpha) - 80)))) / 100;
+
+        double targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(underRoot)) / 100;
 
         //Если по формуле скоость отриц значит не стреляем
-        if (981 / (2 * (range * Math.tan(alpha) - 80)) < 0) targetSpeed = 0;
+        if (underRoot < 0) return  0;
 
         //Перевод в радианы/сек
         targetSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 19.2;
@@ -43,6 +45,7 @@ public class FlyWheelClass extends MotorModule {
         return targetSpeed;
     }
     public void setPower(double power){
+        if(!isInitialized) return;
         motorsWrapper.get(motorRight).setPower(power);
         motorsWrapper.get(motorLeft).setPower(-power);
 
@@ -63,10 +66,11 @@ public class FlyWheelClass extends MotorModule {
             selfMath = new SelfMath();
         }
         public double flyWheelRadius = 0.4;
-        private double COUNTS_PER_ENCODER_REV = motorsWrapper.get(motorLeft).getMotorConfigurationType().getTicksPerRev();
+        private double COUNTS_PER_ENCODER_REV = 0;
         private double DRIVE_GEAR_REDUCTION = 1;
         private double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
                 (flyWheelRadius * 2 * Math.PI);
+
         private double ticksToCm(double ticks){
             return ticks / COUNTS_PER_CM;
         }

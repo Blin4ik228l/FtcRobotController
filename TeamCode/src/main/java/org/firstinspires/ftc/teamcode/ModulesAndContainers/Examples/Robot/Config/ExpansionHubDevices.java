@@ -7,7 +7,7 @@ public class ExpansionHubDevices extends DevicesConfig{
          * setMotorNames(servoName1, "", servoName3)
          **/
         new Builder()
-                .setMotorNames("")
+                .setMotorNames("rightBack", "rightFront", "leftFront", "leftBack")
                 .setServoNames("")
                 .setI2CDeviceNames("")
                 .setDigDeviceNames("")

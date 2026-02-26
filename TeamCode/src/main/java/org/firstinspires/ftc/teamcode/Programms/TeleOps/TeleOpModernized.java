@@ -27,7 +27,7 @@ public abstract class TeleOpModernized extends OpMode {
     public void loop() {
         mainSystem.update();
         extShow();
-        mainSystem.showData();
+//        mainSystem.showData();
     }
 
     @Override

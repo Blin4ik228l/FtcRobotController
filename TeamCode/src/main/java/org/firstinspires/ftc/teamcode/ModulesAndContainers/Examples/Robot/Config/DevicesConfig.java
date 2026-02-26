@@ -46,6 +46,20 @@ public abstract class DevicesConfig {
                 return "";
         }
     }
+    public String getEncoder(int port){
+        switch (port){
+            case 0:
+                return encoder0;
+            case 1:
+                return encoder1;
+            case 2:
+                return encoder2;
+            case 3:
+                return encoder3;
+            default:
+                return "";
+        }
+    }
     public String getServo0(int port){
         switch (port){
             case 0:

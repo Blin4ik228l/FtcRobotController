@@ -8,11 +8,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MotorModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
@@ -34,15 +32,19 @@ public class DrivetrainMotors extends MotorModule {
         encoderClass = new EncoderClass(op);
         sayInited();
     }
-    public String rightBack = controlHubDevices.getMotor(1);
-    public String rightFront = controlHubDevices.getMotor(0);
-    public String leftFront = controlHubDevices.getMotor(2);
-    public String leftBack = controlHubDevices.getMotor(3);
+    public String rightBack = expansionHubDevices.getMotor(0);
+    public String rightFront = expansionHubDevices.getMotor(1);
+    public String leftFront = expansionHubDevices.getMotor(2);
+    public String leftBack = expansionHubDevices.getMotor(3);
 
-    public String encLeft = rightFront;
-    public String encMid = leftBack;
-    public String encRight = leftFront;
+    public String encRight = expansionHubDevices.getEncoder(0);
+    public String encLeft = expansionHubDevices.getEncoder(1);
+    public String encMid = expansionHubDevices.getEncoder(2);
+
+    public String testEnc = expansionHubDevices.getEncoder(3);
+
     public void setPower(double forwardPow, double sidePow, double anglePow){
+        if(!isInitialized) return;
         motorsWrapper.get(rightBack).setPower(forwardPow - sidePow + anglePow);
         motorsWrapper.get(rightFront).setPower(forwardPow + sidePow + anglePow);
         motorsWrapper.get(leftFront).setPower(forwardPow - sidePow - anglePow);
@@ -109,6 +111,7 @@ public class DrivetrainMotors extends MotorModule {
             telemetry.addData("Left pos", getCurentPos(encLeft));
             telemetry.addData("Mid pos", getCurentPos(encMid));
             telemetry.addData("Right pos", getCurentPos(encRight));
+            telemetry.addData("Test", getCurrentVelocity(testEnc));
             telemetry.addLine();
         }
         public class SelfMath {
@@ -117,7 +120,6 @@ public class DrivetrainMotors extends MotorModule {
             private final double[] encCurPositions, encDeltaPositions, encLastPositions;
             public ElapsedTime runTime ;//Время с начала запуска программы
             public double []currentTime, deltaTimes, oldTimes;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
-            private boolean flag = false;
             private double fltrdVelLeft, fltrdVelMid, fltrdVelRight;
             public SelfMath(){
                 currentTime = new double[2];

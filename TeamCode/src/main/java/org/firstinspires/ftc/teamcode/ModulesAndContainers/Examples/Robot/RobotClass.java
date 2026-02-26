@@ -40,8 +40,7 @@ public class RobotClass extends UpdatableModule{
     public void update() {
         voltageSensor.update();
         odometry.update();
-        drivetrain.update();
-        hoodedShoter.update();
+
         hz = 1 / updateTime.seconds();
         updateTime.reset();
     }

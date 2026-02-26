@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.GyroscopeClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
@@ -27,7 +27,7 @@ public class MecanumDrivetrain extends UpdatableModule {
 
     @Override
     public void showData() {
-        telemetry.addLine("===DRIVETRAIN DATA===");
+        sayModuleName();
         motors.showData();
         telemetry.addLine();
     }

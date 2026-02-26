@@ -1,9 +1,10 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
 
 public class ButtonWrapper extends DeviceUpdaterWrapper {
     public ButtonWrapper(OpMode op) {

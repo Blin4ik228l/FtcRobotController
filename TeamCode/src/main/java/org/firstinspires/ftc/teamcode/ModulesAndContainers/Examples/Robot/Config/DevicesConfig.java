@@ -2,35 +2,118 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Confi
 
 public abstract class DevicesConfig {
     //моторы
-    public String motor0 = "";
-    public String encoder0 = motor0;
-    public String motor1 = "";
-    public String encoder1 = motor1;
-    public String motor2 = "";
-    public String encoder2 = motor2;
-    public String motor3 = "";
-    public String encoder3 = motor3;
+    private String motor0 = "";
+    private String encoder0 = motor0;
+    private String motor1 = "";
+    private String encoder1 = motor1;
+    private String motor2 = "";
+    private String encoder2 = motor2;
+    private String motor3 = "";
+    private String encoder3 = motor3;
     //серваки
-    public String servo0 = "";
-    public String servo1 = "";
-    public String servo2 = "";
-    public String servo3 = "";
-    public String servo4 = "";
-    public String servo5 = "";
+    private String servo0 = "";
+    private String servo1 = "";
+    private String servo2 = "";
+    private String servo3 = "";
+    private String servo4 = "";
+    private String servo5 = "";
     //вписать вместо deviceName - тип устройства (colorSensor, distance...)
     //I2C
-    public String i2cDeviceName0 = "";
-    public String i2cDeviceName1 = "";
-    public String i2cDeviceName2 = "";
-    public String i2cDeviceName3 = "";
+    private String i2cDeviceName0 = "";
+    private String i2cDeviceName1 = "";
+    private String i2cDeviceName2 = "";
+    private String i2cDeviceName3 = "";
     //Digital
-    public String digDeviceName01 = "";
-    public String digDeviceName23 = "";
-    public String digDeviceName45 = "";
-    public String digDeviceName67 = "";
+    private String digDeviceName01 = "";
+    private String digDeviceName23 = "";
+    private String digDeviceName45 = "";
+    private String digDeviceName67 = "";
     //Analog
-    public String analogDeviceName01 = "";
-    public String analogDeviceName23 = "";
+    private String analogDeviceName01 = "";
+    private String analogDeviceName23 = "";
+
+    public String getMotor(int port){
+        switch (port){
+            case 0:
+                return motor0;
+            case 1:
+                return motor1;
+            case 2:
+                return motor2;
+            case 3:
+                return motor3;
+            default:
+                return "";
+        }
+    }
+    public String getServo0(int port){
+        switch (port){
+            case 0:
+                return servo0;
+            case 1:
+                return servo1;
+            case 2:
+                return servo2;
+            case 3:
+                return servo3;
+            case 4:
+                return servo4;
+            case 5:
+                return servo5;
+            default:
+                return "";
+        }
+    }
+    public String getI2C(int port){
+        switch (port){
+            case 0:
+                return i2cDeviceName0;
+            case 1:
+                return i2cDeviceName1;
+            case 2:
+                return i2cDeviceName2;
+            case 3:
+                return i2cDeviceName3;
+            default:
+                return "";
+        }
+    }
+    public String getDigital(int ch){
+        switch (ch){
+            case 0:
+                return digDeviceName01;
+            case 1:
+                return digDeviceName01;
+            case 2:
+                return digDeviceName23;
+            case 3:
+                return digDeviceName23;
+            case 4:
+                return digDeviceName45;
+            case 5:
+                return digDeviceName45;
+            case 6:
+                return digDeviceName67;
+            case 7:
+                return digDeviceName67;
+            default:
+                return "";
+        }
+    }
+    public String getAnalog(int ch){
+        switch (ch){
+            case 0:
+                return analogDeviceName01;
+            case 1:
+                return analogDeviceName01;
+            case 2:
+                return analogDeviceName23;
+            case 3:
+                return analogDeviceName23;
+            default:
+                return "";
+        }
+    }
 
     public class Builder{
         public Builder setMotorNames(String...motorNames){

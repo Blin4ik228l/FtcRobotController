@@ -15,21 +15,14 @@ public class MecanumDrivetrain extends UpdatableModule {
         super(op);
 
         gyro = new GyroscopeClass(op);
-        motors = new DrivetrainMotors(op, gyro);
-
-
-        motors.setVoltageSensorClass(voltageSensorClass);
+        motors = new DrivetrainMotors(op, voltageSensorClass);
 
         this.isInitialized = motors.isInitialized && gyro.isInitialized;
         sayInited();
     }
-    public void setVoltageSensor(VoltageSensorClass voltageSensor){
-        motors.setVoltageSensorClass(voltageSensor);
-    }
-
     @Override
     public void update() {
-
+        gyro.update();
     }
 
     @Override

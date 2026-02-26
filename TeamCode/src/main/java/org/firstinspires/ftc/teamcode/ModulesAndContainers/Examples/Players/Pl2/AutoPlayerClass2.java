@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(GeneralInformation generalInformation, RobotClass robotClass, OpMode op) {
@@ -66,11 +66,14 @@ public class AutoPlayerClass2 extends PlayerClass{
         OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
 
         turretPow = trackEmulator.calculateVol(targetData, currentData);
-
+        double curSpeed;
+        double targetSpeed;
         if(!isInterrupted){
             switch (generalInformation.gameTactick){
                 case Load:
-                    flyWheelPow = speedController.calculateVol(0, hoodedShoter.flyWheelClass.curentSpeed);
+                    curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
+                    targetSpeed = 0;
+                    flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
 
                     if (hoodedShoter.digitalCellsClass.getArtifactCount() == 3){
                         collectorPow = -1;
@@ -96,20 +99,18 @@ public class AutoPlayerClass2 extends PlayerClass{
                         else if (range >= 70) theta = 70;
                         else theta = 80;
 
-                        double alpha = Math.toRadians(theta);
+                        targetSpeed = hoodedShoter.flyWheelClass.getTargetSpeed(theta, range);
+                        curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
 
-                        double targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(981 / (2 * (range * Math.tan(alpha) - 80)))) / 100;
+                        flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
 
-                        //Если по формуле скоость отриц значит не стреляем
-                        if (981 / (2 * (range * Math.tan(alpha) - 80)) < 0) targetSpeed = 0;
+                        boolean isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
 
-                        targetSpeed = (targetSpeed / MAX_EXPERIMENTAL_SPEED_IN_METERS * MAX_RAD_SPEED) * 19.2;
-
-                        flyWheelPow = speedController.calculateVol(targetSpeed, hoodedShoter.flyWheelClass.curentSpeed);
-                        boolean isAngleGrowUp = hoodedShoter.angleController.setAngle(theta);
+                        double calclPos = hoodedShoter.angleController.getPos(theta);
+                        boolean isAngleGrowUp = hoodedShoter.angleController.setSignal(calclPos);
 
                         //TODO условие на наводку турели
-                        if(speedController.checkReadnees(hoodedShoter.flyWheelClass.curentSpeed, targetSpeed) && isAngleGrowUp){
+                        if(isFlyWheelReady && isAngleGrowUp){
                             if(hoodedShoter.digitalCellsClass.isInerrupted){
                                 if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isInerrupted = false;
                             }
@@ -118,6 +119,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                             int neededColor = odometry.cameraClass.motif[index];
                             hoodedShoter.digitalCellsClass.fire(neededColor);
                         }
+
                         programState = ProgramState.Executing;
                     }
                     break;
@@ -321,12 +323,11 @@ public class AutoPlayerClass2 extends PlayerClass{
             pidfFlyWheel = new PIDF(1, 1, 1,1,-1, 1, op);
         }
         public double calculateVol(double targetSpeed, double curSpeed){
-
             double pidPower = pidfFlyWheel.calculate(targetSpeed, curSpeed);
 
             return pidPower;
         }
-        public boolean checkReadnees(double curSped, double targetSpeed){
+        public boolean checkReadnees(double targetSpeed, double curSped){
             double errorPart = Math.abs(curSped / targetSpeed - 1);
 
             if (errorPart > 0.01)

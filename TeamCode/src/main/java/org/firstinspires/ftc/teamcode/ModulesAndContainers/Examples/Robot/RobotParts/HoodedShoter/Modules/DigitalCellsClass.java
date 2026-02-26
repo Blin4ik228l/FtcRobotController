@@ -2,42 +2,38 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.ColorSensorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 import java.util.ArrayList;
 
 public class DigitalCellsClass extends UpdatableModule {
+    private ServoMotorWrapper.Builder servoBuilder = new ServoMotorWrapper.Builder();
+    private ColorSensorWrapper.Builder colorBuilder = new ColorSensorWrapper.Builder();
     public CellWrapper.Builder cells;
     public DigitalCellsClass(OpMode op){
         super(op);
 
         cells = new CellWrapper.Builder()
-                .add("1",
-                        new ColorSensorWrapper.Builder()
-                                .initialize(op, "color1")
-                                .setFields("color1", new double[]{})
-                                .initialize(op, "color2")
-                                .setFields("color2", new double[]{}),
-                        new ServoMotorWrapper(op, "servo1"))
-                .add("2",
-                        new ColorSensorWrapper.Builder()
-                                .initialize(op, "color3")
-                                .setFields("color3", new double[]{})
-                                .initialize(op, "color4")
-                                .setFields("color4", new double[]{}),
-                        new ServoMotorWrapper(op, "servo2"))
-                .add("3",
-                        new ColorSensorWrapper.Builder()
-                                .initialize(op, "color5")
-                                .setFields("color5", new double[]{})
-                                .initialize(op, "color6")
-                                .setFields("color6", new double[]{}),
-                        new ServoMotorWrapper(op, "servo3"));
+                .add(op,"cell1",
+                        servoBuilder.initialize(op, controlHubDevices.getServo0(0)).setFields(60, 270).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(2)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(3)).setFields(new double[]{}).get()
+                )
+                .add(op,"cell2",
+                        servoBuilder.initialize(op, controlHubDevices.getServo0(1)).setFields(60, 270).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(1)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(0)).setFields(new double[]{}).get())
+                .add(op,"cell3",
+                        servoBuilder.initialize(op, controlHubDevices.getServo0(2)).setFields(60, 270).get(),
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get());
+
+
         this.isInitialized = cells.isInited();
         sayInited();
-
     }
     /*1 - в массиве это зелёный шар
      * 2 - в массиве это фиолетовый*/
@@ -61,9 +57,9 @@ public class DigitalCellsClass extends UpdatableModule {
         isInerrupted = true;
 
         switch (founded.name){
-            case "1":
+            case "cell1":
                 founded.servoWrapper.setSignal(1);
-            case "2":
+            case "cell2":
                 founded.servoWrapper.setSignal(1);
             default:
                 founded.servoWrapper.setSignal(1);
@@ -78,59 +74,93 @@ public class DigitalCellsClass extends UpdatableModule {
 
     @Override
     public void showData() {
-        telemetry.addLine("===DIGITAL CELLS===");
+        sayModuleName();
         telemetry.addData("Count", artifactCount);
-        telemetry.addData("Cells", "C0:%s C1:%s C2:%s", 1,1,1);
+        cells.showAll();
         telemetry.addLine();
     }
 
-    public static class CellWrapper {
-        public ColorSensorWrapper.Builder sensorsWrapper;
+    public static class CellWrapper extends Module {
+        public ArrayList<ColorSensorWrapper> sensorsWrapper;
         public ServoMotorWrapper servoWrapper;
         public boolean isInit;
         public String name;
-        public CellWrapper(String cellName, ColorSensorWrapper.Builder sensorsWrapper, ServoMotorWrapper servoWrapper){
-            this.sensorsWrapper = sensorsWrapper;
+        public CellWrapper(OpMode op,String cellName, ServoMotorWrapper servoWrapper, ColorSensorWrapper...sensorsWrapperIn){
+            super(op);
             this.servoWrapper = servoWrapper;
             this.name = cellName;
-            this.isInit = this.servoWrapper.isInitialized && sensorsWrapper.isInited();
+
+            for (ColorSensorWrapper color:sensorsWrapperIn) {
+                isInit &= color.isInitialized;
+                sensorsWrapper.add(color);
+            };
+
+            this.isInit &= this.servoWrapper.isInitialized;
         }
+        public int isFounded(){
+            int count = 0;
+            for (ColorSensorWrapper color:sensorsWrapper) {
+                if(color.getFoundedColor() != 0) count = 1; break;
+            };
+            return count;
+        }
+        public int getColor(){
+            int clr = 0;
+            for (ColorSensorWrapper color:sensorsWrapper) {
+                clr = color.getFoundedColor();
+                if(clr != 0) break;
+            };
+            return clr;
+        }
+        public void updateAll(){
+            for (ColorSensorWrapper color:sensorsWrapper) {
+                color.update();
+            };
+        }
+
         public String getColorFromNumber(double number){
             return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
+        }
+        public void showData(){
+            telemetry.addLine(name);
+            servoWrapper.showData();
+            for (ColorSensorWrapper color:sensorsWrapper) {
+                color.showData();
+            };
         }
 
         public static class Builder{
             private ArrayList<CellWrapper> cells = new ArrayList<>();
 
-            public Builder add(String cellName, ColorSensorWrapper.Builder sensors, ServoMotorWrapper servo){
-                cells.add(new CellWrapper(cellName, sensors, servo));
+            public Builder add(OpMode op, String cellName, ServoMotorWrapper servo, ColorSensorWrapper...sensors){
+                cells.add(new CellWrapper(op, cellName, servo, sensors));
                 return this;
             }
             public Builder updateAll(){
                 for (CellWrapper cell : cells) {
-                    cell.sensorsWrapper.updateAll();
+                    cell.updateAll();
                 }
                 return this;
             }
             public int numberOfArtifacts(){
                 int artifactNumber = 0;
                 for (CellWrapper cell : cells) {
-                    artifactNumber += cell.sensorsWrapper.foundedColor() != 0 ? 1 : 0;
+                    artifactNumber += cell.isFounded();
                 }
                 return artifactNumber;
             }
             public CellWrapper getNeededCell(int color){
                 CellWrapper reserveCell = cells.get(0);
                 for (CellWrapper cell : cells) {
-                    if (cell.sensorsWrapper.foundedColor() != 0) reserveCell = cell;
-                    if (cell.sensorsWrapper.foundedColor() == color) return cell;
+                    if (cell.getColor() != 0) reserveCell = cell;
+                    if (cell.getColor() == color) return cell;
                 }
                 return reserveCell;
             }
             public CellWrapper getEmptyCell(){
                 CellWrapper reserveCell = cells.get(0);
                 for (CellWrapper cell : cells) {
-                   if (cell.sensorsWrapper.foundedColor() == 0) return cell;
+                   if (cell.getColor() == 0) return cell;
                 }
                 return reserveCell;
             }
@@ -147,6 +177,11 @@ public class DigitalCellsClass extends UpdatableModule {
                     if(cell.name == name) return reserveCell;
                 }
                 return reserveCell;
+            }
+            public void showAll(){
+                for (CellWrapper cell : cells) {
+                    cell.showData();
+                }
             }
         }
     }

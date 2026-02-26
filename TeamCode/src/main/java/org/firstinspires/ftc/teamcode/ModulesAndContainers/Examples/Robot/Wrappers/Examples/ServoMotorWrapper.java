@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.HardwareBuilder;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceWrapper;
 
 import java.util.HashMap;
 
@@ -36,13 +37,12 @@ public class ServoMotorWrapper extends DeviceWrapper {
         servo.setPosition(position);
         //Вычисляем "путь" до позиции, а после расщётное время
         delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) * servoSpeed;
-        isBusy = signalTime.seconds() > delayTime;
-        return isBusy;
+        return isBusy();
     }
 
     public boolean isBusy(){
         if(!isInitialized) return false;
-        return signalTime.seconds() > delayTime;
+        return signalTime.seconds() < delayTime;
     }
     //Этот метод по - хорошему использовать с обратной связью
     public void setPosition(double position){
@@ -61,23 +61,19 @@ public class ServoMotorWrapper extends DeviceWrapper {
         telemetry.addLine();
     }
     public static class Builder extends HardwareBuilder {
-        private HashMap<String, ServoMotorWrapper> servos = new HashMap<>();
+        public ServoMotorWrapper servoMotorWrapper;
         @Override
         public Builder initialize(OpMode op, String deviceName) {
-            servos.put(deviceName, new ServoMotorWrapper(op, deviceName));
+            servoMotorWrapper = new ServoMotorWrapper(op, deviceName);
             return this;
         }
-        public Builder setFields(String deviceName, double servoSpeed, double servoMaxAngle){
-            servos.get(deviceName).servoSpeed = servoSpeed;
-            servos.get(deviceName).servoMaxAngle = servoMaxAngle;
+        public Builder setFields(double servoSpeed, double servoMaxAngle){
+            servoMotorWrapper.servoSpeed = servoSpeed;
+            servoMotorWrapper.servoMaxAngle = servoMaxAngle;
             return this;
         }
-        public boolean setSignal(String deviceName, double position){
-            return servos.get(deviceName).setSignal(position);
-        }
-
-        public void setPosition(String deviceName, double position){
-            servos.get(deviceName).setPosition(position);
+        public ServoMotorWrapper get(){
+            return servoMotorWrapper;
         }
     }
 }

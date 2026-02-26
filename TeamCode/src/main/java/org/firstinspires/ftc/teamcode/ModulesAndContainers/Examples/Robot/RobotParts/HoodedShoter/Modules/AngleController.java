@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 
 public class AngleController extends ServoMotorWrapper {
     public AngleController(OpMode op, String deviceName) {
@@ -16,8 +16,8 @@ public class AngleController extends ServoMotorWrapper {
 
         return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);
     }
-    public boolean setAngle(double theta){
-        if(!isInitialized) return false;
+    public double getPos(double theta){
+        if(!isInitialized) return 0;
         //Рассчитываем угол вылета
 
         double alpha = Math.toRadians(theta);
@@ -29,6 +29,6 @@ public class AngleController extends ServoMotorWrapper {
         targetServoPos = Math.round(targetServoPos * Math.pow(10, 2)) / Math.pow(10, 2);
 
         //Выставляем нужную позицию
-        return setSignal(targetServoPos);
+        return targetServoPos;
     }
 }

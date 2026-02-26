@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples;
 
 import static com.qualcomm.hardware.ams.AMSColorSensor.AMS_TCS34725_ADDRESS;
 
@@ -6,28 +6,56 @@ import android.widget.RelativeLayout;
 
 import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.hardware.ams.AMSColorSensor;
+import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDeviceWithParameters;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.HardwareBuilder;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class ColorSensorWrapper extends DeviceUpdaterWrapper {
-//    private NormalizedColorSensor colorSensor;
-    private AdafruitI2cColorSensor colorSensor;
+    private AMSColorSensor amsColorSensor;
+    private RevColorSensorV3 revColorSensorV3;
+    private BroadcomColorSensor broadcomColorSensor;
+
     private RelativeLayout relativeLayout;
+
     public NormalizedRGBA rgba;
+    private NormalizedColorSensor normalizedColorSensor;
+    private DistanceSensor distanceSensor;
+
     public ColorSensorWrapper(OpMode op, String deviceName){
         super(op);
 
         this.deviceName = deviceName;
+
         try {
-            colorSensor = hardwareMap.get(AdafruitI2cColorSensor.class, deviceName);
+            normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, deviceName);
+
+            if(normalizedColorSensor instanceof RevColorSensorV3){
+                distanceSensor = ((DistanceSensor) normalizedColorSensor);
+            }
+        }catch (Exception e){
+            isInitialized = false;
+        }
+
+
+        tresholder = new double[4];
+        sayInited();
+    }
+
+    private void amsInit(){
+        try {
+            AMSColorSensor amsColorSensor1 = hardwareMap.get(AdafruitI2cColorSensor.class, deviceName);
             AMSColorSensor.class.getDeclaredField("AMS_TCS34725_ADDRESS").setAccessible(true);
 
             AMSColorSensor.Parameters parameters = new AMSColorSensor.Parameters(AMS_TCS34725_ADDRESS, 0x4D);
@@ -37,19 +65,16 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
             paramField.setAccessible(true);
 
             try {
-                paramField.set(colorSensor, parameters);
+                paramField.set(amsColorSensor, parameters);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
-            colorSensor.initialize();
-            colorSensor.setGain(gain);
+            amsColorSensor.initialize(parameters);
+            amsColorSensor.setGain(gain);
         }catch (Exception e){
             isInitialized = false;
         }
-
-        tresholder = new double[4];
-        sayInited();
     }
     private float gain = 15f;
     private double[] tresholder;
@@ -65,13 +90,16 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     }
     private void updateData(){
         if (!isInitialized) return;
-        rgba = colorSensor.getNormalizedColors();
+        rgba = amsColorSensor.getNormalizedColors();
         r = rgba.red;
         g = rgba.green;
         b = rgba.blue;
         a = rgba.alpha;
 
-        distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+        if(distanceSensor != null){
+            distance = distanceSensor.getDistance(DistanceUnit.CM);
+        }
+
     }
 
     private void compareColor(){
@@ -98,7 +126,8 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         }else nothingDetected = true;
     }
     private void compareDistance(boolean redDetected, boolean greenDetected, boolean blueDetected, boolean nothingDetected){
-        //Этот случай может быть поидее только тогда когда дистанс умер
+        if(distanceSensor == null) return;
+        //Этот случай может быть поидее только тогда когда дистанс умер или его нет
         if(distance == 0) return;
         if(redDetected && distance > tresholder[4]) {
             redDetected = false;}
@@ -121,7 +150,7 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     public void showData(){
         if(!isInitialized) telemetry.addLine("color" + " " + deviceName + "Not Found/Attached");
         else {
-            telemetry.addLine("==="+ colorSensor.getDeviceName() +"===");
+            telemetry.addLine("==="+ amsColorSensor.getDeviceName() +"===");
             telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
             //Для отладки
             telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
@@ -130,42 +159,19 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         }
     }
     public static class Builder extends HardwareBuilder {
-        private HashMap<String, ColorSensorWrapper> sensors = new HashMap<>();
+        private ColorSensorWrapper colorSensorWrapper;
 
         @Override
         public Builder initialize(OpMode op, String deviceName) {
-            sensors.put(deviceName, new ColorSensorWrapper(op, deviceName));
+            colorSensorWrapper = new ColorSensorWrapper(op, deviceName);
             return this;
         }
-        public Builder setFields(String deviceName, double[] tresholder){
-            sensors.get(deviceName).tresholder = tresholder;;
+        public Builder setFields(double[] tresholder){
+            colorSensorWrapper.tresholder = tresholder;
             return this;
         }
-        public void updateAll(){
-            for (ColorSensorWrapper sensor: sensors.values()) {
-                sensor.update();
-            }
-        }
-
-        public int foundedColor(){
-            int color = 0;
-            for (ColorSensorWrapper sensor : sensors.values()) {
-                color = sensor.getFoundedColor();
-                //как только любой из колоров нашёл что то выходим
-                if (color != 0) break;
-            }
-            return color;
-        }
-        public boolean isInited(){
-            boolean isInited = true;
-            for (ColorSensorWrapper sensor : sensors.values()) {
-                isInited &= sensor.isInitialized;
-            }
-            return isInited;        }
-        public void showData(){
-            for (ColorSensorWrapper sensor: sensors.values()) {
-                sensor.showData();
-            }
+        public ColorSensorWrapper get(){
+            return colorSensorWrapper;
         }
     }
 }

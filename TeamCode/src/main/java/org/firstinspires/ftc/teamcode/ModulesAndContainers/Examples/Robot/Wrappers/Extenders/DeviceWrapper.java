@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
-public class DeviceWrapper extends Module {
+public abstract class DeviceWrapper extends Module {
     protected String deviceName;
     public DeviceWrapper(OpMode op) {
         super(op);

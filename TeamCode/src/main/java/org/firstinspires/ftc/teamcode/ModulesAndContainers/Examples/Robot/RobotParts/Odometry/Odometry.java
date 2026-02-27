@@ -40,7 +40,6 @@ public class Odometry extends UpdatableModule{
         gyro = drivetrain.gyro;
         turretOdometry = hoodedShoter.turretMotor.turretOdometry;
 
-        this.isInitialized = gyro.isInitialized && cameraClass.isInitialized && encoders.isInitialized && turretOdometry.isInitialized;
         sayInited();
     }
     public void setStartPos(Position2D position2D){
@@ -48,10 +47,10 @@ public class Odometry extends UpdatableModule{
     }
 
     @Override
-    public void update(){
-        cameraClass.update();
-        turretOdometry.update();
-        gyro.update();
+    protected void update(){
+        cameraClass.safeUpdate();
+        turretOdometry.safeUpdate();
+        gyro.safeUpdate();
 
         OdometryBuffer encodersBuf = encoders.encodersBuffer;
         OdometryBuffer gyroBuf = gyro.gyroBuffer;

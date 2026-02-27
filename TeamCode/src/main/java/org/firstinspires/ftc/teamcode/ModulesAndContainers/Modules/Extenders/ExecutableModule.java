@@ -12,16 +12,24 @@ import java.util.Deque;
 
 public abstract class ExecutableModule extends Module {
     public ProgramState programState = ProgramState.Waiting_For_Start;
-    public ArrayList<Builder> builderPrograms;
-    public boolean isInterrupted;
+    protected ArrayList<Builder> builderPrograms;
 
-    public abstract ProgramState execute();
+    public ProgramState safeExecute(){
+        ProgramState programState1;
+
+        if(!isInitialized) programState1 = execute();
+
+        else  programState1 = ProgramState.Executing;
+
+        return programState1;
+    }
+    protected abstract ProgramState execute();
     public ExecutableModule(OpMode op, String name){
         super(op);
         this.name = name;
     }
 
-    public String name;
+    protected String name;
     public static class Builder {
         //Как бы перемещаем каретку
         public ProgramState programState;

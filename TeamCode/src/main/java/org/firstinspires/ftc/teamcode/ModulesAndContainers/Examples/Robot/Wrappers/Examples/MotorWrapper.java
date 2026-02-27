@@ -19,7 +19,7 @@ public class MotorWrapper extends DeviceWrapper {
 
     public MotorWrapper(OpMode op, String deviceName) {
         super(op);
-        this.deviceName = deviceName;
+        this.searchingDevice = deviceName;
         try {
             motor = hardwareMap.get(DcMotor.class, deviceName);
 
@@ -69,9 +69,9 @@ public class MotorWrapper extends DeviceWrapper {
     }
     @Override
     public void showData() {
-        if(!isInitialized) telemetry.addLine( deviceName + " " + "Not Found/Attached");
+        if(!isInitialized) telemetry.addLine( searchingDevice + " " + "Not Found/Attached");
         else {
-            telemetry.addData(deviceName, getMotor().getPower());
+            telemetry.addData(searchingDevice, getMotor().getPower());
         }
     }
     public static class Builder extends HardwareBuilder{

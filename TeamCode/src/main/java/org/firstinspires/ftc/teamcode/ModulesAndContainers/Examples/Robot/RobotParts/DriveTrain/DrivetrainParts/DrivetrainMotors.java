@@ -20,13 +20,13 @@ public class DrivetrainMotors extends MotorModule {
         super(op);
 
         motorsWrapper
-                .add(op, motorBuilder.initialize(op, rightBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, rightBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
-                .add(op, motorBuilder.initialize(op, rightFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add( motorBuilder.initialize(op, rightFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
-                .add(op, motorBuilder.initialize(op, leftFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, leftFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
-                .add(op, motorBuilder.initialize(op, leftBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, leftBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get());
 
         encoderClass = new EncoderClass(op);
@@ -44,13 +44,12 @@ public class DrivetrainMotors extends MotorModule {
     public String testEnc = expansionHubDevices.getEncoder(3);
 
     public void setPower(double forwardPow, double sidePow, double anglePow){
-        if(!isInitialized) return;
         motorsWrapper.get(rightBack).setPower(forwardPow - sidePow + anglePow);
         motorsWrapper.get(rightFront).setPower(forwardPow + sidePow + anglePow);
         motorsWrapper.get(leftFront).setPower(forwardPow - sidePow - anglePow);
         motorsWrapper.get(leftBack).setPower(forwardPow + sidePow - anglePow);
 
-        encoderClass.update();
+        encoderClass.safeUpdate();
     }
 
 
@@ -101,7 +100,7 @@ public class DrivetrainMotors extends MotorModule {
         }
 
         @Override
-        public void update() {
+        protected void update() {
             selfMath.calculateAll();
         }
 

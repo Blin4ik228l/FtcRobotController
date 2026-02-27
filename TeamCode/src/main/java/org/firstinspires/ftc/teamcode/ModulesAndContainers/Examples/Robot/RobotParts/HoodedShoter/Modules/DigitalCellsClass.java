@@ -45,7 +45,7 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     @Override
-    public void update() {
+    protected void update() {
         artifactCount = cells.updateAll().numberOfArtifacts();
     }
 
@@ -73,7 +73,7 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     @Override
-    public void showData() {
+    protected void showData() {
         sayModuleName();
         telemetry.addData("Count", artifactCount);
         cells.showAll();
@@ -91,11 +91,8 @@ public class DigitalCellsClass extends UpdatableModule {
             this.name = cellName;
 
             for (ColorSensorWrapper color:sensorsWrapperIn) {
-                isInit &= color.isInitialized;
                 sensorsWrapper.add(color);
             };
-
-            this.isInit &= this.servoWrapper.isInitialized;
         }
         public int isFounded(){
             int count = 0;

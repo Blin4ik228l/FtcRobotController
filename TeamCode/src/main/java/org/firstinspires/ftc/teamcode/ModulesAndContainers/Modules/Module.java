@@ -28,16 +28,19 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
           controlHubDevices = new ControlHubDevices();
           expansionHubDevices = new ExpansionHubDevices();
      }
-     public boolean isInitialized = true;
-     public void increaseIteration() {
+     protected boolean isInitialized = true;
+     protected void increaseIteration() {
          iterationCount++;
      }
-     public abstract void showData();
+     public void safeShowData(){
+          if(isInitialized) showData();
+     }
+     protected abstract void showData();
 
-     public void sayModuleName(){
+     protected void sayModuleName(){
           telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");
      }
-     public void sayInited(){
+     protected void sayInited(){
           if(!isInitialized) telemetry.addLine(this.getClass().getSimpleName() + " " + "CRUSHED");
           else telemetry.addLine(this.getClass().getSimpleName() + " " + "scfly Inited");
      }

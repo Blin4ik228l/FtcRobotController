@@ -24,7 +24,7 @@ public class Collector extends MotorModule {
         motorWrapper.setPower(power);
     }
     @Override
-    public void showData() {
+    protected void showData() {
 
     }
 }

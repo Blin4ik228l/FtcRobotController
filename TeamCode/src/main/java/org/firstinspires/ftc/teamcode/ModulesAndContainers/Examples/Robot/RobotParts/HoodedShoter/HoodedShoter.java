@@ -30,22 +30,21 @@ public class HoodedShoter extends UpdatableModule {
 
         digitalCellsClass = new DigitalCellsClass(op);
 
-        this.isInitialized = turretMotor.isInitialized && flyWheelClass.isInitialized && collector.isInitialized && angleController.isInitialized && digitalCellsClass.isInitialized;
         sayInited();
     }
 
     @Override
-    public void update() {
+    protected void update() {
         digitalCellsClass.update();
     }
 
     @Override
-    public void showData() {
+    protected void showData() {
         telemetry.addLine("===COLLECTOR DATA===");
-        digitalCellsClass.showData();
-        turretMotor.showData();
-        collector.showData();
-        flyWheelClass.showData();
+        digitalCellsClass.safeShowData();
+        turretMotor.safeShowData();
+        collector.safeShowData();
+        flyWheelClass.safeShowData();
         telemetry.addLine();
     }
 }

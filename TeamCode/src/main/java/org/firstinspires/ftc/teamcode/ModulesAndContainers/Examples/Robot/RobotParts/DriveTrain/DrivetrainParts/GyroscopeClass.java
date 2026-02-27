@@ -46,21 +46,17 @@ public class GyroscopeClass extends UpdatableModule {
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
     public SelfMath selfMath;
 
+
     @Override
-    public void update() {
-        if (!isInitialized) return;
+    protected void update() {
         selfMath.calculateAll();
     }
 
     @Override
     public void showData(){
         sayModuleName();
-        if(!isInitialized) telemetry.addLine("imu not exist");
-        else {
-            telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
-            telemetry.addLine();
-        }
-
+        telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
+        telemetry.addLine();
     }
     private class SelfMath{
         private OdometryData rawData;

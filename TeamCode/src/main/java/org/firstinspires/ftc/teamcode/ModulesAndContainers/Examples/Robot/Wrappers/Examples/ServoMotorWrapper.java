@@ -13,7 +13,7 @@ public class ServoMotorWrapper extends DeviceWrapper {
     public ServoMotorWrapper(OpMode op, String deviceName) {
         super(op);
 
-        this.deviceName = deviceName;
+        this.searchingDevice = deviceName;
         try {
             servo = hardwareMap.get(Servo.class, deviceName);
         }catch (Exception e){
@@ -51,7 +51,7 @@ public class ServoMotorWrapper extends DeviceWrapper {
     @Override
     public void showData() {
 
-        if(!isInitialized) telemetry.addLine("servo" + " " + deviceName + "Not Found/Attached");
+        if(!isInitialized) telemetry.addLine("servo" + " " + searchingDevice + "Not Found/Attached");
         else {
             telemetry.addLine("===" + servo.getDeviceName() + "===");
             telemetry.addData("Position", servo.getPosition());

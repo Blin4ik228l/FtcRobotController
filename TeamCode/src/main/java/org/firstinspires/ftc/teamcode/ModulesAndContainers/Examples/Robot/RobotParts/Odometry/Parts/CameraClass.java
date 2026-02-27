@@ -115,8 +115,7 @@ public class CameraClass extends UpdatableModule {
     public double cameraBearing;
     public int[] motif = new int[3];
     @Override
-    public void update(){
-        if (!isInitialized) return;
+    protected void update(){
         switch (generalLogic){
             case Check_camera_state:
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {

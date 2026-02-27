@@ -31,22 +31,21 @@ public class RobotClass extends UpdatableModule{
 
         odometry = new Odometry(op, drivetrain, hoodedShoter);
 
-        this.isInitialized = voltageSensor.isInitialized && drivetrain.isInitialized && hoodedShoter.isInitialized && odometry.isInitialized;
         updateTime = new ElapsedTime();
         sayInited();
     }
 
     @Override
-    public void update() {
-        voltageSensor.update();
-        odometry.update();
+    protected void update() {
+        voltageSensor.safeUpdate();
+        odometry.safeUpdate();
 
         hz = 1 / updateTime.seconds();
         updateTime.reset();
     }
 
     @Override
-    public void showData(){
+    protected void showData(){
         telemetry.addLine("===Robot===");
         telemetry.addData("Update time/hz", hz);
         voltageSensor.showData();

@@ -8,5 +8,9 @@ public abstract class UpdatableModule extends Module {
     public UpdatableModule(OpMode op) {
         super(op);
     }
-    public abstract void update();
+
+    public void safeUpdate(){
+        if(isInitialized) update();
+    }
+    protected abstract void update();
 }

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MotorModule;
@@ -16,9 +17,9 @@ public class FlyWheelClass extends MotorModule {
     public FlyWheelClass(OpMode op, VoltageSensorClass voltageSensorClass) {
         super(op);
         motorsWrapper
-                .add(op, motorBuilder.initialize(op, motorRight).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, motorRight).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
-                .add(op, motorBuilder.initialize(op, motorLeft).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, motorLeft).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get());
 
 //        motorsWrapper.get(motorLeft).getMotorConfigurationType().setMaxRPM(1111);
@@ -45,15 +46,14 @@ public class FlyWheelClass extends MotorModule {
         return targetSpeed;
     }
     public void setPower(double power){
-        if(!isInitialized) return;
         motorsWrapper.get(motorRight).setPower(power);
         motorsWrapper.get(motorLeft).setPower(-power);
 
-        flyWheelOdometry.update();
+        flyWheelOdometry.safeUpdate();
     }
 
     @Override
-    public void showData() {
+    protected void showData() {
         motorsWrapper.showData();
     }
     public class FlyWheelOdometry extends UpdatableModule {
@@ -65,40 +65,13 @@ public class FlyWheelClass extends MotorModule {
             odometryData = new OdometryData();
             selfMath = new SelfMath();
         }
-        public double flyWheelRadius = 0.4;
-        private double COUNTS_PER_ENCODER_REV = 0;
-        private double DRIVE_GEAR_REDUCTION = 1;
-        private double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
-                (flyWheelRadius * 2 * Math.PI);
-
-        private double ticksToCm(double ticks){
-            return ticks / COUNTS_PER_CM;
-        }
-        public double getCurentPos(String motorName){
-            DcMotor motor = motorsWrapper.get(motorName).getMotor();
-
-            if(motor == null) return 0;
-            else {
-                double pos = -motor.getCurrentPosition();
-                return switcher ? ticksToCm(pos) : ticksToCm(pos) / flyWheelRadius;
-            }
-        }
-        public double getCurrentVelocity(String motorName){
-            DcMotorEx motorEx = motorsWrapper.get(motorName).getMotorEx();
-
-            if(motorEx == null) return 0;
-            else {
-                double vel = -motorEx.getVelocity();
-                return switcher ? ticksToCm(vel) : ticksToCm(vel) / flyWheelRadius;
-            }
-        }
 
         @Override
-        public void update() {
+        protected void update() {
             selfMath.updateAll();
         }
         @Override
-        public void showData() {
+        protected void showData() {
 
         }
 
@@ -117,8 +90,8 @@ public class FlyWheelClass extends MotorModule {
             public void updateSpeed(){
                 double filtr = 0.3;
 
-                currentSpeeds[0] = getCurrentVelocity(motorLeft);
-                currentSpeeds[1] = getCurrentVelocity(motorRight);
+                currentSpeeds[0] = innerMath.getCurrentVelocity(motorLeft, Units.Rad);
+                currentSpeeds[1] = innerMath.getCurrentVelocity(motorRight, Units.Rad);
 
                 double vel = currentSpeeds[0] != 0 && currentSpeeds[1] != 0 ? (currentSpeeds[0] + currentSpeeds[1]) / 2.0 : currentSpeeds[0] + currentSpeeds[1];
 

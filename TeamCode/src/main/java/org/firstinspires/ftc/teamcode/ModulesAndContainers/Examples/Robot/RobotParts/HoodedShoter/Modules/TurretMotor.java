@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Mot
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
 public class TurretMotor extends MotorModule {
-    public String turretMotor = expansionHubDevices.getMotor(1);
+    public String turretMotor = controlHubDevices.getMotor(0);
     public TurretOdometry turretOdometry;
 
     public boolean isInterrupted;
@@ -30,10 +30,10 @@ public class TurretMotor extends MotorModule {
         sayInited();
     }
     public void setPower(double power){
-        motorsWrapper.get(turretMotor).setPower(power);
+        motorWrapper.setPower(power);
     }
     @Override
-    protected void showData() {
+    public void showData() {
         sayModuleName();
         motorsWrapper.showData();
         turretOdometry.showData();
@@ -57,12 +57,12 @@ public class TurretMotor extends MotorModule {
         private SelfMath selfMath;
 
         @Override
-        protected void update() {
+        public void update() {
             selfMath.calculateAll();
         }
 
         @Override
-        protected void showData() {
+        public void showData() {
             if (!isInitialized){telemetry.addLine("Need motor to be init");}
             else telemetry.addData("TuretData", "head  %s vel %s", localHead , turretBuffer.read().getHeadVel() * RAD);
         }
@@ -97,7 +97,7 @@ public class TurretMotor extends MotorModule {
 
                 double headVel = deltaHead / (deltaTime / 1000);
 
-                double headVel2 = motorsWrapper.get(turretMotor).getMotorEx().getVelocity(AngleUnit.RADIANS);
+                double headVel2 = innerMath.getCurrentVelocity(turretMotor, Units.Rad);
 
                 filteredTurretVelocity = filtr * headVel + (1 - filtr) * filteredTurretVelocity;
 

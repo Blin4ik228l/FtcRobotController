@@ -37,7 +37,7 @@ public class AngleController extends Module {
     }
 
     @Override
-    protected void showData() {
+    public void showData() {
 
     }
 }

@@ -24,14 +24,22 @@ public class AutoPlayerClass2 extends PlayerClass{
         this.hoodedShoter = robotClass.hoodedShoter;
         this.odometry = robotClass.odometry;
 
+        pusher0 = new ServoMotorWrapper(op, "pusher0");
         pusher1 = new ServoMotorWrapper(op, "pusher1");
+        pusher2 = new ServoMotorWrapper(op, "pusher2");
+        pusher3 = new ServoMotorWrapper(op, "pusher3");
+        pusher4 = new ServoMotorWrapper(op, "pusher4");
+
         trackEmulator = new TrackEmulator(op);
         speedController = new SpeedController(op);
         pidfTunner = new PIDFTunner();
         updateTime = new ElapsedTime();
     }
+    public ServoMotorWrapper pusher0;
     public ServoMotorWrapper pusher1;
-
+    public ServoMotorWrapper pusher2;
+    public ServoMotorWrapper pusher3;
+    public ServoMotorWrapper pusher4;
     public HoodedShoter hoodedShoter;
     public Odometry odometry;
     public ElapsedTime updateTime;
@@ -42,107 +50,109 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public ProgramState execute(){
-//        double collectorPow = 0;
-//        double turretPow = 0;
-//        double flyWheelPow = 0;
-//
+        double collectorPow = 0;
+        double turretPow = 0;
+        double flyWheelPow = 0;
+
         joystickActivityClass.update();
-//
-//        pidfTunner.execute();
-//
-//        trackEmulator.trackingPIDF.setPID(pidfTunner.P, pidfTunner.I, pidfTunner.D, pidfTunner.F);
-//
-//        double cosB = joystickActivityClass.cosB;
-//
-//        double targSpeed = 50 * (joystickActivityClass.tAPressed % 4);
-//
-//        if(hoodedShoter.turretMotor.isInterrupted){
-//           targSpeed = Math.toRadians(1000);
-//        }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
-//
-//        //Выравниваем на ворота альянса
-//        double[] point = generalInformation.generalObjects.getPointVyr();
-//        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), targSpeed);
-//        OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
-//
-//        turretPow = trackEmulator.calculateVol(targetData, currentData);
-//        double curSpeed;
-//        double targetSpeed;
-//        if(!isInterrupted){
-//            switch (generalInformation.gameTactick){
-//                case Load:
-//                    curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
-//                    targetSpeed = 0;
-//                    flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
-//
-//                    if (hoodedShoter.digitalCellsClass.getArtifactCount() == 3){
-//                        collectorPow = -1;
-//                        programState = ProgramState.Finished;
-//                    }else {
-//                        collectorPow = 1;
-//                        programState = ProgramState.Executing;
-//                    }
-//                    break;
-//                case Fire:
-//                    collectorPow = 0;
-//                    if (hoodedShoter.digitalCellsClass.getArtifactCount() == 0){
-//                        hoodedShoter.digitalCellsClass.prepareServo();//Возвращаем серво в начальное положение
-//                        programState = ProgramState.Finished;
-//                    }else {
-//                        double range = new Vector2(point[0] - odometry.odometryBufferForTuret.read().getPosition().getX(), point[1] - odometry.odometryBufferForTuret.read().getPosition().getY()).length();
-//
-//                        double theta;
-//
-//                        //в градусах
-//                        if (range >= 290) theta = 50;
-//                        else if (range >= 150) theta = 60;
-//                        else if (range >= 70) theta = 70;
-//                        else theta = 80;
-//
-//                        targetSpeed = hoodedShoter.flyWheelClass.getTargetSpeed(theta, range);
-//                        curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
-//
-//                        flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
-//
-//                        boolean isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
-//
-//                        double calclPos = hoodedShoter.angleController.getPos(theta);
-//                        boolean isAngleGrowUp = hoodedShoter.angleController.servoMotorWrapper.setSignal(calclPos);
-//
-//                        //TODO условие на наводку турели
-//                        if(isFlyWheelReady && isAngleGrowUp){
-//                            if(hoodedShoter.digitalCellsClass.isInerrupted){
-//                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isInerrupted = false;
-//                            }
-//
-//                            int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
-//                            int neededColor = odometry.cameraClass.motif[index];
-//                            hoodedShoter.digitalCellsClass.fire(neededColor);
-//                        }
-//
-//                        programState = ProgramState.Executing;
-//                    }
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }else programState = ProgramState.Executing;
-//
+
+        pidfTunner.execute();
+
+        trackEmulator.trackingPIDF.setPID(pidfTunner.P, pidfTunner.I, pidfTunner.D, pidfTunner.F);
+
+        double cosB = joystickActivityClass.cosB;
+
+        double targSpeed = 50 * (joystickActivityClass.tAPressed % 4);
+
+        if(hoodedShoter.turretMotor.isInterrupted){
+           targSpeed = Math.toRadians(1000);
+        }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
+
+        //Выравниваем на ворота альянса
+        double[] point = generalInformation.generalObjects.getPointVyr();
+        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), targSpeed);
+        OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
+
+        turretPow = trackEmulator.calculateVol(targetData, currentData);
+        double curSpeed;
+        double targetSpeed;
+        if(!isInterrupted){
+            switch (generalInformation.gameTactick){
+                case Load:
+                    curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
+                    targetSpeed = 0;
+                    flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
+
+                    if (hoodedShoter.digitalCellsClass.getArtifactCount() == 3){
+                        collectorPow = -1;
+                        programState = ProgramState.Finished;
+                    }else {
+                        collectorPow = 1;
+                        programState = ProgramState.Executing;
+                    }
+                    break;
+                case Fire:
+                    collectorPow = 0;
+                    if (hoodedShoter.digitalCellsClass.getArtifactCount() == 0){
+                        hoodedShoter.digitalCellsClass.prepareServo();//Возвращаем серво в начальное положение
+                        programState = ProgramState.Finished;
+                    }else {
+                        double range = new Vector2(point[0] - odometry.odometryBufferForTuret.read().getPosition().getX(), point[1] - odometry.odometryBufferForTuret.read().getPosition().getY()).length();
+
+                        double theta;
+
+                        //в градусах
+                        if (range >= 290) theta = 50;
+                        else if (range >= 150) theta = 60;
+                        else if (range >= 70) theta = 70;
+                        else theta = 80;
+
+                        targetSpeed = hoodedShoter.flyWheelClass.getTargetSpeed(theta, range);
+                        curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
+
+                        flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
+
+                        boolean isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
+
+                        double calclPos = hoodedShoter.angleController.getPos(theta);
+                        boolean isAngleGrowUp = hoodedShoter.angleController.servoMotorWrapper.setSignal(calclPos);
+
+                        //TODO условие на наводку турели
+                        if(isFlyWheelReady && isAngleGrowUp){
+                            if(hoodedShoter.digitalCellsClass.isInerrupted){
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isInerrupted = false;
+                            }
+
+                            int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
+                            int neededColor = odometry.cameraClass.motif[index];
+                            hoodedShoter.digitalCellsClass.fire(neededColor);
+                        }
+
+                        programState = ProgramState.Executing;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }else programState = ProgramState.Executing;
+
         checkButtons();
-//
-//        hoodedShoter.turretMotor.setPower(turretPow);
-//        hoodedShoter.flyWheelClass.setPower(flyWheelPow);
-//        hoodedShoter.collector.setPower(collectorPow);
-//
-//        hoodedShoter.update();
-//        hz = 1 / updateTime.seconds();
-//        updateTime.reset();
+
+        hoodedShoter.turretMotor.setPower(turretPow);
+        hoodedShoter.flyWheelClass.setPower(flyWheelPow);
+        hoodedShoter.collector.setPower(collectorPow);
+
+        hoodedShoter.update();
+
+        hz = 1 / updateTime.seconds();
+        updateTime.reset();
         return programState;
     }
     @Override
     public void showData(){
         telemetry.addLine("===Player2===");
         telemetry.addData("Update time/hz", hz);
+        joystickActivityClass.showData();
         hoodedShoter.showData();
         trackEmulator.trackingPIDF.showData();
         telemetry.addLine(String.format("globalIndex: %s index: %s stepSize: %s", pidfTunner.index, pidfTunner.stepIndex, pidfTunner.stepSize[pidfTunner.stepIndex]));
@@ -152,32 +162,33 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     @Override
     public void buttonAReleased() {
-        pusher1.setPosition(0.37);
+        pusher0.setPosition(0);
+
     }
 
     @Override
     public void buttonAUnReleased() {
-        pusher1.setPosition(0);
+        pusher0.setPosition(0.37);
     }
 
     @Override
     public void buttonBReleased() {
-
+        pusher1.setPosition(0.37);
     }
 
     @Override
     public void buttonBUnReleased() {
-
+        pusher1.setPosition(0);
     }
 
     @Override
     public void buttonXReleased() {
-
+        pusher2.setPosition(0.37);
     }
 
     @Override
     public void buttonXUnReleased() {
-
+        pusher2.setPosition(0);
     }
 
     @Override

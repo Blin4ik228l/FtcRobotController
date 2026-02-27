@@ -19,17 +19,17 @@ public class DigitalCellsClass extends UpdatableModule {
         cells = new CellWrapper.Builder()
                 .add(op,"cell1",
                         servoBuilder.initialize(op, controlHubDevices.getServo0(0)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(2)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(3)).setFields(new double[]{}).get()
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(0)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get()
                 )
                 .add(op,"cell2",
-                        servoBuilder.initialize(op, controlHubDevices.getServo0(1)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(1)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(0)).setFields(new double[]{}).get())
+                        servoBuilder.initialize(op, expansionHubDevices.getServo0(1)).setFields(60, 270).get(),
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(2)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, expansionHubDevices.getI2C(3)).setFields(new double[]{}).get())
                 .add(op,"cell3",
-                        servoBuilder.initialize(op, controlHubDevices.getServo0(2)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get());
+                        servoBuilder.initialize(op, expansionHubDevices.getServo0(2)).setFields(60, 270).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(0)).setFields(new double[]{}).get(),
+                        colorBuilder.initialize(op, controlHubDevices.getI2C(1)).setFields(new double[]{}).get());
 
 
         this.isInitialized = cells.isInited();
@@ -45,7 +45,7 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     @Override
-    protected void update() {
+    public void update() {
         artifactCount = cells.updateAll().numberOfArtifacts();
     }
 
@@ -73,7 +73,7 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     @Override
-    protected void showData() {
+    public void showData() {
         sayModuleName();
         telemetry.addData("Count", artifactCount);
         cells.showAll();

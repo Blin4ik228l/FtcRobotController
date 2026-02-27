@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappe
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MotorModule;
 
 public class Collector extends MotorModule {
-    public String collector = expansionHubDevices.getMotor(0);
+    public String collector = controlHubDevices.getMotor(3);
 
     public Collector(OpMode op, VoltageSensorClass voltageSensorClass) {
         super(op);
@@ -20,11 +20,10 @@ public class Collector extends MotorModule {
     }
 
     public void setPower(double power){
-        if(!isInitialized) return;
         motorWrapper.setPower(power);
     }
     @Override
-    protected void showData() {
+    public void showData() {
 
     }
 }

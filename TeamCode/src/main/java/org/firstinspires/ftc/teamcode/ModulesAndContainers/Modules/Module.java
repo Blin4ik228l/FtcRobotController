@@ -29,13 +29,10 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
           expansionHubDevices = new ExpansionHubDevices();
      }
      protected boolean isInitialized = true;
-     protected void increaseIteration() {
+     public void increaseIteration() {
          iterationCount++;
      }
-     public void safeShowData(){
-          if(isInitialized) showData();
-     }
-     protected abstract void showData();
+     public abstract void showData();
 
      protected void sayModuleName(){
           telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");

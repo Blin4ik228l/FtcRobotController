@@ -34,17 +34,17 @@ public class HoodedShoter extends UpdatableModule {
     }
 
     @Override
-    protected void update() {
+    public void update() {
         digitalCellsClass.update();
     }
 
     @Override
-    protected void showData() {
-        telemetry.addLine("===COLLECTOR DATA===");
-        digitalCellsClass.safeShowData();
-        turretMotor.safeShowData();
-        collector.safeShowData();
-        flyWheelClass.safeShowData();
+    public void showData() {
+        sayModuleName();
+        digitalCellsClass.showData();
+        turretMotor.showData();
+        collector.showData();
+        flyWheelClass.showData();
         telemetry.addLine();
     }
 }

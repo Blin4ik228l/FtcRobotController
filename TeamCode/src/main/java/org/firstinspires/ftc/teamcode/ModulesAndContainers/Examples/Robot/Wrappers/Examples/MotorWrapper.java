@@ -67,13 +67,13 @@ public class MotorWrapper extends DeviceWrapper {
     public MotorConfigurationType getMotorConfigurationType(){
         return motorConfigurationType;
     }
+
     @Override
-    public void showData() {
-        if(!isInitialized) telemetry.addLine( searchingDevice + " " + "Not Found/Attached");
-        else {
-            telemetry.addData(searchingDevice, getMotor().getPower());
-        }
+    public void showDataExt() {
+        telemetry.addLine("===" + searchingDevice + "===");
+        telemetry.addData("Power", getMotor().getPower());
     }
+
     public static class Builder extends HardwareBuilder{
         private MotorWrapper motorWrapper;
 

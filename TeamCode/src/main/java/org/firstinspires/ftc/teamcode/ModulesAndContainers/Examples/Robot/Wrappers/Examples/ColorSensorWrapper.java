@@ -34,7 +34,7 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     public ColorSensorWrapper(OpMode op, String deviceName){
         super(op);
 
-        this.deviceName = deviceName;
+        this.searchingDevice = deviceName;
 
         try {
             normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, deviceName);
@@ -42,37 +42,35 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
             if(normalizedColorSensor instanceof RevColorSensorV3){
                 distanceSensor = ((DistanceSensor) normalizedColorSensor);
             }
+
+            normalizedColorSensor.setGain(gain);
         }catch (Exception e){
             isInitialized = false;
         }
-
 
         tresholder = new double[4];
         sayInited();
     }
 
-    private void amsInit(){
+    private AMSColorSensor amsInit() throws Exception{
+
+        AMSColorSensor amsColorSensor1 = hardwareMap.get(AdafruitI2cColorSensor.class, searchingDevice);
+        AMSColorSensor.class.getDeclaredField("AMS_TCS34725_ADDRESS").setAccessible(true);
+
+        AMSColorSensor.Parameters parameters = new AMSColorSensor.Parameters(AMS_TCS34725_ADDRESS, 0x4D);
+
+        Field paramField = I2cDeviceSynchDeviceWithParameters.class.getDeclaredField("parameters");
+
+        paramField.setAccessible(true);
+
         try {
-            AMSColorSensor amsColorSensor1 = hardwareMap.get(AdafruitI2cColorSensor.class, deviceName);
-            AMSColorSensor.class.getDeclaredField("AMS_TCS34725_ADDRESS").setAccessible(true);
-
-            AMSColorSensor.Parameters parameters = new AMSColorSensor.Parameters(AMS_TCS34725_ADDRESS, 0x4D);
-
-            Field paramField = I2cDeviceSynchDeviceWithParameters.class.getDeclaredField("parameters");
-
-            paramField.setAccessible(true);
-
-            try {
-                paramField.set(amsColorSensor, parameters);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            amsColorSensor.initialize(parameters);
-            amsColorSensor.setGain(gain);
-        }catch (Exception e){
-            isInitialized = false;
+            paramField.set(amsColorSensor1, parameters);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
+        amsColorSensor1.initialize(parameters);
+        return amsColorSensor1;
     }
     private float gain = 15f;
     private double[] tresholder;
@@ -81,14 +79,14 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     private int foundedColor;
 
     @Override
-    public void update(){
+    protected void updateExt() {
         updateData();
 
         compareColor();
     }
+
     private void updateData(){
-        if (!isInitialized) return;
-        rgba = amsColorSensor.getNormalizedColors();
+        rgba = normalizedColorSensor.getNormalizedColors();
         r = rgba.red;
         g = rgba.green;
         b = rgba.blue;
@@ -97,7 +95,6 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         if(distanceSensor != null){
             distance = distanceSensor.getDistance(DistanceUnit.CM);
         }
-
     }
 
     private void compareColor(){
@@ -107,14 +104,7 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         boolean nothingDetected = false;
 
         //Смотрим какой цвет доминирует и накрыт ли датчик света
-        compareColor(redDetected, greenDetected, blueDetected, nothingDetected);
-        compareDistance(redDetected, greenDetected, blueDetected, nothingDetected);
 
-        if (!nothingDetected){
-            foundedColor = redDetected || blueDetected ? 2 : 1;
-        }else foundedColor = 0;
-    }
-    private void compareColor(boolean redDetected, boolean greenDetected, boolean blueDetected, boolean nothingDetected){
         if(r > g && r > b && r > tresholder[0]) {
             redDetected = true;}
         else if(g > r && g > b && g > tresholder[1]) {
@@ -122,18 +112,18 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         else if(b > r && b > g && b > tresholder[2]) {
             blueDetected = true;
         }else nothingDetected = true;
-    }
-    private void compareDistance(boolean redDetected, boolean greenDetected, boolean blueDetected, boolean nothingDetected){
-        if(distanceSensor == null) return;
-        //Этот случай может быть поидее только тогда когда дистанс умер или его нет
-        if(distance == 0) return;
-        if(redDetected && distance > tresholder[4]) {
-            redDetected = false;}
-        else if(greenDetected && distance > tresholder[4]) {
-            greenDetected = false;}
-        else if(blueDetected && distance > tresholder[4]) {
-            blueDetected = false;
-        }else nothingDetected = true;
+
+//        if(redDetected && distance > tresholder[4]) {
+//            redDetected = false;}
+//        else if(greenDetected && distance > tresholder[4]) {
+//            greenDetected = false;}
+//        else if(blueDetected && distance > tresholder[4]) {
+//            blueDetected = false;
+//        }else nothingDetected = true;
+
+        if (!nothingDetected){
+            foundedColor = redDetected || blueDetected ? 2 : 1;
+        }else foundedColor = 0;
     }
     private String getColorFromNumber(double number){
         return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
@@ -145,17 +135,15 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
         this.tresholder = tresholder;
     }
     @Override
-    public void showData(){
-        if(!isInitialized) telemetry.addLine("color" + " " + deviceName + "Not Found/Attached");
-        else {
-            telemetry.addLine("==="+ amsColorSensor.getDeviceName() +"===");
-            telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
-            //Для отладки
-            telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
-            telemetry.addData("Distance", distance);
-            telemetry.addLine();
-        }
+    public void showDataExt() {
+        telemetry.addLine("==="+ searchingDevice +"===");
+        telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
+        //Для отладки
+        telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
+        telemetry.addData("Distance", distance);
+        telemetry.addLine();
     }
+
     public static class Builder extends HardwareBuilder {
         private ColorSensorWrapper colorSensorWrapper;
 

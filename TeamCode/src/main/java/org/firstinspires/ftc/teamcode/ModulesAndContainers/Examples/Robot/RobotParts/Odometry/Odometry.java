@@ -47,10 +47,10 @@ public class Odometry extends UpdatableModule{
     }
 
     @Override
-    protected void update(){
-        cameraClass.safeUpdate();
-        turretOdometry.safeUpdate();
-        gyro.safeUpdate();
+    public void update(){
+        cameraClass.update();
+        turretOdometry.update();
+        gyro.update();
 
         OdometryBuffer encodersBuf = encoders.encodersBuffer;
         OdometryBuffer gyroBuf = gyro.gyroBuffer;

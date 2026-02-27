@@ -23,8 +23,6 @@ public abstract class MotorModule extends Module {
         innerMath = new InnerMath();
     }
 
-
-
     public class Builder{
         private HashMap<String, MotorWrapper> motors = new HashMap<>();
 
@@ -68,7 +66,7 @@ public abstract class MotorModule extends Module {
             return ticks / COUNTS_PER_CM;
         }
         public double getCurentPos(String motorName, Units units){
-            DcMotor motor;
+            DcMotor motor = null;
             if(motorWrapper != null) motor = motorWrapper.getMotor();
             else motor = motorsWrapper.get(motorName).getMotor();
 
@@ -89,7 +87,7 @@ public abstract class MotorModule extends Module {
             }
         }
         public double getCurrentVelocity(String motorName, Units units){
-            DcMotorEx motorEx;
+            DcMotorEx motorEx = null;
             if(motorWrapper != null) motorEx = motorWrapper.getMotorEx();
             else motorEx = motorsWrapper.get(motorName).getMotorEx();
 

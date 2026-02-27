@@ -21,7 +21,7 @@ public class MecanumDrivetrain extends UpdatableModule {
     }
     @Override
     public void update() {
-        gyro.safeUpdate();
+        gyro.update();
     }
 
     @Override

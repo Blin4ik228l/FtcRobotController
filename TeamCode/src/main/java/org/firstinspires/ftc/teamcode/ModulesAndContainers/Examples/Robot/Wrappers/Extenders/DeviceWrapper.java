@@ -21,6 +21,8 @@ public abstract class DeviceWrapper extends Module {
     }
     @Override
     public void showData() {
-
+        if(!isInitialized) telemetry.addLine( searchingDevice + " " + "Not Found/Attached");
+        else showDataExt();
     }
+    public abstract void showDataExt();
 }

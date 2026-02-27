@@ -34,6 +34,11 @@ public class ButtonWrapper extends DeviceUpdaterWrapper {
         else curState = State.Unready;
     }
 
+    @Override
+    protected void updateExt() {
+
+    }
+
 
     @Override
     public void showData() {
@@ -41,5 +46,10 @@ public class ButtonWrapper extends DeviceUpdaterWrapper {
         telemetry.addData("State", curState);
         telemetry.addData("Dist", button.getDistance(DistanceUnit.CM));
         telemetry.addLine();
+    }
+
+    @Override
+    public void showDataExt() {
+
     }
 }

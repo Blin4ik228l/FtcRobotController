@@ -12,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
@@ -23,7 +24,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-public class CameraClass extends UpdatableModule {
+public class CameraClass extends DeviceUpdaterWrapper {
     private WebcamName webcamName;
     private Position cameraPosition;
     private YawPitchRollAngles cameraOrientation;
@@ -115,7 +116,7 @@ public class CameraClass extends UpdatableModule {
     public double cameraBearing;
     public int[] motif = new int[3];
     @Override
-    protected void update(){
+    protected void updateExt() {
         switch (generalLogic){
             case Check_camera_state:
                 if (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING) {
@@ -197,7 +198,8 @@ public class CameraClass extends UpdatableModule {
                 visionPortal.stopStreaming();
                 break;
         }
-    }
+}
+
     public void setRandomizedArtifactFromId(int id) {
         int green = 1;
         int purple = 2;
@@ -229,12 +231,13 @@ public class CameraClass extends UpdatableModule {
             randomizeStatus = RandomizeStatus.Detected;
         }
     }
+
     @Override
-    public void showData(){
+    public void showDataExt() {
         sayModuleName();
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
-        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
+//        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
 //        telemetry.addData("onceSeen", onceSeen);
         telemetry.addData("Des", absoluteData.getDesisionMarg());
 //        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);

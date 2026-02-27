@@ -27,8 +27,8 @@ public class FlyWheelClass extends MotorModule {
         flyWheelOdometry = new FlyWheelOdometry(op);
         sayInited();
     }
-    private String motorRight = expansionHubDevices.getMotor(0);
-    private String motorLeft = expansionHubDevices.getMotor(1);
+    private String motorRight = controlHubDevices.getMotor(1);
+    private String motorLeft = controlHubDevices.getMotor(2);
 
     public double getTargetSpeed(double theta, double range){
         double alpha = Math.toRadians(theta);
@@ -49,11 +49,11 @@ public class FlyWheelClass extends MotorModule {
         motorsWrapper.get(motorRight).setPower(power);
         motorsWrapper.get(motorLeft).setPower(-power);
 
-        flyWheelOdometry.safeUpdate();
+        flyWheelOdometry.update();
     }
 
     @Override
-    protected void showData() {
+    public void showData() {
         motorsWrapper.showData();
     }
     public class FlyWheelOdometry extends UpdatableModule {
@@ -67,11 +67,11 @@ public class FlyWheelClass extends MotorModule {
         }
 
         @Override
-        protected void update() {
+        public void update() {
             selfMath.updateAll();
         }
         @Override
-        protected void showData() {
+        public void showData() {
 
         }
 

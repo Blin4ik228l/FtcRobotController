@@ -11,7 +11,7 @@ public class ControlHubDevices extends DevicesConfig{
         new Builder()
                 .setMotorNames("")
                 .setServoNames("")
-                .setI2CDeviceNames("")
+                .setI2CDeviceNames("color4", "color5")
                 .setDigDeviceNames("")
                 .setAnalogDeviceNames("");
     }

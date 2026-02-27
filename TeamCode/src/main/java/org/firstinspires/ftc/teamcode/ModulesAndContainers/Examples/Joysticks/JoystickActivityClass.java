@@ -290,6 +290,8 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
     @Override
     public void showData() {
         telemetry.addLine("=== JOYSTICK ===");
+        telemetry.addData("left Stick", "X %s Y%s", cosA, sinA);
+        telemetry.addData("right Stick", "X %s Y%s", cosB, sinB);
         telemetry.addData("Buttons", "A:%s B:%s X:%s Y:%s", buttonA, buttonB, buttonX, buttonY);
         telemetry.addData("Bumpers", "L:%s R:%s", bumperLeft, bumperRight);
         telemetry.addData("Triggers", "L:%s R:%s", triggerLeft, triggerRight);

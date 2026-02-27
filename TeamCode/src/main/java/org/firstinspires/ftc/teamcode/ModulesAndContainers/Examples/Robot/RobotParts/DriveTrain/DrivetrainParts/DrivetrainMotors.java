@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
@@ -22,7 +23,7 @@ public class DrivetrainMotors extends MotorModule {
         motorsWrapper
                 .add(motorBuilder.initialize(op, rightBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
-                .add( motorBuilder.initialize(op, rightFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(op, rightFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
                 .add(motorBuilder.initialize(op, leftFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(voltageSensorClass, 12.5, 1).get())
@@ -49,7 +50,7 @@ public class DrivetrainMotors extends MotorModule {
         motorsWrapper.get(leftFront).setPower(forwardPow - sidePow - anglePow);
         motorsWrapper.get(leftBack).setPower(forwardPow + sidePow - anglePow);
 
-        encoderClass.safeUpdate();
+        encoderClass.update();
     }
 
 
@@ -61,56 +62,33 @@ public class DrivetrainMotors extends MotorModule {
     }
 
     public class EncoderClass extends UpdatableModule {
+        private double COUNTS_PER_ENCODER_REV = 2000;
+        private double DRIVE_GEAR_REDUCTION = 1;
+        private double ENC_WHEEL_DIAM_CM = 4.8;
         public EncoderClass(OpMode op){
             super(op);
+            innerMath.setRadius(ENC_WHEEL_DIAM_CM / 2.0)
+                    .setCOUNTS_PER_ENCODER_REV(COUNTS_PER_ENCODER_REV)
+                    .setDRIVE_GEAR_REDUCTION(1);
             selfMath = new SelfMath();
             encodersBuffer = new OdometryBuffer();
             sayInited();
         }
         public OdometryBuffer encodersBuffer;
         private SelfMath selfMath;
-        private double COUNTS_PER_ENCODER_REV = 2000;
-        private double DRIVE_GEAR_REDUCTION = 1;
-        private double ENC_WHEEL_DIAM_CM = 4.8;
-        private double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
-                (ENC_WHEEL_DIAM_CM * Math.PI);
-
-        private boolean switcher = false;//Переключение системы исчисления
-
-        private double ticksToCm(double ticks){
-            return ticks / COUNTS_PER_CM;
-        }
-        public double getCurentPos(String motorName){
-            DcMotor motor = motorsWrapper.get(motorName).getMotor();
-
-            if(motor == null) return 0;
-            else {
-                double pos = -motorsWrapper.get(motorName).getMotor().getCurrentPosition();
-                return switcher ? pos : ticksToCm(pos);
-            }
-        }
-        public double getCurrentVelocity(String motorName){
-            DcMotorEx motorEx = motorsWrapper.get(motorName).getMotorEx();
-
-            if(motorEx == null) return 0;
-            else {
-                double vel = -motorEx.getVelocity();
-                return  switcher ? vel : ticksToCm(vel);
-            }
-        }
 
         @Override
-        protected void update() {
+        public void update() {
             selfMath.calculateAll();
         }
 
         @Override
         public void showData() {
-            telemetry.addLine("===ENCODERS===");
-            telemetry.addData("Left pos", getCurentPos(encLeft));
-            telemetry.addData("Mid pos", getCurentPos(encMid));
-            telemetry.addData("Right pos", getCurentPos(encRight));
-            telemetry.addData("Test", getCurrentVelocity(testEnc));
+            sayModuleName();
+            telemetry.addData("Left pos", innerMath.getCurentPos(encLeft, Units.Cm));
+            telemetry.addData("Mid pos", innerMath.getCurentPos(encMid, Units.Cm));
+            telemetry.addData("Right pos", innerMath.getCurentPos(encRight, Units.Cm));
+            telemetry.addData("Test", innerMath.getCurentPos(testEnc, Units.Cm));
             telemetry.addLine();
         }
         public class SelfMath {
@@ -153,9 +131,9 @@ public class DrivetrainMotors extends MotorModule {
 
 
             private void updatePosEncoders() {//Обновляем позицию с датчиков
-                encCurPositions[0] = getCurentPos(encLeft);
-                encCurPositions[1] = getCurentPos(encMid);
-                encCurPositions[2] = getCurentPos(encRight);
+                encCurPositions[0] = innerMath.getCurentPos(encLeft, Units.Cm);
+                encCurPositions[1] = innerMath.getCurentPos(encMid, Units.Cm);
+                encCurPositions[2] = innerMath.getCurentPos(encRight, Units.Cm);
 
                 currentTime[0] = runTime.milliseconds();// Время в которое мы фиксируем показания с датчиков
             }
@@ -176,9 +154,9 @@ public class DrivetrainMotors extends MotorModule {
 
             private void updateVelEncoders() {//Обновляем скорость с датчиков
                 double filtr = 0.3;
-                fltrdVelLeft = filtr * getCurrentVelocity("encLeft") + (1 - filtr) * fltrdVelLeft;
-                fltrdVelMid = filtr * getCurrentVelocity("encMid") + (1 - filtr) * fltrdVelMid;
-                fltrdVelRight = filtr * getCurrentVelocity("encRight") + (1 - filtr) * fltrdVelRight;
+                fltrdVelLeft = filtr * innerMath.getCurrentVelocity(encLeft, Units.Cm) + (1 - filtr) * fltrdVelLeft;
+                fltrdVelMid = filtr * innerMath.getCurrentVelocity(encMid, Units.Cm) + (1 - filtr) * fltrdVelMid;
+                fltrdVelRight = filtr * innerMath.getCurrentVelocity(encRight, Units.Cm) + (1 - filtr) * fltrdVelRight;
 
                 encCurVelocities[0] = fltrdVelLeft;
                 encCurVelocities[1] = fltrdVelMid;

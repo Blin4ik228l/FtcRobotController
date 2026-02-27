@@ -136,15 +136,19 @@ public abstract class DevicesConfig {
                 switch (count){
                     case 0:
                         motor0 = name;
+                        encoder0 = motor0;
                         break;
                     case 1:
                         motor1 = name;
+                        encoder1 = motor1;
                         break;
                     case 2:
                         motor2 = name;
+                        encoder2 = motor2;
                         break;
                     case 3:
                         motor3 = name;
+                        encoder3 = motor3;
                         break;
                 }
                 count++;

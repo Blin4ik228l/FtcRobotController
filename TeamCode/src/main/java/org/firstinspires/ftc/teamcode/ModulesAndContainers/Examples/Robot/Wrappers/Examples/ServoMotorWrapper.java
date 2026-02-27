@@ -49,15 +49,12 @@ public class ServoMotorWrapper extends DeviceWrapper {
     }
 
     @Override
-    public void showData() {
-
-        if(!isInitialized) telemetry.addLine("servo" + " " + searchingDevice + "Not Found/Attached");
-        else {
-            telemetry.addLine("===" + servo.getDeviceName() + "===");
-            telemetry.addData("Position", servo.getPosition());
-        }
+    public void showDataExt() {
+        telemetry.addLine("===" + searchingDevice + "===");
+        telemetry.addData("Position", servo.getPosition());
         telemetry.addLine();
     }
+
     public static class Builder extends HardwareBuilder {
         public ServoMotorWrapper servoMotorWrapper;
         @Override

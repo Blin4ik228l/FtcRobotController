@@ -9,7 +9,7 @@ public class ExpansionHubDevices extends DevicesConfig{
         new Builder()
                 .setMotorNames("rightBack", "rightFront", "leftFront", "leftBack")
                 .setServoNames("")
-                .setI2CDeviceNames("")
+                .setI2CDeviceNames("color0", "color1", "color2", "color3")
                 .setDigDeviceNames("")
                 .setAnalogDeviceNames("");
     }

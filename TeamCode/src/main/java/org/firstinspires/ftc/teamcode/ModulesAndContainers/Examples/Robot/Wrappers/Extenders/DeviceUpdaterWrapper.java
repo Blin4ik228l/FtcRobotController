@@ -4,23 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 
-public abstract class DeviceUpdaterWrapper extends UpdatableModule {
-    protected String deviceName;
+public abstract class DeviceUpdaterWrapper extends DeviceWrapper {
     public DeviceUpdaterWrapper(OpMode op) {
         super(op);
     }
-    @Override
-    public void sayInited() {
-        if (!isInitialized) telemetry.addLine("Bad initialize bc " + " " + deviceName + " " + " not found/attached");
-        else telemetry.addLine("scfly inited" + " " + deviceName);
-    }
-    @Override
+
     public void update() {
-
+        if(!isInitialized) return;
+        else updateExt();
     }
-
-    @Override
-    public void showData() {
-
-    }
+    protected abstract void updateExt();
 }

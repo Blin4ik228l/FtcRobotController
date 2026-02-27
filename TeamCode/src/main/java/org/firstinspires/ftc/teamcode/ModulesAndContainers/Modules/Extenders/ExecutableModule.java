@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 
 public abstract class ExecutableModule extends Module {
+    public boolean isInterrupted;
     public ProgramState programState = ProgramState.Waiting_For_Start;
     protected ArrayList<Builder> builderPrograms;
 
@@ -23,7 +24,7 @@ public abstract class ExecutableModule extends Module {
 
         return programState1;
     }
-    protected abstract ProgramState execute();
+    public abstract ProgramState execute();
     public ExecutableModule(OpMode op, String name){
         super(op);
         this.name = name;

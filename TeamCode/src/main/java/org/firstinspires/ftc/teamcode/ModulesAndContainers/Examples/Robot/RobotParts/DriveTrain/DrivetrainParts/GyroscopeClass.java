@@ -48,7 +48,7 @@ public class GyroscopeClass extends UpdatableModule {
 
 
     @Override
-    protected void update() {
+    public void update() {
         selfMath.calculateAll();
     }
 

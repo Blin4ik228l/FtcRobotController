@@ -36,16 +36,16 @@ public class RobotClass extends UpdatableModule{
     }
 
     @Override
-    protected void update() {
-        voltageSensor.safeUpdate();
-        odometry.safeUpdate();
+    public void update() {
+        voltageSensor.update();
+        odometry.update();
 
         hz = 1 / updateTime.seconds();
         updateTime.reset();
     }
 
     @Override
-    protected void showData(){
+    public void showData(){
         telemetry.addLine("===Robot===");
         telemetry.addData("Update time/hz", hz);
         voltageSensor.showData();

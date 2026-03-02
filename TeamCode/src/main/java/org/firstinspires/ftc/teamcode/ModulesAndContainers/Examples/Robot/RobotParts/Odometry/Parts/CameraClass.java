@@ -235,7 +235,6 @@ public class CameraClass extends UpdatableModule {
 
     @Override
     public void showDataExt() {
-        sayModuleName();
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
 //        telemetry.addData("Camera state", visionPortal.getCameraState().toString());

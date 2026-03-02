@@ -98,6 +98,11 @@ public class PIDF extends Module {
     }
 
     @Override
+    public void showData() {
+        showDataExt();
+    }
+
+    @Override
     protected void showDataExt() {
         telemetry.addLine(String.format("P %s I %s D %s F %s", P, I, D, F));
         telemetry.addLine(String.format("kP %s kI %s kD %s kF %s", kP, kI, kD, kF));

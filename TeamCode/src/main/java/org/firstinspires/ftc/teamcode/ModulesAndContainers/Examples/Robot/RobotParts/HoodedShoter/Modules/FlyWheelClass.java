@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.InnerMath;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
@@ -27,7 +28,7 @@ public class FlyWheelClass extends ExecutingModule {
 
 //        motorsWrapper.get(motorLeft).getMotorConfigurationType().setMaxRPM(1111);
 
-        flyWheelOdometry = new FlyWheelOdometry(mainFile);
+        flyWheelOdometry = new FlyWheelOdometry(mainFile, motorsCollector);
         sayCreated();
     }
     private String motorRight = controlHubDevices.getMotor(1);
@@ -64,8 +65,9 @@ public class FlyWheelClass extends ExecutingModule {
     public class FlyWheelOdometry extends UpdatingModule {
         public OdometryData odometryData;
         public SelfMath selfMath;
-        public FlyWheelOdometry(MainFile mainFile){
+        public FlyWheelOdometry(MainFile mainFile, MotorWrapper.InnerCollector motors){
             super(mainFile);
+            motorsCollector = motors;
             odometryData = new OdometryData();
             selfMath = new SelfMath();
             sayCreated();

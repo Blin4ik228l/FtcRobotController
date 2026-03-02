@@ -146,7 +146,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         hoodedShoter.flyWheelClass.execute(flyWheelPow);
         hoodedShoter.collector.execute(collectorPow);
 
-        hoodedShoter.update();
+//        hoodedShoter.update();
     }
 
     @Override

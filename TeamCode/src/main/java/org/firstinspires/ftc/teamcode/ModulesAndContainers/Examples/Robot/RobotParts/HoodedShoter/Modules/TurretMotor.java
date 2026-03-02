@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
@@ -28,7 +29,7 @@ public class TurretMotor extends ExecutingModule {
         motorsCollector.add(motorBuilder.initialize(mainFile, turretMotor).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                 .setFields(12.5, 1.0).get());
 
-        turretOdometry = new TurretOdometry(mainFile);
+        turretOdometry = new TurretOdometry(mainFile, motorsCollector);
         sayCreated();
     }
 
@@ -45,8 +46,10 @@ public class TurretMotor extends ExecutingModule {
         turretOdometry.showData();
     }
     public class TurretOdometry extends UpdatingModule {
-        public TurretOdometry(MainFile mainFile) {
+        public TurretOdometry(MainFile mainFile, MotorWrapper.InnerCollector motors) {
             super(mainFile);
+            motorsCollector = motors;
+
             turretBuffer = new OdometryBuffer();
             selfMath = new SelfMath();
 

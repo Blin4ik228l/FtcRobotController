@@ -50,7 +50,6 @@ public class DigitalCellsClass extends UpdatingModule {
     protected void showDataExt() {
         telemetry.addData("Count", artifactCount);
         cells.showAll();
-        telemetry.addLine();
     }
 
 

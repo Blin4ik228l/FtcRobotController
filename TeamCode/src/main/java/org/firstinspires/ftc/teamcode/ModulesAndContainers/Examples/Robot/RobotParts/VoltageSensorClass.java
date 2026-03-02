@@ -56,7 +56,6 @@ public class VoltageSensorClass extends UpdatableModule {
 
     @Override
     public void showDataExt() {
-        sayModuleName();
         telemetry.addData("H size", hardwareMap.size());
         telemetry.addData("Vol", curVoltage);
         telemetry.addData("Max vol", MAX_VOL);

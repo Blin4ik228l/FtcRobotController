@@ -13,7 +13,9 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree.DeviceManager;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
@@ -26,16 +28,16 @@ public class DrivetrainMotors extends ExecutingModule {
 
         createMotorWrapperUtils();
         motorsCollector
-                .add(motorBuilder.initialize(mainFile, rightBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(mainFile, rightBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields( 12.5, 1.0).get())
-                .add(motorBuilder.initialize(mainFile, rightFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(mainFile, rightFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields( 12.5, 1.0).get())
-                .add(motorBuilder.initialize(mainFile, leftFront).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(mainFile, leftFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields( 12.5, 1.0).get())
-                .add(motorBuilder.initialize(mainFile, leftBack).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .add(motorBuilder.initialize(mainFile, leftBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(12.5, 1.0).get());
 
-        encoderClass = new EncoderClass2(mainFile);
+        encoderClass = new EncoderClass2(mainFile, motorsCollector);
         sayCreated();
     }
 
@@ -60,12 +62,12 @@ public class DrivetrainMotors extends ExecutingModule {
         double sidePow = args[1];
         double anglePow = args[2];
 
-//        motorsCollector.get(rightBack).execute(forwardPow - sidePow + anglePow);
-//        motorsCollector.get(rightFront).execute(forwardPow + sidePow + anglePow);
-//        motorsCollector.get(leftFront).execute(forwardPow - sidePow - anglePow);
-//        motorsCollector.get(leftBack).execute(forwardPow + sidePow - anglePow);
-//
-//        encoderClass.update();
+        motorsCollector.get(rightBack).execute(forwardPow - sidePow + anglePow);
+        motorsCollector.get(rightFront).execute(forwardPow + sidePow + anglePow);
+        motorsCollector.get(leftFront).execute(forwardPow - sidePow - anglePow);
+        motorsCollector.get(leftBack).execute(forwardPow + sidePow - anglePow);
+
+        encoderClass.update();
     }
     public class EncoderClass2 extends UpdatingModule {
         private double COUNTS_PER_ENCODER_REV = 2000;
@@ -73,13 +75,15 @@ public class DrivetrainMotors extends ExecutingModule {
         private double ENC_WHEEL_DIAM_CM = 4.8;
         public OdometryBuffer encodersBuffer;
         private SelfMath selfMath;
-        public EncoderClass2(MainFile mainFile) {
+
+        public EncoderClass2(MainFile mainFile, MotorWrapper.InnerCollector motors) {
             super(mainFile);
+            motorsCollector = motors;
             selfMath = new SelfMath();
             encodersBuffer = new OdometryBuffer();
             sayCreated();
         }
-
+        public InnerMath test = new InnerMath().setCOUNTS_PER_ENCODER_REV(384.5).setRadius(5).setDRIVE_GEAR_REDUCTION(1).calculateCountsPerCm();
         @Override
         protected void updateExt() {
             selfMath.calculateAll();
@@ -88,9 +92,16 @@ public class DrivetrainMotors extends ExecutingModule {
         @Override
         protected void showDataExt() {
             telemetry.addData("Left pos", selfMath.encCurPositions[0]);
+            telemetry.addData("Left speed", selfMath.encCurVelocities[0]);
+            telemetry.addData("Mid speed", selfMath.encCurVelocities[1]);
             telemetry.addData("Mid pos", selfMath.encCurPositions[1]);
+            telemetry.addData("Right speed", selfMath.encCurVelocities[2]);
             telemetry.addData("Right pos", selfMath.encCurPositions[2]);
-            telemetry.addData("Test", selfMath.encCurPositions[3]);
+
+
+
+            telemetry.addData("Test pos", test.getCurentPos(motorsCollector.get(testEnc), Units.Cm));
+            telemetry.addData("Test speed", test.getCurrentVelocity(motorsCollector.get(testEnc), Units.Cm));
         }
         public class SelfMath extends InnerMath {
             private OdometryData rawData;
@@ -100,7 +111,10 @@ public class DrivetrainMotors extends ExecutingModule {
             public double []currentTime, deltaTimes, oldTimes;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
             private double fltrdVelLeft, fltrdVelMid, fltrdVelRight;
             public SelfMath(){
-                setRadius(ENC_WHEEL_DIAM_CM / 2.0).setCOUNTS_PER_ENCODER_REV(COUNTS_PER_ENCODER_REV).setDRIVE_GEAR_REDUCTION(DRIVE_GEAR_REDUCTION);
+                setRadius(ENC_WHEEL_DIAM_CM / 2.0)
+                        .setCOUNTS_PER_ENCODER_REV(COUNTS_PER_ENCODER_REV)
+                        .setDRIVE_GEAR_REDUCTION(DRIVE_GEAR_REDUCTION)
+                        .calculateCountsPerCm();
 
                 currentTime = new double[2];
                 oldTimes = new double[2];                                         // Предыдущее время

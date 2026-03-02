@@ -37,7 +37,7 @@ public class ColorSensorWrapper extends UpdatableModule {
         super(mainFile, searchingDevice);
 
         try {
-            normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, searchingDevice);
+            normalizedColorSensor = amsInit();
 
             if(normalizedColorSensor instanceof RevColorSensorV3){
                 distanceSensor = ((DistanceSensor) normalizedColorSensor);
@@ -138,10 +138,13 @@ public class ColorSensorWrapper extends UpdatableModule {
 
     @Override
     public void showDataExt() {
-        telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
-        //Для отладки
-        telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
-        telemetry.addData("Distance", distance);
+        if(!isInitialized) sayBadInit();
+        else {
+            telemetry.addData("Founded color", getColorFromNumber(foundedColor));
+            //Для отладки
+            telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
+            telemetry.addData("Distance", distance);
+        }
     }
 
     public static class InnerBuilder extends Builder<ColorSensorWrapper> {

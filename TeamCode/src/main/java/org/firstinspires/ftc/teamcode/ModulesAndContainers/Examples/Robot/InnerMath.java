@@ -3,17 +3,17 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 
-public abstract class InnerMath{
+public class InnerMath{
     private double COUNTS_PER_ENCODER_REV = 1;
     private double DRIVE_GEAR_REDUCTION = 1;
     private double radius = 1;
-    private double COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
-            (radius * 2 * Math.PI);
+    private double COUNTS_PER_CM = 1;
 
     public InnerMath setCOUNTS_PER_ENCODER_REV(double COUNTS_PER_ENCODER_REV) {
         this.COUNTS_PER_ENCODER_REV = COUNTS_PER_ENCODER_REV;
@@ -27,6 +27,11 @@ public abstract class InnerMath{
 
     public InnerMath setRadius(double radius) {
         this.radius = radius;
+        return this;
+    }
+    public InnerMath calculateCountsPerCm(){
+        COUNTS_PER_CM = (COUNTS_PER_ENCODER_REV * DRIVE_GEAR_REDUCTION)/
+                (radius * 2 * Math.PI);
         return this;
     }
     private double ticksToCm(double ticks){

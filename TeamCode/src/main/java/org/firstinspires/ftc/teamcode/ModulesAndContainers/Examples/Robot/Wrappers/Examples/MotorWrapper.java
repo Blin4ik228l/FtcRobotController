@@ -19,6 +19,7 @@ public class MotorWrapper extends ExecutableModule {
     private MotorConfigurationType motorConfigurationType;
     private static VoltageSensorClass voltageSensorClass;
     private ElapsedTime signalTime;
+
     public MotorWrapper(MainFile mainFile, String searchingDevice) {
         super(mainFile, searchingDevice);
 
@@ -74,7 +75,10 @@ public class MotorWrapper extends ExecutableModule {
 
     @Override
     public void showDataExt() {
-        telemetry.addData("Power", getMotor().getPower());
+        if (!isInitialized) sayBadInit();
+        else {
+            telemetry.addData("Power", getMotor().getPower());
+        }
     }
 
     public static class InnerBuilder extends Builder<MotorWrapper> {

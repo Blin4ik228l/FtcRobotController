@@ -17,6 +17,7 @@ public abstract class DeviceManager extends Module {
 
     public DeviceManager(MainFile mainFile, String searchingDevice) {
         super(mainFile);
+        this.hardwareMap = mainFile.op.hardwareMap;
         this.searchingDevice = searchingDevice;
     }
 
@@ -29,12 +30,10 @@ public abstract class DeviceManager extends Module {
     protected void sayModuleName() {
         telemetry.addLine("==="+ searchingDevice +"===");
     }
-    @Override
-    public void showData() {
-        if(!isInitialized) telemetry.addLine( searchingDevice + " " + "Not Found/Attached");
-        else showDataExt();
-    }
 
+    public void sayBadInit(){
+        telemetry.addLine("Not Found/Attached");
+    }
     public abstract static class Builder<T> extends HardwareBuilder {
         protected T wrapper;
         @Override

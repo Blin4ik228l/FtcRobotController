@@ -30,6 +30,5 @@ public class MecanumDrivetrain extends UpdatingModule {
     @Override
     protected void showDataExt() {
         motors.showData();
-        telemetry.addLine();
     }
 }

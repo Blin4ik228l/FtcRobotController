@@ -22,8 +22,6 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
           telemetry.addLine("Now initialize" +  " " + this.getClass().getSimpleName().toUpperCase() + " " + "module");
      }
 
-     protected abstract void sayModuleName();
-
      protected void sayCreated(){
           telemetry.addLine(this.getClass().getSimpleName().toUpperCase() + " " + "obgect created");
      }
@@ -31,9 +29,11 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
      public void increaseIteration() {
          iterationCount++;
      }
+
+     protected abstract void sayModuleName();
+     protected abstract void showDataExt();
      public void showData(){
           sayModuleName();
           showDataExt();
      };
-     protected abstract void showDataExt();
 }

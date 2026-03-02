@@ -46,9 +46,11 @@ public class ServoMotorWrapper extends ExecutableModule {
 
     @Override
     public void showDataExt() {
-        telemetry.addLine("===" + searchingDevice + "===");
-        telemetry.addData("Position", servo.getPosition());
-        telemetry.addLine();
+        if (!isInitialized) sayBadInit();
+        else {
+            telemetry.addData("Position", servo.getPosition());
+            telemetry.addLine();
+        }
     }
 
     public static class InnerBuilder extends Builder<ServoMotorWrapper>{

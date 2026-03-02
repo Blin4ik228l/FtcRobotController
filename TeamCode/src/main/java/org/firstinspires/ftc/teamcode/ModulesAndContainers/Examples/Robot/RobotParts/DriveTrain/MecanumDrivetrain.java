@@ -2,31 +2,33 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
-public class MecanumDrivetrain extends UpdatableModule {
+public class MecanumDrivetrain extends UpdatingModule {
     //Телега робота(моторы + колёса) с энкодерами и гироскопом .
     public DrivetrainMotors motors;
     public GyroscopeClass gyro;
-    public MecanumDrivetrain(OpMode op, VoltageSensorClass voltageSensorClass){
-        super(op);
+    public MecanumDrivetrain(MainFile mainFile){
+        super(mainFile);
 
-        gyro = new GyroscopeClass(op);
-        motors = new DrivetrainMotors(op, voltageSensorClass);
+        gyro = new GyroscopeClass(mainFile, controlHubDevices.gyroskope);
+        motors = new DrivetrainMotors(mainFile);
 
-        sayInited();
+        sayCreated();
     }
+
     @Override
-    public void update() {
+    protected void updateExt() {
         gyro.update();
     }
 
     @Override
-    public void showData() {
-        sayModuleName();
+    protected void showDataExt() {
         motors.showData();
         telemetry.addLine();
     }

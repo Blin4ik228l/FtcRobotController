@@ -7,14 +7,17 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl1.SemiAutoPlayerClass1;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.ExecutorModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
-import org.opencv.video.KalmanFilter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainSystem extends UpdatableModule {
+public class MainSystem extends ExecutorModule {
     protected GeneralInformation generalInformation;
     protected SemiAutoPlayerClass1 semiAutoPlayerClass1;
     protected AutoPlayerClass2 autoPlayerClass2;
@@ -34,15 +37,15 @@ public class MainSystem extends UpdatableModule {
     protected FileSystem fileSystem;
     protected ElapsedTime matchTimer;
     public ArrayList<Thread> threads;
-    public MainSystem(GeneralInformation generalInformation, OpMode op){
-        super(op);
-        this.generalInformation = generalInformation;
-        this.robotClass = new RobotClass(op);
+    public MainSystem(MainFile mainFile){
+        super(mainFile);
+        this.generalInformation = mainFile.generalInformation;
+        this.robotClass = new RobotClass(mainFile);
 
-        this.semiAutoPlayerClass1 = new SemiAutoPlayerClass1(generalInformation, robotClass, op);
-        this.autoPlayerClass2 = new AutoPlayerClass2(generalInformation, robotClass, op);
+        this.semiAutoPlayerClass1 = new SemiAutoPlayerClass1(mainFile, robotClass);
+        this.autoPlayerClass2 = new AutoPlayerClass2(mainFile, robotClass);
 
-        this.fileSystem = new FileSystem(op);
+        this.fileSystem = new FileSystem(mainFile);
 
         this.matchTimer = new ElapsedTime();
 
@@ -56,6 +59,25 @@ public class MainSystem extends UpdatableModule {
                 break;
         }
     }
+
+    @Override
+    protected void executeExt() {
+        switch (generalInformation.programName) {
+            case TeleOp:
+                if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
+                    generalInformation.gameTactick = GameTactick.Parking;
+                }
+                executeTeleOp();
+//                fileSystem.update();
+                break;
+            default:
+                if (AUTO_SECONDS - matchTimer.seconds() < 5) {
+                }
+                executeAuto();
+                break;
+        }
+    }
+
     public void startExecuting(){
         createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2).createRunnable(robotClass);
 
@@ -65,8 +87,8 @@ public class MainSystem extends UpdatableModule {
 
         matchTimer.reset();
     }
-    public MainSystem createRunnable(Module module){
-        int targetFrequencyHz = 50;
+    public MainSystem createRunnable(ExecutorModule executorModule){
+        int targetFrequencyHz = 65;
         long targetPeriodNs = 1_000_000_000 / targetFrequencyHz;
         long targetSleepMs = targetPeriodNs / 1_000_000;
 
@@ -77,8 +99,7 @@ public class MainSystem extends UpdatableModule {
                 {
                     long start = System.nanoTime();
 
-                    if(module instanceof UpdatableModule) ((UpdatableModule) module).update();
-                    else if(module instanceof ExecutableModule)((ExecutableModule) module).execute();
+                    executorModule.execute();
 
                     long elapsed = System.nanoTime() - start;
                     long sleepTime = targetPeriodNs - elapsed;
@@ -115,21 +136,6 @@ public class MainSystem extends UpdatableModule {
 
     }
 
-    public void update() {
-        switch (generalInformation.programName){
-            case TeleOp:
-                if(TELEOP_SECONDS - matchTimer.seconds() < 5){
-                    generalInformation.gameTactick = GameTactick.Parking;
-                }
-                executeTeleOp();
-//                fileSystem.update();
-                break;
-            default:
-                if(AUTO_SECONDS - matchTimer.seconds() < 5){}
-                executeAuto();
-               break;
-        }
-    }
     public void executeTeleOp(){
         boolean isPlayer1Finished = false;
         boolean isPlayer2Finished = false;
@@ -256,7 +262,7 @@ public class MainSystem extends UpdatableModule {
     }
 
     @Override
-    public void showData() {
+    protected void showDataExt() {
         telemetry.addLine(generalInformation.telemetryPages.toString());
         switch (generalInformation.telemetryPages){
             case Show_all:
@@ -273,16 +279,23 @@ public class MainSystem extends UpdatableModule {
             case Show_robot:
                 robotClass.showData();
                 break;
+            case Show_modules_freq:
+                semiAutoPlayerClass1.showUpdateFreq();
+                autoPlayerClass2.showUpdateFreq();
+                robotClass.showUpdateFreq();
+                break;
         }
     }
 
-    public class FileSystem extends UpdatableModule {
+
+
+    public class FileSystem extends UpdatingModule {
         //Данному классу требуется доступ ко всем объектам программы
         private File odometryData, anotherData;
         private List<String> logBuffer;
         private Date date;
-        public FileSystem(OpMode op){
-            super(op);
+        public FileSystem(MainFile mainFile){
+            super(mainFile);
             odometryData = AppUtil.getInstance().getSettingsFile("OdometryData.txt");
             anotherData = AppUtil.getInstance().getSettingsFile("AnotherData.txt");
 
@@ -291,7 +304,7 @@ public class MainSystem extends UpdatableModule {
         }
 
         @Override
-        public void update() {
+        protected void updateExt() {
             logBuffer.add(String.format("%.2f %.2f %.2f %.2f %s %n", Math.abs(autoPlayerClass2.trackEmulator.targHeadVel * RAD), Math.abs(robotClass.odometry.odometryBufferForTuret.read().getHeadVel() * RAD),
                     autoPlayerClass2.trackEmulator.targHead * RAD, robotClass.odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD, matchTimer.seconds()));
         }
@@ -353,6 +366,11 @@ public class MainSystem extends UpdatableModule {
         }
         @Override
         public void showData() {
+
+        }
+
+        @Override
+        protected void showDataExt() {
 
         }
     }

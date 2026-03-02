@@ -5,14 +5,18 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 
 public abstract class LinearOpModeModernized extends LinearOpMode {
     public GeneralInformation generalInformation;
     public MainSystem mainSystem;
+    public MainFile mainFile;
     @Override
     public void runOpMode() throws InterruptedException {
         initialization();
-        mainSystem = new MainSystem(generalInformation, this);
+
+        mainFile = new MainFile(this, generalInformation);
+        mainSystem = new MainSystem(mainFile);
         waitForStart();
         run();
     }

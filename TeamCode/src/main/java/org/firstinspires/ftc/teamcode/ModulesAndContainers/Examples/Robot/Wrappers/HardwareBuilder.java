@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrapp
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+
 public abstract class HardwareBuilder <T> {
-    public abstract  T initialize(OpMode op, String deviceName);
+    public abstract  T initialize(MainFile mainFile, String searchingDevice);
 }

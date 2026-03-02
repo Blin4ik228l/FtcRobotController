@@ -3,15 +3,16 @@ package org.firstinspires.Trees;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 import org.firstinspires.TaskAndArgs.Task;
 import org.firstinspires.Trees.BehaviorTree.Root;
 import org.firstinspires.Trees.BehaviorTree.TaskNode;
 
 public class AutomaticLogicTree extends ExecutableModule {
-    public AutomaticLogicTree(HoodedShoter hoodedShoter, DriveTree driveTree, OpMode op){
-        super(op,"Auto");
+    public AutomaticLogicTree(HoodedShoter hoodedShoter, DriveTree driveTree, MainFile mainFile){
+        super(mainFile,"Auto");
 
         mainRoot = new Root();
 
@@ -71,13 +72,19 @@ public class AutomaticLogicTree extends ExecutableModule {
         mainRoot.tick();
     }
 
+
     @Override
-    public ProgramState execute() {
-        return null;
+    public void showDataExt() {
+
     }
 
     @Override
     public void showData() {
+
+    }
+
+    @Override
+    protected void executeExt(Double... args) {
 
     }
 }

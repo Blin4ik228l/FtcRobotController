@@ -4,5 +4,6 @@ public enum TelemetryPages {
     Show_all,
     Show_pl1,
     Show_pl2,
-    Show_robot
+    Show_robot,
+    Show_modules_freq
 }

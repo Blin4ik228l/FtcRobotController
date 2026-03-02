@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.CameraClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
@@ -9,13 +8,14 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.TurretMotor;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
-public class Odometry extends UpdatableModule{
+public class Odometry extends UpdatingModule {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
     public CameraClass cameraClass;
-    private DrivetrainMotors.EncoderClass encoders;
+    private DrivetrainMotors.EncoderClass2 encoders;
     private GyroscopeClass gyro;
     private TurretMotor.TurretOdometry turretOdometry;
 
@@ -26,30 +26,30 @@ public class Odometry extends UpdatableModule{
 
     public OdometryBuffer odometryBufferForTuret;
 
-    public Odometry(OpMode op, MecanumDrivetrain drivetrain, HoodedShoter hoodedShoter){
-        super(op);
+    public Odometry(MainFile mainFile, MecanumDrivetrain drivetrain, HoodedShoter hoodedShoter){
+        super(mainFile);
         outPutDataForRobot = new OdometryData();
         odometryBufferForRobot = new OdometryBuffer();
 
         outPutDataForTuret = new OdometryData();
         odometryBufferForTuret = new OdometryBuffer();
 
-        cameraClass = new CameraClass(op);
+        cameraClass = new CameraClass(mainFile, controlHubDevices.webcam1);
 
         encoders = drivetrain.motors.encoderClass;
         gyro = drivetrain.gyro;
         turretOdometry = hoodedShoter.turretMotor.turretOdometry;
 
-        sayInited();
+        sayCreated();
     }
     public void setStartPos(Position2D position2D){
         outPutDataForTuret.setPosition(position2D);
     }
 
     @Override
-    public void update(){
+    protected void updateExt() {
         cameraClass.update();
-        turretOdometry.update();
+//        turretOdometry.update();
         gyro.update();
 
         OdometryBuffer encodersBuf = encoders.encodersBuffer;
@@ -104,10 +104,8 @@ public class Odometry extends UpdatableModule{
         odometryBufferForTuret.beginWrite().set(outPutDataForTuret);
         odometryBufferForTuret.endWrite();
     }
-
     @Override
-    public void showData(){
-        sayModuleName();
+    protected void showDataExt() {
         telemetry.addLine("RobotData");
         telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", odometryBufferForRobot.read().getPosition().getX(), odometryBufferForRobot.read().getPosition().getY(), odometryBufferForRobot.read().getPosition().getHeading() * RAD);
         telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s, Len: %.2f", odometryBufferForRobot.read().getVelocity().x, odometryBufferForRobot.read().getVelocity().y, odometryBufferForRobot.read().getVelocity().length());
@@ -115,11 +113,7 @@ public class Odometry extends UpdatableModule{
         telemetry.addLine("TuretData");
         telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", odometryBufferForTuret.read().getPosition().getX(), odometryBufferForTuret.read().getPosition().getY(), odometryBufferForTuret.read().getPosition().getHeading() * RAD);
         telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", odometryBufferForTuret.read().getHeadVel() * RAD, odometryBufferForTuret.read().getHeadAccel() * RAD);
-        telemetry.addLine();
-
         gyro.showData();
         cameraClass.showData();
     }
-
-
 }

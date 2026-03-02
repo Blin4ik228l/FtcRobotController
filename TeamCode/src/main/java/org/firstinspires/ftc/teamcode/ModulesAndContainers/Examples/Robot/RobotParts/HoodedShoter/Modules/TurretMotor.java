@@ -2,78 +2,79 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.InnerMath;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MotorModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
-public class TurretMotor extends MotorModule {
+public class TurretMotor extends ExecutingModule {
     public String turretMotor = controlHubDevices.getMotor(0);
     public TurretOdometry turretOdometry;
-
     public boolean isInterrupted;
 
-    public TurretMotor(OpMode op, VoltageSensorClass voltageSensorClass) {
-        super(op);
-        motorWrapper = motorBuilder.initialize(op, turretMotor).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(voltageSensorClass, 12.5, 1).get();
+    public TurretMotor(MainFile mainFile) {
+        super(mainFile);
 
-        turretOdometry = new TurretOdometry(op);
-        sayInited();
+        createMotorWrapperUtils();
+        motorsCollector.add(motorBuilder.initialize(mainFile, turretMotor).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .setFields(12.5, 1.0).get());
+
+        turretOdometry = new TurretOdometry(mainFile);
+        sayCreated();
     }
-    public void setPower(double power){
-        motorWrapper.setPower(power);
-    }
+
     @Override
-    public void showData() {
-        sayModuleName();
-        motorsWrapper.showData();
+    protected void executeExt(Double... args) {
+        motorsCollector.get(turretMotor).execute(args);
+
+        turretOdometry.update();
+    }
+
+    @Override
+    protected void showDataExt() {
+        motorsCollector.showData();
         turretOdometry.showData();
     }
-    public class TurretOdometry extends UpdatableModule {
-        public TurretOdometry(OpMode op) {
-            super(op);
-            innerMath
-                    .setRadius(14.8)
-                    .setDRIVE_GEAR_REDUCTION(1)
-                    .setCOUNTS_PER_ENCODER_REV(200);
-
+    public class TurretOdometry extends UpdatingModule {
+        public TurretOdometry(MainFile mainFile) {
+            super(mainFile);
             turretBuffer = new OdometryBuffer();
             selfMath = new SelfMath();
 
-            sayInited();
+            sayCreated();
         }
         public OdometryBuffer turretBuffer;
-        public boolean switcher = false;
         public double localHead;
         private SelfMath selfMath;
 
         @Override
-        public void update() {
+        protected void updateExt() {
             selfMath.calculateAll();
         }
 
         @Override
-        public void showData() {
-            if (!isInitialized){telemetry.addLine("Need motor to be init");}
-            else telemetry.addData("TuretData", "head  %s vel %s", localHead , turretBuffer.read().getHeadVel() * RAD);
+        protected void showDataExt() {
+            telemetry.addData("TuretData", "head  %s vel %s", localHead , turretBuffer.read().getHeadVel() * RAD);
         }
 
-        public class SelfMath{
+        public class SelfMath extends InnerMath {
             private OdometryData rawData;
             private double filteredTurretVelocity;
             private double deltaHead;
             private double lastMotorPos, curMotorPos, deltaPos;
             private ElapsedTime runTime;
             public SelfMath(){
+                setRadius(14.8).setDRIVE_GEAR_REDUCTION(1).setCOUNTS_PER_ENCODER_REV(200);
+
                 rawData = new OdometryData();
 
                 runTime = new ElapsedTime();
@@ -84,8 +85,7 @@ public class TurretMotor extends MotorModule {
                 //Тиков на оборот мотора
                 double outPutResolution = 288;
 
-                curMotorPos = innerMath.getCurentPos(turretMotor, Units.Ticks);
-
+                curMotorPos = getCurentPos(motorsCollector.get(turretMotor), Units.Ticks);
                 deltaPos = lastMotorPos - curMotorPos;
                 lastMotorPos = curMotorPos;
 
@@ -97,7 +97,7 @@ public class TurretMotor extends MotorModule {
 
                 double headVel = deltaHead / (deltaTime / 1000);
 
-                double headVel2 = innerMath.getCurrentVelocity(turretMotor, Units.Rad);
+                double headVel2 = getCurrentVelocity(motorsCollector.get(turretMotor), Units.Rad);
 
                 filteredTurretVelocity = filtr * headVel + (1 - filtr) * filteredTurretVelocity;
 

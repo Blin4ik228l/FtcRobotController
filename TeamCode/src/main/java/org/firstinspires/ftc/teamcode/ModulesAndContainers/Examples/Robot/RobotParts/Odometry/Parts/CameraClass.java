@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import android.util.Size;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -12,10 +11,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -24,7 +24,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.concurrent.TimeUnit;
 
-public class CameraClass extends DeviceUpdaterWrapper {
+public class CameraClass extends UpdatableModule {
     private WebcamName webcamName;
     private Position cameraPosition;
     private YawPitchRollAngles cameraOrientation;
@@ -33,10 +33,11 @@ public class CameraClass extends DeviceUpdaterWrapper {
     public GeneralLogic generalLogic;
     public RandomizeStatus randomizeStatus;
     public ElapsedTime updateTime;
-    public CameraClass(OpMode op)  {
-        super(op);
+    public CameraClass(MainFile mainFile, String searchingDevice)  {
+        super(mainFile, searchingDevice);
+
         try {
-            webcamName = hardwareMap.get(WebcamName.class, controlHubDevices.webcam1);
+            webcamName = hardwareMap.get(WebcamName.class, searchingDevice);
             cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
 
             cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(270) , Math.toRadians(-85), Math.toRadians(0), 0);

@@ -1,50 +1,47 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.AngleController;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.Collector;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.FlyWheelClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.TurretMotor;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.DigitalCellsClass;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
-public class HoodedShoter extends UpdatableModule {
+public class HoodedShoter extends UpdatingModule {
     public AngleController angleController;
     public TurretMotor turretMotor;
     public FlyWheelClass flyWheelClass;
     public Collector collector;
     public DigitalCellsClass digitalCellsClass;
 
-    public HoodedShoter(OpMode op, VoltageSensorClass voltageSensorClass) {
-        super(op);
-        turretMotor = new TurretMotor(op, voltageSensorClass);
-        flyWheelClass = new FlyWheelClass(op, voltageSensorClass);
-        collector = new Collector(op, voltageSensorClass);
+    public HoodedShoter(MainFile mainFile) {
+        super(mainFile);
+        turretMotor = new TurretMotor(mainFile);
+        flyWheelClass = new FlyWheelClass(mainFile);
+        collector = new Collector(mainFile);
 
-        angleController = new AngleController(op);
+        angleController = new AngleController(mainFile);
 
-        digitalCellsClass = new DigitalCellsClass(op);
+        digitalCellsClass = new DigitalCellsClass(mainFile);
 
-        sayInited();
+        sayCreated();
     }
 
     @Override
-    public void update() {
+    protected void updateExt() {
         digitalCellsClass.update();
     }
 
     @Override
-    public void showData() {
-        sayModuleName();
+    protected void showDataExt() {
         digitalCellsClass.showData();
         turretMotor.showData();
         collector.showData();
         flyWheelClass.showData();
-        telemetry.addLine();
     }
 }

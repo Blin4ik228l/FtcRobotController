@@ -1,44 +1,39 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.AnotherConsts;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Delays;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.ControlHubDevices;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.DevicesConfig;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.ExpansionHubDevices;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 
 
 public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPositions{
-     protected ControlHubDevices controlHubDevices;
-     protected ExpansionHubDevices expansionHubDevices;
-
-     protected HardwareMap hardwareMap;
      protected Telemetry telemetry;
+     protected boolean isInitialized = true;
      protected int iterationCount = 1;
 
-     public Module(OpMode op){
-          hardwareMap = op.hardwareMap;
-          telemetry = op.telemetry;
-
-          controlHubDevices = new ControlHubDevices();
-          expansionHubDevices = new ExpansionHubDevices();
+     public Module(MainFile mainFile){
+          telemetry = mainFile.op.telemetry;
      }
-     protected boolean isInitialized = true;
+     public boolean isInterrupted;
+
+     private void sayLoading(){
+          telemetry.addLine("Now initialize" +  " " + this.getClass().getSimpleName().toUpperCase() + " " + "module");
+     }
+
+     protected abstract void sayModuleName();
+
+     protected void sayCreated(){
+          telemetry.addLine(this.getClass().getSimpleName().toUpperCase() + " " + "obgect created");
+     }
+
      public void increaseIteration() {
          iterationCount++;
      }
-     public abstract void showData();
-
-     protected void sayModuleName(){
-          telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");
-     }
-     protected void sayInited(){
-          if(!isInitialized) telemetry.addLine(this.getClass().getSimpleName() + " " + "CRUSHED");
-          else telemetry.addLine(this.getClass().getSimpleName() + " " + "scfly Inited");
-     }
+     public void showData(){
+          sayModuleName();
+          showDataExt();
+     };
+     protected abstract void showDataExt();
 }

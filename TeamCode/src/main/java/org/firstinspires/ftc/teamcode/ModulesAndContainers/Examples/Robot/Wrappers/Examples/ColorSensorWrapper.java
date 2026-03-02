@@ -15,12 +15,14 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.DigitalCellsClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.HardwareBuilder;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 
 import java.lang.reflect.Field;
 
-public class ColorSensorWrapper extends DeviceUpdaterWrapper {
+public class ColorSensorWrapper extends UpdatableModule {
     private AMSColorSensor amsColorSensor;
     private RevColorSensorV3 revColorSensorV3;
     private BroadcomColorSensor broadcomColorSensor;
@@ -31,13 +33,11 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     private NormalizedColorSensor normalizedColorSensor;
     private DistanceSensor distanceSensor;
 
-    public ColorSensorWrapper(OpMode op, String deviceName){
-        super(op);
-
-        this.searchingDevice = deviceName;
+    public ColorSensorWrapper(MainFile mainFile, String searchingDevice){
+        super(mainFile, searchingDevice);
 
         try {
-            normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, deviceName);
+            normalizedColorSensor = hardwareMap.get(NormalizedColorSensor.class, searchingDevice);
 
             if(normalizedColorSensor instanceof RevColorSensorV3){
                 distanceSensor = ((DistanceSensor) normalizedColorSensor);
@@ -134,30 +134,44 @@ public class ColorSensorWrapper extends DeviceUpdaterWrapper {
     public void setTresholder(double[] tresholder){
         this.tresholder = tresholder;
     }
+
+
     @Override
     public void showDataExt() {
-        telemetry.addLine("==="+ searchingDevice +"===");
         telemetry.addData("Founded color",  getColorFromNumber(foundedColor));
         //Для отладки
         telemetry.addData("Colors", "R:%.3f G:%.3f B:%.3f A:%.3f", r, g, b, a);
         telemetry.addData("Distance", distance);
-        telemetry.addLine();
     }
 
-    public static class Builder extends HardwareBuilder {
-        private ColorSensorWrapper colorSensorWrapper;
+    public static class InnerBuilder extends Builder<ColorSensorWrapper> {
+        @Override
+        public InnerBuilder initialize(MainFile mainFile, String searchingDevice) {
+            wrapper = new ColorSensorWrapper(mainFile, searchingDevice);
+            return this;
+        }
 
         @Override
-        public Builder initialize(OpMode op, String deviceName) {
-            colorSensorWrapper = new ColorSensorWrapper(op, deviceName);
+        public InnerBuilder setFields(Double... args) {
+            wrapper.tresholder[0] = args[0];
+            wrapper.tresholder[1] = args[1];
+            wrapper.tresholder[2] = args[2];
+            wrapper.tresholder[3] = args[3];
             return this;
         }
-        public Builder setFields(double[] tresholder){
-            colorSensorWrapper.tresholder = tresholder;
+    }
+    public static class InnerCollector extends CollectorBuilder<ColorSensorWrapper>{
+        @Override
+        public CollectorBuilder add(ColorSensorWrapper wrapper) {
+            wrappers.put(wrapper.searchingDevice, wrapper);
             return this;
         }
-        public ColorSensorWrapper get(){
-            return colorSensorWrapper;
+
+        @Override
+        public void showData() {
+            for (ColorSensorWrapper wrapper:wrappers.values()) {
+                wrapper.showData();
+            }
         }
     }
 }

@@ -4,11 +4,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceUpdaterWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 
-public class ButtonWrapper extends DeviceUpdaterWrapper {
-    public ButtonWrapper(OpMode op) {
-        super(op);
+public class ButtonWrapper extends UpdatableModule {
+    public ButtonWrapper(MainFile mainFile, String searchingDevice) {
+        super(mainFile,searchingDevice);
         try {
 
         } catch (Exception e) {

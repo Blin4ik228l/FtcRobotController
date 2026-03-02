@@ -5,13 +5,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 
 public abstract class TeleOpModernized extends OpMode {
     public GeneralInformation generalInformation;
+    public MainFile mainFile;
     public MainSystem mainSystem;
 
     public void initAfterRobot(){
-        mainSystem = new MainSystem(generalInformation, this);
+        mainFile = new MainFile(this, generalInformation);
+        mainSystem = new MainSystem(mainFile);
     }
     @Override
     public void init_loop() {
@@ -25,7 +28,7 @@ public abstract class TeleOpModernized extends OpMode {
 
     @Override
     public void loop() {
-        mainSystem.update();
+        mainSystem.execute();
         extShow();
         mainSystem.showData();
     }

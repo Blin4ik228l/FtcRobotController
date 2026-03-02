@@ -7,7 +7,9 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl1.SemiAutoPlayerClass1;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
@@ -20,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class ModulesCollector{
     protected RobotClass robot;
@@ -33,19 +34,20 @@ public class ModulesCollector{
     protected TeleOpModernized teleOpModernized;
     protected LinearOpModeModernized linearOpModeModernized;
     protected ElapsedTime matchTimer;
-    public ModulesCollector(GeneralInformation generalInformation, OpMode op) {
-        if (op instanceof TeleOpModernized){
-            this.teleOpModernized = (TeleOpModernized) op;
+
+    public ModulesCollector(MainFile mainFile) {
+        if (mainFile.op instanceof TeleOpModernized){
+            this.teleOpModernized = (TeleOpModernized) mainFile.op;
         }else {
-            this.linearOpModeModernized = (LinearOpModeModernized) op;
+            this.linearOpModeModernized = (LinearOpModeModernized) mainFile.op;
         }
 
-        robot = new RobotClass(op);
+        robot = new RobotClass(mainFile);
 
-        semiAutoPlayerClass1 = new SemiAutoPlayerClass1(generalInformation, robot, op);
-        autoPlayerClass2 = new AutoPlayerClass2(generalInformation, robot, op);
+        semiAutoPlayerClass1 = new SemiAutoPlayerClass1(mainFile, robot);
+        autoPlayerClass2 = new AutoPlayerClass2(mainFile, robot);
 
-        fileSystem = new FileSystem(op);
+        fileSystem = new FileSystem(mainFile);
 
         modules = new Module[]{
                 robot, fileSystem , mainSystem, semiAutoPlayerClass1, autoPlayerClass2
@@ -59,16 +61,21 @@ public class ModulesCollector{
         }
     }
 
-    public class FileSystem extends UpdatableModule {
+    public class FileSystem extends UpdatingModule {
         //Данному классу требуется доступ ко всем объектам программы
         private File file;
         private List<String> logBuffer ;
         private Date date;
-        public FileSystem(OpMode op){
-            super(op);
+        public FileSystem(MainFile mainFile){
+            super(mainFile);
             file = AppUtil.getInstance().getSettingsFile("Data.txt");
             logBuffer = new ArrayList<>();
             date = new Date();
+        }
+
+        @Override
+        protected void updateExt() {
+
         }
 
         public void delete(){
@@ -105,6 +112,11 @@ public class ModulesCollector{
 
         @Override
         public void showData() {
+
+        }
+
+        @Override
+        protected void showDataExt() {
 
         }
     }

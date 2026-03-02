@@ -1,39 +1,36 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
 import java.util.ArrayList;
 
-public class DigitalCellsClass extends UpdatableModule {
-    private ServoMotorWrapper.Builder servoBuilder = new ServoMotorWrapper.Builder();
-    private ColorSensorWrapper.Builder colorBuilder = new ColorSensorWrapper.Builder();
+public class DigitalCellsClass extends UpdatingModule {
     public CellWrapper.Builder cells;
-    public DigitalCellsClass(OpMode op){
-        super(op);
+    public DigitalCellsClass(MainFile mainFile){
+        super(mainFile);
 
+        createColorWrapperUtils();
+        createServoWrapperUtils();
         cells = new CellWrapper.Builder()
-                .add(op,"cell1",
-                        servoBuilder.initialize(op, controlHubDevices.getServo0(0)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(0)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(1)).setFields(new double[]{}).get()
+                .add(mainFile,"cell1",
+                        servoBuilder.initialize(mainFile, controlHubDevices.getServo0(0)).setFields(60.0, 270.0).get(),
+                        colorBuilder.initialize(mainFile, expansionHubDevices.getI2C(0)).setFields(0.0, 0.0, 0.0, 0.0).get(),
+                        colorBuilder.initialize(mainFile, expansionHubDevices.getI2C(1)).setFields(0.0, 0.0, 0.0, 0.0).get()
                 )
-                .add(op,"cell2",
-                        servoBuilder.initialize(op, expansionHubDevices.getServo0(1)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(2)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, expansionHubDevices.getI2C(3)).setFields(new double[]{}).get())
-                .add(op,"cell3",
-                        servoBuilder.initialize(op, expansionHubDevices.getServo0(2)).setFields(60, 270).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(0)).setFields(new double[]{}).get(),
-                        colorBuilder.initialize(op, controlHubDevices.getI2C(1)).setFields(new double[]{}).get());
+                .add(mainFile,"cell2",
+                        servoBuilder.initialize(mainFile, expansionHubDevices.getServo0(1)).setFields(60.0, 270.0).get(),
+                        colorBuilder.initialize(mainFile, expansionHubDevices.getI2C(2)).setFields(0.0, 0.0, 0.0, 0.0).get(),
+                        colorBuilder.initialize(mainFile, expansionHubDevices.getI2C(3)).setFields(0.0, 0.0, 0.0, 0.0).get())
+                .add(mainFile,"cell3",
+                        servoBuilder.initialize(mainFile, expansionHubDevices.getServo0(2)).setFields(60.0, 270.0).get(),
+                        colorBuilder.initialize(mainFile, controlHubDevices.getI2C(0)).setFields(0.0, 0.0, 0.0, 0.0).get(),
+                        colorBuilder.initialize(mainFile, controlHubDevices.getI2C(1)).setFields(0.0, 0.0, 0.0, 0.0).get());
 
 
-        this.isInitialized = cells.isInited();
-        sayInited();
+        sayCreated();
     }
     /*1 - в массиве это зелёный шар
      * 2 - в массиве это фиолетовый*/
@@ -45,9 +42,17 @@ public class DigitalCellsClass extends UpdatableModule {
     }
 
     @Override
-    public void update() {
+    protected void updateExt() {
         artifactCount = cells.updateAll().numberOfArtifacts();
     }
+
+    @Override
+    protected void showDataExt() {
+        telemetry.addData("Count", artifactCount);
+        cells.showAll();
+        telemetry.addLine();
+    }
+
 
     public void fire(int color){
         if(isInerrupted) return;
@@ -58,35 +63,27 @@ public class DigitalCellsClass extends UpdatableModule {
 
         switch (founded.name){
             case "cell1":
-                founded.servoWrapper.setSignal(1);
+                founded.servoWrapper.execute(1.0);
             case "cell2":
-                founded.servoWrapper.setSignal(1);
+                founded.servoWrapper.execute(1.0);
             default:
-                founded.servoWrapper.setSignal(1);
+                founded.servoWrapper.execute(1.0);
         }
 
     }
     public void prepareServo(){
-       cells.getCell("1").servoWrapper.setPosition(0);
-       cells.getCell("2").servoWrapper.setPosition(0);
-       cells.getCell("3").servoWrapper.setPosition(0);
+       cells.getCell("1").servoWrapper.execute(0.0);
+       cells.getCell("2").servoWrapper.execute(0.0);
+       cells.getCell("3").servoWrapper.execute(0.0);
     }
 
-    @Override
-    public void showData() {
-        sayModuleName();
-        telemetry.addData("Count", artifactCount);
-        cells.showAll();
-        telemetry.addLine();
-    }
-
-    public static class CellWrapper extends Module {
+    public static class CellWrapper extends UpdatingModule {
         public ArrayList<ColorSensorWrapper> sensorsWrapper = new ArrayList<>();
         public ServoMotorWrapper servoWrapper;
         public boolean isInit;
         public String name;
-        public CellWrapper(OpMode op,String cellName, ServoMotorWrapper servoWrapper, ColorSensorWrapper...sensorsWrapperIn){
-            super(op);
+        public CellWrapper(MainFile mainFile, String cellName, ServoMotorWrapper servoWrapper, ColorSensorWrapper...sensorsWrapperIn){
+            super(mainFile);
             this.servoWrapper = servoWrapper;
             this.name = cellName;
 
@@ -109,17 +106,25 @@ public class DigitalCellsClass extends UpdatableModule {
             };
             return clr;
         }
-        public void updateAll(){
+
+        public String getColorFromNumber(double number){
+            return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
+        }
+
+        @Override
+        protected void updateExt() {
             for (ColorSensorWrapper color:sensorsWrapper) {
                 color.update();
             };
         }
 
-        public String getColorFromNumber(double number){
-            return number == 2 ? "Purple" : number == 1 ? "Green" : "Empty";
+        @Override
+        protected void sayModuleName() {
+            telemetry.addLine(name.toUpperCase());
         }
-        public void showData(){
-            telemetry.addLine(name);
+
+        @Override
+        protected void showDataExt() {
             servoWrapper.showData();
             for (ColorSensorWrapper color:sensorsWrapper) {
                 color.showData();
@@ -129,13 +134,13 @@ public class DigitalCellsClass extends UpdatableModule {
         public static class Builder{
             private ArrayList<CellWrapper> cells = new ArrayList<>();
 
-            public Builder add(OpMode op, String cellName, ServoMotorWrapper servo, ColorSensorWrapper...sensors){
-                cells.add(new CellWrapper(op, cellName, servo, sensors));
+            public Builder add(MainFile mainFile, String cellName, ServoMotorWrapper servo, ColorSensorWrapper...sensors){
+                cells.add(new CellWrapper(mainFile, cellName, servo, sensors));
                 return this;
             }
             public Builder updateAll(){
                 for (CellWrapper cell : cells) {
-                    cell.updateAll();
+                    cell.update();
                 }
                 return this;
             }

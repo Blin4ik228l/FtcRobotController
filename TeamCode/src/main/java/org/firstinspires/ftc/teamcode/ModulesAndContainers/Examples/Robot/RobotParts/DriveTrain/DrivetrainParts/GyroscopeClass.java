@@ -7,35 +7,35 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.internal.system.Deadline;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
 import java.util.concurrent.TimeUnit;
 
 public class GyroscopeClass extends UpdatableModule {
     public IMU imu;
     public IMU.Parameters parameters;
-    public GyroscopeClass(OpMode op){
-        super(op);
+    public GyroscopeClass(MainFile mainFile, String searchingDevice){
+        super(mainFile, searchingDevice);
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
         // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
         // and named "imu".
-        
         try {
-            imu = hardwareMap.get(IMU.class, controlHubDevices.gyroskope);
+            imu = hardwareMap.get(IMU.class, searchingDevice);
+            parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                    RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+            ));
+            imu.initialize(parameters);
+
+            imu.resetYaw();
         } catch (Exception e) {
             isInitialized = false;
         }
-
-        parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
-        ));
-        imu.initialize(parameters);
-
-        imu.resetYaw();
 
         selfMath = new SelfMath();
 
@@ -45,19 +45,16 @@ public class GyroscopeClass extends UpdatableModule {
     public OdometryBuffer gyroBuffer;
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
     public SelfMath selfMath;
-
-
     @Override
-    public void update() {
+    protected void updateExt() {
         selfMath.calculateAll();
     }
-
     @Override
-    public void showData(){
-        sayModuleName();
+    public void showDataExt() {
         telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
         telemetry.addLine();
     }
+
     private class SelfMath{
         private OdometryData rawData;
         private double gyroCurHeading, gyroDeltaHeading, gyroLastHeading;

@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 public class PIDF extends Module {
@@ -20,8 +21,8 @@ public class PIDF extends Module {
     private double error, olderror, oldtime;
     private double target, current;
 
-    public PIDF(double kP, double kI, double kD, double kF, double minI , double maxI, OpMode op){
-        super(op);
+    public PIDF(double kP, double kI, double kD, double kF, double minI , double maxI, MainFile mainFile){
+        super(mainFile);
         this.kP = kP;   // Максимально приблизить к результату, но не больше результат(Борис Бритва)
         this.kI = kI;   // Добивает до нужного результата(Борис Бритва добить)
         this.kD = kD;   // Сглаживает колебания
@@ -92,7 +93,12 @@ public class PIDF extends Module {
     }
 
     @Override
-    public void showData() {
+    protected void sayModuleName() {
+
+    }
+
+    @Override
+    protected void showDataExt() {
         telemetry.addLine(String.format("P %s I %s D %s F %s", P, I, D, F));
         telemetry.addLine(String.format("kP %s kI %s kD %s kF %s", kP, kI, kD, kF));
         telemetry.addLine(String.format("Target %.2f Current %.2f", target, current));

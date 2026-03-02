@@ -4,18 +4,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.HardwareBuilder;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree.DeviceManager;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
 
-public class ServoMotorWrapper extends DeviceWrapper {
+public class ServoMotorWrapper extends ExecutableModule {
     private ElapsedTime signalTime;
     public Servo servo;
-    public ServoMotorWrapper(OpMode op, String deviceName) {
-        super(op);
+    public ServoMotorWrapper(MainFile mainFile, String searchingDevice) {
+        super(mainFile, searchingDevice);
 
-        this.searchingDevice = deviceName;
         try {
-            servo = hardwareMap.get(Servo.class, deviceName);
+            servo = hardwareMap.get(Servo.class, searchingDevice);
         }catch (Exception e){
             isInitialized = false;
         }
@@ -27,25 +28,20 @@ public class ServoMotorWrapper extends DeviceWrapper {
     private double servoMaxAngle;
     private double delayTime;
     private boolean isBusy;
-    public boolean setSignal(double position){
-        if(!isInitialized) return false;
+    @Override
+    protected void executeExt(Double... args) {
+        double position = args[0];
         //По сути метод нужен для серваков без обратной связи
         if (position != servo.getPosition()) signalTime.reset();
 
         servo.setPosition(position);
         //Вычисляем "путь" до позиции, а после расщётное время
         delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) * servoSpeed;
-        return isBusy();
+        isBusy = signalTime.seconds() < delayTime;
     }
 
-    public boolean isBusy(){
-        if(!isInitialized) return false;
-        return signalTime.seconds() < delayTime;
-    }
-    //Этот метод по - хорошему использовать с обратной связью
-    public void setPosition(double position){
-        if(!isInitialized) return;
-        servo.setPosition(position);
+    public boolean isBusy() {
+        return isBusy;
     }
 
     @Override
@@ -55,20 +51,35 @@ public class ServoMotorWrapper extends DeviceWrapper {
         telemetry.addLine();
     }
 
-    public static class Builder extends HardwareBuilder {
-        public ServoMotorWrapper servoMotorWrapper;
+    public static class InnerBuilder extends Builder<ServoMotorWrapper>{
+
         @Override
-        public Builder initialize(OpMode op, String deviceName) {
-            servoMotorWrapper = new ServoMotorWrapper(op, deviceName);
+        public InnerBuilder initialize(MainFile mainFile, String searchingDevice) {
+            wrapper = new ServoMotorWrapper(mainFile, searchingDevice);
             return this;
         }
-        public Builder setFields(double servoSpeed, double servoMaxAngle){
-            servoMotorWrapper.servoSpeed = servoSpeed;
-            servoMotorWrapper.servoMaxAngle = servoMaxAngle;
+
+        @Override
+        public InnerBuilder setFields(Double... args) {
+            wrapper.servoSpeed = args[0];
+            wrapper.servoMaxAngle = args[1];
             return this;
         }
-        public ServoMotorWrapper get(){
-            return servoMotorWrapper;
+    }
+
+    public static class InnerCollector extends CollectorBuilder<ServoMotorWrapper>{
+
+        @Override
+        public CollectorBuilder add(ServoMotorWrapper wrapper) {
+            wrappers.put(wrapper.searchingDevice, wrapper);
+            return this;
+        }
+
+        @Override
+        public void showData() {
+            for (ServoMotorWrapper wrapper : wrappers.values()) {
+                wrapper.showData();
+            }
         }
     }
 }

@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
-public class JoystickActivityClass extends UpdatableModule implements JoystickButtons {
+public class JoystickActivityClass extends UpdatingModule implements JoystickButtons {
     public Gamepad playersGamepad;
     public boolean buttonX = false, buttonA = false, buttonB = false, buttonY = false,
             buttonBack = false, buttonStart = false,
@@ -27,12 +30,12 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
 
     public double cosA, sinA, cosB, sinB, right_trigger, left_trigger;
 
-    public JoystickActivityClass(OpMode op) {
-        super(op);
+    public JoystickActivityClass(MainFile mainFile) {
+        super(mainFile);
     }
 
     @Override
-    public void update() {
+    protected void updateExt() {
         isA_Button();
         isB_Button();
         isX_Button();
@@ -287,9 +290,9 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
         this.iterationCount = iterationCount;
     }
 
+
     @Override
-    public void showData() {
-        telemetry.addLine("=== JOYSTICK ===");
+    protected void showDataExt() {
         telemetry.addData("left Stick", "X %s Y%s", cosA, sinA);
         telemetry.addData("right Stick", "X %s Y%s", cosB, sinB);
         telemetry.addData("Buttons", "A:%s B:%s X:%s Y:%s", buttonA, buttonB, buttonX, buttonY);
@@ -297,6 +300,5 @@ public class JoystickActivityClass extends UpdatableModule implements JoystickBu
         telemetry.addData("Triggers", "L:%s R:%s", triggerLeft, triggerRight);
         telemetry.addData("DPad", "U:%s D:%s L:%s R:%s", dpad_Up, dpad_Down, dpad_Left, dpad_Right);
         telemetry.addData("Bumper times", "L: %s", tLeftBumperPressed);
-        telemetry.addLine();
     }
 }

@@ -7,26 +7,28 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.HardwareBuilder;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Extenders.DeviceWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree.DeviceManager;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
 
-public class MotorWrapper extends DeviceWrapper {
+public class MotorWrapper extends ExecutableModule {
     private DcMotor motor;
     private MotorConfigurationType motorConfigurationType;
+    private static VoltageSensorClass voltageSensorClass;
     private ElapsedTime signalTime;
-    private VoltageSensorClass voltageSensorClass;
+    public MotorWrapper(MainFile mainFile, String searchingDevice) {
+        super(mainFile, searchingDevice);
 
-    public MotorWrapper(OpMode op, String deviceName) {
-        super(op);
-        this.searchingDevice = deviceName;
         try {
-            motor = hardwareMap.get(DcMotor.class, deviceName);
+            motor = hardwareMap.get(DcMotor.class, searchingDevice);
 
             if (motor instanceof DcMotorEx){
                 motor = (DcMotorEx) motor;
             }
-
+            voltageSensorClass = mainFile.voltageSensorClass;
             motorConfigurationType = motor.getMotorType();
         }catch (Exception e){
             isInitialized = false;
@@ -37,9 +39,9 @@ public class MotorWrapper extends DeviceWrapper {
     }
     private double voltageCompensation;
     private double targetVol;
-    public void setPower(double power){
-        if(!isInitialized) return;
-
+    @Override
+    protected void executeExt(Double... args) {
+        double power = args[0];
         if (motor.getPower() != power) signalTime.reset();
 
         double currentVoltage = voltageSensorClass.getCurVoltage();
@@ -50,6 +52,7 @@ public class MotorWrapper extends DeviceWrapper {
         power *= (voltageCompensation * voltageMultiplier);
         motor.setPower(power);
     }
+
     public double getPower(){
         return motor.getPower();
     }
@@ -68,44 +71,55 @@ public class MotorWrapper extends DeviceWrapper {
         return motorConfigurationType;
     }
 
+
     @Override
     public void showDataExt() {
-        telemetry.addLine("===" + searchingDevice + "===");
         telemetry.addData("Power", getMotor().getPower());
     }
 
-    public static class Builder extends HardwareBuilder{
-        private MotorWrapper motorWrapper;
+    public static class InnerBuilder extends Builder<MotorWrapper> {
+        @Override
+        public InnerBuilder initialize(MainFile mainFile, String searchingDevice) {
+            wrapper = new MotorWrapper(mainFile, searchingDevice);
+            return this;
+        }
 
         @Override
-        public Builder initialize(OpMode op, String deviceName) {
-            motorWrapper = new MotorWrapper(op, deviceName);
-            return this;
-        }
-        public Builder setFields(VoltageSensorClass voltageSensorClass, double targetVol,double voltageComp){
-            motorWrapper.voltageSensorClass = voltageSensorClass;
-            motorWrapper.voltageCompensation = voltageComp;
-            motorWrapper.targetVol = targetVol;
-            return this;
-        }
-        public Builder setDirection(DcMotorSimple.Direction direction){
-            if(!motorWrapper.isInitialized) return this;
-            motorWrapper.motor.setDirection(direction);
-            return this;
-        }
-        public Builder setMode(DcMotor.RunMode runMode){
-            if(!motorWrapper.isInitialized) return this;
-            motorWrapper.motor.setMode(runMode);
-            return this;
-        }
-        public Builder setBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
-            if(!motorWrapper.isInitialized) return this;
-            motorWrapper.motor.setZeroPowerBehavior(zeroPowerBehavior);
+        public InnerBuilder setFields(Double... args) {
+            wrapper.targetVol = args[0];
+            wrapper.voltageCompensation = args[1];
             return this;
         }
 
-        public MotorWrapper get(){
-            return motorWrapper;
+        public InnerBuilder setDirection(DcMotorSimple.Direction direction){
+            if(!wrapper.isInitialized) return this;
+            wrapper.motor.setDirection(direction);
+            return this;
+        }
+        public InnerBuilder setMode(DcMotor.RunMode runMode){
+            if(!wrapper.isInitialized) return this;
+            wrapper.motor.setMode(runMode);
+            return this;
+        }
+        public InnerBuilder setBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior){
+            if(!wrapper.isInitialized) return this;
+            wrapper.motor.setZeroPowerBehavior(zeroPowerBehavior);
+            return this;
+        }
+    }
+    public static class InnerCollector extends CollectorBuilder<MotorWrapper>{
+
+        @Override
+        public InnerCollector add(MotorWrapper wrapper) {
+            wrappers.put(wrapper.searchingDevice, wrapper);
+            return this;
+        }
+
+        @Override
+        public void showData() {
+            for (MotorWrapper wrapper : wrappers.values()) {
+                wrapper.showData();
+            }
         }
     }
 }

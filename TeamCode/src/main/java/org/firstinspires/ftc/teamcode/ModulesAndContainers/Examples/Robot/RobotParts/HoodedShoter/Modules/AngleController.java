@@ -3,21 +3,25 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 import org.opencv.dnn.Model;
 
-public class AngleController extends Module {
+public class AngleController extends ExecutingModule {
     public String angleServo = expansionHubDevices.getServo0(0);
-    public ServoMotorWrapper servoMotorWrapper;
-    public AngleController(OpMode op) {
-        super(op);
-        servoMotorWrapper = new ServoMotorWrapper(op, angleServo);
-        sayInited();
+    public AngleController(MainFile mainFile) {
+        super(mainFile);
+        createServoWrapperUtils();
+        servosCollector.add(servoBuilder.initialize(mainFile, angleServo).setFields(60.0, 120.0).get());
+
+        sayCreated();
     }
 
     public double getCurAngle(){
-        double angle = MAX_ANGLE - servoMotorWrapper.servo.getPosition() / (185 / 23) * 270;
+        double angle = MAX_ANGLE - servosCollector.get(angleServo).servo.getPosition() / (185 / 23) * 270;
 
         return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);
     }
@@ -35,9 +39,16 @@ public class AngleController extends Module {
         //Выставляем нужную позицию
         return targetServoPos;
     }
+    public ServoMotorWrapper getServo(){
+        return servosCollector.get(angleServo);
+    }
+    @Override
+    protected void executeExt(Double... args) {
+        servosCollector.get(angleServo).execute(args);
+    }
 
     @Override
-    public void showData() {
-
+    protected void showDataExt() {
+        servosCollector.showData();
     }
 }

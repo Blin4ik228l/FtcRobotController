@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick1;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Odometry;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
@@ -18,22 +19,23 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 
 public class AutoPlayerClass2 extends PlayerClass{
-    public AutoPlayerClass2(GeneralInformation generalInformation, RobotClass robotClass, OpMode op) {
-        super(generalInformation,"Player2", op);
-        setJoystickActivityClass(new Joystick1(op));
+    public AutoPlayerClass2(MainFile mainFile, RobotClass robotClass) {
+        super(mainFile);
+        setJoystickActivityClass(new Joystick1(mainFile));
+
         this.hoodedShoter = robotClass.hoodedShoter;
         this.odometry = robotClass.odometry;
 
-        pusher0 = new ServoMotorWrapper(op, "pusher0");
-        pusher1 = new ServoMotorWrapper(op, "pusher1");
-        pusher2 = new ServoMotorWrapper(op, "pusher2");
-        pusher3 = new ServoMotorWrapper(op, "pusher3");
-        pusher4 = new ServoMotorWrapper(op, "pusher4");
+        pusher0 = new ServoMotorWrapper(mainFile, "pusher0");
+        pusher1 = new ServoMotorWrapper(mainFile, "pusher1");
+        pusher2 = new ServoMotorWrapper(mainFile, "pusher2");
+        pusher3 = new ServoMotorWrapper(mainFile, "pusher3");
+        pusher4 = new ServoMotorWrapper(mainFile, "pusher4");
 
-        trackEmulator = new TrackEmulator(op);
-        speedController = new SpeedController(op);
+        trackEmulator = new TrackEmulator(mainFile);
+        speedController = new SpeedController(mainFile);
         pidfTunner = new PIDFTunner();
-        updateTime = new ElapsedTime();
+
     }
     public ServoMotorWrapper pusher0;
     public ServoMotorWrapper pusher1;
@@ -42,14 +44,13 @@ public class AutoPlayerClass2 extends PlayerClass{
     public ServoMotorWrapper pusher4;
     public HoodedShoter hoodedShoter;
     public Odometry odometry;
-    public ElapsedTime updateTime;
-    public double hz;
+
     public TrackEmulator trackEmulator;
     public PIDFTunner pidfTunner;
     public SpeedController speedController;
 
     @Override
-    public ProgramState execute(){
+    public void executeExt() {
         double collectorPow = 0;
         double turretPow = 0;
         double flyWheelPow = 0;
@@ -65,7 +66,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         double targSpeed = 50 * (joystickActivityClass.tAPressed % 4);
 
         if(hoodedShoter.turretMotor.isInterrupted){
-           targSpeed = Math.toRadians(1000);
+            targSpeed = Math.toRadians(1000);
         }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
 
         //Выравниваем на ворота альянса
@@ -115,7 +116,10 @@ public class AutoPlayerClass2 extends PlayerClass{
                         boolean isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
 
                         double calclPos = hoodedShoter.angleController.getPos(theta);
-                        boolean isAngleGrowUp = hoodedShoter.angleController.servoMotorWrapper.setSignal(calclPos);
+
+                        hoodedShoter.angleController.execute(calclPos);
+
+                        boolean isAngleGrowUp = hoodedShoter.angleController.getServo().isBusy();
 
                         //TODO условие на наводку турели
                         if(isFlyWheelReady && isAngleGrowUp){
@@ -138,57 +142,52 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         checkButtons();
 
-        hoodedShoter.turretMotor.setPower(turretPow);
-        hoodedShoter.flyWheelClass.setPower(flyWheelPow);
-        hoodedShoter.collector.setPower(collectorPow);
+        hoodedShoter.turretMotor.execute(turretPow);
+        hoodedShoter.flyWheelClass.execute(flyWheelPow);
+        hoodedShoter.collector.execute(collectorPow);
 
         hoodedShoter.update();
-
-        hz = 1 / updateTime.seconds();
-        updateTime.reset();
-        return programState;
     }
+
     @Override
-    public void showData(){
-        telemetry.addLine("===Player2===");
-        telemetry.addData("Update time/hz", hz);
+    protected void showDataExt() {
         joystickActivityClass.showData();
         hoodedShoter.showData();
         trackEmulator.trackingPIDF.showData();
         telemetry.addLine(String.format("globalIndex: %s index: %s stepSize: %s", pidfTunner.index, pidfTunner.stepIndex, pidfTunner.stepSize[pidfTunner.stepIndex]));
         telemetry.addLine(String.format("targHead %.2f",trackEmulator.targHead * RAD));
         telemetry.addLine(String.format("curHead %.2f", odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD));
-        telemetry.addLine();
     }
+
     @Override
     public void buttonAReleased() {
-        pusher0.setPosition(0);
+        pusher0.execute(0.0);
 
     }
 
     @Override
     public void buttonAUnReleased() {
-        pusher0.setPosition(0.37);
+        pusher0.execute(0.37);
     }
 
     @Override
     public void buttonBReleased() {
-        pusher1.setPosition(0.37);
+        pusher1.execute(0.37);
     }
 
     @Override
     public void buttonBUnReleased() {
-        pusher1.setPosition(0);
+        pusher1.execute(0.0);
     }
 
     @Override
     public void buttonXReleased() {
-        pusher2.setPosition(0.37);
+        pusher2.execute(0.37);
     }
 
     @Override
     public void buttonXUnReleased() {
-        pusher2.setPosition(0);
+        pusher2.execute(0.0);
     }
 
     @Override
@@ -282,8 +281,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TrackEmulator {
         private PIDF trackingPIDF;
-        public TrackEmulator(OpMode op){
-            this.trackingPIDF = new PIDF(0.09, 0.000001,0,0, -1, 1, op);
+        public TrackEmulator(MainFile mainFile){
+            this.trackingPIDF = new PIDF(0.09, 0.000001,0,0, -1, 1, mainFile);
         }
         private double returnDistance(double VelMax, double accel ){
             return Math.pow(VelMax, 2) / (2 * accel);
@@ -331,8 +330,8 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class SpeedController{
         public PIDF pidfFlyWheel;
-        public SpeedController(OpMode op){
-            pidfFlyWheel = new PIDF(1, 1, 1,1,-1, 1, op);
+        public SpeedController(MainFile mainFile){
+            pidfFlyWheel = new PIDF(1, 1, 1,1,-1, 1, mainFile);
         }
         public double calculateVol(double targetSpeed, double curSpeed){
             double pidPower = pidfFlyWheel.calculate(targetSpeed, curSpeed);

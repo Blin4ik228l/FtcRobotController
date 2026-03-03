@@ -129,10 +129,12 @@ public class OdometryData {
     public static class DataBuilder{
         private ArrayList<OdometryData> pathBuilder;
         private ArrayList<Reason> reasons;
+
         public DataBuilder(){
             pathBuilder = new ArrayList<>();
             reasons = new ArrayList<>();
         }
+
         public DataBuilder createPath(OdometryData odometryData, Reason reason){
             pathBuilder.add(odometryData);
             reasons.add(reason);
@@ -157,6 +159,7 @@ public class OdometryData {
         }
 
         public DataBuilder switchPose(){
+            if(pathBuilder.isEmpty()) return this;
             pathBuilder.remove(0);
             reasons.remove(0);
             return this;

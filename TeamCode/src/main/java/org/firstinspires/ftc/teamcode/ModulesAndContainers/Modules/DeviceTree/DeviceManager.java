@@ -4,8 +4,6 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.HardwareBuilder;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
@@ -27,7 +25,7 @@ public abstract class DeviceManager extends Module {
         else telemetry.addLine("scfly inited" + " " + searchingDevice);
     }
     @Override
-    protected void sayModuleName() {
+    public void sayModuleName() {
         telemetry.addLine("==="+ searchingDevice +"===");
     }
 

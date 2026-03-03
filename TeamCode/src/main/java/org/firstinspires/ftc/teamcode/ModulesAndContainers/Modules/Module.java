@@ -11,8 +11,6 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config
 public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPositions{
      protected Telemetry telemetry;
      protected boolean isInitialized = true;
-     protected int iterationCount = 1;
-
      public Module(MainFile mainFile){
           telemetry = mainFile.op.telemetry;
      }
@@ -26,11 +24,7 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
           telemetry.addLine(this.getClass().getSimpleName().toUpperCase() + " " + "obgect created");
      }
 
-     public void increaseIteration() {
-         iterationCount++;
-     }
-
-     protected abstract void sayModuleName();
+     public abstract void sayModuleName();
      protected abstract void showDataExt();
      public void showData(){
           sayModuleName();

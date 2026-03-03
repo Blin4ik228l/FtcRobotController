@@ -77,8 +77,9 @@ public class MainSystem extends ExecutorModule {
                 break;
         }
 
-        robotClass.drivetrain.update();
-        robotClass.hoodedShoter.update();
+        robotClass.drivetrain.gyro.update();
+//        robotClass.hoodedShoter.update();
+        robotClass.odometry.cameraClass.update();
     }
 
     public void startExecuting(){
@@ -196,101 +197,126 @@ public class MainSystem extends ExecutorModule {
     public void executeAuto(){
         boolean isPlayer1Finished = false;
         boolean isPlayer2Finished = false;
-        switch (generalInformation.gameTactick){
-            case Load:
-                switch (semiAutoPlayerClass1.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer1Finished = true;
-                        break;
-                }
-                switch (autoPlayerClass2.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer2Finished = true;
-                        break;
-                }
+//        switch (generalInformation.gameTactick){
+//            case Load:
+//                switch (semiAutoPlayerClass1.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer1Finished = true;
+//                        break;
+//                }
+//                switch (autoPlayerClass2.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer2Finished = true;
+//                        break;
+//                }
+//
+//                if (isPlayer1Finished && isPlayer2Finished){
+//                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+//                    autoPlayerClass2.isInterrupted = true;
+//                    generalInformation.gameTactick = GameTactick.Fire;
+//                } else if (isPlayer1Finished && !isPlayer2Finished) {
+//                    //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
+//                    semiAutoPlayerClass1.positionController.switchPos();
+//                } else if (isPlayer2Finished && !isPlayer1Finished) {
+//                    //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+//                    autoPlayerClass2.isInterrupted = true;
+//                    generalInformation.gameTactick = GameTactick.Fire;
+//                }
+//                break;
+//            case Fire:
+//                switch (semiAutoPlayerClass1.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer1Finished = true;
+//                        break;
+//
+//                }
+//                switch (autoPlayerClass2.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer2Finished = true;
+//                        break;
+//                }
+//                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
+//                if (isPlayer1Finished && isPlayer2Finished){
+//                    //Закончили цикл стрельбы -> едем собирать артефакты
+//                    generalInformation.gameTactick = GameTactick.Load;
+//                } else if (isPlayer1Finished && !isPlayer2Finished) {
+//                    //возвращаем в строй 2 игрока
+//                    autoPlayerClass2.isInterrupted = false;
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+    }
 
-                if (isPlayer1Finished && isPlayer2Finished){
-                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-                    autoPlayerClass2.isInterrupted = true;
-                    generalInformation.gameTactick = GameTactick.Fire;
-                } else if (isPlayer1Finished && !isPlayer2Finished) {
-                    //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
-                    semiAutoPlayerClass1.positionController.switchPos();
-                } else if (isPlayer2Finished && !isPlayer1Finished) {
-                    //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-                    autoPlayerClass2.isInterrupted = true;
-                    generalInformation.gameTactick = GameTactick.Fire;
-                }
-                break;
-            case Fire:
-                switch (semiAutoPlayerClass1.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer1Finished = true;
-                        break;
+    @Override
+    public void showData() {
+        if (iterationCount % 10 != 0) return;
 
-                }
-                switch (autoPlayerClass2.programState){
-                    case Executing:
+        switch (generalInformation.programName){
+            case TeleOp:
+                telemetry.addLine(generalInformation.telemetryPages.toString());
+                switch (generalInformation.telemetryPages){
+                    case Show_all:
+                        semiAutoPlayerClass1.showData();
+                        autoPlayerClass2.showData();
+                        robotClass.showData();
                         break;
-                    case Interrupted:
+                    case Show_pl1:
+                        semiAutoPlayerClass1.showData();
                         break;
-                    case Finished:
-                        isPlayer2Finished = true;
+                    case Show_pl2:
+                        autoPlayerClass2.showData();
                         break;
-                }
-                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
-                if (isPlayer1Finished && isPlayer2Finished){
-                    //Закончили цикл стрельбы -> едем собирать артефакты
-                    generalInformation.gameTactick = GameTactick.Load;
-                } else if (isPlayer1Finished && !isPlayer2Finished) {
-                    //возвращаем в строй 2 игрока
-                    autoPlayerClass2.isInterrupted = false;
+                    case Show_robot:
+                        robotClass.showData();
+                        break;
+                    case Show_modules_freq:
+                        semiAutoPlayerClass1.sayModuleName();
+                        semiAutoPlayerClass1.showUpdateFreq();
+                        autoPlayerClass2.sayModuleName();
+                        autoPlayerClass2.showUpdateFreq();
+                        robotClass.sayModuleName();
+                        robotClass.showUpdateFreq();
+                        sayModuleName();
+                        showUpdateFreq();
+                        break;
                 }
                 break;
             default:
+                telemetry.addLine(generalInformation.gameTactick.toString());
+                semiAutoPlayerClass1.sayModuleName();
+                telemetry.addLine(semiAutoPlayerClass1.programState.toString());
+                autoPlayerClass2.sayModuleName();
+                telemetry.addLine(autoPlayerClass2.programState.toString());
+
+                robotClass.drivetrain.showData();
+                robotClass.odometry.showData();
                 break;
         }
+
     }
 
     @Override
     protected void showDataExt() {
-        telemetry.addLine(generalInformation.telemetryPages.toString());
-        switch (generalInformation.telemetryPages){
-            case Show_all:
-                semiAutoPlayerClass1.showData();
-                autoPlayerClass2.showData();
-                robotClass.showData();
-                break;
-            case Show_pl1:
-                semiAutoPlayerClass1.showData();
-                break;
-            case Show_pl2:
-                autoPlayerClass2.showData();
-                break;
-            case Show_robot:
-                robotClass.showData();
-                break;
-            case Show_modules_freq:
-                semiAutoPlayerClass1.showUpdateFreq();
-                autoPlayerClass2.showUpdateFreq();
-                robotClass.showUpdateFreq();
-                break;
-        }
+
     }
-
-
 
     public class FileSystem extends UpdatingModule {
         //Данному классу требуется доступ ко всем объектам программы

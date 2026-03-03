@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
 
 import java.util.ArrayDeque;
@@ -20,6 +19,8 @@ public abstract class ExecutorModule extends MainModule {
         programState = ProgramState.Waiting_For_Start;
         updateTime = new ElapsedTime();
     }
+    protected int iterationCount = 1;
+
     protected double hz;
     public ProgramState programState;
     protected void resetTimer(){
@@ -29,15 +30,20 @@ public abstract class ExecutorModule extends MainModule {
 
     public ProgramState execute(){
         executeExt();
+        increaseIteration();
         resetTimer();
         return programState;
     };
+
+    public void increaseIteration() {
+        iterationCount++;
+    }
     protected abstract void executeExt();
     public void showUpdateFreq(){
         telemetry.addData("Update time/hz", hz);
     }
     @Override
-    protected void sayModuleName() {
+    public void sayModuleName() {
         telemetry.addLine( "|||||" + this.getClass().getSimpleName().toUpperCase() + "|||||");
     }
     @Override

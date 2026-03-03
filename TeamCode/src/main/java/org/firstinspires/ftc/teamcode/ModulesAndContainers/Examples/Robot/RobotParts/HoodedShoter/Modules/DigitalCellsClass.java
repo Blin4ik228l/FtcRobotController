@@ -118,7 +118,7 @@ public class DigitalCellsClass extends UpdatingModule {
         }
 
         @Override
-        protected void sayModuleName() {
+        public void sayModuleName() {
             telemetry.addLine(name.toUpperCase());
         }
 

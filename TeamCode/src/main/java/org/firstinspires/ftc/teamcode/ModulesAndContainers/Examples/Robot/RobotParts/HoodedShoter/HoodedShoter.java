@@ -29,6 +29,7 @@ public class HoodedShoter extends UpdatingModule {
 
         digitalCellsClass = new DigitalCellsClass(mainFile);
 
+        setUpdateCount(3);
         sayCreated();
     }
 

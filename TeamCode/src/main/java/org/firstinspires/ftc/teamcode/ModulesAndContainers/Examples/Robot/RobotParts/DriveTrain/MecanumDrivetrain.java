@@ -24,7 +24,7 @@ public class MecanumDrivetrain extends UpdatingModule {
 
     @Override
     protected void updateExt() {
-        gyro.update();
+
     }
 
     @Override

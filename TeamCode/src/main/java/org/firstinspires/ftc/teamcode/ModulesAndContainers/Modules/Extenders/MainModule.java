@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
@@ -27,7 +25,7 @@ public abstract class MainModule extends DeviceCollector {
     }
 
     @Override
-    protected void sayModuleName() {
+    public void sayModuleName() {
         telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");
     }
 }

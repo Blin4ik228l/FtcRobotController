@@ -10,8 +10,16 @@ public abstract class UpdatingModule extends MainModule {
     }
     protected abstract void updateExt();
 
+    protected int updateCount = 1;
+    protected int iterationCount = 1;
+    public void setUpdateCount(int count){
+        this.updateCount = count;
+    }
+    public void setCurIterations(int count){
+        iterationCount = count;
+    }
     public void update() {
-        if(!isInitialized || isInterrupted) return;
+        if(!isInitialized || isInterrupted || iterationCount % updateCount != 0) return;
         else updateExt();
     }
 }

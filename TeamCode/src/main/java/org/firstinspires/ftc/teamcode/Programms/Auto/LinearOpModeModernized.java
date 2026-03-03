@@ -30,6 +30,7 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
 
         while (!isStopRequested() && opModeIsActive()){
             extRun();
+            mainSystem.execute();
             mainSystem.showData();
             telemetry.update();
         }

@@ -39,7 +39,7 @@ public class RobotClass extends ExecutorModule {
 
     @Override
     protected void executeExt() {
-        voltageSensor.update();
+        if (iterationCount % 10 == 0)voltageSensor.update();
         odometry.update();
     }
 

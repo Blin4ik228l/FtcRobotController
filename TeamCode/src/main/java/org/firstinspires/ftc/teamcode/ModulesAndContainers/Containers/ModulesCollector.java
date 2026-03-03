@@ -57,7 +57,7 @@ public class ModulesCollector{
     }
     public void increaseIteration(Module...modules){
         for (Module module : modules) {
-            module.increaseIteration();
+
         }
     }
 

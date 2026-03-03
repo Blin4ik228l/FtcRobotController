@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -93,7 +92,7 @@ public class PIDF extends Module {
     }
 
     @Override
-    protected void sayModuleName() {
+    public void sayModuleName() {
 
     }
 

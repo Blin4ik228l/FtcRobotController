@@ -301,7 +301,7 @@ public class MainSystem extends ExecutorModule {
                 break;
             default:
                 telemetry.addLine(generalInformation.gameTactick.toString());
-                semiAutoPlayerClass1.sayModuleName();
+                semiAutoPlayerClass1.showData();
                 telemetry.addLine(semiAutoPlayerClass1.programState.toString());
                 autoPlayerClass2.sayModuleName();
                 telemetry.addLine(autoPlayerClass2.programState.toString());

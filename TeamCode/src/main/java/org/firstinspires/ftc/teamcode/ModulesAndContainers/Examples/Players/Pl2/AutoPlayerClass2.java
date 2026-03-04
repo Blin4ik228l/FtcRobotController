@@ -162,42 +162,44 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonAReleased() {
-        pusher0.execute(0.0);
 
     }
-
     @Override
     public void buttonAUnReleased() {
-        pusher0.execute(0.37);
+
     }
 
     @Override
     public void buttonBReleased() {
-        pusher1.execute(0.37);
+        pusher0.execute(0.52);
     }
 
     @Override
     public void buttonBUnReleased() {
-        pusher1.execute(0.0);
+        pusher0.execute(0.08);
     }
 
     @Override
     public void buttonXReleased() {
-        pusher2.execute(0.37);
+        pusher1.execute(0.5);
     }
 
     @Override
     public void buttonXUnReleased() {
-        pusher2.execute(0.0);
+        pusher1.execute(0.07);
+
+
     }
 
     @Override
     public void buttonYReleased() {
 
+        pusher2.execute(0.55);
     }
 
     @Override
     public void buttonYUnReleased() {
+        pusher2.execute(0.08);
 
     }
     public class PIDFTunner{

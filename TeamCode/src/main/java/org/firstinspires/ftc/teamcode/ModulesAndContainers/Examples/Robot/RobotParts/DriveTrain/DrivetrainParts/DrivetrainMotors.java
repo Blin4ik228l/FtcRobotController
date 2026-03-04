@@ -47,8 +47,8 @@ public class DrivetrainMotors extends ExecutingModule {
     public String leftBack = expansionHubDevices.getMotor(3);
 
     public String encRight = expansionHubDevices.getEncoder(0);
-    public String encLeft = expansionHubDevices.getEncoder(1);
-    public String encMid = expansionHubDevices.getEncoder(2);
+    public String encLeft = expansionHubDevices.getEncoder(2);
+    public String encMid = expansionHubDevices.getEncoder(1);
     public String testEnc = expansionHubDevices.getEncoder(3);
 
     @Override

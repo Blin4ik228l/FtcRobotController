@@ -20,25 +20,25 @@ public abstract class PlayerClass extends ExecutorModule {
         this.joystickActivityClass = joystickActivityClass;
     }
     public void checkButtons(){
-        if(joystickActivityClass.playersGamepad.a){
+        if(joystickActivityClass.buttonA){
             buttonAReleased();
         }else {
             buttonAUnReleased();
         }
 
-        if(joystickActivityClass.playersGamepad.b){
+        if(joystickActivityClass.buttonB){
             buttonBReleased();
         }else {
             buttonBUnReleased();
         }
 
-        if(joystickActivityClass.playersGamepad.x){
+        if(joystickActivityClass.buttonX){
             buttonXReleased();
         }else {
             buttonXUnReleased();
         }
 
-        if(joystickActivityClass.playersGamepad.y){
+        if(joystickActivityClass.buttonY){
             buttonYReleased();
         }else {
             buttonYUnReleased();

@@ -69,10 +69,6 @@ public class OdometryData {
         position.setX(0);
         position.setY(0);
         position.setHeading(0);
-        velocity.delete();
-        accel.delete();
-        headAccel = 0;
-        headVel = 0;
     }
 
     public Position2D getPosition() {

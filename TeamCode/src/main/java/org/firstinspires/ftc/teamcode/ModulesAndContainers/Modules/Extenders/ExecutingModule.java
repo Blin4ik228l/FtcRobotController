@@ -16,6 +16,7 @@ public abstract class ExecutingModule extends MainModule {
     public ExecutingModule(MainFile mainFile) {
         super(mainFile);
     }
+
     public void execute(Double...args){
         if(!isInitialized || isInterrupted) return;
         else executeExt(args);

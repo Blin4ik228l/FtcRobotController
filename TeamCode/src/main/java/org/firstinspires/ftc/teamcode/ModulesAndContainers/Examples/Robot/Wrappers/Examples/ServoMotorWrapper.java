@@ -32,11 +32,13 @@ public class ServoMotorWrapper extends ExecutableModule {
     protected void executeExt(Double... args) {
         double position = args[0];
         //По сути метод нужен для серваков без обратной связи
-        if (position != servo.getPosition()) signalTime.reset();
-
+        if (position != servo.getPosition()) {
+            delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) * servoSpeed;
+            signalTime.reset();
+        }
         servo.setPosition(position);
         //Вычисляем "путь" до позиции, а после расщётное время
-        delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) * servoSpeed;
+
         isBusy = signalTime.seconds() < delayTime;
     }
 

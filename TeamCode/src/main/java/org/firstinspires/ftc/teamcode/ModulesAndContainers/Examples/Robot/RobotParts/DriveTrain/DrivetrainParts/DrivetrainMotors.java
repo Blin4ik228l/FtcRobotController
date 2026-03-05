@@ -29,11 +29,11 @@ public class DrivetrainMotors extends ExecutingModule {
         createMotorWrapperUtils();
         motorsCollector
                 .add(motorBuilder.initialize(mainFile, rightBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields( 13.0, 1.026).get())
+                        .setFields(13.0, 1.026).get())
                 .add(motorBuilder.initialize(mainFile, rightFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields( 13.0, 0.976).get())
+                        .setFields(13.0, 0.976).get())
                 .add(motorBuilder.initialize(mainFile, leftFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields( 13.0, 1.053).get())
+                        .setFields(13.0, 1.053).get())
                 .add(motorBuilder.initialize(mainFile, leftBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(13.0, 1.053).get());
 

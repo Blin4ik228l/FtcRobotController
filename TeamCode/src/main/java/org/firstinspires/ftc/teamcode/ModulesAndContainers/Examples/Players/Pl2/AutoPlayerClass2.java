@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick1;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PlayerClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
@@ -142,7 +143,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         checkButtons();
 
-        hoodedShoter.turretMotor.execute(turretPow);
+        hoodedShoter.turretMotor.execute(turretPow + cosB);
         hoodedShoter.flyWheelClass.execute(flyWheelPow);
         hoodedShoter.collector.execute(collectorPow);
 

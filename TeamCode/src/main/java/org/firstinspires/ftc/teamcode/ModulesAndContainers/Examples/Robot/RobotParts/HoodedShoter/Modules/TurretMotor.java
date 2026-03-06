@@ -26,8 +26,8 @@ public class TurretMotor extends ExecutingModule {
         super(mainFile);
 
         createMotorWrapperUtils();
-        motorsCollector.add(motorBuilder.initialize(mainFile, turretMotor).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(12.5, 1.0).get());
+        motorsCollector.add(motorBuilder.initialize(mainFile, turretMotor).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                .setFields(13.0, 1.0).get());
 
         turretOdometry = new TurretOdometry(mainFile, motorsCollector);
         sayCreated();
@@ -56,7 +56,7 @@ public class TurretMotor extends ExecutingModule {
             sayCreated();
         }
         public OdometryBuffer turretBuffer;
-        public double localHead;
+        public double localHead = Math.toRadians(180);
         private SelfMath selfMath;
 
         @Override
@@ -66,7 +66,7 @@ public class TurretMotor extends ExecutingModule {
 
         @Override
         protected void showDataExt() {
-            telemetry.addData("TuretData", "head  %s vel %s", localHead , turretBuffer.read().getHeadVel() * RAD);
+            telemetry.addData("TuretData", "head  %s vel %s", localHead * RAD, turretBuffer.read().getHeadVel() * RAD);
         }
 
         public class SelfMath extends InnerMath {
@@ -75,8 +75,9 @@ public class TurretMotor extends ExecutingModule {
             private double deltaHead;
             private double lastMotorPos, curMotorPos, deltaPos;
             private ElapsedTime runTime;
+
             public SelfMath(){
-                setRadius(14.8).setDRIVE_GEAR_REDUCTION(1).setCOUNTS_PER_ENCODER_REV(200);
+                setRadius(2).setDRIVE_GEAR_REDUCTION(5.19).setCOUNTS_PER_ENCODER_REV(384.5).calculateCountsPerCm();
 
                 rawData = new OdometryData();
 
@@ -86,13 +87,13 @@ public class TurretMotor extends ExecutingModule {
             public void calculateAll(){
                 double filtr = 1;
                 //Тиков на оборот мотора
-                double outPutResolution = 288;
+                double outPutResolution = 384.5 * 5.19;
 
                 curMotorPos = getCurentPos(motorsCollector.get(turretMotor), Units.Ticks);
                 deltaPos = lastMotorPos - curMotorPos;
                 lastMotorPos = curMotorPos;
 
-                deltaHead = -(deltaPos / outPutResolution) * 2 * Math.PI;
+                deltaHead = getCurentPos(motorsCollector.get(turretMotor), Units.Rad);;
 
                 curTime = runTime.milliseconds();
                 deltaTime = curTime - lastTime;
@@ -102,9 +103,11 @@ public class TurretMotor extends ExecutingModule {
 
                 double headVel2 = getCurrentVelocity(motorsCollector.get(turretMotor), Units.Rad);
 
-                filteredTurretVelocity = filtr * headVel + (1 - filtr) * filteredTurretVelocity;
+                filteredTurretVelocity = filtr * headVel2 + (1 - filtr) * filteredTurretVelocity;
 
-                if(Math.abs(curMotorPos) > outPutResolution) isInterrupted = true;
+                Position2D normPos = new Position2D(0,0,localHead);
+
+                if(normPos.getHeading() - 2 * Math.PI >= 2 * Math.PI) isInterrupted = true;
 
                 localHead += deltaHead;
 

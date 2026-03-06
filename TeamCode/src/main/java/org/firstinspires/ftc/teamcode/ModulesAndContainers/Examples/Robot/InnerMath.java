@@ -61,7 +61,7 @@ public class InnerMath{
         }
     }
     public double getCurrentVelocity(MotorWrapper motorWrapper, Units units){
-        DcMotorEx motorEx = motorWrapper.getMotorEx();
+        DcMotorEx motorEx;
         if(motorWrapper != null) motorEx = motorWrapper.getMotorEx();
         else motorEx = null;
 

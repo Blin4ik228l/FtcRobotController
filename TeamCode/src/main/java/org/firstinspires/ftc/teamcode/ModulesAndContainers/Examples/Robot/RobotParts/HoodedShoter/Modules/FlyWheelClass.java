@@ -19,14 +19,13 @@ public class FlyWheelClass extends ExecutingModule {
     public FlyWheelOdometry flyWheelOdometry;
     public FlyWheelClass(MainFile mainFile) {
         super(mainFile);
+
         createMotorWrapperUtils();
         motorsCollector
-                .add(motorBuilder.initialize(mainFile, motorRight).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields(12.5, 1.0).get())
-                .add(motorBuilder.initialize(mainFile, motorLeft).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields(12.5, 1.0).get());
-
-//        motorsWrapper.get(motorLeft).getMotorConfigurationType().setMaxRPM(1111);
+                .add(motorBuilder.initialize(mainFile, motorRight).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                        .setFields(13.0, 1.0).get())
+                .add(motorBuilder.initialize(mainFile, motorLeft).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+                        .setFields(13.0, 1.0).get());
 
         flyWheelOdometry = new FlyWheelOdometry(mainFile, motorsCollector);
         sayCreated();
@@ -52,8 +51,9 @@ public class FlyWheelClass extends ExecutingModule {
     @Override
     protected void executeExt(Double... args) {
         double power = args[0];
-        motorsCollector.get(motorRight).execute(power);
-        motorsCollector.get(motorLeft).execute(-power);
+
+        motorsCollector.get(motorRight).execute(-power);
+        motorsCollector.get(motorLeft).execute(power);
 
         flyWheelOdometry.update();
     }
@@ -61,6 +61,7 @@ public class FlyWheelClass extends ExecutingModule {
     @Override
     protected void showDataExt() {
         motorsCollector.showData();
+        flyWheelOdometry.showData();
     }
     public class FlyWheelOdometry extends UpdatingModule {
         public OdometryData odometryData;
@@ -80,14 +81,18 @@ public class FlyWheelClass extends ExecutingModule {
 
         @Override
         protected void showDataExt() {
-
+            telemetry.addData("speed L",motorsCollector.get(motorLeft).getMotorEx().getVelocity());
+            telemetry.addData("speed R",motorsCollector.get(motorRight).getMotorEx().getVelocity());
+            telemetry.addData("speed", selfMath.filteredVel * RAD);
         }
+
         public class SelfMath extends InnerMath {
             private double[] currentSpeeds;
             public double curentSpeedAll;
             public double filteredVel;
 
             public SelfMath(){
+                setRadius(4).setDRIVE_GEAR_REDUCTION(1).setCOUNTS_PER_ENCODER_REV(28).calculateCountsPerCm();
                 currentSpeeds = new double[2];
             }
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick1;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick2;
@@ -17,6 +18,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
 
 public class AutoPlayerClass2 extends PlayerClass{
@@ -37,7 +39,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         speedController = new SpeedController(mainFile);
         pidfTunner = new PIDFTunner();
 
+        left = new MotorWrapper(mainFile, controlHubDevices.getMotor(0));
+
     }
+    MotorWrapper left;
     public ServoMotorWrapper pusher0;
     public ServoMotorWrapper pusher1;
     public ServoMotorWrapper pusher2;
@@ -56,6 +61,8 @@ public class AutoPlayerClass2 extends PlayerClass{
         double turretPow = 0;
         double flyWheelPow = 0;
 
+        double maxVol = 0.8;
+
         joystickActivityClass.update();
 
         pidfTunner.execute();
@@ -63,12 +70,13 @@ public class AutoPlayerClass2 extends PlayerClass{
         trackEmulator.trackingPIDF.setPID(pidfTunner.P, pidfTunner.I, pidfTunner.D, pidfTunner.F);
 
         double cosB = joystickActivityClass.cosB;
+        double sinA = joystickActivityClass.sinA;
 
-        double targSpeed = 50 * (joystickActivityClass.tAPressed % 4);
+        double targSpeed = Math.toRadians(200);
 
-        if(hoodedShoter.turretMotor.isInterrupted){
-            targSpeed = Math.toRadians(1000);
-        }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
+//        if(hoodedShoter.turretMotor.isInterrupted){
+//            targSpeed = Math.toRadians(1000);
+//        }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
 
         //Выравниваем на ворота альянса
         double[] point = generalInformation.generalObjects.getPointVyr();
@@ -143,8 +151,10 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         checkButtons();
 
+        cosB = Range.clip(cosB, -maxVol, maxVol);
+
         hoodedShoter.turretMotor.execute(turretPow + cosB);
-        hoodedShoter.flyWheelClass.execute(flyWheelPow);
+        hoodedShoter.flyWheelClass.execute(sinA);
         hoodedShoter.collector.execute(collectorPow);
 
         hoodedShoter.setUpdateCount(iterationCount);
@@ -153,7 +163,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
-        joystickActivityClass.showData();
+//        joystickActivityClass.showData();
         hoodedShoter.showData();
         trackEmulator.trackingPIDF.showData();
         telemetry.addLine(String.format("globalIndex: %s index: %s stepSize: %s", pidfTunner.index, pidfTunner.stepIndex, pidfTunner.stepSize[pidfTunner.stepIndex]));
@@ -204,7 +214,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     }
     public class PIDFTunner{
-        private double  P = 0.002, I = 0, D = 0, F = 0.05;
+        private double  P = 0.002, I = 0, D = 0, F = 0.0;
         private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
         private int stepIndex;
         private int index;
@@ -286,7 +296,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     public class TrackEmulator {
         private PIDF trackingPIDF;
         public TrackEmulator(MainFile mainFile){
-            this.trackingPIDF = new PIDF(0.09, 0.000001,0,0, -1, 1, mainFile);
+            this.trackingPIDF = new PIDF(0.3, 0.0,0,0, -1, 1, mainFile);
         }
         private double returnDistance(double VelMax, double accel ){
             return Math.pow(VelMax, 2) / (2 * accel);
@@ -310,18 +320,23 @@ public class AutoPlayerClass2 extends PlayerClass{
             );
 
             //Если турель сделал 1 полный оборот то резко крутимя обратно
-            if(hoodedShoter.turretMotor.isInterrupted){
-                errorHeading = 0 - (hoodedShoter.turretMotor.turretOdometry.localHead - targHead);
+//            if(hoodedShoter.turretMotor.isInterrupted){
+//                errorHeading = 0 - (hoodedShoter.turretMotor.turretOdometry.localHead - targHead);
+//
+////                headVel = targetData.getHeadVel() * Math.signum(errorHeading);
+//                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(3000));
+//            }else {
+//                errorHeading = new Position2D(0, 0, targHead - currentData.getPosition().getHeading()).getHeading();
+//
+//                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
+//            }
 
-//                headVel = targetData.getHeadVel() * Math.signum(errorHeading);
-                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(3000));
-            }else {
-                errorHeading = new Position2D(0, 0, targHead - currentData.getPosition().getHeading()).getHeading();
+            errorHeading = targHead - currentData.getPosition().getHeading();
 
-                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
-            }
+            distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
 
             targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.05) ;
+
             double pidHeadVel = trackingPIDF.calculate(targHeadVel, currentData.getHeadVel());
 
             if(Math.abs(errorHeading) < Math.toRadians(1.5)) {

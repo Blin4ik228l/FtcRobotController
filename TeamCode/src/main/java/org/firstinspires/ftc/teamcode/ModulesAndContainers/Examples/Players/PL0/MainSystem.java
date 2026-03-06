@@ -83,8 +83,7 @@ public class MainSystem extends ExecutorModule {
     }
 
     public void startExecuting(){
-        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2).createRunnable(robotClass);
-
+        createRunnable(autoPlayerClass2).createRunnable(robotClass);
         for (Thread thread: threads) {
             thread.start();
         }
@@ -274,7 +273,7 @@ public class MainSystem extends ExecutorModule {
                 telemetry.addLine(generalInformation.telemetryPages.toString());
                 switch (generalInformation.telemetryPages){
                     case Show_all:
-                        semiAutoPlayerClass1.showData();
+//                        semiAutoPlayerClass1.showData();
                         autoPlayerClass2.showData();
                         robotClass.showData();
                         break;

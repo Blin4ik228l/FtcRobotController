@@ -1,15 +1,11 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
 
-public class MecanumDrivetrain extends UpdatingModule {
+public class MecanumDrivetrain extends MainModule {
     //Телега робота(моторы + колёса) с энкодерами и гироскопом .
     public DrivetrainMotors motors;
     public GyroscopeClass gyro;
@@ -22,10 +18,6 @@ public class MecanumDrivetrain extends UpdatingModule {
         sayCreated();
     }
 
-    @Override
-    protected void updateExt() {
-
-    }
 
     @Override
     protected void showDataExt() {

@@ -26,8 +26,10 @@ public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPosit
 
      public abstract void sayModuleName();
      protected abstract void showDataExt();
+     protected abstract void sayLastWords();
      public void showData(){
           sayModuleName();
           showDataExt();
+          sayLastWords();
      };
 }

@@ -1,28 +1,25 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
-public class JoystickActivityClass extends UpdatingModule implements JoystickButtons {
+public class JoystickActivityClass extends UpdatableCollector implements JoystickButtons {
     public Gamepad playersGamepad;
     public boolean buttonX = false, buttonA = false, buttonB = false, buttonY = false,
             buttonBack = false, buttonStart = false,
             bumperRight = false, bumperLeft = false,
             triggerRight = false, triggerLeft = false,
-            dpad_Up = false, dpad_Down = false, dpad_Left = false, dpad_Right = false, a_and_Left_Trigger = false;
+            dpad_Up = false, dpad_Down = false, dpad_Left = false, dpad_Right = false, a_and_Left_Trigger = false, touchpad = false;
     public boolean switchA = false, switchX = false, switchB = false, switchY = false, switchBack = false, switchStart = false,
             switchRightBumper = false, switchLeftBumper = false,
             switchRightTrigger = false, switchLeftTrigger = false,
-            switchDpad_Up = false, switchDpad_Down = false, switchDpad_Left = false, switchDpad_Right = false, switchA_and_Left_Trigger = false;
+            switchDpad_Up = false, switchDpad_Down = false, switchDpad_Left = false, switchDpad_Right = false, switchA_and_Left_Trigger = false , switchTouchpad = false;
     public int tAPressed = 0, tBPressed = 0, tXPressed = 0, tYPressed = 0,
             tRightTriggerPressed = 0, tLeftTriggerPressed = 0, tRightBumperPressed = 0, tLeftBumperPressed = 0,
             tDpadDownPressed = 0, tDpadUpPressed = 0, tDpadLeftPressed = 0, tDpadRightPressed = 0,
-            tBackPressed, tStartPressed = 0, tA_and_Left_Trigger = 0;
+            tBackPressed, tStartPressed = 0, tA_and_Left_Trigger = 0, tTouchPressed = 0;
     public int iterNumA, iterNumB, iterNumX, iterNumY,
             iterNumRTrigger, iterNumLTrigger, iterNumRBumper, iterNumLBumper,
             iterNumDpadD, iterNumDpadU, iterNumDpadL, iterNumDpadR,
@@ -50,6 +47,7 @@ public class JoystickActivityClass extends UpdatingModule implements JoystickBut
         isDpad_Right();
         isBack_Button();
         isStart_Button();
+        isTouchpad();
 
         cosA = playersGamepad.left_stick_x;
         sinA = -playersGamepad.left_stick_y;
@@ -283,6 +281,20 @@ public class JoystickActivityClass extends UpdatingModule implements JoystickBut
         }
         if(!a_and_Left_Trigger && switchA_and_Left_Trigger){
             switchA_and_Left_Trigger = false;
+        }
+    }
+
+    @Override
+    public void isTouchpad() {
+        if(!playersGamepad.touchpad_finger_1 && !switchTouchpad) return;
+
+        if(playersGamepad.touchpad_finger_1 && !switchTouchpad){
+            touchpad = !touchpad;
+            switchTouchpad = true;
+            tTouchPressed++;
+        }
+        if(!playersGamepad.touchpad_finger_1 && switchTouchpad){
+            switchTouchpad = false;
         }
     }
 

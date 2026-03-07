@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
@@ -13,11 +12,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.ExecutorModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -83,7 +78,7 @@ public class MainSystem extends ExecutorModule {
     }
 
     public void startExecuting(){
-        createRunnable(autoPlayerClass2).createRunnable(robotClass);
+        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2).createRunnable(robotClass);
         for (Thread thread: threads) {
             thread.start();
         }
@@ -91,7 +86,7 @@ public class MainSystem extends ExecutorModule {
         matchTimer.reset();
     }
     public MainSystem createRunnable(ExecutorModule executorModule){
-        int targetFrequencyHz = 50;
+        int targetFrequencyHz = 40;
         long targetPeriodNs = 1_000_000_000 / targetFrequencyHz;
         long targetSleepMs = targetPeriodNs / 1_000_000;
 
@@ -270,10 +265,10 @@ public class MainSystem extends ExecutorModule {
 
         switch (generalInformation.programName){
             case TeleOp:
-                telemetry.addLine(generalInformation.telemetryPages.toString());
-                switch (generalInformation.telemetryPages){
+                telemetry.addData("Telemetry page", generalInformation.currentPage.name());
+                switch (generalInformation.currentPage){
                     case Show_all:
-//                        semiAutoPlayerClass1.showData();
+                        semiAutoPlayerClass1.showData();
                         autoPlayerClass2.showData();
                         robotClass.showData();
                         break;
@@ -317,7 +312,7 @@ public class MainSystem extends ExecutorModule {
 
     }
 
-    public class FileSystem extends UpdatingModule {
+    public class FileSystem extends UpdatableCollector {
         //Данному классу требуется доступ ко всем объектам программы
         private File odometryData, anotherData;
         private List<String> logBuffer;
@@ -333,8 +328,8 @@ public class MainSystem extends ExecutorModule {
 
         @Override
         protected void updateExt() {
-            logBuffer.add(String.format("%.2f %.2f %.2f %.2f %s %n", Math.abs(autoPlayerClass2.trackEmulator.targHeadVel * RAD), Math.abs(robotClass.odometry.odometryBufferForTuret.read().getHeadVel() * RAD),
-                    autoPlayerClass2.trackEmulator.targHead * RAD, robotClass.odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD, matchTimer.seconds()));
+//            logBuffer.add(String.format("%.2f %.2f %.2f %.2f %s %n", Math.abs(autoPlayerClass2.trackEmulator.targHeadVel * RAD), Math.abs(robotClass.odometry.odometryBufferForTuret.read().getHeadVel() * RAD),
+//                    autoPlayerClass2.trackEmulator.targHead * RAD, robotClass.odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD, matchTimer.seconds()));
         }
         public void loadLastPosition() {
             OdometryData lastData = null;

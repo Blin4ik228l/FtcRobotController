@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
-
-import java.util.ArrayList;
 
 public class VoltageSensorClass extends UpdatableModule {
     private HardwareMap.DeviceMapping<VoltageSensor> voltageSensor;
@@ -56,10 +52,7 @@ public class VoltageSensorClass extends UpdatableModule {
 
     @Override
     public void showDataExt() {
-        telemetry.addData("H size", hardwareMap.size());
+        telemetry.addData("Hrdw size", hardwareMap.size());
         telemetry.addData("Vol", curVoltage);
-        telemetry.addData("Max vol", MAX_VOL);
-        telemetry.addData("KP", kPower);
-        telemetry.addLine();
     }
 }

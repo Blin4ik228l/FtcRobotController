@@ -1,21 +1,17 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.InnerMath;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
-public class FlyWheelClass extends ExecutingModule {
+public class FlyWheelClass extends ExecutableCollector {
     public FlyWheelOdometry flyWheelOdometry;
     public FlyWheelClass(MainFile mainFile) {
         super(mainFile);
@@ -63,7 +59,7 @@ public class FlyWheelClass extends ExecutingModule {
         motorsCollector.showData();
         flyWheelOdometry.showData();
     }
-    public class FlyWheelOdometry extends UpdatingModule {
+    public class FlyWheelOdometry extends UpdatableCollector {
         public OdometryData odometryData;
         public SelfMath selfMath;
         public FlyWheelOdometry(MainFile mainFile, MotorWrapper.InnerCollector motors){
@@ -81,8 +77,8 @@ public class FlyWheelClass extends ExecutingModule {
 
         @Override
         protected void showDataExt() {
-            telemetry.addData("speed L",motorsCollector.get(motorLeft).getMotorEx().getVelocity());
-            telemetry.addData("speed R",motorsCollector.get(motorRight).getMotorEx().getVelocity());
+            telemetry.addData("speed L", selfMath.currentSpeeds[0] * RAD);
+            telemetry.addData("speed R", selfMath.currentSpeeds[0]* RAD);
             telemetry.addData("speed", selfMath.filteredVel * RAD);
         }
 

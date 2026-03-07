@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.GameTactick;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Dot;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TelemetryPages;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TelemetryPage;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeleOpStage;
 
 import java.util.ArrayList;
@@ -16,7 +16,14 @@ public class GeneralInformation {
     public ProgramName programName;
     public GameTactick gameTactick;
     public TeleOpStage teleOpStage;
-    public TelemetryPages telemetryPages;
+    public ArrayList<TelemetryPage> telemetryPages = new ArrayList<>(List.of(
+            TelemetryPage.Show_all,
+            TelemetryPage.Show_pl1,
+            TelemetryPage.Show_pl2,
+            TelemetryPage.Show_robot,
+            TelemetryPage.Show_modules_freq
+    ));
+    public TelemetryPage currentPage;
 
     public GeneralInformation(ProgramName programName, TeamAliance teamAliance, StartPos startPos){
         this.programName = programName;
@@ -25,8 +32,8 @@ public class GeneralInformation {
 
         this.generalObjects = new GeneralObjects();
 
+        currentPage = TelemetryPage.Show_all;
         gameTactick = GameTactick.Fire;
-        telemetryPages = TelemetryPages.Show_all;
     }
 
     public enum Color{

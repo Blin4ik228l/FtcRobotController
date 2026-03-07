@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
@@ -8,12 +7,10 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl1.SemiAutoPlayerClass1;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
 
 import java.io.File;
@@ -61,7 +58,7 @@ public class ModulesCollector{
         }
     }
 
-    public class FileSystem extends UpdatingModule {
+    public class FileSystem extends UpdatableCollector {
         //Данному классу требуется доступ ко всем объектам программы
         private File file;
         private List<String> logBuffer ;

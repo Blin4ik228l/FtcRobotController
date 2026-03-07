@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(MainFile mainFile, RobotClass robotClass) {
@@ -37,12 +38,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         trackEmulator = new TrackEmulator(mainFile);
         speedController = new SpeedController(mainFile);
-        pidfTunner = new PIDFTunner();
-
-        left = new MotorWrapper(mainFile, controlHubDevices.getMotor(0));
-
+        pidfTunner = new PIDFTunner(mainFile);
     }
-    MotorWrapper left;
     public ServoMotorWrapper pusher0;
     public ServoMotorWrapper pusher1;
     public ServoMotorWrapper pusher2;
@@ -67,7 +64,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         pidfTunner.execute();
 
-        trackEmulator.trackingPIDF.setPID(pidfTunner.P, pidfTunner.I, pidfTunner.D, pidfTunner.F);
+        trackEmulator.setPID(pidfTunner.getkP(), pidfTunner.getkI(), pidfTunner.getkD(), pidfTunner.getkF());
 
         double cosB = joystickActivityClass.cosB;
         double sinA = joystickActivityClass.sinA;
@@ -157,18 +154,16 @@ public class AutoPlayerClass2 extends PlayerClass{
         hoodedShoter.flyWheelClass.execute(sinA);
         hoodedShoter.collector.execute(collectorPow);
 
-        hoodedShoter.setUpdateCount(iterationCount);
-        hoodedShoter.update();
+        hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
+        hoodedShoter.digitalCellsClass.update();
     }
 
     @Override
     protected void showDataExt() {
-//        joystickActivityClass.showData();
+        joystickActivityClass.showData();
         hoodedShoter.showData();
-        trackEmulator.trackingPIDF.showData();
-        telemetry.addLine(String.format("globalIndex: %s index: %s stepSize: %s", pidfTunner.index, pidfTunner.stepIndex, pidfTunner.stepSize[pidfTunner.stepIndex]));
-        telemetry.addLine(String.format("targHead %.2f",trackEmulator.targHead * RAD));
-        telemetry.addLine(String.format("curHead %.2f", odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD));
+        trackEmulator.showData();
+        pidfTunner.showData();
     }
 
     @Override
@@ -198,10 +193,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     @Override
     public void buttonXUnReleased() {
         pusher1.execute(0.07);
-
-
     }
-
     @Override
     public void buttonYReleased() {
 
@@ -213,11 +205,15 @@ public class AutoPlayerClass2 extends PlayerClass{
         pusher2.execute(0.08);
 
     }
-    public class PIDFTunner{
-        private double  P = 0.002, I = 0, D = 0, F = 0.0;
+    public class PIDFTunner extends PIDF {
         private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
         private int stepIndex;
         private int index;
+
+        public PIDFTunner(MainFile mainFile) {
+            super(0.002, 0,0,0, -1,1, mainFile);
+        }
+
         public void execute(){
             if(joystickActivityClass.bumperLeft){
                 stepIndex = Math.max(stepIndex - 1, 0);
@@ -242,16 +238,16 @@ public class AutoPlayerClass2 extends PlayerClass{
             if(joystickActivityClass.dpad_Up){
                 switch (index){
                     case 0:
-                        P += stepSize[stepIndex];
+                        kP += stepSize[stepIndex];
                         break;
                     case 1:
-                        I += stepSize[stepIndex];
+                        kI += stepSize[stepIndex];
                         break;
                     case 2:
-                        D += stepSize[stepIndex];
+                        kD += stepSize[stepIndex];
                         break;
                     case 3:
-                        F += stepSize[stepIndex];
+                        kF += stepSize[stepIndex];
                         break;
                 }
                 joystickActivityClass.dpad_Up = false;
@@ -260,48 +256,42 @@ public class AutoPlayerClass2 extends PlayerClass{
             if(joystickActivityClass.dpad_Down){
                 switch (index){
                     case 0:
-                        P = Math.max(P - stepSize[stepIndex], 0);
+                        kP = Math.max(kP - stepSize[stepIndex], 0);
                         break;
                     case 1:
-                        I = Math.max(I - stepSize[stepIndex], 0);
+                        kI = Math.max(kI - stepSize[stepIndex], 0);
                         break;
                     case 2:
-                        D = Math.max(D - stepSize[stepIndex], 0);
+                        kD = Math.max(kD - stepSize[stepIndex], 0);
                         break;
                     case 3:
-                        F = Math.max(F - stepSize[stepIndex], 0);
+                        kF = Math.max(kF - stepSize[stepIndex], 0);
                         break;
                 }
                 joystickActivityClass.dpad_Down = false;
             }
         }
 
-        public double getP() {
-            return P;
+        @Override
+        public void sayModuleName() {
+
         }
 
-        public double getI() {
-            return I;
-        }
-
-        public double getD() {
-            return D;
-        }
-
-        public double getF() {
-            return F;
+        @Override
+        protected void showDataExt() {
+            telemetry.addLine(String.format("globalIndex: %s index: %s stepSize: %s", pidfTunner.index, pidfTunner.stepIndex, pidfTunner.stepSize[pidfTunner.stepIndex]));
         }
     }
 
-    public class TrackEmulator {
-        private PIDF trackingPIDF;
+    public class TrackEmulator extends PIDF{
         public TrackEmulator(MainFile mainFile){
-            this.trackingPIDF = new PIDF(0.3, 0.0,0,0, -1, 1, mainFile);
+            super(0.3, 0.0,0,0, -1, 1, mainFile);
         }
+
         private double returnDistance(double VelMax, double accel ){
             return Math.pow(VelMax, 2) / (2 * accel);
         }
-        public double targHead, targHeadVel;
+        public double errorHeading;
         public double calculateVol(OdometryData targetData, OdometryData currentData){
             Position2D targetPos = targetData.getPosition();
             Position2D currentPos = currentData.getPosition();
@@ -314,7 +304,7 @@ public class AutoPlayerClass2 extends PlayerClass{
             double distanceBreak;
 
             //Смотрим прямо на объект
-            targHead = Math.atan2(
+            double targHead = Math.atan2(
                     deltaPos.getY(),
                     deltaPos.getX()
             );
@@ -335,9 +325,9 @@ public class AutoPlayerClass2 extends PlayerClass{
 
             distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
 
-            targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.05) ;
+            double targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.05) ;
 
-            double pidHeadVel = trackingPIDF.calculate(targHeadVel, currentData.getHeadVel());
+            double pidHeadVel = calculate(targHeadVel, currentData.getHeadVel());
 
             if(Math.abs(errorHeading) < Math.toRadians(1.5)) {
                 pidHeadVel = 0;
@@ -345,6 +335,15 @@ public class AutoPlayerClass2 extends PlayerClass{
             }
 
             return pidHeadVel;
+        }
+        @Override
+        public void sayModuleName() {
+
+        }
+        @Override
+        public void showData(){
+            telemetry.addData("error", "%.2f", errorHeading * RAD);
+            showDataExt();
         }
     }
     public class SpeedController{

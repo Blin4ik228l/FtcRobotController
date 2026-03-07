@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,7 +11,6 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +50,6 @@ public class GyroscopeClass extends UpdatableModule {
     @Override
     public void showDataExt() {
         telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
-        telemetry.addLine();
     }
 
     private class SelfMath{

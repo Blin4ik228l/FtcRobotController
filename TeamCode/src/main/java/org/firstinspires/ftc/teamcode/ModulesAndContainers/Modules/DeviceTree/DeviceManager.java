@@ -26,12 +26,18 @@ public abstract class DeviceManager extends Module {
     }
     @Override
     public void sayModuleName() {
-        telemetry.addLine("==="+ searchingDevice +"===");
+        telemetry.addLine("|/-"+ searchingDevice +"-|/");
     }
 
     public void sayBadInit(){
         telemetry.addLine("Not Found/Attached");
     }
+
+    @Override
+    protected void sayLastWords() {
+
+    }
+
     public abstract static class Builder<T> extends HardwareBuilder {
         protected T wrapper;
         @Override

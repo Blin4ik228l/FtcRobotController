@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
 import java.util.ArrayList;
 
-public class DigitalCellsClass extends UpdatingModule {
+public class DigitalCellsClass extends UpdatableCollector {
     public CellWrapper.Builder cells;
     public DigitalCellsClass(MainFile mainFile){
         super(mainFile);
@@ -29,7 +29,7 @@ public class DigitalCellsClass extends UpdatingModule {
                         colorBuilder.initialize(mainFile, controlHubDevices.getI2C(0)).setFields(0.0, 0.0, 0.0, 0.0).get(),
                         colorBuilder.initialize(mainFile, controlHubDevices.getI2C(1)).setFields(0.0, 0.0, 0.0, 0.0).get());
 
-
+        setUpdateCount(3);
         sayCreated();
     }
     /*1 - в массиве это зелёный шар
@@ -76,7 +76,7 @@ public class DigitalCellsClass extends UpdatingModule {
        cells.getCell("3").servoWrapper.execute(0.0);
     }
 
-    public static class CellWrapper extends UpdatingModule {
+    public static class CellWrapper extends UpdatableCollector {
         public ArrayList<ColorSensorWrapper> sensorsWrapper = new ArrayList<>();
         public ServoMotorWrapper servoWrapper;
         public boolean isInit;
@@ -115,11 +115,6 @@ public class DigitalCellsClass extends UpdatingModule {
             for (ColorSensorWrapper color:sensorsWrapper) {
                 color.update();
             };
-        }
-
-        @Override
-        public void sayModuleName() {
-            telemetry.addLine(name.toUpperCase());
         }
 
         @Override

@@ -1,27 +1,21 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Units;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.EncoderClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.InnerMath;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree.DeviceManager;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
-public class DrivetrainMotors extends ExecutingModule {
+public class DrivetrainMotors extends ExecutableCollector {
     public EncoderClass2 encoderClass;
     public DrivetrainMotors(MainFile mainFile) {
         super(mainFile);
@@ -69,7 +63,7 @@ public class DrivetrainMotors extends ExecutingModule {
 
         encoderClass.update();
     }
-    public class EncoderClass2 extends UpdatingModule {
+    public class EncoderClass2 extends UpdatableCollector {
         private double COUNTS_PER_ENCODER_REV = 2000;
         private double DRIVE_GEAR_REDUCTION = 1;
         private double ENC_WHEEL_DIAM_CM = 4.8;

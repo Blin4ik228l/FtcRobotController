@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0;
 
-public enum TelemetryPages {
+public enum TelemetryPage {
     Show_all,
     Show_pl1,
     Show_pl2,

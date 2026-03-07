@@ -25,7 +25,6 @@ public abstract class TeleOpModernized extends OpMode {
         mainSystem.startExecuting();
 //        telemetry.setAutoClear(false);
     }
-
     @Override
     public void loop() {
         mainSystem.execute();

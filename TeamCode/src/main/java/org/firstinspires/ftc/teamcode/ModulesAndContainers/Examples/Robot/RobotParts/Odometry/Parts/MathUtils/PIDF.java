@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 public class PIDF extends Module {
     private ElapsedTime runtime = new ElapsedTime();
-    private double kP, kI, kD, kF; // Пропорциональный, интегральный, дифференциальный коэффициент, feedForward
+    protected double kP, kI, kD, kF; // Пропорциональный, интегральный, дифференциальный коэффициент, feedForward
 
     private double P = 0;
     private double I = 0;
@@ -103,8 +103,13 @@ public class PIDF extends Module {
 
     @Override
     protected void showDataExt() {
-        telemetry.addLine(String.format("P %s I %s D %s F %s", P, I, D, F));
+        telemetry.addLine(String.format("P %.3f I %.3f D %.3f F %.3f", P, I, D, F));
         telemetry.addLine(String.format("kP %s kI %s kD %s kF %s", kP, kI, kD, kF));
-        telemetry.addLine(String.format("Target %.2f Current %.2f", target, current));
+        telemetry.addLine(String.format("Target %.3f Current %.3f", target, current));
+    }
+
+    @Override
+    protected void sayLastWords() {
+
     }
 }

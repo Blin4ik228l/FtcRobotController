@@ -11,21 +11,25 @@ public abstract class MainModule extends DeviceCollector {
         super(mainFile);
     }
     public void createServoWrapperUtils(){
-        servoBuilder = new ServoMotorWrapper.InnerBuilder();
         servosCollector = new ServoMotorWrapper.InnerCollector();
     }
 
     public void createColorWrapperUtils(){
-        colorBuilder = new ColorSensorWrapper.InnerBuilder();
         colorsCollector = new ColorSensorWrapper.InnerCollector();
     }
     public void createMotorWrapperUtils(){
-        motorBuilder = new MotorWrapper.InnerBuilder();
         motorsCollector = new MotorWrapper.InnerCollector();
+    }
+
+    @Override
+    protected void sayLastWords() {
+        telemetry.addLine("============");
+        telemetry.addLine();
     }
 
     @Override
     public void sayModuleName() {
         telemetry.addLine( "===" + this.getClass().getSimpleName().toUpperCase() + "===");
+
     }
 }

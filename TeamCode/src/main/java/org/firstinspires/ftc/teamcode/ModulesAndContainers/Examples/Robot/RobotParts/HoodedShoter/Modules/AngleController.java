@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
-import org.opencv.dnn.Model;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
 
-public class AngleController extends ExecutingModule {
+public class AngleController extends ExecutableCollector {
     public String angleServo = expansionHubDevices.getServo0(0);
     public AngleController(MainFile mainFile) {
         super(mainFile);

@@ -15,7 +15,6 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
@@ -247,6 +246,5 @@ public class CameraClass extends UpdatableModule {
 //        telemetry.addData("FTC Angles", "R:%.1f P:%.1f Y:%.1f", ftcFieldRoll * RAD, ftcFieldPitch * RAD, ftcFieldYaw * RAD);
 //        telemetry.addData("Center", "X:%.1f Y:%.1f", centerX, centerY);
 //        telemetry.addData("Last Pos was taked", updateTime.seconds());
-        telemetry.addLine();
     }
 }

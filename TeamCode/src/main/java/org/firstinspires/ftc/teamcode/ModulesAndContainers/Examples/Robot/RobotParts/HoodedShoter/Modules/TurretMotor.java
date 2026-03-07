@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -11,13 +10,11 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.InnerM
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutingModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Extenders2.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatingModule;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableCollector;
 
-public class TurretMotor extends ExecutingModule {
+public class TurretMotor extends ExecutableCollector {
     public String turretMotor = controlHubDevices.getMotor(0);
     public TurretOdometry turretOdometry;
     public boolean isInterrupted;
@@ -45,7 +42,7 @@ public class TurretMotor extends ExecutingModule {
         motorsCollector.showData();
         turretOdometry.showData();
     }
-    public class TurretOdometry extends UpdatingModule {
+    public class TurretOdometry extends UpdatableCollector {
         public TurretOdometry(MainFile mainFile, MotorWrapper.InnerCollector motors) {
             super(mainFile);
             motorsCollector = motors;

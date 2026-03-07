@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.DeviceTree.DeviceCollector;
 
-public abstract class UpdatingModule extends MainModule {
-    public UpdatingModule(MainFile mainFile) {
+public abstract class UpdatableCollector extends MainModule {
+    public UpdatableCollector(MainFile mainFile) {
         super(mainFile);
     }
     protected abstract void updateExt();
@@ -18,8 +16,17 @@ public abstract class UpdatingModule extends MainModule {
     public void setCurIterations(int count){
         iterationCount = count;
     }
+    @Override
+    public void sayModuleName() {
+        telemetry.addLine( "[" + this.getClass().getSimpleName().toUpperCase() + "]");
+    }
     public void update() {
         if(!isInitialized || isInterrupted || iterationCount % updateCount != 0) return;
         else updateExt();
+    }
+
+    @Override
+    protected void sayLastWords() {
+        telemetry.addLine("[??????????????]");
     }
 }

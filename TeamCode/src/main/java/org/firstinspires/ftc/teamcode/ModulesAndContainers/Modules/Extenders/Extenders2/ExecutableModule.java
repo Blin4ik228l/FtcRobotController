@@ -15,4 +15,9 @@ public abstract class ExecutableModule extends DeviceManager {
         else executeExt(args);
     };
     protected abstract void executeExt(Double...args);
+
+    @Override
+    protected void sayLastWords() {
+        super.sayLastWords();
+    }
 }

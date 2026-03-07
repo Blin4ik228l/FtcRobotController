@@ -20,7 +20,6 @@ public abstract class ExecutorModule extends MainModule {
         updateTime = new ElapsedTime();
     }
     protected int iterationCount = 1;
-
     protected double hz;
     public ProgramState programState;
     protected void resetTimer(){
@@ -42,16 +41,25 @@ public abstract class ExecutorModule extends MainModule {
     public void showUpdateFreq(){
         telemetry.addData("Update time/hz", hz);
     }
+    public void sayState(){
+        telemetry.addLine(programState.name());
+    }
     @Override
     public void sayModuleName() {
-        telemetry.addLine( "|||||" + this.getClass().getSimpleName().toUpperCase() + "|||||");
+        telemetry.addLine( "-----" + this.getClass().getSimpleName().toUpperCase() + "-----");
     }
     @Override
     public void showData() {
         sayModuleName();
         showDataExt();
+        sayState();
         showUpdateFreq();
-        telemetry.addLine("|||||||||||||||||||||||||||||||||||||||||||||");
+        sayLastWords();
+    }
+
+    @Override
+    protected void sayLastWords() {
+        telemetry.addLine("-----------------------------------");
     }
 
     public static class Builder {

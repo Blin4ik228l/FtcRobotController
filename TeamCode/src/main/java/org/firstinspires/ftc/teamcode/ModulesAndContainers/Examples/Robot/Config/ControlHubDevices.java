@@ -10,7 +10,7 @@ public class ControlHubDevices extends DevicesConfig{
          **/
         new Builder()
                 .setMotorNames("turret", "left", "right")
-                .setServoNames("")
+                .setServoNames("pusher0", "pusher1", "pusher2")
                 .setI2CDeviceNames("color4", "color5")
                 .setDigDeviceNames("")
                 .setAnalogDeviceNames("");

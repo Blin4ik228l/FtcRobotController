@@ -73,7 +73,6 @@ public class MainSystem extends ExecutorModule {
         }
 
         robotClass.drivetrain.gyro.update();
-//        robotClass.hoodedShoter.update();
         robotClass.odometry.cameraClass.update();
     }
 

@@ -60,7 +60,7 @@ public abstract class DevicesConfig {
                 return "";
         }
     }
-    public String getServo0(int port){
+    public String getServo(int port){
         switch (port){
             case 0:
                 return servo0;

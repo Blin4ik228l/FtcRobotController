@@ -34,6 +34,14 @@ public abstract class DeviceManager extends Module {
     }
 
     @Override
+    public void showData() {
+        sayModuleName();
+        if (!isInitialized) {
+            sayBadInit();
+        }else showDataExt();
+    }
+
+    @Override
     protected void sayLastWords() {
 
     }

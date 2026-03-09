@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappe
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
 
 public class AngleController extends ExecutableCollector {
-    public String angleServo = expansionHubDevices.getServo0(0);
+    public String angleServo = expansionHubDevices.getServo(0);
     public AngleController(MainFile mainFile) {
         super(mainFile);
         createServoWrapperUtils();

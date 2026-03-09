@@ -30,29 +30,25 @@ public class ServoMotorWrapper extends ExecutableModule {
     private boolean isBusy;
     @Override
     protected void executeExt(Double... args) {
-        double position = args[0];
         //По сути метод нужен для серваков без обратной связи
+        double position = args[0];
         if (position != servo.getPosition()) {
-            delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) * servoSpeed;
+            delayTime = Math.abs(servoMaxAngle * position - servo.getPosition() * servoMaxAngle) / servoSpeed;
             signalTime.reset();
         }
-        servo.setPosition(position);
         //Вычисляем "путь" до позиции, а после расщётное время
-
-        isBusy = signalTime.seconds() < delayTime;
+        servo.setPosition(position);
     }
 
     public boolean isBusy() {
-        return isBusy;
+        return signalTime.seconds() < delayTime * 3.0;
     }
 
     @Override
     public void showDataExt() {
-        if (!isInitialized) sayBadInit();
-        else {
-            telemetry.addData("Position", servo.getPosition());
-            telemetry.addLine();
-        }
+        telemetry.addData("Position", servo.getPosition());
+        telemetry.addData("signal Time", signalTime.seconds());
+        telemetry.addData("delay", delayTime);
     }
 
     public static class InnerBuilder extends Builder<ServoMotorWrapper>{
@@ -74,7 +70,7 @@ public class ServoMotorWrapper extends ExecutableModule {
     public static class InnerCollector extends CollectorBuilder<ServoMotorWrapper>{
 
         @Override
-        public CollectorBuilder add(ServoMotorWrapper wrapper) {
+        public InnerCollector add(ServoMotorWrapper wrapper) {
             wrappers.put(wrapper.searchingDevice, wrapper);
             return this;
         }

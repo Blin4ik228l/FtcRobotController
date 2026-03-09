@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.Upd
 public class TurretMotor extends ExecutableCollector {
     public String turretMotor = controlHubDevices.getMotor(0);
     public TurretOdometry turretOdometry;
-    public boolean isInterrupted;
+    public boolean isNeedBack;
 
     public TurretMotor(MainFile mainFile) {
         super(mainFile);
@@ -53,7 +53,8 @@ public class TurretMotor extends ExecutableCollector {
             sayCreated();
         }
         public OdometryBuffer turretBuffer;
-        public double localHead = Math.toRadians(180);
+        public double localHead = 0;
+        public boolean wasGreaterThen2PI;
         private SelfMath selfMath;
 
         @Override
@@ -63,7 +64,8 @@ public class TurretMotor extends ExecutableCollector {
 
         @Override
         protected void showDataExt() {
-            telemetry.addData("TuretData", "head  %s vel %s", localHead * RAD, turretBuffer.read().getHeadVel() * RAD);
+            telemetry.addData("TuretData", "head  %.2f vel %.2f", localHead * RAD, turretBuffer.read().getHeadVel() * RAD);
+            telemetry.addData("NeedBack", isNeedBack);
         }
 
         public class SelfMath extends InnerMath {
@@ -86,11 +88,11 @@ public class TurretMotor extends ExecutableCollector {
                 //Тиков на оборот мотора
                 double outPutResolution = 384.5 * 5.19;
 
-                curMotorPos = getCurentPos(motorsCollector.get(turretMotor), Units.Ticks);
+                curMotorPos = getCurentPos(motorsCollector.get(turretMotor), Units.Rad);
                 deltaPos = lastMotorPos - curMotorPos;
                 lastMotorPos = curMotorPos;
 
-                deltaHead = getCurentPos(motorsCollector.get(turretMotor), Units.Rad);;
+                deltaHead = -deltaPos;
 
                 curTime = runTime.milliseconds();
                 deltaTime = curTime - lastTime;
@@ -102,11 +104,14 @@ public class TurretMotor extends ExecutableCollector {
 
                 filteredTurretVelocity = filtr * headVel2 + (1 - filtr) * filteredTurretVelocity;
 
-                Position2D normPos = new Position2D(0,0,localHead);
-
-                if(normPos.getHeading() - 2 * Math.PI >= 2 * Math.PI) isInterrupted = true;
-
                 localHead += deltaHead;
+
+                if((localHead > 2 * Math.PI || localHead < 0) && !isNeedBack) {
+                    wasGreaterThen2PI = localHead > 2 * Math.PI;
+
+                    isNeedBack = true;
+                }
+
 
                 rawData.setPosition(new Position2D(0,0, deltaHead));
                 rawData.setHeadVel(filteredTurretVelocity);

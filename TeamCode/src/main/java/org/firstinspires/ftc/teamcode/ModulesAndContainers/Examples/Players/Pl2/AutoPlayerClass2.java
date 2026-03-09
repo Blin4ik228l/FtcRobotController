@@ -51,7 +51,12 @@ public class AutoPlayerClass2 extends PlayerClass{
     public TrackEmulator trackEmulator;
     public PIDFTunner pidfTunner;
     public SpeedController speedController;
-
+    public ServoState servoState = ServoState.waiting;
+    public enum ServoState{
+        waiting,
+        fired,
+        prepared
+    }
     @Override
     public void executeExt() {
         double collectorPow = 0;
@@ -69,15 +74,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         double cosB = joystickActivityClass.cosB;
         double sinA = joystickActivityClass.sinA;
 
-        double targSpeed = Math.toRadians(200);
-
-//        if(hoodedShoter.turretMotor.isInterrupted){
-//            targSpeed = Math.toRadians(1000);
-//        }else targSpeed = odometry.odometryBufferForRobot.read().getHeadVel() + Math.toRadians(50);
-
-        //Выравниваем на ворота альянса
         double[] point = generalInformation.generalObjects.getPointVyr();
-        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), targSpeed);
+        //Выравниваем на ворота альянса
+
+        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), Math.abs(odometry.odometryBufferForRobot.read().getHeadVel()) + Math.toRadians(100));
         OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
 
         turretPow = trackEmulator.calculateVol(targetData, currentData);
@@ -129,8 +129,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
                         //TODO условие на наводку турели
                         if(isFlyWheelReady && isAngleGrowUp){
-                            if(hoodedShoter.digitalCellsClass.isInerrupted){
-                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isInerrupted = false;
+                            if(hoodedShoter.digitalCellsClass.isStopped){
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isStopped = false;
                             }
 
                             int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
@@ -148,9 +148,35 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         checkButtons();
 
+        switch (servoState){
+            case waiting:
+                if (hoodedShoter.digitalCellsClass.getArtifactCount() != 0) {
+                    int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
+                    int neededColor = odometry.cameraClass.motif[index];
+                    hoodedShoter.digitalCellsClass.fire(neededColor);
+                    if (hoodedShoter.digitalCellsClass.isStopped) {
+                        servoState = ServoState.fired;
+                    }
+                }
+                break;
+            case fired:
+                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                    hoodedShoter.digitalCellsClass.prepareServo();
+                    servoState = ServoState.prepared;
+                }
+                break;
+            case prepared:
+                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                    hoodedShoter.digitalCellsClass.isStopped = false;
+                    servoState = ServoState.waiting;
+                }
+                break;
+        }
+
+
         cosB = Range.clip(cosB, -maxVol, maxVol);
 
-        hoodedShoter.turretMotor.execute(turretPow + cosB);
+        hoodedShoter.turretMotor.execute(0.0);
         hoodedShoter.flyWheelClass.execute(sinA);
         hoodedShoter.collector.execute(collectorPow);
 
@@ -160,6 +186,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
+        telemetry.addData("motif", "%s %s %s",odometry.cameraClass.motif[0], odometry.cameraClass.motif[1], odometry.cameraClass.motif[2]);
+        telemetry.addData("inTerr", hoodedShoter.digitalCellsClass.isStopped);
         joystickActivityClass.showData();
         hoodedShoter.showData();
         trackEmulator.showData();
@@ -177,32 +205,31 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonBReleased() {
-        pusher0.execute(0.52);
+
     }
 
     @Override
     public void buttonBUnReleased() {
-        pusher0.execute(0.08);
+
     }
 
     @Override
     public void buttonXReleased() {
-        pusher1.execute(0.5);
+
     }
 
     @Override
     public void buttonXUnReleased() {
-        pusher1.execute(0.07);
+
     }
+
     @Override
     public void buttonYReleased() {
 
-        pusher2.execute(0.55);
     }
 
     @Override
     public void buttonYUnReleased() {
-        pusher2.execute(0.08);
 
     }
     public class PIDFTunner extends PIDF {
@@ -211,7 +238,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PIDFTunner(MainFile mainFile) {
-            super(0.002, 0,0,0, -1,1, mainFile);
+            super(0.1, 0,0,0.00, -1,1, mainFile);
         }
 
         public void execute(){
@@ -299,39 +326,40 @@ public class AutoPlayerClass2 extends PlayerClass{
             // Находим ошибку положения
             Position2D deltaPos = targetPos.minus(currentPos);
 
-            double errorHeading;
-            double headVel;
-            double distanceBreak;
+//            double targHead = Math.atan2(
+//                    deltaPos.getY(),
+//                    deltaPos.getX());
+            double targHead = Math.toRadians(180);
 
-            //Смотрим прямо на объект
-            double targHead = Math.atan2(
-                    deltaPos.getY(),
-                    deltaPos.getX()
-            );
+            if(hoodedShoter.turretMotor.isNeedBack){
+                if(hoodedShoter.turretMotor.turretOdometry.wasGreaterThen2PI) targHead = 0;
+                else targHead = Math.PI * 2;
 
+//                if (targHead > 0){
+//                    targHead -= 2 * Math.PI;
+//                }else targHead += 2 * Math.PI;
+//
+//                double cur = currentData.getPosition().getHeading();
+//
+//                if (cur > 0){
+//                    cur -= 2 * Math.PI;
+//                }else cur += 2 * Math.PI;
+
+                errorHeading = targHead - hoodedShoter.turretMotor.turretOdometry.localHead;
+            }else {
+                errorHeading = targHead - currentData.getPosition().getHeading();
+            }
+
+            double distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(2000));
             //Если турель сделал 1 полный оборот то резко крутимя обратно
-//            if(hoodedShoter.turretMotor.isInterrupted){
-//                errorHeading = 0 - (hoodedShoter.turretMotor.turretOdometry.localHead - targHead);
-//
-////                headVel = targetData.getHeadVel() * Math.signum(errorHeading);
-//                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(3000));
-//            }else {
-//                errorHeading = new Position2D(0, 0, targHead - currentData.getPosition().getHeading()).getHeading();
-//
-//                distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
-//            }
 
-            errorHeading = targHead - currentData.getPosition().getHeading();
-
-            distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(300));
-
-            double targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.05) ;
+            double targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.2) ;
 
             double pidHeadVel = calculate(targHeadVel, currentData.getHeadVel());
 
-            if(Math.abs(errorHeading) < Math.toRadians(1.5)) {
+            if(Math.abs(errorHeading) < Math.toRadians(5)) {
                 pidHeadVel = 0;
-                if(hoodedShoter.turretMotor.isInterrupted) hoodedShoter.turretMotor.isInterrupted = false;
+                if(hoodedShoter.turretMotor.isNeedBack) hoodedShoter.turretMotor.isNeedBack = false;
             }
 
             return pidHeadVel;

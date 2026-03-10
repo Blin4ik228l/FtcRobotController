@@ -290,6 +290,11 @@ public class MainSystem extends ExecutorModule {
                         sayModuleName();
                         showUpdateFreq();
                         break;
+                    case Show_game_states:
+                        telemetry.addLine(generalInformation.gameTactick.toString());
+                        telemetry.addData("Pl1", semiAutoPlayerClass1.programState.toString());
+                        telemetry.addData("Pl2", autoPlayerClass2.programState.toString());
+                        break;
                 }
                 break;
             default:

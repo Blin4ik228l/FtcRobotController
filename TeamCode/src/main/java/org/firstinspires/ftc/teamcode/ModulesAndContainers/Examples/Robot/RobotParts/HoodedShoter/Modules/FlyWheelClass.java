@@ -48,8 +48,8 @@ public class FlyWheelClass extends ExecutableCollector {
     protected void executeExt(Double... args) {
         double power = args[0];
 
-        motorsCollector.get(motorRight).execute(-power);
-        motorsCollector.get(motorLeft).execute(power);
+        motorsCollector.get(motorRight).execute(power);
+        motorsCollector.get(motorLeft).execute(-power);
 
         flyWheelOdometry.update();
     }

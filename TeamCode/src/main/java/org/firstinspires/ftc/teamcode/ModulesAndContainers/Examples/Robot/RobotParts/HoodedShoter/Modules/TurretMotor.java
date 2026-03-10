@@ -54,7 +54,7 @@ public class TurretMotor extends ExecutableCollector {
         }
         public OdometryBuffer turretBuffer;
         public double localHead = 0;
-        public boolean wasGreaterThen2PI;
+        public boolean wasGreaterThenPI;
         private SelfMath selfMath;
 
         @Override
@@ -106,8 +106,8 @@ public class TurretMotor extends ExecutableCollector {
 
                 localHead += deltaHead;
 
-                if((localHead > 2 * Math.PI || localHead < 0) && !isNeedBack) {
-                    wasGreaterThen2PI = localHead > 2 * Math.PI;
+                if((localHead > Math.PI || localHead < -Math.PI) && !isNeedBack) {
+                    wasGreaterThenPI = Math.abs(localHead) > Math.PI;
 
                     isNeedBack = true;
                 }

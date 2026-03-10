@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick1;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick2;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PlayerClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Odometry;
@@ -18,9 +14,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(MainFile mainFile, RobotClass robotClass) {
@@ -77,10 +71,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         double[] point = generalInformation.generalObjects.getPointVyr();
         //Выравниваем на ворота альянса
 
-        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), Math.abs(odometry.odometryBufferForRobot.read().getHeadVel()) + Math.toRadians(100));
+        OdometryData targetData = new OdometryData(new Position2D(point[0], point[1], point[3]), new Vector2(0), Math.abs(odometry.odometryBufferForRobot.read().getHeadVel()) + Math.toRadians(300));
         OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
 
-        turretPow = trackEmulator.calculateVol(targetData, currentData);
+        cosB = trackEmulator.calculateVol(targetData, currentData);
         double curSpeed;
         double targetSpeed;
         if(!isInterrupted){
@@ -128,14 +122,28 @@ public class AutoPlayerClass2 extends PlayerClass{
                         boolean isAngleGrowUp = hoodedShoter.angleController.getServo().isBusy();
 
                         //TODO условие на наводку турели
-                        if(isFlyWheelReady && isAngleGrowUp){
-                            if(hoodedShoter.digitalCellsClass.isStopped){
-                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) hoodedShoter.digitalCellsClass.isStopped = false;
-                            }
+                        switch (servoState){
+                            case waiting:
+                                int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
+                                int neededColor = odometry.cameraClass.motif[index];
+                                hoodedShoter.digitalCellsClass.fire(neededColor);
+                                if (hoodedShoter.digitalCellsClass.isStopped) {
+                                    servoState = ServoState.fired;
+                                }
 
-                            int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
-                            int neededColor = odometry.cameraClass.motif[index];
-                            hoodedShoter.digitalCellsClass.fire(neededColor);
+                                break;
+                            case fired:
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                    hoodedShoter.digitalCellsClass.prepareServo();
+                                    servoState = ServoState.prepared;
+                                }
+                                break;
+                            case prepared:
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                    hoodedShoter.digitalCellsClass.isStopped = false;
+                                    servoState = ServoState.waiting;
+                                }
+                                break;
                         }
 
                         programState = ProgramState.Executing;
@@ -148,36 +156,10 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         checkButtons();
 
-        switch (servoState){
-            case waiting:
-                if (hoodedShoter.digitalCellsClass.getArtifactCount() != 0) {
-                    int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
-                    int neededColor = odometry.cameraClass.motif[index];
-                    hoodedShoter.digitalCellsClass.fire(neededColor);
-                    if (hoodedShoter.digitalCellsClass.isStopped) {
-                        servoState = ServoState.fired;
-                    }
-                }
-                break;
-            case fired:
-                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                    hoodedShoter.digitalCellsClass.prepareServo();
-                    servoState = ServoState.prepared;
-                }
-                break;
-            case prepared:
-                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                    hoodedShoter.digitalCellsClass.isStopped = false;
-                    servoState = ServoState.waiting;
-                }
-                break;
-        }
-
-
         cosB = Range.clip(cosB, -maxVol, maxVol);
 
-        hoodedShoter.turretMotor.execute(0.0);
-        hoodedShoter.flyWheelClass.execute(sinA);
+        hoodedShoter.turretMotor.execute(cosB);
+        hoodedShoter.flyWheelClass.execute(flyWheelPow);
         hoodedShoter.collector.execute(collectorPow);
 
         hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
@@ -238,7 +220,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PIDFTunner(MainFile mainFile) {
-            super(0.1, 0,0,0.00, -1,1, mainFile);
+            super(0.0, 0,0,0.08, -1,1, mainFile);
         }
 
         public void execute(){
@@ -318,6 +300,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private double returnDistance(double VelMax, double accel ){
             return Math.pow(VelMax, 2) / (2 * accel);
         }
+        public double targHeadVel;
         public double errorHeading;
         public double calculateVol(OdometryData targetData, OdometryData currentData){
             Position2D targetPos = targetData.getPosition();
@@ -326,38 +309,24 @@ public class AutoPlayerClass2 extends PlayerClass{
             // Находим ошибку положения
             Position2D deltaPos = targetPos.minus(currentPos);
 
-//            double targHead = Math.atan2(
-//                    deltaPos.getY(),
-//                    deltaPos.getX());
-            double targHead = Math.toRadians(180);
+            double targHead = Math.atan2(
+                    deltaPos.getY(),
+                    deltaPos.getX());
 
             if(hoodedShoter.turretMotor.isNeedBack){
-                if(hoodedShoter.turretMotor.turretOdometry.wasGreaterThen2PI) targHead = 0;
-                else targHead = Math.PI * 2;
-
-//                if (targHead > 0){
-//                    targHead -= 2 * Math.PI;
-//                }else targHead += 2 * Math.PI;
-//
-//                double cur = currentData.getPosition().getHeading();
-//
-//                if (cur > 0){
-//                    cur -= 2 * Math.PI;
-//                }else cur += 2 * Math.PI;
-
-                errorHeading = targHead - hoodedShoter.turretMotor.turretOdometry.localHead;
+                double local = hoodedShoter.turretMotor.turretOdometry.localHead;
+                errorHeading = -local;
+//                errorHeading = -(local + Math.signum(local) * (Math.PI - Math.abs(odometry.odometryBufferForRobot.read().getPosition().getHeading())));
             }else {
-                errorHeading = targHead - currentData.getPosition().getHeading();
+                errorHeading = new Position2D(0,0, targHead - currentData.getPosition().getHeading()).getHeading();
             }
+            double distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(1300));
 
-            double distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(2000));
-            //Если турель сделал 1 полный оборот то резко крутимя обратно
-
-            double targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : 0.2) ;
+            targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : Math.toRadians(120)) ;
 
             double pidHeadVel = calculate(targHeadVel, currentData.getHeadVel());
 
-            if(Math.abs(errorHeading) < Math.toRadians(5)) {
+            if(Math.abs(errorHeading) < Math.toRadians(2)) {
                 pidHeadVel = 0;
                 if(hoodedShoter.turretMotor.isNeedBack) hoodedShoter.turretMotor.isNeedBack = false;
             }
@@ -370,6 +339,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         }
         @Override
         public void showData(){
+            telemetry.addData("targVel", targHeadVel * RAD);
             telemetry.addData("error", "%.2f", errorHeading * RAD);
             showDataExt();
         }

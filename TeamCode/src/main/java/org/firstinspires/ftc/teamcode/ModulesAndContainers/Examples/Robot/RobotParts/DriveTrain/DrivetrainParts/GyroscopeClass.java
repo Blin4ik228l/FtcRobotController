@@ -25,8 +25,8 @@ public class GyroscopeClass extends UpdatableModule {
         try {
             imu = hardwareMap.get(IMU.class, searchingDevice);
             parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+                    RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
             ));
             imu.initialize(parameters);
 

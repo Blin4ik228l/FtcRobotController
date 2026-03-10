@@ -21,7 +21,8 @@ public class GeneralInformation {
             TelemetryPage.Show_pl1,
             TelemetryPage.Show_pl2,
             TelemetryPage.Show_robot,
-            TelemetryPage.Show_modules_freq
+            TelemetryPage.Show_modules_freq,
+            TelemetryPage.Show_game_states
     ));
     public TelemetryPage currentPage;
 

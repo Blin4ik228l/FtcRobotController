@@ -63,16 +63,38 @@ public class Position2D {
     }
 
     public double getHeading(){
-        //Нормализуем угол
-        if (this.heading < -Math.PI) {
-            this.heading += 2 * Math.PI;
+        if (heading < -Math.PI) {
+            heading += 2 * Math.PI;
         }
 
-        if (this.heading > Math.PI) {
-            this.heading -= 2 * Math.PI;
+        if (heading > Math.PI) {
+            heading -= 2 * Math.PI;
         }
 
         return heading;
+    }
+    public double getNormalized(double counts){
+        double normalHead = heading;
+
+        //Нормализуем угол
+        if (counts == 2){
+            if (normalHead > 2 * Math.PI) {
+                normalHead -= 2 * Math.PI;
+            }
+
+            if (normalHead < -2 * Math.PI) {
+                normalHead += 2 * Math.PI;
+            }
+        }else {
+            if (normalHead < -Math.PI) {
+                normalHead += 2 * Math.PI;
+            }
+
+            if (normalHead > Math.PI) {
+                normalHead -= 2 * Math.PI;
+            }
+        }
+        return normalHead;
     }
 
     public void add(@NonNull Vector2 vector2, double heading){

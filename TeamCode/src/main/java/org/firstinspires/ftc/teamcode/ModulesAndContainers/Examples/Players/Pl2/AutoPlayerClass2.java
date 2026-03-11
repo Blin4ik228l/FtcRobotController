@@ -320,9 +320,13 @@ public class AutoPlayerClass2 extends PlayerClass{
             }else {
                 errorHeading = new Position2D(0,0, targHead - currentData.getPosition().getHeading()).getHeading();
             }
-            double distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(1300));
 
-            targHeadVel = Math.signum(errorHeading) * (Math.abs(errorHeading) > distanceBreak ? targetData.getHeadVel() : Math.toRadians(120)) ;
+            double k = 0.5;
+            double radius = 2;
+
+            double distanceBreak = returnDistance(MAX_TURRET_HEAD_SP, k * (981 / radius));
+
+            targHeadVel = Math.signum(errorHeading) * (MAX_TURRET_HEAD_SP * Math.min(1, Math.abs(errorHeading) / distanceBreak));
 
             double pidHeadVel = calculate(targHeadVel, currentData.getHeadVel());
 

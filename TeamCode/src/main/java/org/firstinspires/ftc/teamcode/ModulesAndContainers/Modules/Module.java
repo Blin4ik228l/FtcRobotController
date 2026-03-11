@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.AnotherConsts;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Delays;
+import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.Theory;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.ServoPositions;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 
 
-public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPositions{
+public abstract class Module implements Delays, AnotherConsts, kPIDS, ServoPositions, Theory {
      protected Telemetry telemetry;
      protected boolean isInitialized = true;
      public Module(MainFile mainFile){

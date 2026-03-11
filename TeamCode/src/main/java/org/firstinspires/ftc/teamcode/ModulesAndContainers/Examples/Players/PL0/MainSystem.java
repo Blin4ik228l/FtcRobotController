@@ -262,52 +262,55 @@ public class MainSystem extends ExecutorModule {
     public void showData() {
         if (iterationCount % 10 != 0) return;
 
-        switch (generalInformation.programName){
-            case TeleOp:
-                telemetry.addData("Telemetry page", generalInformation.currentPage.name());
-                switch (generalInformation.currentPage){
-                    case Show_all:
-                        semiAutoPlayerClass1.showData();
-                        autoPlayerClass2.showData();
-                        robotClass.showData();
-                        break;
-                    case Show_pl1:
-                        semiAutoPlayerClass1.showData();
-                        break;
-                    case Show_pl2:
-                        autoPlayerClass2.showData();
-                        break;
-                    case Show_robot:
-                        robotClass.showData();
-                        break;
-                    case Show_modules_freq:
-                        semiAutoPlayerClass1.sayModuleName();
-                        semiAutoPlayerClass1.showUpdateFreq();
-                        autoPlayerClass2.sayModuleName();
-                        autoPlayerClass2.showUpdateFreq();
-                        robotClass.sayModuleName();
-                        robotClass.showUpdateFreq();
-                        sayModuleName();
-                        showUpdateFreq();
-                        break;
-                    case Show_game_states:
-                        telemetry.addLine(generalInformation.gameTactick.toString());
-                        telemetry.addData("Pl1", semiAutoPlayerClass1.programState.toString());
-                        telemetry.addData("Pl2", autoPlayerClass2.programState.toString());
-                        break;
-                }
-                break;
-            default:
-                telemetry.addLine(generalInformation.gameTactick.toString());
-                semiAutoPlayerClass1.showData();
-                telemetry.addLine(semiAutoPlayerClass1.programState.toString());
-                autoPlayerClass2.sayModuleName();
-                telemetry.addLine(autoPlayerClass2.programState.toString());
+        telemetry.addData("ROBOT", "LIN %.2f HEAD %.2f", MAX_ROBOT_LINEAR_SP, MAX_ROBOT_HEAD_SP * RAD);
+        telemetry.addData("TURRET", "LIN %.2f HEAD %.2f", MAX_TURRET_LINEAR_SP, MAX_TURRET_HEAD_SP * RAD);
 
-                robotClass.drivetrain.showData();
-                robotClass.odometry.showData();
-                break;
-        }
+//        switch (generalInformation.programName){
+//            case TeleOp:
+//                telemetry.addData("Telemetry page", generalInformation.currentPage.name());
+//                switch (generalInformation.currentPage){
+//                    case Show_all:
+//                        semiAutoPlayerClass1.showData();
+//                        autoPlayerClass2.showData();
+//                        robotClass.showData();
+//                        break;
+//                    case Show_pl1:
+//                        semiAutoPlayerClass1.showData();
+//                        break;
+//                    case Show_pl2:
+//                        autoPlayerClass2.showData();
+//                        break;
+//                    case Show_robot:
+//                        robotClass.showData();
+//                        break;
+//                    case Show_modules_freq:
+//                        semiAutoPlayerClass1.sayModuleName();
+//                        semiAutoPlayerClass1.showUpdateFreq();
+//                        autoPlayerClass2.sayModuleName();
+//                        autoPlayerClass2.showUpdateFreq();
+//                        robotClass.sayModuleName();
+//                        robotClass.showUpdateFreq();
+//                        sayModuleName();
+//                        showUpdateFreq();
+//                        break;
+//                    case Show_game_states:
+//                        telemetry.addLine(generalInformation.gameTactick.toString());
+//                        telemetry.addData("Pl1", semiAutoPlayerClass1.programState.toString());
+//                        telemetry.addData("Pl2", autoPlayerClass2.programState.toString());
+//                        break;
+//                }
+//                break;
+//            default:
+//                telemetry.addLine(generalInformation.gameTactick.toString());
+//                semiAutoPlayerClass1.showData();
+//                telemetry.addLine(semiAutoPlayerClass1.programState.toString());
+//                autoPlayerClass2.sayModuleName();
+//                telemetry.addLine(autoPlayerClass2.programState.toString());
+//
+//                robotClass.drivetrain.showData();
+//                robotClass.odometry.showData();
+//                break;
+//        }
 
     }
 

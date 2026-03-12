@@ -41,7 +41,7 @@ public class ServoMotorWrapper extends ExecutableModule {
     }
 
     public boolean isBusy() {
-        return signalTime.seconds() < delayTime * 3.0;
+        return signalTime.seconds() < delayTime * 5.0;
     }
 
     @Override

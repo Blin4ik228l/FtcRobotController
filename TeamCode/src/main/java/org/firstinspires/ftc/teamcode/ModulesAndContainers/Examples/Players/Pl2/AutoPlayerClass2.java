@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotP
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(MainFile mainFile, RobotClass robotClass) {
@@ -24,21 +25,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         this.hoodedShoter = robotClass.hoodedShoter;
         this.odometry = robotClass.odometry;
 
-        pusher0 = new ServoMotorWrapper(mainFile, "pusher0");
-        pusher1 = new ServoMotorWrapper(mainFile, "pusher1");
-        pusher2 = new ServoMotorWrapper(mainFile, "pusher2");
-        pusher3 = new ServoMotorWrapper(mainFile, "pusher3");
-        pusher4 = new ServoMotorWrapper(mainFile, "pusher4");
-
         trackEmulator = new TrackEmulator(mainFile);
         speedController = new SpeedController(mainFile);
         pidfTunner = new PIDFTunner(mainFile);
     }
-    public ServoMotorWrapper pusher0;
-    public ServoMotorWrapper pusher1;
-    public ServoMotorWrapper pusher2;
-    public ServoMotorWrapper pusher3;
-    public ServoMotorWrapper pusher4;
     public HoodedShoter hoodedShoter;
     public Odometry odometry;
 
@@ -64,10 +54,10 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         pidfTunner.execute();
 
-        trackEmulator.setPID(pidfTunner.getkP(), pidfTunner.getkI(), pidfTunner.getkD(), pidfTunner.getkF());
+        speedController.pidfFlyWheel.setPID(pidfTunner.getkP(), pidfTunner.getkI(), pidfTunner.getkD(), pidfTunner.getkF());
 
-        double cosB = joystickActivityClass.cosB;
-        double sinA = joystickActivityClass.sinA;
+        double cosB;
+        double sinA;
 
         //Выравниваем на ворота альянса
         double[] point = generalInformation.generalObjects.getPointVyr();
@@ -75,10 +65,12 @@ public class AutoPlayerClass2 extends PlayerClass{
         OdometryData currentData = new OdometryData(odometry.odometryBufferForTuret.read());
 
         Position2D targPos = new Position2D(point[0], point[1], 0);
+        Position2D curPos = currentData.getPosition();
 
+        Position2D deltaPos = targPos.minus(curPos);
         double targHead = new Position2D(0,0, Math.atan2(
-                targPos.getY(),
-                targPos.getX())).getHeading();
+                deltaPos.getY(),
+                deltaPos.getX())).getHeading();
 
         targetData = new OdometryData(new Position2D(0,0, targHead), new Vector2(0), MAX_TURRET_HEAD_SP);
 
@@ -131,28 +123,30 @@ public class AutoPlayerClass2 extends PlayerClass{
                         boolean isAngleGrowUp = hoodedShoter.angleController.getServo().isBusy();
 
                         //TODO условие на наводку турели
-                        switch (servoState){
-                            case waiting:
-                                int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
-                                int neededColor = odometry.cameraClass.motif[index];
-                                hoodedShoter.digitalCellsClass.fire(neededColor);
-                                if (hoodedShoter.digitalCellsClass.isStopped) {
-                                    servoState = ServoState.fired;
-                                }
+                        if(isAngleGrowUp && isFlyWheelReady && cosB == 0){
+                            switch (servoState){
+                                case waiting:
+                                    int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
+                                    int neededColor = odometry.cameraClass.motif[index];
+                                    hoodedShoter.digitalCellsClass.fire(neededColor);
+                                    if (hoodedShoter.digitalCellsClass.isStopped) {
+                                        servoState = ServoState.fired;
+                                    }
 
-                                break;
-                            case fired:
-                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                    hoodedShoter.digitalCellsClass.prepareServo();
-                                    servoState = ServoState.prepared;
-                                }
-                                break;
-                            case prepared:
-                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                    hoodedShoter.digitalCellsClass.isStopped = false;
-                                    servoState = ServoState.waiting;
-                                }
-                                break;
+                                    break;
+                                case fired:
+                                    if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                        hoodedShoter.digitalCellsClass.prepareServo();
+                                        servoState = ServoState.prepared;
+                                    }
+                                    break;
+                                case prepared:
+                                    if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                        hoodedShoter.digitalCellsClass.isStopped = false;
+                                        servoState = ServoState.waiting;
+                                    }
+                                    break;
+                            }
                         }
 
                         programState = ProgramState.Executing;
@@ -166,9 +160,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         checkButtons();
 
         cosB = Range.clip(cosB, -maxVol, maxVol);
+        sinA = Range.clip(flyWheelPow, -maxVol, maxVol);
 
         hoodedShoter.turretMotor.execute(cosB);
-        hoodedShoter.flyWheelClass.execute(0.0);
+        hoodedShoter.flyWheelClass.execute(sinA);
         hoodedShoter.collector.execute(collectorPow);
 
         hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
@@ -177,10 +172,11 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
-        telemetry.addData("motif", "%s %s %s",odometry.cameraClass.motif[0], odometry.cameraClass.motif[1], odometry.cameraClass.motif[2]);
-        telemetry.addData("inTerr", hoodedShoter.digitalCellsClass.isStopped);
-        joystickActivityClass.showData();
+//        telemetry.addData("motif", "%s %s %s",odometry.cameraClass.motif[0], odometry.cameraClass.motif[1], odometry.cameraClass.motif[2]);
+//        telemetry.addData("inTerr", hoodedShoter.digitalCellsClass.isStopped);
+//        joystickActivityClass.showData();
         hoodedShoter.showData();
+        speedController.showData();
         trackEmulator.showData();
         pidfTunner.showData();
     }
@@ -229,7 +225,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PIDFTunner(MainFile mainFile) {
-            super(0.0, 0,0,0.25, -1,1, mainFile);
+            super(0.0, 0,0,0.0, -1,1, mainFile);
         }
 
         public void execute(){
@@ -303,7 +299,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TrackEmulator extends PIDF{
         public TrackEmulator(MainFile mainFile){
-            super(0.3, 0.0,0,0, -1, 1, mainFile);
+            super(0.0, 0,0,0.25, -1, 1, mainFile);
         }
 
         private double returnDistance(double VelMax, double accel ){
@@ -323,16 +319,13 @@ public class AutoPlayerClass2 extends PlayerClass{
 
             if (targHead - robotHead > Math.PI || targHead - robotHead < -Math.PI){
                 targHead = getNorm(targHead - robotHead);
-            }else curHead = odometry.odometryBufferForTuret.read().getPosition().getHeading();
+            }else targHead = targHead - robotHead;
 
             errorHeading = targHead - curHead;
 
-            double k = 0.5;
-            double radius = 2;
+            double distanceBreak = returnDistance(targetData.getHeadVel(), targetData.getHeadVel());
 
-            double distanceBreak = returnDistance(targetData.getHeadVel(), Math.toRadians(2000));
-
-            targHeadVel = Math.signum(errorHeading) * Math.max(targetData.getHeadVel() * Math.min(1, Math.abs(errorHeading) / distanceBreak), Math.toRadians(35));
+            targHeadVel = Math.signum(errorHeading) * Math.max(targetData.getHeadVel() * Math.min(1, Math.abs(errorHeading) / distanceBreak), MIN_TURRET_HEAD_SP);
 
             double pidHeadVel = calculate(targHeadVel, currentData.getHeadVel());
 
@@ -364,11 +357,28 @@ public class AutoPlayerClass2 extends PlayerClass{
             showDataExt();
         }
     }
-    public class SpeedController{
+    public class SpeedController extends Module {
         public PIDF pidfFlyWheel;
         public SpeedController(MainFile mainFile){
-            pidfFlyWheel = new PIDF(1, 1, 1,1,-1, 1, mainFile);
+            super(mainFile);
+            pidfFlyWheel = new PIDF(0, 0, 0,0,-1, 1, mainFile);
         }
+
+        @Override
+        public void sayModuleName() {
+
+        }
+
+        @Override
+        protected void showDataExt() {
+            pidfFlyWheel.showData();
+        }
+
+        @Override
+        protected void sayLastWords() {
+
+        }
+
         public double calculateVol(double targetSpeed, double curSpeed){
             double pidPower = pidfFlyWheel.calculate(targetSpeed, curSpeed);
 

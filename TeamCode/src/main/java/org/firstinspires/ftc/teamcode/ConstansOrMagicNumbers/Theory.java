@@ -15,6 +15,7 @@ public interface Theory {
     //ЕСЛИ энкодер это отдельное следящее колесо указываем его радиус, если энкодер встроен в мотор то указывайте радиус колеса на нём
     double DRIVETRAIN_ENCODER_RADIUS = 2.4;
     double DRIVETRAIN_GEAR_RATIO = DRIVETRAIN_WHEEL_RADIUS / DRIVETRAIN_ENCODER_RADIUS;
+
     double DRIVETRAIN_ENC_OUTPUT_MAX_SPEED = DRIVETRAIN_MOTOR_RPM * DRIVETRAIN_GEAR_RATIO;
     double DRIVETRAIN_DISTANCE_BETWEEN_WHEELS = 42.7;
 
@@ -32,4 +33,19 @@ public interface Theory {
 
     double MAX_TURRET_LINEAR_SP = (TURRET_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * TURRET_WHEEL_RADIUS) / 60.0;
     double MAX_TURRET_HEAD_SP = (MAX_TURRET_LINEAR_SP / TURRET_WHEEL_RADIUS);
+
+    double MIN_TURRET_HEAD_SP = Math.toRadians(30);
+
+    //Маховик
+    double FLYWHEEL_MOTOR_RPM = 6000;
+
+    double FLYWHEEL_RADIUS = 4;
+    double FLYWHEEL_ENCODER_RADIUS = 1.5;
+
+    double FLYWHEEL_GEAR_RATIO = 1;
+    double FLYWHEEL_ENC_OUTPUT_MAX_SPEED = FLYWHEEL_MOTOR_RPM * FLYWHEEL_ENCODER_RADIUS;
+
+    double MAX_FLYWHEEL_LINEAR_SP = (FLYWHEEL_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * FLYWHEEL_RADIUS) / 60.0;
+    double MAX_FLYWHEEL_HEAD_SP = MAX_FLYWHEEL_LINEAR_SP / FLYWHEEL_RADIUS;
+
 }

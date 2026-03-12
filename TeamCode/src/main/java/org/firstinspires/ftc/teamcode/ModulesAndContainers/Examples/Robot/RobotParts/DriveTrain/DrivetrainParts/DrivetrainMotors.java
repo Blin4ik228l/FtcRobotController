@@ -224,7 +224,8 @@ public class DrivetrainMotors extends ExecutableCollector {
                 double deltaY = (encDeltaPositions[0] + encDeltaPositions[2]) / 2.0;
                 double deltaX = encDeltaPositions[1] - encDeltaHeading * OFFSET_ENC_M_FROM_CENTER;
 
-                rawData.setPosition(new Position2D(deltaX, deltaY, encDeltaHeading));
+                Vector2 rotatedVector2 = new Vector2(deltaX, deltaY).rotateToGlobal(encDeltaHeading);
+                rawData.setPosition(new Position2D(rotatedVector2.x, rotatedVector2.y, 0 ));
             }
         }
     }

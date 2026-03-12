@@ -155,33 +155,33 @@ public class MainSystem extends ExecutorModule {
                 }
                 break;
             case Fire:
-                switch (semiAutoPlayerClass1.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer1Finished = true;
-                        break;
-
-                }
-                switch (autoPlayerClass2.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer2Finished = true;
-                        break;
-                }
-                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
-                if (isPlayer1Finished && isPlayer2Finished){
-                    //Закончили цикл стрельбы -> едем собирать артефакты
-                    generalInformation.gameTactick = GameTactick.Load;
-                } else if (isPlayer1Finished && !isPlayer2Finished) {
-                    //возвращаем в строй 2 игрока
-                    autoPlayerClass2.isInterrupted = false;
-                }
+//                switch (semiAutoPlayerClass1.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer1Finished = true;
+//                        break;
+//
+//                }
+//                switch (autoPlayerClass2.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer2Finished = true;
+//                        break;
+//                }
+//                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
+//                if (isPlayer1Finished && isPlayer2Finished){
+//                    //Закончили цикл стрельбы -> едем собирать артефакты
+//                    generalInformation.gameTactick = GameTactick.Load;
+//                } else if (isPlayer1Finished && !isPlayer2Finished) {
+//                    //возвращаем в строй 2 игрока
+//                    autoPlayerClass2.isInterrupted = false;
+//                }
                 break;
             default:
                 break;
@@ -296,7 +296,9 @@ public class MainSystem extends ExecutorModule {
                     case Show_game_states:
                         telemetry.addLine(generalInformation.gameTactick.toString());
                         telemetry.addData("Pl1", semiAutoPlayerClass1.programState.toString());
+                        telemetry.addData("Pl1 is interrupted", semiAutoPlayerClass1.isInterrupted);
                         telemetry.addData("Pl2", autoPlayerClass2.programState.toString());
+                        telemetry.addData("Pl2 is interrupted", autoPlayerClass2.isInterrupted);
                         break;
                 }
                 break;

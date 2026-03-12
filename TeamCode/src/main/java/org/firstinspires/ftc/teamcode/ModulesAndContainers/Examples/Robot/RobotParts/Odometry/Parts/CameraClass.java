@@ -239,7 +239,6 @@ public class CameraClass extends UpdatableModule {
         telemetry.addData("Randomize status", randomizeStatus.toString());
 //        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
 //        telemetry.addData("onceSeen", onceSeen);
-        telemetry.addData("Des", absoluteData.getDesisionMarg());
 //        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
 //        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
 //        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", rangeToTag, cameraElevation * RAD, cameraBearing * RAD);

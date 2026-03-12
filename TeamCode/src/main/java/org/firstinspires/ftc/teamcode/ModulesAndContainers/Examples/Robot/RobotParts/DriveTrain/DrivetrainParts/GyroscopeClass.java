@@ -41,6 +41,7 @@ public class GyroscopeClass extends UpdatableModule {
         sayInited();
     }
     public OdometryBuffer gyroBuffer;
+    public double localHead = 0;
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
     public SelfMath selfMath;
     @Override
@@ -78,6 +79,15 @@ public class GyroscopeClass extends UpdatableModule {
             gyroCurHeading = imu.getRobotYawPitchRollAngles().getYaw(angleUnit);
             gyroDeltaHeading = gyroCurHeading - gyroLastHeading;
             gyroLastHeading = gyroCurHeading;
+
+            localHead += gyroDeltaHeading;
+            if (localHead >= 2 * Math.PI){
+                localHead -= 2 * Math.PI;
+            }
+
+            if (localHead <= -2 * Math.PI){
+                localHead += 2 * Math.PI;
+            }
 
             rawData.setPosition(new Position2D(0, 0, gyroDeltaHeading));
         }

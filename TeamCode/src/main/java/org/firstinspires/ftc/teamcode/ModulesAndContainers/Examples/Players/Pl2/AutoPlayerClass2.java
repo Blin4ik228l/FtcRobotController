@@ -41,7 +41,10 @@ public class AutoPlayerClass2 extends PlayerClass{
         fired,
         prepared
     }
-    boolean flag;
+
+    boolean isFlyWheelReady;
+    boolean isAngleGrowUp;
+    private double headVoltage;
     @Override
     public void executeExt() {
         double collectorPow = 0;
@@ -52,9 +55,9 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         joystickActivityClass.update();
 
-        pidfTunner.execute();
-
-        speedController.pidfFlyWheel.setPID(pidfTunner.getkP(), pidfTunner.getkI(), pidfTunner.getkD(), pidfTunner.getkF());
+//        pidfTunner.execute();
+//
+//        speedController.pidfFlyWheel.setPID(pidfTunner.getkP(), pidfTunner.getkI(), pidfTunner.getkD(), pidfTunner.getkF());
 
         double cosB;
         double sinA;
@@ -76,109 +79,110 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         cosB = trackEmulator.calculateVol(targetData, currentData);
 
-        double curSpeed;
-        double targetSpeed;
         if(!isInterrupted){
+            double curSpeed;
+            double targetSpeed;
+
             switch (generalInformation.gameTactick){
                 case Load:
                     curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
                     targetSpeed = 0;
                     flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
-
                     if (hoodedShoter.digitalCellsClass.getArtifactCount() == 3){
                         collectorPow = -1;
                         programState = ProgramState.Finished;
                     }else {
                         collectorPow = 1;
-                        programState = ProgramState.Executing;
                     }
+                    hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
+                    hoodedShoter.digitalCellsClass.update();
                     break;
                 case Fire:
-                    collectorPow = 0;
                     if (hoodedShoter.digitalCellsClass.getArtifactCount() == 0){
                         hoodedShoter.digitalCellsClass.prepareServo();//Возвращаем серво в начальное положение
                         programState = ProgramState.Finished;
                     }else {
+                        collectorPow = 0;
                         double range = new Vector2(point[0] - odometry.odometryBufferForTuret.read().getPosition().getX(), point[1] - odometry.odometryBufferForTuret.read().getPosition().getY()).length();
 
                         double theta;
 
                         //в градусах
-                        if (range >= 290) theta = 50;
-                        else if (range >= 150) theta = 60;
-                        else if (range >= 70) theta = 70;
-                        else theta = 80;
+                        if (range >= 290) theta = 46;
+                        else if (range >= 150) theta = 55;
+                        else if (range >= 70) theta = 65;
+                        else theta = 70;
+
+                        theta = Range.clip(theta, 46, 70);
 
                         targetSpeed = hoodedShoter.flyWheelClass.getTargetSpeed(theta, range);
                         curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
 
                         flyWheelPow = speedController.calculateVol(targetSpeed, curSpeed);
 
-                        boolean isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
+                        isFlyWheelReady = speedController.checkReadnees(targetSpeed, curSpeed);
 
                         double calclPos = hoodedShoter.angleController.getPos(theta);
 
                         hoodedShoter.angleController.execute(calclPos);
 
-                        boolean isAngleGrowUp = hoodedShoter.angleController.getServo().isBusy();
-
-                        //TODO условие на наводку турели
-                        if(isAngleGrowUp && isFlyWheelReady && cosB == 0){
-                            switch (servoState){
-                                case waiting:
+                        isAngleGrowUp = !hoodedShoter.angleController.getServo().isBusy();
+                        switch (servoState){
+                            case waiting:
+                                if(isAngleGrowUp && isFlyWheelReady && cosB == 0){
                                     int index = 3 - hoodedShoter.digitalCellsClass.getArtifactCount();
                                     int neededColor = odometry.cameraClass.motif[index];
                                     hoodedShoter.digitalCellsClass.fire(neededColor);
                                     if (hoodedShoter.digitalCellsClass.isStopped) {
                                         servoState = ServoState.fired;
                                     }
-
-                                    break;
-                                case fired:
-                                    if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                        hoodedShoter.digitalCellsClass.prepareServo();
-                                        servoState = ServoState.prepared;
-                                    }
-                                    break;
-                                case prepared:
-                                    if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                        hoodedShoter.digitalCellsClass.isStopped = false;
-                                        servoState = ServoState.waiting;
-                                    }
-                                    break;
-                            }
+                                    hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
+                                    hoodedShoter.digitalCellsClass.update();
+                                }
+                                break;
+                            case fired:
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                    hoodedShoter.digitalCellsClass.prepareServo();
+                                    servoState = ServoState.prepared;
+                                }
+                                break;
+                            case prepared:
+                                if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
+                                    hoodedShoter.digitalCellsClass.isStopped = false;
+                                    servoState = ServoState.waiting;
+                                }
+                                break;
                         }
-
-                        programState = ProgramState.Executing;
                     }
                     break;
                 default:
                     break;
             }
-        }else programState = ProgramState.Executing;
+        }else programState = ProgramState.Interrupted;
 
         checkButtons();
 
-        cosB = Range.clip(cosB, -maxVol, maxVol);
+        headVoltage = Range.clip(cosB, -maxVol, maxVol);
         sinA = Range.clip(flyWheelPow, -maxVol, maxVol);
+        collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
-        hoodedShoter.turretMotor.execute(cosB);
+        hoodedShoter.turretMotor.execute(headVoltage);
         hoodedShoter.flyWheelClass.execute(sinA);
         hoodedShoter.collector.execute(collectorPow);
 
-        hoodedShoter.digitalCellsClass.setCurIterations(iterationCount);
-        hoodedShoter.digitalCellsClass.update();
+
     }
 
     @Override
     protected void showDataExt() {
+        telemetry.addData("State", "fly %s angle %s vol %s",isFlyWheelReady, isAngleGrowUp, headVoltage);
 //        telemetry.addData("motif", "%s %s %s",odometry.cameraClass.motif[0], odometry.cameraClass.motif[1], odometry.cameraClass.motif[2]);
 //        telemetry.addData("inTerr", hoodedShoter.digitalCellsClass.isStopped);
 //        joystickActivityClass.showData();
         hoodedShoter.showData();
         speedController.showData();
-        trackEmulator.showData();
-        pidfTunner.showData();
+//        trackEmulator.showData();
+//        pidfTunner.showData();
     }
 
     @Override
@@ -351,7 +355,6 @@ public class AutoPlayerClass2 extends PlayerClass{
         @Override
         public void showData(){
             telemetry.addData("targH", targHead * RAD);
-            telemetry.addData("flag", flag);
             telemetry.addData("targVel", targHeadVel * RAD);
             telemetry.addData("error", "%.2f", errorHeading * RAD);
             showDataExt();
@@ -361,7 +364,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         public PIDF pidfFlyWheel;
         public SpeedController(MainFile mainFile){
             super(mainFile);
-            pidfFlyWheel = new PIDF(0, 0, 0,0,-1, 1, mainFile);
+            pidfFlyWheel = new PIDF(0, 0, 0,0.0018,-1, 1, mainFile);
         }
 
         @Override
@@ -387,7 +390,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         public boolean checkReadnees(double targetSpeed, double curSped){
             double errorPart = Math.abs(curSped / targetSpeed - 1);
 
-            if (errorPart > 0.01)
+            if (errorPart > 0.03)
             {
                 return false;
             }

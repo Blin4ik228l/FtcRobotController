@@ -71,7 +71,7 @@ public class Odometry extends UpdatableCollector {
 
             outPutDataForRobot.getPosition().setX(pos.getX());
             outPutDataForRobot.getPosition().setY(pos.getY());
-            outPutDataForRobot.getPosition().setHeading(gyro.localHead);
+            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - gyro.localHead);
 
             outPutDataForTuret.getPosition().setX(pos.getX());
             outPutDataForTuret.getPosition().setY(pos.getY());

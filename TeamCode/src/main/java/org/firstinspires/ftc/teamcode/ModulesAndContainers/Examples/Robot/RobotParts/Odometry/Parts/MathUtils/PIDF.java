@@ -106,6 +106,10 @@ public class PIDF extends Module {
         telemetry.addLine(String.format("P %.3f I %.3f D %.3f F %.3f", P, I, D, F));
         telemetry.addLine(String.format("kP %s kI %s kD %s kF %s", kP, kI, kD, kF));
         telemetry.addLine(String.format("Target %.3f Current %.3f", target, current));
+        if (target != 0){
+            telemetry.addData("error", (target - current) / target);
+        }
+
     }
 
     @Override

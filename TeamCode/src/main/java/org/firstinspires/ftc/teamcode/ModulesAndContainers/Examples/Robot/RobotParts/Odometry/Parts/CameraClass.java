@@ -205,7 +205,7 @@ public class CameraClass extends UpdatableModule {
         int green = 1;
         int purple = 2;
 
-        if (id != 21 || id != 22 || id != 23 && randomizeStatus == RandomizeStatus.UnDetected){
+        if ((id != 21 || id != 22 || id != 23) && randomizeStatus == RandomizeStatus.UnDetected && motif[0] == 0){
             int min = 21;
             int max = 23;
             id = (int)(Math.random() * (max - min + 1)) + min;

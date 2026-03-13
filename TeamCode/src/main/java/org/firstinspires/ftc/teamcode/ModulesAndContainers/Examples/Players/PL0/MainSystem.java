@@ -60,7 +60,7 @@ public class MainSystem extends ExecutorModule {
         switch (generalInformation.programName) {
             case TeleOp:
                 if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
-                    generalInformation.gameTactick = GameTactick.Parking;
+//                    generalInformation.gameTactick = GameTactick.Parking;
                 }
                 executeTeleOp();
 //                fileSystem.update();
@@ -150,38 +150,41 @@ public class MainSystem extends ExecutorModule {
 
                 if (isPlayer2Finished){
                     //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-                    autoPlayerClass2.isInterrupted = true;
+//                    autoPlayerClass2.isInterrupted = true;
                     generalInformation.gameTactick = GameTactick.Fire;
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
                 }
                 break;
             case Fire:
-//                switch (semiAutoPlayerClass1.programState){
-//                    case Executing:
-//                        break;
-//                    case Interrupted:
-//                        break;
-//                    case Finished:
-//                        isPlayer1Finished = true;
-//                        break;
-//
-//                }
-//                switch (autoPlayerClass2.programState){
-//                    case Executing:
-//                        break;
-//                    case Interrupted:
-//                        break;
-//                    case Finished:
-//                        isPlayer2Finished = true;
-//                        break;
-//                }
-//                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
-//                if (isPlayer1Finished && isPlayer2Finished){
-//                    //Закончили цикл стрельбы -> едем собирать артефакты
-//                    generalInformation.gameTactick = GameTactick.Load;
-//                } else if (isPlayer1Finished && !isPlayer2Finished) {
-//                    //возвращаем в строй 2 игрока
-//                    autoPlayerClass2.isInterrupted = false;
-//                }
+                switch (semiAutoPlayerClass1.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer1Finished = true;
+                        break;
+
+                }
+                switch (autoPlayerClass2.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        if (isPlayer1Finished) autoPlayerClass2.isInterrupted = false;
+                        break;
+                    case Finished:
+                        isPlayer2Finished = true;
+                        break;
+                }
+                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
+                if (isPlayer1Finished && isPlayer2Finished){
+                    //Закончили цикл стрельбы -> едем собирать артефакты
+                    generalInformation.gameTactick = GameTactick.Load;
+
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                }
                 break;
             default:
                 break;

@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Wrappe
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableCollector;
 
 public class AngleController extends ExecutableCollector {
-    public String angleServo = expansionHubDevices.getServo(0);
+    public String angleServo = controlHubDevices.getServo(3);
     public AngleController(MainFile mainFile) {
         super(mainFile);
         createServoWrapperUtils();
@@ -17,7 +17,7 @@ public class AngleController extends ExecutableCollector {
     }
 
     public double getCurAngle(){
-        double angle = MAX_ANGLE - servosCollector.get(angleServo).servo.getPosition() / (185 / 23) * 270;
+        double angle = -((servosCollector.get(angleServo).servo.getPosition() * (MAX_ANGLE - MIN_ANGLE)) - MAX_ANGLE);
 
         return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);
     }
@@ -28,7 +28,7 @@ public class AngleController extends ExecutableCollector {
 
         double rampAngle = Range.clip(90 - Math.toDegrees(alpha), MIN_ANGLE, MAX_ANGLE);
 
-        double targetServoPos =  (MAX_ANGLE - rampAngle) * (185 / 23) / 270;
+        double targetServoPos =  ((MAX_ANGLE - rampAngle) / (MAX_ANGLE - MIN_ANGLE) * 360) / 360;
 
         targetServoPos = Math.round(targetServoPos * Math.pow(10, 2)) / Math.pow(10, 2);
 
@@ -46,5 +46,6 @@ public class AngleController extends ExecutableCollector {
     @Override
     protected void showDataExt() {
         servosCollector.showData();
+        telemetry.addData("curAngle", getCurAngle());
     }
 }

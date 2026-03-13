@@ -105,7 +105,7 @@ public class FlyWheelClass extends ExecutableCollector {
 
                 filteredVel = filtr * vel + (1 - filtr) * filteredVel;
 
-                odometryData.setHeadVel(filteredVel);
+                odometryData.setHeadVel(Math.abs(filteredVel));
             }
         }
 

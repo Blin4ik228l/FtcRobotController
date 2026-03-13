@@ -31,8 +31,10 @@ public class HoodedShoter extends MainModule {
     @Override
     protected void showDataExt() {
         digitalCellsClass.showData();
-        turretMotor.showData();
+//        turretMotor.showData();
 //        collector.showData();
-//        flyWheelClass.showData();
+        flyWheelClass.showData();
+        angleController.showData();
     }
+
 }

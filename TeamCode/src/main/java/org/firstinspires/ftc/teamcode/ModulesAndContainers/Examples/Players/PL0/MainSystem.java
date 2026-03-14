@@ -59,20 +59,32 @@ public class MainSystem extends ExecutorModule {
 
     @Override
     protected void executeExt() {
-        switch (generalInformation.programName) {
-            case TeleOp:
-                if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
-//                    generalInformation.gameTactick = GameTactick.Parking;
-                }
-                executeTeleOp();
-//                fileSystem.update();
+        switch (generalInformation.programStage){
+            case Init:
                 break;
-            default:
-                if (AUTO_SECONDS - matchTimer.seconds() < 5) {
+            case Init_loop:
+                semiAutoPlayerClass1.execute();
+                autoPlayerClass2.execute();
+                robotClass.execute();
+                break;
+            case Main_loop:
+                switch (generalInformation.programName) {
+                    case TeleOp:
+                        if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
+//                    generalInformation.gameTactick = GameTactick.Parking;
+                        }
+                        executeTeleOp();
+//                fileSystem.update();
+                        break;
+                    default:
+                        if (AUTO_SECONDS - matchTimer.seconds() < 5) {
+                        }
+                        executeAuto();
+                        break;
                 }
-                executeAuto();
                 break;
         }
+
 
         robotClass.drivetrain.gyro.update();
         robotClass.odometry.cameraClass.update();
@@ -117,6 +129,7 @@ public class MainSystem extends ExecutorModule {
         threads.add(new Thread(rn));
         return this;
     }
+
     public double TELEOP_SECONDS = 120;
     public double AUTO_SECONDS = 30;
     public void interrupt(){
@@ -132,7 +145,6 @@ public class MainSystem extends ExecutorModule {
                 fileSystem.writeOdometry();
                 break;
         }
-
     }
 
     public void executeTeleOp(){

@@ -62,6 +62,7 @@ public class DigitalCellsClass extends UpdatableCollector {
 
         telemetry.addData("Count", artifactCount);
         cells.showAll();
+        servosCollector.showData();
     }
 
 

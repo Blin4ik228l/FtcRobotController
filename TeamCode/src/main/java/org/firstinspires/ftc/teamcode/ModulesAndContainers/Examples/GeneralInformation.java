@@ -4,7 +4,7 @@ import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enum
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Dot;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TeamAliance;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TelemetryPage;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TeleOpStage;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.ProgramStage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ public class GeneralInformation {
     public TeamAliance teamAliance;
     public ProgramName programName;
     public GameTactick gameTactick;
-    public TeleOpStage teleOpStage;
+    public ProgramStage programStage;
     public ArrayList<TelemetryPage> telemetryPages = new ArrayList<>(List.of(
             TelemetryPage.Show_all,
             TelemetryPage.Show_pl1,
@@ -35,6 +35,7 @@ public class GeneralInformation {
 
         currentPage = TelemetryPage.Show_all;
         gameTactick = GameTactick.Fire;
+        programStage = ProgramStage.Init;
     }
 
     public enum Color{

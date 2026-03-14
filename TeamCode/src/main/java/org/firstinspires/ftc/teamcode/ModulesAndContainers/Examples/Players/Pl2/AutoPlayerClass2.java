@@ -50,6 +50,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     private double angleServoPos;
     OdometryData targetData;
     OdometryData currentData;
+
     @Override
     public void executeExt() {
         double maxVol = 0.8;
@@ -68,18 +69,27 @@ public class AutoPlayerClass2 extends PlayerClass{
         targetData = new OdometryData(new Position2D(0,0, targHead), new Vector2(0), MAX_TURRET_HEAD_SP);
 
         //Выравниваем на ворота альянса
-        switch (generalInformation.programName){
-            case TeleOp:
-                joystickActivityClass.update();
-                executeTeleOp();
+        switch (generalInformation.programStage){
+            case Init:
                 break;
-            default:
-                executeAuto();
+            case Init_loop:
+                collectorPow = 0;
+                turretPow = 0;
+                flyWheelPow = 0;
+                hoodedShoter.digitalCellsClass.update();
+                break;
+            case Main_loop:
+                switch (generalInformation.programName){
+                    case TeleOp:
+                        executeTeleOp();
+                        break;
+                    default:
+                        executeAuto();
+                        break;
+                }
+                checkButtons();
                 break;
         }
-
-        checkButtons();
-
         turretPow = Range.clip(turretPow, -maxVol, maxVol);
         flyWheelPow = Range.clip(flyWheelPow, -maxVol, maxVol);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
@@ -94,12 +104,13 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
 
     @Override
-    public void executeTeleOp() {
+    protected void executeTeleOp() {
+        joystickActivityClass.update();
         executeAuto();
     }
 
     @Override
-    public void executeAuto() {
+    protected void executeAuto() {
         double range = new Vector2(targetData.getPosition().getX() - currentData.getPosition().getX(), targetData.getPosition().getY() - currentData.getPosition().getY()).length();
 
         double theta;
@@ -146,8 +157,6 @@ public class AutoPlayerClass2 extends PlayerClass{
                                     if (hoodedShoter.digitalCellsClass.isStopped) {
                                         servoState = ServoState.fired;
                                     }
-
-                                    hoodedShoter.digitalCellsClass.update();
                                 }
                                 break;
                             case fired:
@@ -159,6 +168,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                             case prepared:
                                 if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
                                     hoodedShoter.digitalCellsClass.isStopped = false;
+                                    hoodedShoter.digitalCellsClass.update();
                                     servoState = ServoState.waiting;
                                 }
                                 break;
@@ -171,7 +181,7 @@ public class AutoPlayerClass2 extends PlayerClass{
             }
         }else programState = ProgramState.Interrupted;
 
-        OdometryData calculatedData = flyWheelEmulator.calculateVol(curSpeed, targetSpeed);
+        OdometryData calculatedData = flyWheelEmulator.calculateVol(targetSpeed, curSpeed);
         flyWheelPow = calculatedData.getHeadVel();
     }
 

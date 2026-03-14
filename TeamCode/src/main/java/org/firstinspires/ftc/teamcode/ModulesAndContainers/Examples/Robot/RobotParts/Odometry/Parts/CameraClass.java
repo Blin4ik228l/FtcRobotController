@@ -237,14 +237,6 @@ public class CameraClass extends UpdatableModule {
     public void showDataExt() {
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
-//        telemetry.addData("Camera state", visionPortal.getCameraState().toString());
-//        telemetry.addData("onceSeen", onceSeen);
-//        telemetry.addData("Robot Pos", "X:%.2f Y:%.2f Z:%.2f", robotFieldX, robotFieldY, robotFieldZ);
-//        telemetry.addData("Robot Angles", "R:%.1f P:%.1f Y:%.1f", robotFieldRoll * RAD, robotFieldPitch * RAD, robotFieldYaw * RAD);
-//        telemetry.addData("Camera Angles", "R:%.1f E:%.1f B:%.1f", rangeToTag, cameraElevation * RAD, cameraBearing * RAD);
-//        telemetry.addData("FTC Pos", "X:%.2f Y:%.2f Z:%.2f", ftcFieldX, ftcFieldY, ftcFieldZ);
-//        telemetry.addData("FTC Angles", "R:%.1f P:%.1f Y:%.1f", ftcFieldRoll * RAD, ftcFieldPitch * RAD, ftcFieldYaw * RAD);
-//        telemetry.addData("Center", "X:%.1f Y:%.1f", centerX, centerY);
-//        telemetry.addData("Last Pos was taked", updateTime.seconds());
+        telemetry.addData("motif", "%s %s %s",motif[0], motif[1], motif[2]);
     }
 }

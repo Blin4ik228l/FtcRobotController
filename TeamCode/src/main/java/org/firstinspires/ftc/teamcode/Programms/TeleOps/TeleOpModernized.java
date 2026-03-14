@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.ProgramStage;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 
@@ -18,6 +19,9 @@ public abstract class TeleOpModernized extends OpMode {
     }
     @Override
     public void init_loop() {
+        generalInformation.programStage = ProgramStage.Init_loop;
+        mainSystem.execute();
+        mainSystem.showData();
     }
 
     @Override
@@ -27,6 +31,7 @@ public abstract class TeleOpModernized extends OpMode {
     }
     @Override
     public void loop() {
+        generalInformation.programStage = ProgramStage.Main_loop;
         mainSystem.execute();
         extShow();
         mainSystem.showData();

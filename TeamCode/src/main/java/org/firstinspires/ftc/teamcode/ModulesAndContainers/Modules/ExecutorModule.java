@@ -57,8 +57,8 @@ public abstract class ExecutorModule extends MainModule {
         sayLastWords();
     }
 
-    public abstract void executeTeleOp();
-    public abstract void executeAuto();
+    protected abstract void executeTeleOp();
+    protected abstract void executeAuto();
     @Override
     protected void sayLastWords() {
         telemetry.addLine("-----------------------------------");

@@ -101,11 +101,11 @@ public class FlyWheelClass extends ExecutableCollector {
                 currentSpeeds[0] = getCurrentVelocity(motorsCollector.get(motorLeft), Units.Rad);
                 currentSpeeds[1] = getCurrentVelocity(motorsCollector.get(motorRight), Units.Rad);
 
-                double vel = currentSpeeds[0] != 0 && currentSpeeds[1] != 0 ? (currentSpeeds[0] + currentSpeeds[1]) / 2.0 : currentSpeeds[0] + currentSpeeds[1];
+                double vel = -(currentSpeeds[0] != 0 && currentSpeeds[1] != 0 ? (currentSpeeds[0] + currentSpeeds[1]) / 2.0 : currentSpeeds[0] + currentSpeeds[1]);
 
                 filteredVel = filtr * vel + (1 - filtr) * filteredVel;
 
-                odometryData.setHeadVel(Math.abs(filteredVel));
+                odometryData.setHeadVel(filteredVel);
             }
         }
 

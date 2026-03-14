@@ -34,7 +34,7 @@ public class GeneralInformation {
         this.generalObjects = new GeneralObjects();
 
         currentPage = TelemetryPage.Show_all;
-        gameTactick = GameTactick.Fire;
+        gameTactick = GameTactick.Load;
         programStage = ProgramStage.Init;
     }
 

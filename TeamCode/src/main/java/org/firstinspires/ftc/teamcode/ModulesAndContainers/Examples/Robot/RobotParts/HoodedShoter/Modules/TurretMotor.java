@@ -86,8 +86,6 @@ public class TurretMotor extends ExecutableCollector {
             public void calculateAll(){
                 double filtr = 1;
                 //Тиков на оборот мотора
-                double outPutResolution = 384.5 * 5.19;
-
                 curMotorPos = getCurentPos(motorsCollector.get(turretMotor), Units.Rad);
                 deltaPos = lastMotorPos - curMotorPos;
                 lastMotorPos = curMotorPos;
@@ -105,13 +103,6 @@ public class TurretMotor extends ExecutableCollector {
                 filteredTurretVelocity = filtr * headVel2 + (1 - filtr) * filteredTurretVelocity;
 
                 localHead += deltaHead;
-
-                if((localHead > Math.PI || localHead < -Math.PI) && !isNeedBack) {
-                    wasGreaterThenPI = Math.abs(localHead) > Math.PI;
-
-                    isNeedBack = true;
-                }
-
 
                 rawData.setPosition(new Position2D(0,0, deltaHead));
                 rawData.setHeadVel(filteredTurretVelocity);

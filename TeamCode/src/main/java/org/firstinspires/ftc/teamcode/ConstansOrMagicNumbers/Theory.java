@@ -34,7 +34,7 @@ public interface Theory {
     double MAX_TURRET_LINEAR_SP = (TURRET_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * TURRET_WHEEL_RADIUS) / 60.0;
     double MAX_TURRET_HEAD_SP = (MAX_TURRET_LINEAR_SP / TURRET_WHEEL_RADIUS);
 
-    double MIN_TURRET_HEAD_SP = Math.toRadians(35);
+    double MIN_TURRET_HEAD_SP = Math.toRadians(25);
 
     //Маховик
     double FLYWHEEL_MOTOR_RPM = 6000;

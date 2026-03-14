@@ -47,10 +47,6 @@ public class Odometry extends UpdatableCollector {
 
     @Override
     protected void updateExt() {
-//        cameraClass.update();
-//        turretOdometry.update();
-//        gyro.update();
-
         OdometryBuffer encodersBuf = encoders.encodersBuffer;
         OdometryBuffer gyroBuf = gyro.gyroBuffer;
         OdometryBuffer turretBuf = turretOdometry.turretBuffer;
@@ -71,7 +67,7 @@ public class Odometry extends UpdatableCollector {
 
             outPutDataForRobot.getPosition().setX(pos.getX());
             outPutDataForRobot.getPosition().setY(pos.getY());
-            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - gyro.localHead);
+            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - turretOdometry.localHead);
 
             outPutDataForTuret.getPosition().setX(pos.getX());
             outPutDataForTuret.getPosition().setY(pos.getY());

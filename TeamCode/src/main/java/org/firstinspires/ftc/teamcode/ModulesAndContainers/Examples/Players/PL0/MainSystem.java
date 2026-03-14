@@ -164,7 +164,7 @@ public class MainSystem extends ExecutorModule {
 
                 if (isPlayer2Finished){
                     //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-//                    autoPlayerClass2.isInterrupted = true;
+                    autoPlayerClass2.isInterrupted = true;
                     generalInformation.gameTactick = GameTactick.Fire;
                     autoPlayerClass2.programState = ProgramState.Executing;
                     semiAutoPlayerClass1.programState = ProgramState.Executing;
@@ -185,7 +185,7 @@ public class MainSystem extends ExecutorModule {
                     case Executing:
                         break;
                     case Interrupted:
-                        if (isPlayer1Finished) autoPlayerClass2.isInterrupted = false;
+                        if (isPlayer1Finished) {autoPlayerClass2.isInterrupted = false; autoPlayerClass2.programState = ProgramState.Executing;}
                         break;
                     case Finished:
                         isPlayer2Finished = true;

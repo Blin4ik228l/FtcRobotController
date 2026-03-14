@@ -16,10 +16,10 @@ public abstract class TeleOpModernized extends OpMode {
     public void initAfterRobot(){
         mainFile = new MainFile(this, generalInformation);
         mainSystem = new MainSystem(mainFile);
+        generalInformation.programStage = ProgramStage.Init_loop;
     }
     @Override
     public void init_loop() {
-        generalInformation.programStage = ProgramStage.Init_loop;
         mainSystem.execute();
         mainSystem.showData();
     }
@@ -28,10 +28,10 @@ public abstract class TeleOpModernized extends OpMode {
     public void start() {
         mainSystem.startExecuting();
 //        telemetry.setAutoClear(false);
+        generalInformation.programStage = ProgramStage.Main_loop;
     }
     @Override
     public void loop() {
-        generalInformation.programStage = ProgramStage.Main_loop;
         mainSystem.execute();
         extShow();
         mainSystem.showData();

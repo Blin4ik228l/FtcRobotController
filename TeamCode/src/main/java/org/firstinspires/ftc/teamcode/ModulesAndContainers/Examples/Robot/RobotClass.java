@@ -41,6 +41,16 @@ public class RobotClass extends ExecutorModule {
     }
 
     @Override
+    public void executeTeleOp() {
+
+    }
+
+    @Override
+    public void executeAuto() {
+
+    }
+
+    @Override
     protected void showDataExt() {
         voltageSensor.showData();
         odometry.showData();

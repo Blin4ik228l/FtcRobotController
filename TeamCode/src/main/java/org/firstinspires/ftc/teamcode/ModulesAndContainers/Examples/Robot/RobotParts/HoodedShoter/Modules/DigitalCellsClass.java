@@ -138,9 +138,10 @@ public class DigitalCellsClass extends UpdatableCollector {
 
         @Override
         protected void showDataExt() {
-            for (ColorSensorWrapper color:sensorsWrapper) {
-                color.showData();
-            };
+            telemetry.addData("color", getColor());
+//            for (ColorSensorWrapper color:sensorsWrapper) {
+//                color.showData();
+//            };
         }
 
         public static class Builder{

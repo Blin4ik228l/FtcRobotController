@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0;
+package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums;
 
 public enum TelemetryPage {
     Show_all,

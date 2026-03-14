@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.GameTactick;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.GameTactick;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Dot;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeamAliance;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TelemetryPage;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.TeleOpStage;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TeamAliance;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TelemetryPage;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TeleOpStage;
 
 import java.util.ArrayList;
 import java.util.List;

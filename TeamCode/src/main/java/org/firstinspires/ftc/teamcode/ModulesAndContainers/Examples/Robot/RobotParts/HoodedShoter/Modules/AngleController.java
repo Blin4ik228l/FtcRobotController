@@ -17,6 +17,7 @@ public class AngleController extends ExecutableCollector {
     }
 
     public double getCurAngle(){
+        if(!isInitialized) return 0;
         double angle = -((servosCollector.get(angleServo).servo.getPosition() * (MAX_ANGLE - MIN_ANGLE)) - MAX_ANGLE);
 
         return Math.round(angle * Math.pow(10, 2)) / Math.pow(10, 2);

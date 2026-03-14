@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Robot
 
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.Reason;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.Reason;
 
 import java.util.ArrayList;
 

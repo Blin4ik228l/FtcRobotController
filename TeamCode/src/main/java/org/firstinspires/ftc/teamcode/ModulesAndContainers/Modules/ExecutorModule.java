@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.ProgramState;
+import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.ProgramState;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.MainModule;
 
@@ -57,6 +57,8 @@ public abstract class ExecutorModule extends MainModule {
         sayLastWords();
     }
 
+    public abstract void executeTeleOp();
+    public abstract void executeAuto();
     @Override
     protected void sayLastWords() {
         telemetry.addLine("-----------------------------------");

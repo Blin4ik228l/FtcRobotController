@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.Programms.Auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Containers.OpDataContainer;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 public abstract class LinearOpModeModernized extends LinearOpMode {
     public GeneralInformation generalInformation;

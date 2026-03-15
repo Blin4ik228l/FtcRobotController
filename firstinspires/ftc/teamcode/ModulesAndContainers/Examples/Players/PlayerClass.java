@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Players;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 public abstract class PlayerClass extends ExecutableModule {
     public GeneralInformation generalInformation;

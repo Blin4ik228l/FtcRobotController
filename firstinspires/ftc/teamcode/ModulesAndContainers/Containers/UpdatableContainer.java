@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
+package org.firstinspires.ftc.teamcode.MainParts.Containers;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
 
 import java.io.File;
 import java.io.FileWriter;

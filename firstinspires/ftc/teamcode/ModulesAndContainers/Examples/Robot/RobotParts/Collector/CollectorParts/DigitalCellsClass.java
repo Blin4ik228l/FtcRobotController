@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
 
 public class DigitalCellsClass extends Module {
     private final ServomotorsClass servomotorsClass;

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks;
 
 public interface JoystickButtons {
     void isA_Button();

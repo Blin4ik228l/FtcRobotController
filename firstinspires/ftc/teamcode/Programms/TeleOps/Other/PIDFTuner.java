@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.Programms.TeleOps.Other;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.ConstansOrMagicNumbers.kPIDS;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.JoystickActivityClass;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 @TeleOp(name = "PIDFTuner")
 public class PIDFTuner extends TeleOpModernized implements kPIDS {

@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders;
+package org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.VoltageSensorClass;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.VoltageSensorClass;
 
 public abstract class MotorModule extends Module {
     public VoltageSensorClass voltageSensorClass;

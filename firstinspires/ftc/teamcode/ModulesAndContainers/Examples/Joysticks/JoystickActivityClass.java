@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
 
 public class JoystickActivityClass extends UpdatableModule implements JoystickButtons {
     public Gamepad playersGamepad;

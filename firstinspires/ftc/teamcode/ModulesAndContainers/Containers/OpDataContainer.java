@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
+package org.firstinspires.ftc.teamcode.MainParts.Containers;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 public class OpDataContainer extends ModulesCollector{
     public UpdatableContainer updatableContainer;

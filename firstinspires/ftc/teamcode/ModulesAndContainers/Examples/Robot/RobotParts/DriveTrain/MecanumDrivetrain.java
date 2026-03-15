@@ -1,10 +1,10 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.NavigationSystem;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.NavigationSystem;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
 
 public class MecanumDrivetrain extends UpdatableModule {
     //Телега робота(моторы + колёса) с энкодерами, гироскопом и камерой.

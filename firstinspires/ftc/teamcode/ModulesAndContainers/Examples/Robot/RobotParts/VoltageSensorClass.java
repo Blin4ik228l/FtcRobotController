@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
 
 public class VoltageSensorClass extends UpdatableModule {
     private double curVoltage;

@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl1.SemiAutoPlayerClass1;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionController;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl1.SemiAutoPlayerClass1;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionController;
 
 public class MainSystem extends ExecutableModule {
     public SemiAutoPlayerClass1 semiAutoPlayerClass1;

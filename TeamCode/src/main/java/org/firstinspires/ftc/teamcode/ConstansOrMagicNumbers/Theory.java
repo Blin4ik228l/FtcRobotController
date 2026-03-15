@@ -22,6 +22,9 @@ public interface Theory {
     double MAX_ROBOT_LINEAR_SP = (DRIVETRAIN_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * DRIVETRAIN_ENCODER_RADIUS) / 60.0;
     double MAX_ROBOT_HEAD_SP = MAX_ROBOT_LINEAR_SP / (DRIVETRAIN_DISTANCE_BETWEEN_WHEELS / 2.0);
 
+    double MIN_ROBOT_LINEAR_SP = 15;
+    double MIN_ROBOT_HEAD_SP = Math.toRadians(10);
+
     //Турель
     double TURRET_MOTOR_RPM = 435;
 
@@ -51,4 +54,10 @@ public interface Theory {
     //пятно контакта мяча
     double CONTACT_PATCH = 1.2;
 
+    //Для улитки
+    double MAX_ANGLE = 44;
+    double MIN_ANGLE = 20;
+
+    //Для перевода в градусы
+    double RAD = 180 / Math.PI;
 }

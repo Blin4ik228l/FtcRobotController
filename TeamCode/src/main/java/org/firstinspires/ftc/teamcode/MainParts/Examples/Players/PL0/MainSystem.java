@@ -1,0 +1,423 @@
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0;
+
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.GameTactick;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramState;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl1.SemiAutoPlayerClass1;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.OdometryData;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.ExecutorModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class MainSystem extends ExecutorModule {
+    protected GeneralInformation generalInformation;
+    protected SemiAutoPlayerClass1 semiAutoPlayerClass1;
+    protected AutoPlayerClass2 autoPlayerClass2;
+    protected RobotClass robotClass;
+    protected FileSystem fileSystem;
+    protected ElapsedTime matchTimer;
+    public ArrayList<Thread> threads;
+    public MainSystem(){
+        this.generalInformation = MainFile.generalInformation;
+        this.robotClass = new RobotClass();
+
+        this.semiAutoPlayerClass1 = new SemiAutoPlayerClass1(robotClass);
+        this.autoPlayerClass2 = new AutoPlayerClass2(robotClass);
+
+        this.fileSystem = new FileSystem();
+
+        this.matchTimer = new ElapsedTime();
+
+        this.threads = new ArrayList<>();
+
+        switch (generalInformation.programName){
+            case TeleOp:
+                fileSystem.loadLastPosition();
+                break;
+            default:
+                break;
+        }
+    }
+    public double TELEOP_SECONDS = 120;
+    public double AUTO_SECONDS = 30;
+    @Override
+    protected void executeExt() {
+        switch (generalInformation.programStage){
+            case Init:
+                break;
+            case Init_loop:
+                semiAutoPlayerClass1.execute();
+                autoPlayerClass2.execute();
+                break;
+            case Main_loop:
+                if (generalInformation.programName == GeneralInformation.ProgramName.TeleOp) {
+                    if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
+//                    generalInformation.gameTactick = GameTactick.Parking;
+                    }
+                    executeTeleOp();
+                }
+                else {
+                    if (AUTO_SECONDS - matchTimer.seconds() < 5) {
+
+                    }
+                    executeAuto();
+                    fileSystem.update(iterationCount, 1);
+                }
+                break;
+        }
+
+        robotClass.update(iterationCount, 1);
+    }
+
+    public void startExecuting(){
+        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2);
+        for (Thread thread: threads) {
+            thread.start();
+        }
+
+        matchTimer.reset();
+    }
+    public MainSystem createRunnable(ExecutorModule executorModule){
+        int targetFrequencyHz = 60;
+        long targetPeriodNs = 1_000_000_000 / targetFrequencyHz;
+        long targetSleepMs = targetPeriodNs / 1_000_000;
+
+        Runnable rn = new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.currentThread().isInterrupted())
+                {
+                    long start = System.nanoTime();
+
+                    executorModule.execute();
+
+                    long elapsed = System.nanoTime() - start;
+                    long sleepTime = targetPeriodNs - elapsed;
+
+                    if (sleepTime > 0) {
+                        try {
+                            Thread.sleep(targetSleepMs);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+
+            }
+        };
+        threads.add(new Thread(rn));
+        return this;
+    }
+
+
+    public void interrupt(){
+        for (Thread thread: threads) {
+            thread.interrupt();
+        }
+        switch (generalInformation.programName){
+            case TeleOp:
+                fileSystem.writeAnother();
+                fileSystem.deleteOdometry();
+                break;
+            default:
+                fileSystem.writeOdometry();
+                break;
+        }
+    }
+
+    public void executeTeleOp(){
+        boolean isPlayer1Finished = false;
+        boolean isPlayer2Finished = false;
+        switch (generalInformation.gameTactick){
+            case Load:
+                switch (autoPlayerClass2.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer2Finished = true;
+                        break;
+                }
+
+                if (isPlayer2Finished){
+                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+                    autoPlayerClass2.isInterrupted = true;
+                    generalInformation.gameTactick = GameTactick.Fire;
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                }
+                break;
+            case Fire:
+                switch (semiAutoPlayerClass1.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer1Finished = true;
+                        break;
+
+                }
+                switch (autoPlayerClass2.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        if (isPlayer1Finished) {autoPlayerClass2.isInterrupted = false; autoPlayerClass2.programState = ProgramState.Executing;}
+                        break;
+                    case Finished:
+                        isPlayer2Finished = true;
+                        break;
+                }
+                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
+                if (isPlayer1Finished && isPlayer2Finished){
+                    //Закончили цикл стрельбы -> едем собирать артефакты
+                    generalInformation.gameTactick = GameTactick.Load;
+
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    public void executeAuto(){
+        boolean isPlayer1Finished = false;
+        boolean isPlayer2Finished = false;
+        switch (generalInformation.gameTactick){
+            case Load:
+                switch (semiAutoPlayerClass1.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer1Finished = true;
+                        break;
+                }
+                switch (autoPlayerClass2.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer2Finished = true;
+                        break;
+                }
+
+                if (isPlayer1Finished && isPlayer2Finished){
+                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+                    autoPlayerClass2.isInterrupted = true;
+                    generalInformation.gameTactick = GameTactick.Fire;
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                } else if (isPlayer1Finished && !isPlayer2Finished) {
+                    //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
+                    semiAutoPlayerClass1.positionController.switchPos();
+                } else if (isPlayer2Finished && !isPlayer1Finished) {
+                    //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+                    autoPlayerClass2.isInterrupted = true;
+                    generalInformation.gameTactick = GameTactick.Fire;
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                }
+                break;
+            case Fire:
+                switch (semiAutoPlayerClass1.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        break;
+                    case Finished:
+                        isPlayer1Finished = true;
+                        break;
+
+                }
+                switch (autoPlayerClass2.programState){
+                    case Executing:
+                        break;
+                    case Interrupted:
+                        if (isPlayer1Finished) {autoPlayerClass2.isInterrupted = false; autoPlayerClass2.programState = ProgramState.Executing;}
+                        break;
+                    case Finished:
+                        isPlayer2Finished = true;
+                        break;
+                }
+                //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
+                if (isPlayer1Finished && isPlayer2Finished){
+                    //Закончили цикл стрельбы -> едем собирать артефакты
+                    generalInformation.gameTactick = GameTactick.Load;
+
+                    autoPlayerClass2.programState = ProgramState.Executing;
+                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void showData() {
+        if (iterationCount % 15 != 0) return;
+
+        telemetry.addData("ROBOT", "LIN %.2f HEAD %.2f", MAX_ROBOT_LINEAR_SP, MAX_ROBOT_HEAD_SP * RAD);
+        telemetry.addData("TURRET", "LIN %.2f HEAD %.2f", MAX_TURRET_LINEAR_SP, MAX_TURRET_HEAD_SP * RAD);
+
+        switch (generalInformation.programName){
+            case TeleOp:
+                telemetry.addData("Telemetry page", generalInformation.currentPage.name());
+                switch (generalInformation.currentPage){
+                    case Show_all:
+                        semiAutoPlayerClass1.showData();
+                        autoPlayerClass2.showData();
+                        robotClass.showData();
+                        break;
+                    case Show_pl1:
+                        semiAutoPlayerClass1.showData();
+                        break;
+                    case Show_pl2:
+                        autoPlayerClass2.showData();
+                        break;
+                    case Show_robot:
+                        robotClass.showData();
+                        break;
+                    case Show_modules_freq:
+                        semiAutoPlayerClass1.sayModuleName();
+                        semiAutoPlayerClass1.showUpdateFreq();
+                        autoPlayerClass2.sayModuleName();
+                        autoPlayerClass2.showUpdateFreq();
+                        sayModuleName();
+                        showUpdateFreq();
+                        break;
+                    case Show_game_states:
+                        telemetry.addLine(generalInformation.gameTactick.toString());
+                        telemetry.addData("Pl1", semiAutoPlayerClass1.programState.toString());
+                        telemetry.addData("Pl1 is interrupted", semiAutoPlayerClass1.isInterrupted);
+                        telemetry.addData("Pl2", autoPlayerClass2.programState.toString());
+                        telemetry.addData("Pl2 is interrupted", autoPlayerClass2.isInterrupted);
+                        break;
+                }
+                break;
+            default:
+                telemetry.addLine(generalInformation.gameTactick.toString());
+                semiAutoPlayerClass1.showData();
+                telemetry.addLine(semiAutoPlayerClass1.programState.toString());
+                autoPlayerClass2.sayModuleName();
+                telemetry.addLine(autoPlayerClass2.programState.toString());
+
+                robotClass.drivetrain.showData();
+                robotClass.odometry.showData();
+                break;
+        }
+
+    }
+
+    @Override
+    protected void showDataExt() {
+
+    }
+
+    public class FileSystem extends UpdatableCollector {
+        //Данному классу требуется доступ ко всем объектам программы
+        private File odometryData, anotherData;
+        private List<String> logBuffer;
+        private Date date;
+        public FileSystem(){
+            odometryData = AppUtil.getInstance().getSettingsFile("OdometryData.txt");
+            anotherData = AppUtil.getInstance().getSettingsFile("AnotherData.txt");
+
+            logBuffer = new ArrayList<>();
+            date = new Date();
+        }
+
+        @Override
+        protected void updateExt() {
+//            logBuffer.add(String.format("%.2f %.2f %.2f %.2f %s %n", Math.abs(autoPlayerClass2.trackEmulator.targHeadVel * RAD), Math.abs(robotClass.odometry.odometryBufferForTuret.read().getHeadVel() * RAD),
+//                    autoPlayerClass2.trackEmulator.targHead * RAD, robotClass.odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD, matchTimer.seconds()));
+        }
+        public void loadLastPosition() {
+            OdometryData lastData = null;
+
+            try (BufferedReader br = new BufferedReader(new FileReader(odometryData))) {
+                String line;
+                String lastLine = null;
+
+                // Читаем до последней строки
+                while ((line = br.readLine()) != null) {
+                    lastLine = line;
+                }
+
+                if (lastLine != null) {
+                    String[] parts = lastLine.split(",");
+                    if (parts.length >= 4) {
+                        double x = Double.parseDouble(parts[1]);
+                        double y = Double.parseDouble(parts[2]);
+                        double heading = Double.parseDouble(parts[3]);
+
+                        Position2D pos = new Position2D(x, y, heading);
+                        lastData = new OdometryData(pos, new Vector2(0), 0);
+
+                        robotClass.odometry.setStartPos(pos);
+                        telemetry.addData("Loaded", "X:%.1f Y:%.1f H:%.1f", x, y, Math.toDegrees(heading));
+                    }
+                }
+
+            } catch (FileNotFoundException e) {
+                telemetry.addData("File", "No save file yet");
+            } catch (IOException | NumberFormatException e) {
+                telemetry.addData("Load Error", e.getMessage());
+            }
+        }
+        public void writeOdometry(){
+            try (FileWriter fw = new FileWriter(odometryData, true); ) {
+                OdometryData savedRobotData = robotClass.odometry.odometryBufferForRobot.read();
+                List<String> odometryBuffer = new ArrayList<>();
+                odometryBuffer.add(String.format("X", savedRobotData.getPosition().getX()));
+                odometryBuffer.add(String.format("Y", savedRobotData.getPosition().getY()));
+                odometryBuffer.add(String.format("Heading", savedRobotData.getPosition().getHeading()));
+                for (String line : odometryBuffer) fw.write(line);
+            }catch (IOException e) {
+            }
+        }
+        public void writeAnother(){
+            try (FileWriter fw = new FileWriter(anotherData, true); ) {
+                for (String line : logBuffer) fw.write(line);
+            }catch (IOException e) {
+            }
+        }
+        public void deleteAnother(){
+            anotherData.delete();
+        }
+        public void deleteOdometry(){
+            odometryData.delete();
+        }
+        @Override
+        public void showData() {
+
+        }
+
+        @Override
+        protected void showDataExt() {
+
+        }
+    }
+}

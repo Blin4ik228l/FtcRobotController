@@ -1,18 +1,18 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders.Joystick2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PlayerClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Collector;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.CollectorMotors;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules.ColorSensorClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.CameraClass;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Odometry;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionController;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.Extenders.Joystick2;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PlayerClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Collector;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules.CollectorMotors;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules.ColorSensorClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Parts.CameraClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.Odometry.Odometry;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.PositionController;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(GeneralInformation generalInformation, Collector collector, OpMode op) {

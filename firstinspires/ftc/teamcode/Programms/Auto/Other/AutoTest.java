@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Other;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 @Autonomous(name = "TestAuto", group = "Unknown")
 public class AutoTest extends LinearOpModeModernized {

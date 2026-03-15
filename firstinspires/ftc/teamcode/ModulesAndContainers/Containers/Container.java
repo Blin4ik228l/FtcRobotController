@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
+package org.firstinspires.ftc.teamcode.MainParts.Containers;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
 
 public class Container implements Runnable{
     protected Thread thread;

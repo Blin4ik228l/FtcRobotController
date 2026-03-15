@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.NavigationSystem;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.NavigationSystem;
 
 public class FireMath {
     public enum VyrState {

@@ -1,19 +1,19 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
+package org.firstinspires.ftc.teamcode.MainParts.Containers;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.FileSystem;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.PL0.MainSystem;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl1.SemiAutoPlayerClass1;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.FileSystem;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0.MainSystem;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl1.SemiAutoPlayerClass1;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotClass;
 
 import java.io.File;
 import java.io.FileWriter;

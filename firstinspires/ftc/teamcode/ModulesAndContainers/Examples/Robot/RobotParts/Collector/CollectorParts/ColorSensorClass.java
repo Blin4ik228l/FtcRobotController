@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Modules;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
 
 public class ColorSensorClass extends UpdatableModule {
     private NormalizedColorSensor colorSensorNear, colorSensorFar;

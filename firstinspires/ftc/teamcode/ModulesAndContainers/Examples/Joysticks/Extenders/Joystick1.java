@@ -1,8 +1,8 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.Extenders;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.Extenders;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Joysticks.JoystickActivityClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.JoystickActivityClass;
 
 public class Joystick1 extends JoystickActivityClass {
     public Joystick1(OpMode op) {

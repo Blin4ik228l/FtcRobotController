@@ -2,8 +2,8 @@ package org.firstinspires.Trees;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotParts.HoodedShoter.Collector;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Collector;
 import org.firstinspires.TaskAndArgs.Task;
 import org.firstinspires.Trees.BehaviorTree.Root;
 import org.firstinspires.Trees.BehaviorTree.TaskNode;

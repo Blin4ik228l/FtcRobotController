@@ -1,14 +1,14 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples;
+package org.firstinspires.ftc.teamcode.MainParts.Examples;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers.OpDataContainer;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Pl2.AutoPlayerClass2;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.UpdatableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Containers.OpDataContainer;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Pl2.AutoPlayerClass2;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableModule;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
 import org.firstinspires.ftc.teamcode.Programms.TeleOps.TeleOpModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Robot.RobotClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotClass;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.Programms.Auto.Red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.Players.Enums.TeamAliance;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.TeamAliance;
 import org.firstinspires.ftc.teamcode.Programms.Auto.LinearOpModeModernized;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 
 @Autonomous(name = "RedNearWall", group = "Red", preselectTeleOp = "Red")
 public class AutoRedNear extends LinearOpModeModernized {

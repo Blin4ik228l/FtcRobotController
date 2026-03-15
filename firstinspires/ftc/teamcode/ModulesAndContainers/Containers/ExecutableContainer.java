@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode.ModulesAndContainers.Containers;
+package org.firstinspires.ftc.teamcode.MainParts.Containers;
 
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Extenders.ExecutableModule;
-import org.firstinspires.ftc.teamcode.ModulesAndContainers.Modules.Module;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableModule;
+import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
 
 import java.util.ArrayList;
 

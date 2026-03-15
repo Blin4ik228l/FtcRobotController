@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.Units;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples.MotorWrapper;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.MotorWrapper;
 
 public class InnerMath{
     private double COUNTS_PER_ENCODER_REV = 1;

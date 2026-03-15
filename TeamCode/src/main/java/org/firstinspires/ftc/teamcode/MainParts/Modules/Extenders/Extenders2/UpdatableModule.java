@@ -7,7 +7,7 @@ public abstract class UpdatableModule extends DeviceManager {
         super(searchingDevice);
     }
     public void update() {
-        if(!isInitialized || isInterrupted) return;
+        if(!isInitialized) return;
         else updateExt();
     }
     protected abstract void updateExt();

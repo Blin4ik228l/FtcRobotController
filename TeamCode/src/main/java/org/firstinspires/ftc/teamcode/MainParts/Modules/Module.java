@@ -12,8 +12,6 @@ public abstract class Module implements Theory, SomeConsts {
      public Module(){
           telemetry = MainFile.op.telemetry;
      }
-     public boolean isInterrupted;
-
      private void sayLoading(){
           telemetry.addLine("Now initialize" +  " " + this.getClass().getSimpleName().toUpperCase() + " " + "module");
      }

@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Odometry;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShooter;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.CameraClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Odometry;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.VoltageSensorClass;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
@@ -15,17 +16,20 @@ public class RobotClass extends UpdatableCollector {
     */
     private final VoltageSensorClass voltageSensor;
     public MecanumDrivetrain drivetrain;
-    public HoodedShoter hoodedShoter;
+    public HoodedShooter hoodedShooter;
+    public CameraClass cameraClass;
 
     public Odometry odometry;
     public RobotClass(){
+        super(true);
         voltageSensor = new VoltageSensorClass();
         MainFile.voltageSensorClass = voltageSensor;
 
         drivetrain = new MecanumDrivetrain();
-        hoodedShoter = new HoodedShoter();
+        hoodedShooter = new HoodedShooter();
+        cameraClass = new CameraClass();
 
-        odometry = new Odometry(drivetrain, hoodedShoter);
+        odometry = new Odometry(drivetrain, hoodedShooter, cameraClass);
 
         sayCreated();
     }
@@ -33,6 +37,7 @@ public class RobotClass extends UpdatableCollector {
     @Override
     protected void updateExt() {
         voltageSensor.update(iterationCount, 10);
+        cameraClass.update(iterationCount, 1);
         odometry.update(iterationCount, 1);
     }
 

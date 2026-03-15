@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules;
 
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples.ColorSensorWrapper;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.ColorSensorWrapper;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.ServoMotorWrapper;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.Extenders2.UpdatableModule;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
@@ -16,6 +16,7 @@ public class DigitalCellsClass extends UpdatableCollector {
     public String pusher1 = controlHubDevices.getServo(1);
     public String pusher2 = controlHubDevices.getServo(2);
     public DigitalCellsClass(){
+        super(false);
 
         createColorWrapperUtils();
         createServoWrapperUtils();

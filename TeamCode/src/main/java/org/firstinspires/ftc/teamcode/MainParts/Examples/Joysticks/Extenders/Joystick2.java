@@ -4,7 +4,9 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Joysticks.JoystickActiv
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
 
 public class Joystick2 extends JoystickActivityClass {
-    public Joystick2() {
+
+    public Joystick2(boolean isThisExecutingOtherModules) {
+        super(isThisExecutingOtherModules);
         playersGamepad = MainFile.op.gamepad2;
     }
 }

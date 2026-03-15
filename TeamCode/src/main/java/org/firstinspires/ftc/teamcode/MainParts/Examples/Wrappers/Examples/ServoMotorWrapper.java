@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples;
 
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;

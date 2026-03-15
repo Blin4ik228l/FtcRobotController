@@ -8,7 +8,7 @@ public abstract class ExecutableModule extends DeviceManager {
         super(searchingDevice);
     }
     public void execute(Double...args){
-        if(!isInitialized || isInterrupted) return;
+        if(!isInitialized) return;
         else executeExt(args);
     };
     protected abstract void executeExt(Double...args);

@@ -12,8 +12,11 @@ import java.util.Deque;
 public abstract class ExecutorModule extends MainModule {
     protected ArrayList<Builder> builderPrograms;
     protected String executorName;
+    public boolean isInterrupted;
     protected ElapsedTime updateTime;
     public ExecutorModule() {
+        super(true);
+
         programState = ProgramState.Waiting_For_Start;
         updateTime = new ElapsedTime();
     }
@@ -36,32 +39,32 @@ public abstract class ExecutorModule extends MainModule {
         iterationCount++;
     }
     protected abstract void executeExt();
-    public void showUpdateFreq(){
-        telemetry.addData("iterCount", iterationCount);
-        telemetry.addData("Update time/hz", hz);
-    }
-    public void sayState(){
-        telemetry.addLine(programState.name());
+    @Override
+    public void showData() {
+        sayModuleName();
+        sayState();
+        showDataExt();
+        showUpdateFreq();
+        sayLastWords();
     }
     @Override
     public void sayModuleName() {
         telemetry.addLine( "-----" + this.getClass().getSimpleName().toUpperCase() + "-----");
     }
-    @Override
-    public void showData() {
-        sayModuleName();
-        showDataExt();
-        sayState();
-        showUpdateFreq();
-        sayLastWords();
+    public void sayState(){
+        telemetry.addLine(programState.name());
     }
-
-    protected abstract void executeTeleOp();
-    protected abstract void executeAuto();
+    public void showUpdateFreq(){
+        telemetry.addData("iterCount", iterationCount);
+        telemetry.addData("Update time/hz", hz);
+    }
     @Override
     protected void sayLastWords() {
         telemetry.addLine("-----------------------------------");
     }
+
+    protected abstract void executeTeleOp();
+    protected abstract void executeAuto();
 
     public static class Builder {
         public String name;

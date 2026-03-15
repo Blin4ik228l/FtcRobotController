@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples;
 
 import static com.qualcomm.hardware.ams.AMSColorSensor.AMS_TCS34725_ADDRESS;
 

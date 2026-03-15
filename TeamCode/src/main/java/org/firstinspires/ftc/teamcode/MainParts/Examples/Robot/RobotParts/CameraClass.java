@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts;
+package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts;
 
 import android.util.Size;
 
@@ -32,7 +32,8 @@ public class CameraClass extends UpdatableCollector {
     public GeneralLogic generalLogic;
     public RandomizeStatus randomizeStatus;
     public ElapsedTime updateTime;
-    public CameraClass()  {
+    public CameraClass(){
+        super(false);
         try {
             webcamName = MainFile.op.hardwareMap.get(WebcamName.class, controlHubDevices.webcam1);
             cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота

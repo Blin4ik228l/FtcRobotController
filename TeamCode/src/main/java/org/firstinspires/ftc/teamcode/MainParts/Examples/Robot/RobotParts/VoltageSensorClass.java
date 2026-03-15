@@ -12,11 +12,9 @@ public class VoltageSensorClass extends UpdatableCollector {
     private double MAX_VOL;
     private double kPower;
     public VoltageSensorClass() {
-        try {
-            voltageSensor = MainFile.op.hardwareMap.voltageSensor;
-        }catch (Exception e){
-            isInitialized = false;
-        }
+        super(false);
+
+        voltageSensor = MainFile.op.hardwareMap.voltageSensor;
 
         sayCreated();
     }

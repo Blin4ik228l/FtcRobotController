@@ -4,12 +4,12 @@ package org.firstinspires.ftc.teamcode.MainParts.Modules.DeviceTree;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.HardwareBuilder;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.HardwareBuilder;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
 
 import java.util.HashMap;
 
-public abstract class  DeviceManager extends Module {
+public abstract class DeviceManager extends Module {
     protected HardwareMap hardwareMap;
     protected String searchingDevice;
 

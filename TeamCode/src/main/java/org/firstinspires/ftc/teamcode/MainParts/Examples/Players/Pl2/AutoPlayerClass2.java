@@ -11,22 +11,22 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odomet
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.PIDF;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShoter;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShooter;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramState;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(RobotClass robotClass) {
-        setJoystickActivityClass(new Joystick1());
+        setJoystickActivityClass(new Joystick1(false));
 
-        this.hoodedShoter = robotClass.hoodedShoter;
+        this.hoodedShooter = robotClass.hoodedShooter;
         this.odometry = robotClass.odometry;
 
         turretController = new TurretController();
         flyWheelController = new FlyWheelController();
         PDFTurner = new PDFTurner();
     }
-    public HoodedShoter hoodedShoter;
+    public HoodedShooter hoodedShooter;
     public Odometry odometry;
 
     public TurretController turretController;
@@ -88,7 +88,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                     turretPow = 0;
                     flyWheelPow = 0;
                     collectorPow = 0;
-                    angleServoPos = hoodedShoter.angleController.getServo().servo.getPosition();
+                    angleServoPos = hoodedShooter.angleController.getServo().servo.getPosition();
                     programState = ProgramState.Interrupted;
                 }
                 break;
@@ -98,16 +98,13 @@ public class AutoPlayerClass2 extends PlayerClass{
         flyWheelPow = Range.clip(flyWheelPow, -maxVol, maxVol);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
-        hoodedShoter.angleController.execute(angleServoPos);
+        hoodedShooter.angleController.execute(angleServoPos);
 
-        hoodedShoter.turretMotor.execute(turretPow);
-        hoodedShoter.flyWheelClass.execute(flyWheelPow);
-        hoodedShoter.collector.execute(collectorPow);
+        hoodedShooter.turretMotor.execute(turretPow);
+        hoodedShooter.flyWheelClass.execute(flyWheelPow);
+        hoodedShooter.collector.execute(collectorPow);
 
-        hoodedShoter.turretMotor.turretOdometry.update(iterationCount, 1);
-        hoodedShoter.flyWheelClass.flyWheelOdometry.update(iterationCount, 1);
-
-        hoodedShoter.digitalCellsClass.update(iterationCount, 3);
+        hoodedShooter.update(iterationCount, 1);
     }
 
     @Override
@@ -130,10 +127,10 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         theta = Range.clip(theta, 46, 70);
 
-        double curSpeed = hoodedShoter.flyWheelClass.flyWheelOdometry.odometryData.getHeadVel();
+        double curSpeed = hoodedShooter.flyWheelClass.encodersClass.encodersBuffer.read().getHeadVel();
         double targetSpeed = 0;
 
-        int count = hoodedShoter.digitalCellsClass.getArtifactCount();
+        int count = hoodedShooter.digitalCellsClass.getArtifactCount();
 
         switch (generalInformation.gameTactick){
             case Load:
@@ -152,31 +149,31 @@ public class AutoPlayerClass2 extends PlayerClass{
                 if(count == 0 && servoState == ServoState.waiting){
                     programState = ProgramState.Finished;
                 }else {
-                    angleServoPos = hoodedShoter.angleController.getPos(theta);
-                    targetSpeed = hoodedShoter.flyWheelClass.getTargetSpeed(theta, range);
+                    angleServoPos = hoodedShooter.angleController.getPos(theta);
+                    targetSpeed = hoodedShooter.flyWheelClass.getTargetSpeed(theta, range);
 
                     isFlyWheelReady = flyWheelController.checkReadnees(targetSpeed, curSpeed);
-                    isAngleGrowUp = !hoodedShoter.angleController.getServo().isBusy();
+                    isAngleGrowUp = !hoodedShooter.angleController.getServo().isBusy();
                     switch (servoState){
                         case waiting:
                             if(isAngleGrowUp && isFlyWheelReady && turretPow == 0){
                                 int index = 3 - count;
                                 int neededColor = odometry.cameraClass.motif[index];
-                                hoodedShoter.digitalCellsClass.fire(neededColor);
-                                if (hoodedShoter.digitalCellsClass.isStopped) {
+                                hoodedShooter.digitalCellsClass.fire(neededColor);
+                                if (hoodedShooter.digitalCellsClass.isStopped) {
                                     servoState = ServoState.fired;
                                 }
                             }
                             break;
                         case fired:
-                            if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                hoodedShoter.digitalCellsClass.prepareServo();
+                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy()) {
+                                hoodedShooter.digitalCellsClass.prepareServo();
                                 servoState = ServoState.prepared;
                             }
                             break;
                         case prepared:
-                            if(!hoodedShoter.digitalCellsClass.triggeredServo.isBusy()) {
-                                hoodedShoter.digitalCellsClass.isStopped = false;
+                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy()) {
+                                hoodedShooter.digitalCellsClass.isStopped = false;
                                 servoState = ServoState.waiting;
                             }
                             break;
@@ -195,7 +192,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     @Override
     protected void showDataExt() {
         joystickActivityClass.showData();
-        hoodedShoter.showData();
+        hoodedShooter.showData();
         flyWheelController.showData();
         turretController.showData();
         PDFTurner.showData();

@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Hoode
 
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Wrappers.Examples.ServoMotorWrapper;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.ServoMotorWrapper;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableCollector;
 
 public class AngleController extends ExecutableCollector {
     public String angleServo = controlHubDevices.getServo(3);
     public AngleController() {
+        super(false);
         createServoWrapperUtils();
         servosCollector.add(servoBuilder.initialize(angleServo).setFields(60.0, 120.0).get());
 

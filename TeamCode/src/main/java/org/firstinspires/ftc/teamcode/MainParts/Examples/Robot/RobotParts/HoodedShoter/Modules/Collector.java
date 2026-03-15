@@ -9,9 +9,10 @@ public class Collector extends ExecutableCollector {
     public String collector = controlHubDevices.getMotor(3);
 
     public Collector() {
+        super(false);
         createMotorWrapperUtils();
         motorsCollector.add(motorBuilder.initialize(collector).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(12.5, 1.0).get());
+                .setFields(12.5, 1.0, 0.0, 3.0, 1.0).get());
 
         sayCreated();
     }
@@ -23,7 +24,6 @@ public class Collector extends ExecutableCollector {
 
     @Override
     protected void showDataExt() {
-
+        motorsCollector.get(collector).showData();
     }
-
 }

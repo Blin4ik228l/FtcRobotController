@@ -342,6 +342,7 @@ public class MainSystem extends ExecutorModule {
         private List<String> logBuffer;
         private Date date;
         public FileSystem(){
+            super(false);
             odometryData = AppUtil.getInstance().getSettingsFile("OdometryData.txt");
             anotherData = AppUtil.getInstance().getSettingsFile("AnotherData.txt");
 
@@ -376,7 +377,7 @@ public class MainSystem extends ExecutorModule {
                         Position2D pos = new Position2D(x, y, heading);
                         lastData = new OdometryData(pos, new Vector2(0), 0);
 
-                        robotClass.odometry.setStartPos(pos);
+
                         telemetry.addData("Loaded", "X:%.1f Y:%.1f H:%.1f", x, y, Math.toDegrees(heading));
                     }
                 }

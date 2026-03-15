@@ -26,6 +26,10 @@ public class JoystickActivityClass extends UpdatableCollector implements Joystic
 
     public double cosA, sinA, cosB, sinB, right_trigger, left_trigger;
 
+    public JoystickActivityClass(boolean isThisExecutingOtherModules) {
+        super(isThisExecutingOtherModules);
+    }
+
     @Override
     protected void updateExt() {
         isA_Button();

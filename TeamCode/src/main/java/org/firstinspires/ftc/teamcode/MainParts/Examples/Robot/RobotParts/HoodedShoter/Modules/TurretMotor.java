@@ -20,7 +20,7 @@ public class TurretMotor extends ExecutableCollector {
         super(false);
         createMotorWrapperUtils();
         motorsCollector.add(motorBuilder.initialize(turretMotor).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                .setFields(13.0, 1.0, 0.0, 2.0, 5.19).get());
+                .setFields(13.0, 1.0, 384.5, 2.0, 5.19).get());
 
         encodersClass = new EncodersClass(motorsCollector);
         sayCreated();
@@ -34,6 +34,7 @@ public class TurretMotor extends ExecutableCollector {
 
     @Override
     protected void showDataExt() {
+        telemetry.addData("ticks", motorsCollector.get(turretMotor).getMotorConfigurationType().getTicksPerRev());
         motorsCollector.showData();
         encodersClass.showData();
     }

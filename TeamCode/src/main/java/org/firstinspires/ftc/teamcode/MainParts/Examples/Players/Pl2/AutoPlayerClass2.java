@@ -56,6 +56,9 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         double[] point = generalInformation.generalObjects.getPointVyr();
 
+//        PDFTurner.execute();
+//
+//        flyWheelController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
         turretCurrentData = odometry.odometryBufferForTuret.read();
         robotCurrentData = odometry.odometryBufferForRobot.read();
 
@@ -168,7 +171,8 @@ public class AutoPlayerClass2 extends PlayerClass{
                         case fired:
                             if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy()) {
                                 hoodedShooter.digitalCellsClass.prepareServo();
-                                servoState = ServoState.prepared;
+                                hoodedShooter.digitalCellsClass.isStopped = false;
+                                servoState = ServoState.waiting;
                             }
                             break;
                         case prepared:
@@ -191,6 +195,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
+        telemetry.addData("local", hoodedShooter.turretMotor.encodersClass.localHead * RAD);
+        telemetry.addData("tHead", targetData.getPosition().getHeading() * RAD);
         joystickActivityClass.showData();
         hoodedShooter.showData();
         flyWheelController.showData();
@@ -338,16 +344,17 @@ public class AutoPlayerClass2 extends PlayerClass{
             // Находим ошибку положения
             double targHead = targetPos.getHeading();
             double robotHead = robotCurrentData.getPosition().getHeading();
-            double curHead = currentPos.getHeading() - robotHead;
+            double curHead = turretCurrentData.getPosition().getHeading();
+            double localHead = hoodedShooter.turretMotor.encodersClass.localHead;
 
-            if (targHead - robotHead > Math.PI || targHead - robotHead < -Math.PI){
-                targHead = getNorm(targHead - robotHead);
-            }else targHead = targHead - robotHead;
+            if ((targHead - curHead) + localHead > Math.PI || (targHead - curHead) + localHead < -Math.PI){
+                targHead = getNorm((targHead - curHead) + localHead);
+            }else targHead = targHead - curHead + localHead;
 
+            double target_head = targHead;
+            double head_safe_brake = returnDistance(target_head, target_head);
             double errorHeading = targHead - curHead;
 
-            double target_head = targetData.getHeadVel();
-            double head_safe_brake = returnDistance(target_head, target_head);
             double headVel = Math.signum(errorHeading) * Math.max(target_head * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
             double pidHeadVel = calculate(headVel, currentData.getHeadVel());
@@ -370,7 +377,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class FlyWheelController extends PIDF {
         public FlyWheelController(){
-             super(0.05, 0, 0,0.0018,-1, 1, "FlyWheelPid");
+             super(0.002, 0, 0,0.0022,-1, 1, "FlyWheelPid");
         }
 
         public OdometryData calculateVol(double targetSpeed, double curSpeed){

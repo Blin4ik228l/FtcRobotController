@@ -59,7 +59,6 @@ public class DigitalCellsClass extends UpdatableCollector {
     protected void showDataExt() {
         if (triggeredCell != null) telemetry.addData("cell", triggeredCell.name);
 
-        telemetry.addData("Count", artifactCount);
         cells.showAll();
         servosCollector.showData();
     }

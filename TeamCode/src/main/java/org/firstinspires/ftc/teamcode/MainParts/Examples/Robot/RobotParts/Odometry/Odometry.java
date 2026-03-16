@@ -6,14 +6,15 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveT
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShooter;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules.TurretMotor;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
 public class Odometry extends UpdatableCollector {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
     public CameraClass cameraClass;
-    private DrivetrainMotors.EncoderClass encoders;
+    private DrivetrainMotors motors;
     private GyroscopeClass gyro;
-    private TurretMotor.EncodersClass encodersClass;
+    private TurretMotor turretMotor;
     private OdometryData outPutDataForRobot;
     public OdometryBuffer odometryBufferForRobot;
     private OdometryData outPutDataForTuret;
@@ -29,9 +30,9 @@ public class Odometry extends UpdatableCollector {
 
         this.cameraClass = cameraClass;
 
-        encoders = drivetrain.motors.encoderClass;
+        motors = drivetrain.motors;
         gyro = drivetrain.gyro;
-        encodersClass = hoodedShooter.turretMotor.encodersClass;
+        turretMotor = hoodedShooter.turretMotor;
 
         sayCreated();
     }
@@ -42,9 +43,9 @@ public class Odometry extends UpdatableCollector {
 
     @Override
     protected void updateExt() {
-        OdometryBuffer encodersBuf = encoders.encodersBuffer;
+        OdometryBuffer encodersBuf = motors.encoderClass.encodersBuffer;
         OdometryBuffer gyroBuf = gyro.gyroBuffer;
-        OdometryBuffer turretBuf = encodersClass.turretBuffer;
+        OdometryBuffer turretBuf = turretMotor.encodersClass.turretBuffer;
 
         outPutDataForRobot
                 .setVelocity(encodersBuf.read().getVelocity())
@@ -58,19 +59,19 @@ public class Odometry extends UpdatableCollector {
 
         //Камера видит таг -> Полностью считываем позицию с неё
         if (cameraClass.absoluteData.getDesisionMarg() > 0 && Math.abs(outPutDataForTuret.getHeadVel()) < MIN_TURRET_HEAD_SP){
-            org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D pos = cameraClass.absoluteData.getPosition();
+            Position2D pos = cameraClass.absoluteData.getPosition();
 
             outPutDataForRobot.getPosition().setX(pos.getX());
             outPutDataForRobot.getPosition().setY(pos.getY());
-            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - encodersClass.localHead);
+            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - turretMotor.encodersClass.localHead);
 
             outPutDataForTuret.getPosition().setX(pos.getX());
             outPutDataForTuret.getPosition().setY(pos.getY());
             outPutDataForTuret.getPosition().setHeading(pos.getHeading());
         }else{
-            org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D turretPos = turretBuf.read2().getPosition();
-            org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D encodersPos = encodersBuf.read2().getPosition();
-            org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D gyroPos = gyroBuf.read2().getPosition();
+            Position2D turretPos = turretBuf.read2().getPosition();
+            Position2D encodersPos = encodersBuf.read2().getPosition();
+            Position2D gyroPos = gyroBuf.read2().getPosition();
 
             //добавляем угол из буффера турели
             outPutDataForTuret.getPosition().add(0,0, turretPos.getHeading() + gyroPos.getHeading());

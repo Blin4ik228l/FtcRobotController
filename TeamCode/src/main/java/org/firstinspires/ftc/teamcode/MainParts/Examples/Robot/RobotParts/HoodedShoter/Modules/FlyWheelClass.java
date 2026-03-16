@@ -64,19 +64,21 @@ public class FlyWheelClass extends ExecutableCollector {
 
         public EncodersClass(MotorWrapper.InnerCollector motors) {
             super(false);
+            this.motorsCollector = motors;
+            odometryData = new OdometryData();
+            encodersBuffer = new OdometryBuffer();
             currentSpeeds = new double[2];
             sayCreated();
         }
 
         @Override
         protected void updateExt() {
-
             double filtr = 0.3;
 
-            currentSpeeds[0] = motorsCollector.get(motorLeft).getCurVel(Units.Rad);
+            currentSpeeds[0] = -motorsCollector.get(motorLeft).getCurVel(Units.Rad);
             currentSpeeds[1] = motorsCollector.get(motorRight).getCurVel(Units.Rad);
 
-            double vel = -(currentSpeeds[0] != 0 && currentSpeeds[1] != 0 ? (currentSpeeds[0] + currentSpeeds[1]) / 2.0 : currentSpeeds[0] + currentSpeeds[1]);
+            double vel = (currentSpeeds[0] != 0 && currentSpeeds[1] != 0 ? (currentSpeeds[0] - currentSpeeds[1]) / 2.0 : currentSpeeds[0] + currentSpeeds[1]);
 
             filteredVel = filtr * vel + (1 - filtr) * filteredVel;
 

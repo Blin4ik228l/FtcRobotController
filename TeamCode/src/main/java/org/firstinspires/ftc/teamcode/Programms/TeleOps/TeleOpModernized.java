@@ -30,7 +30,7 @@ public abstract class TeleOpModernized extends OpMode {
 //        telemetry.setAutoClear(false);
         generalInformation.programStage = ProgramStage.Main_loop;
     }
-    int targetFrequencyHz = 60;
+    int targetFrequencyHz = 45;
     long targetPeriodNs = 1_000_000_000 / targetFrequencyHz;
     long targetSleepMs = targetPeriodNs / 1_000_000;
     @Override

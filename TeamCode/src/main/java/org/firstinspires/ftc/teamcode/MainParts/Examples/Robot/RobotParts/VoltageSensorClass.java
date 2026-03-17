@@ -9,8 +9,6 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableColle
 public class VoltageSensorClass extends UpdatableCollector {
     private HardwareMap.DeviceMapping<VoltageSensor> voltageSensor;
     private double curVoltage;
-    private double MAX_VOL;
-    private double kPower;
     public VoltageSensorClass() {
         super(false);
 
@@ -18,16 +16,9 @@ public class VoltageSensorClass extends UpdatableCollector {
 
         sayCreated();
     }
-    public double getkPower() {
-        return kPower;
-    }
 
     public double getCurVoltage() {
         return curVoltage;
-    }
-
-    public double getMAX_VOL() {
-        return MAX_VOL;
     }
     @Override
     protected void updateExt() {
@@ -41,9 +32,6 @@ public class VoltageSensorClass extends UpdatableCollector {
         }
 
         curVoltage = result;
-        if(curVoltage > MAX_VOL) MAX_VOL = curVoltage;
-
-        kPower = MAX_VOL / curVoltage;
     }
 
     @Override

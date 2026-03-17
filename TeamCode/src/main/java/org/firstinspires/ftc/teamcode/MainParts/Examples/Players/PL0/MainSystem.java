@@ -83,6 +83,8 @@ public class MainSystem extends ExecutorModule {
                 break;
         }
 
+//        robotClass.hoodedShooter.update(iterationCount, 1);
+//        robotClass.drivetrain.update(iterationCount, 1);
         robotClass.update(iterationCount, 1);
     }
 
@@ -95,7 +97,7 @@ public class MainSystem extends ExecutorModule {
         matchTimer.reset();
     }
     public MainSystem createRunnable(ExecutorModule executorModule){
-        int targetFrequencyHz = 60;
+        int targetFrequencyHz = 45;
         long targetPeriodNs = 1_000_000_000 / targetFrequencyHz;
         long targetSleepMs = targetPeriodNs / 1_000_000;
 

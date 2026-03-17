@@ -52,13 +52,14 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void executeExt() {
-        double maxVol = 0.8;
+        double maxVol = 0.9;
 
         double[] point = generalInformation.generalObjects.getPointVyr();
 
 //        PDFTurner.execute();
 //
 //        flyWheelController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
+
         turretCurrentData = odometry.odometryBufferForTuret.read();
         robotCurrentData = odometry.odometryBufferForRobot.read();
 
@@ -263,7 +264,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PDFTurner() {
-            super(0.0, 0,0,0.0, -1,1, "TestPid");
+            super(0.0, 0,0,0.0022,-1,1, "TestPid");
         }
 
         public void execute(){
@@ -331,10 +332,10 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TurretController extends PIDF{
         public TurretController(){
-            super(0.0, 0,0,0.3, -1, 1, "TurretPid");
+            super(0.0, 0,0,0.4, -1, 1, "TurretPid");
         }
 
-        private double returnDistance(double VelMax, double accel ){
+        private double returnDistance(double VelMax, double accel){
             return Math.pow(VelMax, 2) / (2 * accel);
         }
         public OdometryData calculateVol(OdometryData targetData, OdometryData currentData){
@@ -357,11 +358,11 @@ public class AutoPlayerClass2 extends PlayerClass{
 
             double headVel = Math.signum(errorHeading) * Math.max(target_head * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
-            double pidHeadVel = calculate(headVel, currentData.getHeadVel());
-
             if(Math.abs(errorHeading) < Math.toRadians(3)) {
-                pidHeadVel = 0;
+                headVel = 0;
             }
+
+            double pidHeadVel = calculate(headVel, currentData.getHeadVel());
 
             return new OdometryData(new Vector2(0), pidHeadVel);
         }
@@ -377,7 +378,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class FlyWheelController extends PIDF {
         public FlyWheelController(){
-             super(0.002, 0, 0,0.0022,-1, 1, "FlyWheelPid");
+             super(0.002, 0, 0,0.0019,-1, 1, "FlyWheelPid");
         }
 
         public OdometryData calculateVol(double targetSpeed, double curSpeed){

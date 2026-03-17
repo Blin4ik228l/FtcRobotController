@@ -62,8 +62,6 @@ public class DigitalCellsClass extends UpdatableCollector {
         cells.showAll();
         servosCollector.showData();
     }
-
-
     public void fire(int color){
         if(isStopped) return;
         triggeredCell = cells.getNeededCell(color);
@@ -112,7 +110,7 @@ public class DigitalCellsClass extends UpdatableCollector {
         }
         public int getColor(){
             int clr = 0;
-            for (ColorSensorWrapper color:sensorsWrapper) {
+            for (ColorSensorWrapper color : sensorsWrapper) {
                 clr = color.getFoundedColor();
                 if(clr != 0) break;
             };

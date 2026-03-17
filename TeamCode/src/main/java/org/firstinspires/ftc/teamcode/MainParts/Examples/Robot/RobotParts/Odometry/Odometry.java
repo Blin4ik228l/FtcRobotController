@@ -68,6 +68,10 @@ public class Odometry extends UpdatableCollector {
             outPutDataForTuret.getPosition().setX(pos.getX());
             outPutDataForTuret.getPosition().setY(pos.getY());
             outPutDataForTuret.getPosition().setHeading(pos.getHeading());
+
+            turretBuf.read2().getPosition();
+            encodersBuf.read2().getPosition();
+            gyroBuf.read2().getPosition();
         }else{
             Position2D turretPos = turretBuf.read2().getPosition();
             Position2D encodersPos = encodersBuf.read2().getPosition();

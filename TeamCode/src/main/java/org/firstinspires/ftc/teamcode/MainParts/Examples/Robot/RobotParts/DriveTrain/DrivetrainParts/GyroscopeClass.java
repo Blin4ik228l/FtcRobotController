@@ -51,7 +51,7 @@ public class GyroscopeClass extends UpdatableCollector {
     }
     @Override
     public void showDataExt() {
-        telemetry.addData("Yaw", gyroBuffer.read().getPosition().getHeading());
+        telemetry.addData("Yaw", localHead * RAD);
     }
 
     private class SelfMath{

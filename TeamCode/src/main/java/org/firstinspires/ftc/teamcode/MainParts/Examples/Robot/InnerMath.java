@@ -37,7 +37,7 @@ public class InnerMath{
     public double getCurentPos(MotorWrapper motorWrapper, Units units){
         DcMotor motor;
 
-        if(motorWrapper != null)motor = motorWrapper.getMotor();
+        if(motorWrapper != null) motor = motorWrapper.getMotor();
         else motor = null;
 
 
@@ -54,7 +54,7 @@ public class InnerMath{
                 default:
                     break;
             }
-            return pos;
+            return Double.isFinite(pos) ? pos : 0;
         }
     }
     public double getCurrentVelocity(MotorWrapper motorWrapper, Units units){
@@ -76,7 +76,7 @@ public class InnerMath{
                     break;
             }
 
-            return vel;
+            return Double.isFinite(vel) ? vel : 0;
         }
     }
 }

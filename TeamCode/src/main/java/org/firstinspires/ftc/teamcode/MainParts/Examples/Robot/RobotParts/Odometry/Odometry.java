@@ -7,26 +7,27 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Hooded
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules.TurretMotor;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
 public class Odometry extends UpdatableCollector {
     //Все энкодеры на телеге + гироскоп + камера  составляющие общую систему оценки положения робота в пространстве.
-    public CameraClass cameraClass;
-    private DrivetrainMotors motors;
-    private GyroscopeClass gyro;
-    private TurretMotor turretMotor;
-    private OdometryData outPutDataForRobot;
-    public OdometryBuffer odometryBufferForRobot;
-    private OdometryData outPutDataForTuret;
-    public OdometryBuffer odometryBufferForTuret;
+    public final CameraClass cameraClass;
+    private final DrivetrainMotors motors;
+    private final GyroscopeClass gyro;
+    private final TurretMotor turretMotor;
+    private final OdometryData dataForRobot;
+    private final OdometryData dataForTurret;
+    public final OdometryBuffer bufferForRobot;
+    public final OdometryBuffer bufferForTurret;
 
     public Odometry(MecanumDrivetrain drivetrain, HoodedShooter hoodedShooter, CameraClass cameraClass){
         super(false);
-        outPutDataForRobot = new OdometryData();
-        odometryBufferForRobot = new OdometryBuffer();
+        dataForRobot = new OdometryData();
+        bufferForRobot = new OdometryBuffer();
 
-        outPutDataForTuret = new OdometryData();
-        odometryBufferForTuret = new OdometryBuffer();
+        dataForTurret = new OdometryData();
+        bufferForTurret = new OdometryBuffer();
 
         this.cameraClass = cameraClass;
 
@@ -37,37 +38,37 @@ public class Odometry extends UpdatableCollector {
         sayCreated();
     }
     public void setStartPos(OdometryData savedRobotData, OdometryData savedTurretData){
-        outPutDataForTuret.setPosition(savedRobotData.getPosition());
-        outPutDataForTuret.setPosition(savedTurretData.getPosition());
+        dataForTurret.setPosition(savedRobotData.getPosition());
+        dataForTurret.setPosition(savedTurretData.getPosition());
     }
 
     @Override
     protected void updateExt() {
-        OdometryBuffer encodersBuf = motors.encoderClass.encodersBuffer;
+        OdometryBuffer encodersBuf = motors.encodersBuffer;
         OdometryBuffer gyroBuf = gyro.gyroBuffer;
-        OdometryBuffer turretBuf = turretMotor.encodersClass.turretBuffer;
+        OdometryBuffer turretBuf = turretMotor.turretBuffer;
 
-        outPutDataForRobot
+        dataForRobot
                 .setVelocity(encodersBuf.read().getVelocity())
                 .setAccel(encodersBuf.read().getAccel())
                 .setHeadVel(gyroBuf.read().getHeadVel())
                 .setHeadAccel(gyroBuf.read().getHeadAccel());
 
-        outPutDataForTuret
-                .setHeadVel(turretBuf.read().getHeadVel() + outPutDataForRobot.getHeadVel())
-                .setHeadAccel(turretBuf.read().getHeadVel() + outPutDataForRobot.getHeadAccel());
+        dataForTurret
+                .setHeadVel(turretBuf.read().getHeadVel() + dataForRobot.getHeadVel())
+                .setHeadAccel(turretBuf.read().getHeadVel() + dataForRobot.getHeadAccel());
 
         //Камера видит таг -> Полностью считываем позицию с неё
-        if (cameraClass.absoluteData.getDesisionMarg() > 0 && Math.abs(outPutDataForTuret.getHeadVel()) < MIN_TURRET_HEAD_SP){
+        if (cameraClass.absoluteData.getDesisionMarg() > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){
             Position2D pos = cameraClass.absoluteData.getPosition();
 
-            outPutDataForRobot.getPosition().setX(pos.getX());
-            outPutDataForRobot.getPosition().setY(pos.getY());
-            outPutDataForRobot.getPosition().setHeading(pos.getHeading() - turretMotor.encodersClass.localHead);
+            dataForRobot.getPosition().setX(pos.getX());
+            dataForRobot.getPosition().setY(pos.getY());
+            dataForRobot.getPosition().setHeading(pos.getHeading() - turretMotor.localHead);
 
-            outPutDataForTuret.getPosition().setX(pos.getX());
-            outPutDataForTuret.getPosition().setY(pos.getY());
-            outPutDataForTuret.getPosition().setHeading(pos.getHeading());
+            dataForTurret.getPosition().setX(pos.getX());
+            dataForTurret.getPosition().setY(pos.getY());
+            dataForTurret.getPosition().setHeading(pos.getHeading());
 
             turretBuf.read2().getPosition();
             encodersBuf.read2().getPosition();
@@ -78,36 +79,36 @@ public class Odometry extends UpdatableCollector {
             Position2D gyroPos = gyroBuf.read2().getPosition();
 
             //добавляем угол из буффера турели
-            outPutDataForTuret.getPosition().add(0,0, turretPos.getHeading() + gyroPos.getHeading());
+            dataForTurret.getPosition().add(0,0, turretPos.getHeading() + gyroPos.getHeading());
 
             //добавляем угол из буффера гироскопа
-            outPutDataForRobot.getPosition().add(0, 0, gyroPos.getHeading());
+            dataForRobot.getPosition().add(0, 0, gyroPos.getHeading());
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2 deltaVector2 = new org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(outPutDataForRobot.getPosition().getHeading() + Math.toRadians(-90));
+            Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(dataForRobot.getPosition().getHeading() + Math.toRadians(-90));
 
-            outPutDataForRobot.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
-            outPutDataForTuret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
+            dataForRobot.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
+            dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
         }
 
 //        outPutDataForRobot.rotateVelocity();
 //        outPutDataForRobot.rotateAccel();
 
-        odometryBufferForRobot.beginWrite().set(outPutDataForRobot);
-        odometryBufferForRobot.endWrite();
+        bufferForRobot.beginWrite().set(dataForRobot);
+        bufferForRobot.endWrite();
 
-        odometryBufferForTuret.beginWrite().set(outPutDataForTuret);
-        odometryBufferForTuret.endWrite();
+        bufferForTurret.beginWrite().set(dataForTurret);
+        bufferForTurret.endWrite();
     }
     @Override
     protected void showDataExt() {
         telemetry.addLine("RobotData");
-        telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", odometryBufferForRobot.read().getPosition().getX(), odometryBufferForRobot.read().getPosition().getY(), odometryBufferForRobot.read().getPosition().getHeading() * RAD);
-        telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s, Len: %.2f", odometryBufferForRobot.read().getVelocity().x, odometryBufferForRobot.read().getVelocity().y, odometryBufferForRobot.read().getVelocity().length());
-        telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", odometryBufferForRobot.read().getHeadVel() * RAD, odometryBufferForRobot.read().getHeadAccel() * RAD);
+        telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", bufferForRobot.read().getPosition().getX(), bufferForRobot.read().getPosition().getY(), bufferForRobot.read().getPosition().getHeading() * RAD);
+        telemetry.addData("Velocity", "X:%.1fcm/s Y:%.1fcm/s, Len: %.2f", bufferForRobot.read().getVelocity().x, bufferForRobot.read().getVelocity().y, bufferForRobot.read().getVelocity().length());
+        telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", bufferForRobot.read().getHeadVel() * RAD, bufferForRobot.read().getHeadAccel() * RAD);
         telemetry.addLine("TuretData");
-        telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", odometryBufferForTuret.read().getPosition().getX(), odometryBufferForTuret.read().getPosition().getY(), odometryBufferForTuret.read().getPosition().getHeading() * RAD);
-        telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", odometryBufferForTuret.read().getHeadVel() * RAD, odometryBufferForTuret.read().getHeadAccel() * RAD);
+        telemetry.addData("Position", "X:%.1f Y:%.1f H:%.1f°", bufferForTurret.read().getPosition().getX(), bufferForTurret.read().getPosition().getY(), bufferForTurret.read().getPosition().getHeading() * RAD);
+        telemetry.addData("Angular", "Vel:%.1f°/s Accel:%.1f°/s²", bufferForTurret.read().getHeadVel() * RAD, bufferForTurret.read().getHeadAccel() * RAD);
         cameraClass.showData();
     }
 }

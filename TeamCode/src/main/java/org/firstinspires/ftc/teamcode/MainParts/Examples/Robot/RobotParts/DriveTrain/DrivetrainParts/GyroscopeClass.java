@@ -15,8 +15,9 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableColle
 import java.util.concurrent.TimeUnit;
 
 public class GyroscopeClass extends UpdatableCollector {
-    public IMU imu;
-    public IMU.Parameters parameters;
+    public final ClassMath classMath;
+    public OdometryBuffer gyroBuffer;
+    public double localHead = 0;
     public GyroscopeClass(){
         super(false);
         // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
@@ -36,38 +37,41 @@ public class GyroscopeClass extends UpdatableCollector {
             isInitialized = false;
         }
 
-        selfMath = new SelfMath();
+        classMath = new ClassMath();
 
         gyroBuffer = new OdometryBuffer();
         sayCreated();
     }
-    public OdometryBuffer gyroBuffer;
-    public double localHead = 0;
+    private IMU imu;
+    private IMU.Parameters parameters;
+
     public Deadline imuResetTime = new Deadline(500, TimeUnit.MILLISECONDS);
-    public SelfMath selfMath;
+
     @Override
     protected void updateExt() {
-        selfMath.calculateAll();
+        classMath.calculateAll();
     }
     @Override
     public void showDataExt() {
         telemetry.addData("Yaw", localHead * RAD);
     }
 
-    private class SelfMath{
-        private OdometryData rawData;
+    private class ClassMath {
+        private final OdometryData rawData;
         private double gyroCurHeading, gyroDeltaHeading, gyroLastHeading;
         private double gyroCurHeadVel, gyroDeltaHeadVel, gyroLastHeadVel;
-        private ElapsedTime runTime ;//Время с начала запуска программы
         private double currentTime;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
         private double deltaTimes;
         private double oldTimes;// Предыдущее время
         private double fltrdHeadVel;
-        public SelfMath(){
+        private final ElapsedTime runTime ;//Время с начала запуска программы
+        public ClassMath(){
+            fltrdHeadVel = 0.0;
+
             rawData = new OdometryData();
             runTime = new ElapsedTime();
         }
-        public void calculateAll(){
+        private void calculateAll(){
             updateGyroHeading(AngleUnit.RADIANS);
             updateGyroHeadVel();
             updateDeltaGyroHeadVel();
@@ -77,7 +81,9 @@ public class GyroscopeClass extends UpdatableCollector {
             gyroBuffer.endWrite2();
         }
         private void updateGyroHeading(AngleUnit angleUnit) {
-            gyroCurHeading = imu.getRobotYawPitchRollAngles().getYaw(angleUnit);
+            double rawHead = imu.getRobotYawPitchRollAngles().getYaw(angleUnit);
+
+            gyroCurHeading = Double.isFinite(rawHead) ? rawHead : 0;
             gyroDeltaHeading = gyroCurHeading - gyroLastHeading;
             gyroLastHeading = gyroCurHeading;
 
@@ -93,8 +99,11 @@ public class GyroscopeClass extends UpdatableCollector {
             rawData.setPosition(new Position2D(0, 0, gyroDeltaHeading));
         }
         private void updateGyroHeadVel(){
+            double rawVel = imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+            gyroCurHeadVel = Double.isFinite(rawVel) ? rawVel : 0;
+
             double filtr = 0.2;
-            fltrdHeadVel = filtr * imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate + (1 - filtr) * fltrdHeadVel;
+            fltrdHeadVel = filtr * gyroCurHeadVel + (1 - filtr) * fltrdHeadVel;
 
             gyroCurHeadVel = fltrdHeadVel;
 
@@ -112,7 +121,7 @@ public class GyroscopeClass extends UpdatableCollector {
         private void updateGyroHeadAccel(){
             double gyroHeadAccel;
 
-            if(deltaTimes == 0) {gyroHeadAccel = 0;}
+            if(deltaTimes == 0) gyroHeadAccel = 0;
             else gyroHeadAccel = gyroDeltaHeadVel / deltaTimes;
 
             rawData.setHeadAccel(gyroHeadAccel);

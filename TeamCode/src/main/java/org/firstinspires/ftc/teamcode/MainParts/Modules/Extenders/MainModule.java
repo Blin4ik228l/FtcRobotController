@@ -10,11 +10,11 @@ public abstract class MainModule extends DeviceCollector {
         this.isThisExecutingOtherModules = isThisExecutingOtherModules;
     }
     protected boolean isThisExecutingOtherModules;
-    public void createServoWrapperUtils(){
+    protected void createServoWrapperUtils(){
         servosCollector = new ServoMotorWrapper.InnerCollector();
     }
 
-    public void createColorWrapperUtils(){
+    protected void createColorWrapperUtils(){
         colorsCollector = new ColorSensorWrapper.InnerCollector();
     }
     public void createMotorWrapperUtils(){

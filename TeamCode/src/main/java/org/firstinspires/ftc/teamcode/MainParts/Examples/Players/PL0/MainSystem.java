@@ -392,7 +392,7 @@ public class MainSystem extends ExecutorModule {
         }
         public void writeOdometry(){
             try (FileWriter fw = new FileWriter(odometryData, true); ) {
-                OdometryData savedRobotData = robotClass.odometry.odometryBufferForRobot.read();
+                OdometryData savedRobotData = robotClass.odometry.bufferForRobot.read();
                 List<String> odometryBuffer = new ArrayList<>();
                 odometryBuffer.add(String.format("X", savedRobotData.getPosition().getX()));
                 odometryBuffer.add(String.format("Y", savedRobotData.getPosition().getY()));

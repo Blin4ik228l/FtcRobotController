@@ -60,8 +60,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 //
 //        flyWheelController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
 
-        turretCurrentData = odometry.odometryBufferForTuret.read();
-        robotCurrentData = odometry.odometryBufferForRobot.read();
+        turretCurrentData = odometry.bufferForTurret.read();
+        robotCurrentData = odometry.bufferForRobot.read();
 
         Position2D targPos = new Position2D(point[0], point[1], 0);
         Position2D curPos = turretCurrentData.getPosition();
@@ -131,7 +131,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         theta = Range.clip(theta, 46, 70);
 
-        double curSpeed = hoodedShooter.flyWheelClass.encodersClass.encodersBuffer.read().getHeadVel();
+        double curSpeed = hoodedShooter.flyWheelClass.flyWheelBuffer.read().getHeadVel();
         double targetSpeed = 0;
 
         int count = hoodedShooter.digitalCellsClass.getArtifactCount();
@@ -151,8 +151,12 @@ public class AutoPlayerClass2 extends PlayerClass{
                 collectorPow = 0;
 
                 if(count == 0 && servoState == ServoState.waiting){
+                    odometry.cameraClass.openUpCamera();
+                    
                     programState = ProgramState.Finished;
                 }else {
+                    odometry.cameraClass.coverUpCamera();
+
                     angleServoPos = hoodedShooter.angleController.getPos(theta);
                     targetSpeed = hoodedShooter.flyWheelClass.getTargetSpeed(theta, range);
 
@@ -196,7 +200,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
-        telemetry.addData("local", hoodedShooter.turretMotor.encodersClass.localHead * RAD);
+        telemetry.addData("local", hoodedShooter.turretMotor.localHead * RAD);
         telemetry.addData("tHead", targetData.getPosition().getHeading() * RAD);
         joystickActivityClass.showData();
         hoodedShooter.showData();
@@ -346,7 +350,7 @@ public class AutoPlayerClass2 extends PlayerClass{
             double targHeadG = targetPos.getHeading();
             double robotHeadG = robotCurrentData.getPosition().getHeading();
             double targHeadL = targHeadG - robotHeadG;
-            double localHead = hoodedShooter.turretMotor.encodersClass.localHead;
+            double localHead = hoodedShooter.turretMotor.localHead;
 
             if (targHeadL > Math.PI || targHeadL < -Math.PI){
                 targHeadL = getNorm(targHeadL);

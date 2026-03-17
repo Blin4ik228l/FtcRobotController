@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Drive
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
-import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.MainModule;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
 public class MecanumDrivetrain extends UpdatableCollector {
@@ -19,7 +18,7 @@ public class MecanumDrivetrain extends UpdatableCollector {
 
     @Override
     protected void updateExt() {
-        motors.encoderClass.update(iterationCount, 1);
+        motors.classMath.update(iterationCount, 1);
         gyro.update(iterationCount, 1);
     }
 

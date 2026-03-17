@@ -29,8 +29,8 @@ public class HoodedShooter extends UpdatableCollector {
 
     @Override
     protected void updateExt() {
-        turretMotor.encodersClass.update(iterationCount, 1);
-        flyWheelClass.encodersClass.update(iterationCount, 1);
+        turretMotor.classMath.update(iterationCount, 1);
+        flyWheelClass.classMath.update(iterationCount, 1);
         digitalCellsClass.update(iterationCount, 3);
     }
 

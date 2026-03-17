@@ -37,11 +37,6 @@ public class GeneralInformation {
         gameTactick = GameTactick.Load;
         programStage = ProgramStage.Init;
     }
-
-    public enum Color{
-        Red,
-        Blue
-    }
     public enum StartPos{
         Near_wall,
         Far_from_wall,
@@ -61,9 +56,8 @@ public class GeneralInformation {
 
 //        aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
 //        tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
-        pointVyr = teamAliance == TeamAliance.RED ? redPointVyrCoord : bluePointVyrCoord;
-//
-        artifactsCoord = teamAliance == TeamAliance.RED ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
+            pointVyr = teamAliance == TeamAliance.RED ? redPointVyrCoord : bluePointVyrCoord;
+            artifactsCoord = teamAliance == TeamAliance.RED ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }
 
         public int[] aprilTagIds;
@@ -145,9 +139,9 @@ public class GeneralInformation {
         );
 
         public final ZonesDataClass.Builder fireZones = new ZonesDataClass.Builder()
-                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(0, 0), new Dot(0, 0))
-                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(0, 0), new Dot(0, 0), new Dot(0, 0))
-                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(0, 0), new Dot(0, 0), new Dot(0, 0));
+                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(-62, -60), new Dot(-180, 60))
+                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(-62, -60), new Dot(-62, 60), new Dot(0, 0))
+                .createZone(TeamAliance.NEVERMIND, ZonesDataClass.ZoneRole.FIRE, new Dot(120, 0), new Dot(180, -60), new Dot(180, 60));
         public final ZonesDataClass.Builder baseZones = new ZonesDataClass.Builder()
                 .createZone(TeamAliance.BLUE, ZonesDataClass.ZoneRole.PARKING, new Dot(0, 0), new Dot(0, 0))
                 .createZone(TeamAliance.RED, ZonesDataClass.ZoneRole.PARKING, new Dot(0, 0), new Dot(0, 0));

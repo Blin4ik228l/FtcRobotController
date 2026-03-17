@@ -59,9 +59,6 @@ public class CameraClass extends UpdatableCollector {
                     .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                     .enableLiveView(true)
                     .build();
-
-
-
         }catch (Exception e){
             isInitialized = false;
         }
@@ -113,6 +110,14 @@ public class CameraClass extends UpdatableCollector {
 
     public int id;
     public double cameraBearing;
+    private boolean isCameraCoverUp = false;
+
+    public void coverUpCamera(){
+        isCameraCoverUp = true;
+    }
+    public void openUpCamera(){
+        isCameraCoverUp = false;
+    }
     public int[] motif = new int[3];
     @Override
     protected void updateExt() {
@@ -135,7 +140,7 @@ public class CameraClass extends UpdatableCollector {
                 }
                 break;
             case Processing:
-                if (!aprilTagProcessor.getDetections().isEmpty())
+                if (!aprilTagProcessor.getDetections().isEmpty() && !isCameraCoverUp)
                 {
                     index = index % aprilTagProcessor.getDetections().size();
 

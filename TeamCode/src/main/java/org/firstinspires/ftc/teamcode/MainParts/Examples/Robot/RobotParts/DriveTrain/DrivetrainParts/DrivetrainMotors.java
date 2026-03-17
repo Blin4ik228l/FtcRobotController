@@ -16,7 +16,8 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.ExecutableColl
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
 public class DrivetrainMotors extends ExecutableCollector {
-    public EncoderClass encoderClass;
+    public ClassMath classMath;
+    public OdometryBuffer encodersBuffer;
     public DrivetrainMotors() {
         super(false);
         createMotorWrapperUtils();
@@ -30,7 +31,7 @@ public class DrivetrainMotors extends ExecutableCollector {
                 .add(motorBuilder.initialize(leftBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(13.0, 1.053, 0.0, 5.0, 1.0).get());
 
-        encoderClass = new EncoderClass(motorsCollector);
+        classMath = new ClassMath(motorsCollector);
         sayCreated();
     }
 
@@ -58,20 +59,21 @@ public class DrivetrainMotors extends ExecutableCollector {
     @Override
     public void showDataExt() {
         motorsCollector.showData();
-        encoderClass.showData();
+        classMath.showData();
     }
-    public class EncoderClass extends UpdatableCollector {
-        public OdometryBuffer encodersBuffer;
-        private OdometryData rawData;
+    public class ClassMath extends UpdatableCollector {
+        private final OdometryData rawData;
         private final double[] encCurVelocities, encDeltaVelocities, encLastVelocities;
         private final double[] encCurPositions, encDeltaPositions, encLastPositions;
-        public ElapsedTime runTime ;//Время с начала запуска программы
-        public double []currentTime, deltaTimes, oldTimes;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
         private double fltrdVelLeft, fltrdVelMid, fltrdVelRight;
-        public EncoderClass(MotorWrapper.InnerCollector motors) {
+        private double []currentTime, deltaTimes, oldTimes;//В разных точках пограммы будет обозначать время когда брались значения с датчиков
+        private final ElapsedTime runTime ;//Время с начала запуска программы
+        public ClassMath(MotorWrapper.InnerCollector motors) {
             super(false);
             motorsCollector = motors;
             encodersBuffer = new OdometryBuffer();
+
+            fltrdVelLeft = fltrdVelMid = fltrdVelRight = 0.0;
 
             currentTime = new double[2];
             oldTimes = new double[2];                                         // Предыдущее время
@@ -171,13 +173,18 @@ public class DrivetrainMotors extends ExecutableCollector {
 
             double encDeltaHeadVel = (encDeltaVelocities[0] - encDeltaVelocities[2]) / DIST_BETWEEN_ENC_X;
 
-            if(deltaTimes[1] == 0) {robotHeadAccel = 0; }
-            else robotHeadAccel = (encDeltaHeadVel / deltaTimes[1]);
-
             Vector2 robotAccel = new Vector2();
 
-            robotAccel.y = (encDeltaVelocities[0] + encDeltaVelocities[2]) / (2.0 * deltaTimes[1]);
-            robotAccel.x = (encDeltaVelocities[1] / deltaTimes[1]) - robotHeadAccel * OFFSET_ENC_M_FROM_CENTER;
+            if(deltaTimes[1] == 0) {
+                robotHeadAccel = 0;
+                robotAccel.x = 0;
+                robotAccel.y = 0;
+            }
+            else {
+                robotHeadAccel = (encDeltaHeadVel / deltaTimes[1]);
+                robotAccel.y = (encDeltaVelocities[0] + encDeltaVelocities[2]) / (2.0 * deltaTimes[1]);
+                robotAccel.x = (encDeltaVelocities[1] / deltaTimes[1]) - robotHeadAccel * OFFSET_ENC_M_FROM_CENTER;
+            }
 
             rawData.setHeadAccel(robotHeadAccel);
             rawData.setAccel(robotAccel);
@@ -187,6 +194,7 @@ public class DrivetrainMotors extends ExecutableCollector {
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
             double encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;
+
             double deltaY = (encDeltaPositions[0] + encDeltaPositions[2]) / 2.0;
             double deltaX = encDeltaPositions[1] - encDeltaHeading * OFFSET_ENC_M_FROM_CENTER;
 

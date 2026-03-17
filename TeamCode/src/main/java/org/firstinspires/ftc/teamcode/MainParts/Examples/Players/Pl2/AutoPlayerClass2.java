@@ -342,18 +342,18 @@ public class AutoPlayerClass2 extends PlayerClass{
             Position2D currentPos = currentData.getPosition();
 
             // Находим ошибку положения
-            double targHead = targetPos.getHeading();
-            double robotHead = robotCurrentData.getPosition().getHeading();
-            double curHead = turretCurrentData.getPosition().getHeading();
+            double targHeadG = targetPos.getHeading();
+            double robotHeadG = robotCurrentData.getPosition().getHeading();
+            double targHeadL = targHeadG - robotHeadG;
             double localHead = hoodedShooter.turretMotor.encodersClass.localHead;
 
-            if ((targHead - curHead) + localHead > Math.PI || (targHead - curHead) + localHead < -Math.PI){
-                targHead = getNorm((targHead - curHead) + localHead);
-            }else targHead = targHead - curHead + localHead;
+            if (targHeadL > Math.PI || targHeadL < -Math.PI){
+                targHeadL = getNorm(targHeadL);
+            }
 
-            double target_head = targHead;
+            double target_head = targHeadL;
             double head_safe_brake = returnDistance(target_head, target_head);
-            double errorHeading = targHead - curHead;
+            double errorHeading = targHeadL - localHead;
 
             double headVel = Math.signum(errorHeading) * Math.max(target_head * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
@@ -366,10 +366,10 @@ public class AutoPlayerClass2 extends PlayerClass{
             return new OdometryData(new Vector2(0), pidHeadVel);
         }
         public double getNorm(double head){
-            if (head > 0){
+            if (head > Math.PI){
                 head -= Math.PI * 2;
             }
-            if (head < 0){
+            if (head < -Math.PI){
                 head += Math.PI * 2;
             }
             return head;

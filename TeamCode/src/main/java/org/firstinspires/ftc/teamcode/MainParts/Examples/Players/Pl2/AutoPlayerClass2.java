@@ -35,8 +35,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     public ServoState servoState = ServoState.waiting;
     public enum ServoState{
         waiting,
-        fired,
-        prepared
+        firing
     }
 
     boolean isFlyWheelReady;
@@ -44,6 +43,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     private double collectorPow;
     private double turretPow;
     private double flyWheelPow;
+    private int count = 0;
 
     private double angleServoPos;
     private OdometryData targetData;
@@ -58,7 +58,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
 //        PDFTurner.execute();
 //
-//        flyWheelController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
+//        turretController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
 
         turretCurrentData = odometry.bufferForTurret.read();
         robotCurrentData = odometry.bufferForRobot.read();
@@ -99,7 +99,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         }
 
         turretPow = Range.clip(turretPow, -maxVol, maxVol);
-        flyWheelPow = Range.clip(flyWheelPow, -maxVol, maxVol);
+        flyWheelPow = Range.clip(flyWheelPow, -1, 1);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
         hoodedShooter.angleController.execute(angleServoPos);
@@ -134,15 +134,16 @@ public class AutoPlayerClass2 extends PlayerClass{
         double curSpeed = hoodedShooter.flyWheelClass.flyWheelBuffer.read().getHeadVel();
         double targetSpeed = 0;
 
-        int count = hoodedShooter.digitalCellsClass.getArtifactCount();
+        int innerCount = hoodedShooter.digitalCellsClass.getArtifactCount();
 
         switch (generalInformation.gameTactick){
             case Load:
                 targetSpeed = 0;
 
-                if (count != 3){
+                if (innerCount != 3){
                     collectorPow = 1;
                 }else {
+                    count = 3;
                     collectorPow = 0;
                     programState = ProgramState.Finished;
                 }
@@ -150,9 +151,9 @@ public class AutoPlayerClass2 extends PlayerClass{
             case Fire:
                 collectorPow = 0;
 
-                if(count == 0 && servoState == ServoState.waiting){
+                if(innerCount == 0 && servoState == ServoState.waiting){
                     odometry.cameraClass.openUpCamera();
-                    
+                    hoodedShooter.digitalCellsClass.continueUpdate();
                     programState = ProgramState.Finished;
                 }else {
                     odometry.cameraClass.coverUpCamera();
@@ -161,32 +162,36 @@ public class AutoPlayerClass2 extends PlayerClass{
                     targetSpeed = hoodedShooter.flyWheelClass.getTargetSpeed(theta, range);
 
                     isFlyWheelReady = flyWheelController.checkReadnees(targetSpeed, curSpeed);
-                    isAngleGrowUp = !hoodedShooter.angleController.getServo().isBusy();
-                    switch (servoState){
-                        case waiting:
-                            if(isAngleGrowUp && isFlyWheelReady && turretPow == 0){
-                                int index = 3 - count;
-                                int neededColor = odometry.cameraClass.motif[index];
-                                hoodedShooter.digitalCellsClass.fire(neededColor);
-                                if (hoodedShooter.digitalCellsClass.isStopped) {
-                                    servoState = ServoState.fired;
+                    isAngleGrowUp = !hoodedShooter.angleController.getServo().isBusy(1);
+                    if(count != 0){
+                        switch (servoState){
+                            case waiting:
+                                if(isFlyWheelReady && (turretCurrentData.getPosition().getHeading() - targetData.getPosition().getHeading()) < ALLOWED_ZAZOR){
+                                    int index = 3 - count;
+                                    int neededColor = odometry.cameraClass.motif[index];
+                                    hoodedShooter.digitalCellsClass.fire(neededColor);
+                                    servoState = ServoState.firing;
                                 }
-                            }
-                            break;
-                        case fired:
-                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy()) {
-                                hoodedShooter.digitalCellsClass.prepareServo();
-                                hoodedShooter.digitalCellsClass.isStopped = false;
-                                servoState = ServoState.waiting;
-                            }
-                            break;
-                        case prepared:
-                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy()) {
-                                hoodedShooter.digitalCellsClass.isStopped = false;
-                                servoState = ServoState.waiting;
-                            }
-                            break;
+                                break;
+                            case firing:
+                                if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(6)) {
+                                    hoodedShooter.digitalCellsClass.prepareServo();
+                                    count = Math.max(count - 1, 0);
+                                    servoState = ServoState.waiting;
+                                }
+                                break;
+                        }
+                    }else{
+                        hoodedShooter.digitalCellsClass.prepareServo();
+                        if(hoodedShooter.digitalCellsClass.isAllReady()) {
+                            hoodedShooter.digitalCellsClass.continueUpdate();
+                            hoodedShooter.digitalCellsClass.update(iterationCount, 1);
+                            hoodedShooter.digitalCellsClass.stopUpdate();
+                            innerCount = hoodedShooter.digitalCellsClass.getArtifactCount();
+                            count = innerCount;
+                        }
                     }
+
                 }
 
                 break;
@@ -200,8 +205,6 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
-        telemetry.addData("local", hoodedShooter.turretMotor.localHead * RAD);
-        telemetry.addData("tHead", targetData.getPosition().getHeading() * RAD);
         joystickActivityClass.showData();
         hoodedShooter.showData();
         flyWheelController.showData();
@@ -238,6 +241,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonBUnReleased() {
+        joystickActivityClass.tDpadUpPressed = 0;
+
         OdometryData calculatedData = turretController.calculateVol(targetData, turretCurrentData);
         turretPow = calculatedData.getHeadVel();
     }
@@ -268,7 +273,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PDFTurner() {
-            super(0.0, 0,0,0.0022,-1,1, "TestPid");
+            super(0.02, 0,0,0.37,-1,1, "TestPid");
         }
 
         public void execute(){
@@ -336,7 +341,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TurretController extends PIDF{
         public TurretController(){
-            super(0.0, 0,0,0.4, -1, 1, "TurretPid");
+            super(0.02, 0,0,0.4, -1, 1, "TurretPid");
         }
 
         private double returnDistance(double VelMax, double accel){
@@ -362,7 +367,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
             double headVel = Math.signum(errorHeading) * Math.max(target_head * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
-            if(Math.abs(errorHeading) < Math.toRadians(3)) {
+            if(Math.abs(errorHeading) < ALLOWED_ZAZOR) {
                 headVel = 0;
             }
 
@@ -382,7 +387,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class FlyWheelController extends PIDF {
         public FlyWheelController(){
-             super(0.002, 0, 0,0.0019,-1, 1, "FlyWheelPid");
+             super(0.003, 0, 0,0.00178,-1, 1, "FlyWheelPid");
         }
 
         public OdometryData calculateVol(double targetSpeed, double curSpeed){

@@ -23,11 +23,11 @@ public class DrivetrainMotors extends ExecutableCollector {
         createMotorWrapperUtils();
         motorsCollector
                 .add(motorBuilder.initialize(rightBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields(13.0, 1.026, 2000.0, 4.8, 1.0).get())
+                        .setFields(13.0, 1.026, 2000.0, 2.4, 1.0).get())
                 .add(motorBuilder.initialize(rightFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields(13.0, 0.976, 2000.0, 4.8, 1.0).get())
+                        .setFields(13.0, 0.976, 2000.0, 2.4, 1.0).get())
                 .add(motorBuilder.initialize(leftFront).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
-                        .setFields(13.0, 1.053, 2000.0, 4.8, 1.0).get())
+                        .setFields(13.0, 1.053, 2000.0, 2.4, 1.0).get())
                 .add(motorBuilder.initialize(leftBack).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                         .setFields(13.0, 1.053, 0.0, 5.0, 1.0).get());
 
@@ -198,8 +198,8 @@ public class DrivetrainMotors extends ExecutableCollector {
             double deltaY = (encDeltaPositions[0] + encDeltaPositions[2]) / 2.0;
             double deltaX = encDeltaPositions[1] - encDeltaHeading * OFFSET_ENC_M_FROM_CENTER;
 
-            Vector2 rotatedVector2 = new Vector2(deltaX, deltaY).rotateToGlobal(encDeltaHeading);
-            rawData.setPosition(new Position2D(rotatedVector2.x, rotatedVector2.y, 0));
+            Vector2 rotatedVector2 = new Vector2(deltaX, deltaY).rotateToGlobal(encDeltaHeading + Math.toRadians(-90));
+            rawData.setPosition(new Position2D(rotatedVector2.x, rotatedVector2.y, encDeltaHeading));
         }
         @Override
         protected void showDataExt() {

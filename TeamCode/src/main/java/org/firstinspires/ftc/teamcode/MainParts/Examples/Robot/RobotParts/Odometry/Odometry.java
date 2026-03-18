@@ -21,7 +21,7 @@ public class Odometry extends UpdatableCollector {
     public final OdometryBuffer bufferForRobot;
     public final OdometryBuffer bufferForTurret;
 
-    public Odometry(MecanumDrivetrain drivetrain, HoodedShooter hoodedShooter, CameraClass cameraClass){
+    public Odometry(MecanumDrivetrain drivetrain, HoodedShooter hoodedShooter, CameraClass cameraClass, GyroscopeClass gyro){
         super(false);
         dataForRobot = new OdometryData();
         bufferForRobot = new OdometryBuffer();
@@ -32,7 +32,7 @@ public class Odometry extends UpdatableCollector {
         this.cameraClass = cameraClass;
 
         motors = drivetrain.motors;
-        gyro = drivetrain.gyro;
+        this.gyro = gyro;
         turretMotor = hoodedShooter.turretMotor;
 
         sayCreated();
@@ -48,11 +48,13 @@ public class Odometry extends UpdatableCollector {
         OdometryBuffer gyroBuf = gyro.gyroBuffer;
         OdometryBuffer turretBuf = turretMotor.turretBuffer;
 
+        double headVelRobot = gyroBuf.read().getHeadVel() != 0 ? gyroBuf.read().getHeadVel() : encodersBuf.read().getHeadVel();
+        double headAccelRobot = gyroBuf.read().getHeadAccel() != 0 ? gyroBuf.read().getHeadAccel() : encodersBuf.read().getHeadAccel();
         dataForRobot
                 .setVelocity(encodersBuf.read().getVelocity())
                 .setAccel(encodersBuf.read().getAccel())
-                .setHeadVel(gyroBuf.read().getHeadVel())
-                .setHeadAccel(gyroBuf.read().getHeadAccel());
+                .setHeadVel(headVelRobot)
+                .setHeadAccel(headAccelRobot);
 
         dataForTurret
                 .setHeadVel(turretBuf.read().getHeadVel() + dataForRobot.getHeadVel())
@@ -78,14 +80,17 @@ public class Odometry extends UpdatableCollector {
             Position2D encodersPos = encodersBuf.read2().getPosition();
             Position2D gyroPos = gyroBuf.read2().getPosition();
 
+            //Если гиро умер
+            double deltaHead = gyroPos.getHeading() != 0 ? gyroPos.getHeading() : encodersPos.getHeading();
+
             //добавляем угол из буффера турели
-            dataForTurret.getPosition().add(0,0, turretPos.getHeading() + gyroPos.getHeading());
+            dataForTurret.getPosition().add(0,0, turretPos.getHeading() + deltaHead);
 
             //добавляем угол из буффера гироскопа
-            dataForRobot.getPosition().add(0, 0, gyroPos.getHeading());
+            dataForRobot.getPosition().add(0, 0, deltaHead);
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(dataForRobot.getPosition().getHeading() + Math.toRadians(-90));
+            Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(dataForRobot.getPosition().getHeading());
 
             dataForRobot.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
             dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);

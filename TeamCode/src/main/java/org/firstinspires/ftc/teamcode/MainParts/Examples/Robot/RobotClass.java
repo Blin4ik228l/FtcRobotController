@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShooter;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.CameraClass;
@@ -18,7 +19,7 @@ public class RobotClass extends UpdatableCollector {
     public MecanumDrivetrain drivetrain;
     public HoodedShooter hoodedShooter;
     public CameraClass cameraClass;
-
+    public GyroscopeClass gyro;
     public Odometry odometry;
     public RobotClass(){
         super(true);
@@ -27,9 +28,10 @@ public class RobotClass extends UpdatableCollector {
 
         drivetrain = new MecanumDrivetrain();
         hoodedShooter = new HoodedShooter();
+        gyro = new GyroscopeClass();
         cameraClass = new CameraClass();
 
-        odometry = new Odometry(drivetrain, hoodedShooter, cameraClass);
+        odometry = new Odometry(drivetrain, hoodedShooter, cameraClass, gyro);
 
         sayCreated();
     }
@@ -37,6 +39,7 @@ public class RobotClass extends UpdatableCollector {
     @Override
     protected void updateExt() {
         voltageSensor.update(iterationCount, 10);
+        gyro.update(iterationCount, 1);
         cameraClass.update(iterationCount, 1);
         odometry.update(iterationCount, 1);
     }
@@ -45,6 +48,7 @@ public class RobotClass extends UpdatableCollector {
     protected void showDataExt() {
         voltageSensor.showData();
         odometry.showData();
+        gyro.showData();
     }
 }
 

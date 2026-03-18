@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 public class MainSystem extends ExecutorModule {
     protected GeneralInformation generalInformation;
@@ -34,7 +36,9 @@ public class MainSystem extends ExecutorModule {
     protected FileSystem fileSystem;
     protected ElapsedTime matchTimer;
     public ArrayList<Thread> threads;
-    public MainSystem(){
+    private CyclicBarrier barrier;
+    public MainSystem(CyclicBarrier cyclicBarrier){
+        barrier = cyclicBarrier;
         this.generalInformation = MainFile.generalInformation;
         this.robotClass = new RobotClass();
 
@@ -89,7 +93,7 @@ public class MainSystem extends ExecutorModule {
     }
 
     public void startExecuting(){
-        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2);
+        createRunnable(semiAutoPlayerClass1);
         for (Thread thread: threads) {
             thread.start();
         }
@@ -106,22 +110,19 @@ public class MainSystem extends ExecutorModule {
             public void run() {
                 while (!Thread.currentThread().isInterrupted())
                 {
+//                    try {
+//                        barrier.await(100, TimeUnit.MILLISECONDS);
+//                    }catch (Exception e){
+//                        Thread.currentThread().isInterrupted();
+//                    }
+
                     long start = System.nanoTime();
 
                     executorModule.execute();
 
                     long elapsed = System.nanoTime() - start;
                     long sleepTime = targetPeriodNs - elapsed;
-
-                    if (sleepTime > 0) {
-                        try {
-                            Thread.sleep(targetSleepMs);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
                 }
-
             }
         };
         threads.add(new Thread(rn));

@@ -7,10 +7,9 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableColle
 public class MecanumDrivetrain extends UpdatableCollector {
     //Телега робота(моторы + колёса) с энкодерами и гироскопом .
     public DrivetrainMotors motors;
-    public GyroscopeClass gyro;
+
     public MecanumDrivetrain(){
         super(true);
-        gyro = new GyroscopeClass();
         motors = new DrivetrainMotors();
 
         sayCreated();
@@ -19,12 +18,11 @@ public class MecanumDrivetrain extends UpdatableCollector {
     @Override
     protected void updateExt() {
         motors.classMath.update(iterationCount, 1);
-        gyro.update(iterationCount, 1);
     }
 
     @Override
     protected void showDataExt() {
         motors.showData();
-        gyro.showData();
+
     }
 }

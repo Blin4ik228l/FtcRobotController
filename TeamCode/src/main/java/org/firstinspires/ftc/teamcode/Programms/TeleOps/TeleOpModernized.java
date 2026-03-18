@@ -8,14 +8,17 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramSt
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
 
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+
 public abstract class TeleOpModernized extends OpMode {
     public GeneralInformation generalInformation;
     public MainFile mainFile;
     public MainSystem mainSystem;
-
+    private CyclicBarrier barrier = new CyclicBarrier(3);
     public void initAfterRobot(){
         mainFile = new MainFile(this, generalInformation);
-        mainSystem = new MainSystem();
+        mainSystem = new MainSystem(barrier);
         generalInformation.programStage = ProgramStage.Init_loop;
     }
     @Override
@@ -35,6 +38,12 @@ public abstract class TeleOpModernized extends OpMode {
     long targetSleepMs = targetPeriodNs / 1_000_000;
     @Override
     public void loop() {
+//        try {
+//            barrier.await(100, TimeUnit.MILLISECONDS);
+//        }catch (Exception e){
+//            Thread.currentThread().isInterrupted();
+//        }
+
         long start = System.nanoTime();
 
         mainSystem.execute();
@@ -44,13 +53,13 @@ public abstract class TeleOpModernized extends OpMode {
         long elapsed = System.nanoTime() - start;
         long sleepTime = targetPeriodNs - elapsed;
 
-        if (sleepTime > 0){
-            try {
-                Thread.sleep(targetSleepMs);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+//        if (sleepTime > 0){
+//            try {
+//                Thread.sleep(sleepTime / 1_000_000, (int) sleepTime % 1_000_000);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//            }
+//        }
     }
 
     @Override

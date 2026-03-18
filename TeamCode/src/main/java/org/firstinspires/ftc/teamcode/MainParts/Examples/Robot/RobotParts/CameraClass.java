@@ -140,11 +140,13 @@ public class CameraClass extends UpdatableCollector {
                 }
                 break;
             case Processing:
-                if (!aprilTagProcessor.getDetections().isEmpty() && !isCameraCoverUp)
+                //Фиксируем один раз
+                AprilTagProcessor aprilTagDetection = aprilTagProcessor;
+                if (!aprilTagDetection.getDetections().isEmpty() && !isCameraCoverUp)
                 {
-                    index = index % aprilTagProcessor.getDetections().size();
+                    index = index % aprilTagDetection.getDetections().size();
 
-                    AprilTagDetection detection = aprilTagProcessor.getDetections().get(index);
+                    AprilTagDetection detection = aprilTagDetection.getDetections().get(index);
 
                     index++;
 

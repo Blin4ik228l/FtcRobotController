@@ -35,8 +35,8 @@ public class ServoMotorWrapper extends ExecutableModule {
         servo.setPosition(position);
     }
 
-    public boolean isBusy() {
-        return signalTime.seconds() < delayTime * 10.0;
+    public boolean isBusy(double multi) {
+        return signalTime.seconds() < delayTime * multi;
     }
 
     @Override

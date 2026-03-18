@@ -43,7 +43,6 @@ public class DigitalCellsClass extends UpdatableCollector {
     /*1 - в массиве это зелёный шар
      * 2 - в массиве это фиолетовый*/
     private int artifactCount;
-    public boolean isStopped;
     public ServoMotorWrapper triggeredServo;
     public CellWrapper triggeredCell;
 
@@ -63,7 +62,6 @@ public class DigitalCellsClass extends UpdatableCollector {
         servosCollector.showData();
     }
     public void fire(int color){
-        if(isStopped) return;
         triggeredCell = cells.getNeededCell(color);
 
         if (triggeredCell == null) {
@@ -71,19 +69,18 @@ public class DigitalCellsClass extends UpdatableCollector {
         }
         switch (triggeredCell.name){
             case "cell1":
-                servosCollector.get(pusher0).execute(0.52);
+                servosCollector.get(pusher0).execute(0.47);
                 triggeredServo = servosCollector.get(pusher0);
                 break;
             case "cell2":
-                servosCollector.get(pusher2).execute(0.48);
+                servosCollector.get(pusher2).execute(0.47);
                 triggeredServo = servosCollector.get(pusher2);
                 break;
             case "cell3":
-                servosCollector.get(pusher1).execute(0.5);
+                servosCollector.get(pusher1).execute(0.48);
                 triggeredServo = servosCollector.get(pusher1);
                 break;
         }
-        isStopped = true;
     }
     public void prepareServo(){
        servosCollector.get(pusher0).execute(0.08);
@@ -91,6 +88,9 @@ public class DigitalCellsClass extends UpdatableCollector {
        servosCollector.get(pusher2).execute(0.08);
     }
 
+    public boolean isAllReady(){
+        return !servosCollector.get(pusher0).isBusy(1) && !servosCollector.get(pusher1).isBusy(1) && !servosCollector.get(pusher2).isBusy(1);
+    }
     public static class CellWrapper extends UpdatableModule {
         public ArrayList<ColorSensorWrapper> sensorsWrapper = new ArrayList<>();
         public boolean isInit;
@@ -165,6 +165,15 @@ public class DigitalCellsClass extends UpdatableCollector {
                 CellWrapper found = null;
                 for (CellWrapper cell : cells.values()) {
                     if (cell.getColor() == color) {found = cell; break;}
+                    else found = cell;
+                }
+                if(found == null) found = getFullCell();
+                return found;
+            }
+            public CellWrapper getFullCell(){
+                CellWrapper found = null;
+                for (CellWrapper cell : cells.values()) {
+                    if (cell.getColor() != 0) {found = cell; break;}
                     else found = cell;
                 }
                 return found;

@@ -19,7 +19,7 @@ public class TurretMotor extends ExecutableCollector {
     public TurretMotor() {
         super(false);
         createMotorWrapperUtils();
-        motorsCollector.add(motorBuilder.initialize(turretMotor).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.REVERSE).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+        motorsCollector.add(motorBuilder.initialize(turretMotor).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER).setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER).setDirection(DcMotorSimple.Direction.FORWARD).setBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
                 .setFields(13.0, 1.0, 384.5, 2.0, 5.19).get());
 
         classMath = new ClassMath(motorsCollector);
@@ -67,11 +67,11 @@ public class TurretMotor extends ExecutableCollector {
             deltaPos = lastMotorPos - curMotorPos;
             lastMotorPos = curMotorPos;
 
-            deltaHead = -deltaPos;
+            deltaHead = deltaPos;
 
             localHead += deltaHead;
 
-            double headVel = motorsCollector.get(turretMotor).getCurVel(Units.Rad);
+            double headVel = -motorsCollector.get(turretMotor).getCurVel(Units.Rad);
 
             fltrdHeadVel = filtr * headVel + (1 - filtr) * fltrdHeadVel;
 

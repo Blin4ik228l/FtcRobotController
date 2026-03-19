@@ -70,7 +70,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         double targHead = new Position2D(0,0, Math.atan2(
                 deltaPos.getY(),
                 deltaPos.getX())).getHeading();
-        targetData = new OdometryData(new Position2D(0,0, targHead), new Vector2(0), MAX_TURRET_HEAD_SP);
+        targetData = new OdometryData(new Position2D(0,0, targHead), new Vector2(0), MAX_TURRET_HEAD_SP + MAX_ROBOT_HEAD_SP);
 
         //Выравниваем на ворота альянса
         switch (generalInformation.programStage){
@@ -98,7 +98,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                 break;
         }
 
-        turretPow = Range.clip(turretPow, -maxVol, maxVol);
+        turretPow = Range.clip(-turretPow, -maxVol, maxVol);
         flyWheelPow = Range.clip(flyWheelPow, -1, 1);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
@@ -174,7 +174,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                                 }
                                 break;
                             case firing:
-                                if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(6)) {
+                                if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(16)) {
                                     hoodedShooter.digitalCellsClass.prepareServo();
                                     count = Math.max(count - 1, 0);
                                     servoState = ServoState.waiting;
@@ -223,7 +223,8 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonBReleased() {
-        turretPow = joystickActivityClass.sinB;
+        OdometryData calculatedData = turretController.calculateVol(targetData, turretCurrentData);
+        turretPow = calculatedData.getHeadVel();
 
         switch (joystickActivityClass.tDpadUpPressed % 3) {
             case 0:
@@ -273,7 +274,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PDFTurner() {
-            super(0.02, 0,0,0.37,-1,1, "TestPid");
+            super(0.0, 0,1.0,0.35,-1,1, "TestPid");
         }
 
         public void execute(){
@@ -341,7 +342,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TurretController extends PIDF{
         public TurretController(){
-            super(0.02, 0,0,0.4, -1, 1, "TurretPid");
+            super(0.02, 0,1.0,0.35, -1, 1, "TurretPid");
         }
 
         private double returnDistance(double VelMax, double accel){

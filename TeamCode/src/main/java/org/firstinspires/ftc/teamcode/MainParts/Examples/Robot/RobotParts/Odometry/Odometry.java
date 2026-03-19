@@ -57,8 +57,8 @@ public class Odometry extends UpdatableCollector {
                 .setHeadAccel(headAccelRobot);
 
         dataForTurret
-                .setHeadVel(turretBuf.read().getHeadVel() + dataForRobot.getHeadVel())
-                .setHeadAccel(turretBuf.read().getHeadVel() + dataForRobot.getHeadAccel());
+                .setHeadVel(turretBuf.read().getHeadVel() + headVelRobot)
+                .setHeadAccel(turretBuf.read().getHeadAccel() + headAccelRobot);
 
         //Камера видит таг -> Полностью считываем позицию с неё
         if (cameraClass.absoluteData.getDesisionMarg() > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){

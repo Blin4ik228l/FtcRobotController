@@ -93,7 +93,7 @@ public class MainSystem extends ExecutorModule {
     }
 
     public void startExecuting(){
-        createRunnable(semiAutoPlayerClass1);
+        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2);
         for (Thread thread: threads) {
             thread.start();
         }

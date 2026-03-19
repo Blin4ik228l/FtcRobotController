@@ -37,8 +37,8 @@ public class CameraClass extends UpdatableCollector {
         try {
             webcamName = MainFile.op.hardwareMap.get(WebcamName.class, controlHubDevices.webcam1);
             cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
-
-            cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(270) , Math.toRadians(-85), Math.toRadians(0), 0);
+// СМЕЩЕНИЕ КАМЕРЫ НА 19 СМ К СБОРЩИКУ
+            cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(-90) , Math.toRadians(-85), Math.toRadians(0), 0);
 
             aprilTagProcessor = new AprilTagProcessor.Builder()
                     .setDrawAxes(false)

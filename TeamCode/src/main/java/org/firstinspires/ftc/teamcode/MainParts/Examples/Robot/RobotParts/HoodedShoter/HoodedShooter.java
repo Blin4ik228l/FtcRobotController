@@ -20,7 +20,7 @@ public class HoodedShooter extends UpdatableCollector {
         flyWheelClass = new FlyWheelClass();
         collector = new Collector();
 
-        angleController = new AngleController();
+//        angleController = new AngleController();
 
         digitalCellsClass = new DigitalCellsClass();
 
@@ -40,6 +40,6 @@ public class HoodedShooter extends UpdatableCollector {
         turretMotor.showData();
         collector.showData();
         flyWheelClass.showData();
-        angleController.showData();
+//        angleController.showData();
     }
 }

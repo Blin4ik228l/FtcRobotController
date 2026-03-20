@@ -24,13 +24,13 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         turretController = new TurretController();
         flyWheelController = new FlyWheelController();
-        PDFTurner = new PDFTurner();
+        PIDFTurner = new PIDFTurner();
     }
     public HoodedShooter hoodedShooter;
     public Odometry odometry;
 
     public TurretController turretController;
-    public PDFTurner PDFTurner;
+    public PIDFTurner PIDFTurner;
     public FlyWheelController flyWheelController;
     public ServoState servoState = ServoState.waiting;
     public enum ServoState{
@@ -57,8 +57,6 @@ public class AutoPlayerClass2 extends PlayerClass{
         double[] point = generalInformation.generalObjects.getPointVyr();
 
 //        PDFTurner.execute();
-//
-//        turretController.setPID(PDFTurner.getkP(), PDFTurner.getkI(), PDFTurner.getkD(), PDFTurner.getkF());
 
         turretCurrentData = odometry.bufferForTurret.read();
         robotCurrentData = odometry.bufferForRobot.read();
@@ -89,7 +87,6 @@ public class AutoPlayerClass2 extends PlayerClass{
 
                     checkButtons();
                 }else {
-                    turretPow = 0;
                     flyWheelPow = 0;
                     collectorPow = 0;
                     angleServoPos = hoodedShooter.angleController.getServo().servo.getPosition();
@@ -102,7 +99,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         flyWheelPow = Range.clip(flyWheelPow, -1, 1);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
-        hoodedShooter.angleController.execute(angleServoPos);
+//        hoodedShooter.angleController.execute(angleServoPos);
 
         hoodedShooter.turretMotor.execute(turretPow);
         hoodedShooter.flyWheelClass.execute(flyWheelPow);
@@ -209,7 +206,7 @@ public class AutoPlayerClass2 extends PlayerClass{
         hoodedShooter.showData();
         flyWheelController.showData();
         turretController.showData();
-        PDFTurner.showData();
+        PIDFTurner.showData();
     }
 
     @Override
@@ -235,6 +232,30 @@ public class AutoPlayerClass2 extends PlayerClass{
                 break;
             case 2:
                 collectorPow = -1;
+                break;
+        }
+
+        switch (joystickActivityClass.tDpadDownPressed % 7) {
+            case 0:
+                hoodedShooter.digitalCellsClass.fire(1);
+                break;
+            case 1:
+                hoodedShooter.digitalCellsClass.prepareServo();
+                joystickActivityClass.tDpadDownPressed = 2;
+                break;
+            case 2:
+                hoodedShooter.digitalCellsClass.fire(2);
+                break;
+            case 3:
+                hoodedShooter.digitalCellsClass.prepareServo();
+                joystickActivityClass.tDpadDownPressed = 4;
+                break;
+            case 5:
+                hoodedShooter.digitalCellsClass.fire(2);
+                break;
+            case 6:
+                hoodedShooter.digitalCellsClass.prepareServo();
+                joystickActivityClass.tDpadDownPressed = 7;
                 break;
         }
 
@@ -268,13 +289,14 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     }
 
-    public class PDFTurner extends PIDF {
+    public class PIDFTurner extends PIDF {
         private double[] stepSize = {1, 0.1, 0.01, 0.001, 0.0001, 0.00001};
         private int stepIndex;
         private int index;
 
-        public PDFTurner() {
+        public PIDFTurner() {
             super(0.0, 0,1.0,0.35,-1,1, "TestPid");
+            setPID(turretController);
         }
 
         public void execute(){
@@ -333,10 +355,12 @@ public class AutoPlayerClass2 extends PlayerClass{
                 }
                 joystickActivityClass.dpad_Down = false;
             }
+
+        turretController.setPID(getkP(), getkI(), getkD(), getkF());
         }
         @Override
         protected void showDataExt() {
-            telemetry.addLine(String.format("globalIndex: %s stepSize: %s", PDFTurner.index,  PDFTurner.stepSize[PDFTurner.stepIndex]));
+            telemetry.addLine(String.format("globalIndex: %s stepSize: %s", PIDFTurner.index,  PIDFTurner.stepSize[PIDFTurner.stepIndex]));
         }
     }
 
@@ -348,6 +372,9 @@ public class AutoPlayerClass2 extends PlayerClass{
         private double returnDistance(double VelMax, double accel){
             return Math.pow(VelMax, 2) / (2 * accel);
         }
+        boolean flag = false;
+        double sign;
+        double fixedAngle;
         public OdometryData calculateVol(OdometryData targetData, OdometryData currentData){
             Position2D targetPos = targetData.getPosition();
             Position2D currentPos = currentData.getPosition();
@@ -358,15 +385,23 @@ public class AutoPlayerClass2 extends PlayerClass{
             double targHeadL = targHeadG - robotHeadG;
             double localHead = hoodedShooter.turretMotor.localHead;
 
-            if (targHeadL > Math.PI || targHeadL < -Math.PI){
-                targHeadL = getNorm(targHeadL);
+            if (targHeadG - robotHeadG > Math.PI || targHeadG - robotHeadG < -Math.PI){
+                double delta = getDelta(targHeadL);
+                if(!flag){
+                    fixedAngle = getNorm(localHead);
+                    flag = true;
+                }
+                targHeadL = fixedAngle - delta;
+            }else {
+                targHeadL = Math.toRadians(90) + targHeadL;
+                flag = false;
             }
 
-            double target_head = targHeadL;
-            double head_safe_brake = returnDistance(target_head, target_head);
+            double target_head_vel = targetData.getHeadVel();
+            double head_safe_brake = returnDistance(target_head_vel, target_head_vel);
             double errorHeading = targHeadL - localHead;
 
-            double headVel = Math.signum(errorHeading) * Math.max(target_head * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
+            double headVel = Math.signum(errorHeading) * Math.max(target_head_vel * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
             if(Math.abs(errorHeading) < ALLOWED_ZAZOR) {
                 headVel = 0;
@@ -375,6 +410,15 @@ public class AutoPlayerClass2 extends PlayerClass{
             double pidHeadVel = calculate(headVel, currentData.getHeadVel());
 
             return new OdometryData(new Vector2(0), pidHeadVel);
+        }
+        public double getDelta(double head){
+            if (head > Math.PI){
+                head -= Math.PI;
+            }
+            if (head < -Math.PI){
+                head += Math.PI;
+            }
+            return head;
         }
         public double getNorm(double head){
             if (head > Math.PI){

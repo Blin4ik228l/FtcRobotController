@@ -143,7 +143,7 @@ public class OdometryData {
         }
 
         public DataBuilder createPath(Position2D position2D, double linVel, double headVel, Reason reason){
-            pathBuilder.add(new OdometryData(position2D, new Vector2(linVel), Math.toRadians(headVel)));
+            pathBuilder.add(new OdometryData(position2D, new Vector2(linVel), headVel));
             reasons.add(reason);
             return this;
         }
@@ -154,10 +154,22 @@ public class OdometryData {
             return reasons.get(0);
         }
 
-        public DataBuilder switchPose(){
+        public DataBuilder removePos(){
             if(pathBuilder.isEmpty()) return this;
             pathBuilder.remove(0);
             reasons.remove(0);
+            return this;
+        }
+        public DataBuilder switchPos(){
+            if(pathBuilder.isEmpty()) return this;
+            OdometryData last = pathBuilder.get(0);
+            Reason lastR = reasons.get(0);
+
+            pathBuilder.remove(0);
+            reasons.remove(0);
+
+            pathBuilder.add(last);
+            reasons.add(lastR);
             return this;
         }
     }

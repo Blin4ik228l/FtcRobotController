@@ -36,6 +36,12 @@ public class PIDF extends Module {
         this.kD = kD;
         this.kF = kF;
     }
+    public void setPID(PIDF pidf){
+        this.kP = pidf.getkP();
+        this.kI = pidf.getkI();
+        this.kD = pidf.getkD();
+        this.kF = pidf.getkF();
+    }
 
     public double getkP() {
         return kP;

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry;
 
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.CameraClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.MecanumDrivetrain;
@@ -7,7 +9,9 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Hooded
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.Modules.TurretMotor;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.GyroscopeClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position3D;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector2;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Vector3;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 
 public class Odometry extends UpdatableCollector {
@@ -21,8 +25,10 @@ public class Odometry extends UpdatableCollector {
     public final OdometryBuffer bufferForRobot;
     public final OdometryBuffer bufferForTurret;
 
+    private GeneralInformation generalInformation;
     public Odometry(MecanumDrivetrain drivetrain, HoodedShooter hoodedShooter, CameraClass cameraClass, GyroscopeClass gyro){
         super(false);
+        generalInformation = MainFile.generalInformation;
         dataForRobot = new OdometryData();
         bufferForRobot = new OdometryBuffer();
 
@@ -48,37 +54,49 @@ public class Odometry extends UpdatableCollector {
         OdometryBuffer gyroBuf = gyro.gyroBuffer;
         OdometryBuffer turretBuf = turretMotor.turretBuffer;
 
-        double headVelRobot = gyroBuf.read().getHeadVel() != 0 ? gyroBuf.read().getHeadVel() : encodersBuf.read().getHeadVel();
-        double headAccelRobot = gyroBuf.read().getHeadAccel() != 0 ? gyroBuf.read().getHeadAccel() : encodersBuf.read().getHeadAccel();
+        OdometryData gyroData = gyroBuf.read2();
+        OdometryData encodersData = encodersBuf.read2();
+        OdometryData turretData = turretBuf.read2();
+
+        double headVelRobot = gyroData.getHeadVel() != 0 ? gyroData.getHeadVel() : encodersData.getHeadVel();
+        double headAccelRobot = gyroData.getHeadAccel() != 0 ? gyroData.getHeadAccel() : encodersData.getHeadAccel();
         dataForRobot
-                .setVelocity(encodersBuf.read().getVelocity())
-                .setAccel(encodersBuf.read().getAccel())
+                .setVelocity(encodersData.getVelocity())
+                .setAccel(encodersData.getAccel())
                 .setHeadVel(headVelRobot)
                 .setHeadAccel(headAccelRobot);
 
         dataForTurret
-                .setHeadVel(turretBuf.read().getHeadVel() + headVelRobot)
-                .setHeadAccel(turretBuf.read().getHeadAccel() + headAccelRobot);
+                .setHeadVel(turretData.getHeadVel() + headVelRobot)
+                .setHeadAccel(turretData.getHeadAccel() + headAccelRobot);
 
         //Камера видит таг -> Полностью считываем позицию с неё
-        if (cameraClass.absoluteData.getDesisionMarg() > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){
-            Position2D pos = cameraClass.absoluteData.getPosition();
+        if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){
 
-            dataForRobot.getPosition().setX(pos.getX());
-            dataForRobot.getPosition().setY(pos.getY());
-            dataForRobot.getPosition().setHeading(pos.getHeading() - turretMotor.localHead);
+            Position3D pos = cameraClass.absoluteRawPos3D;
 
-            dataForTurret.getPosition().setX(pos.getX());
-            dataForTurret.getPosition().setY(pos.getY());
-            dataForTurret.getPosition().setHeading(pos.getHeading());
+            Vector3 matrix = new Vector3(pos.getX(), pos.getY(), pos.getZ()).rotate(Math.toRadians(-15), 0, Math.toRadians(-90) + turretMotor.localHead);
 
-            turretBuf.read2().getPosition();
-            encodersBuf.read2().getPosition();
-            gyroBuf.read2().getPosition();
+            double tagX = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
+            double tagY = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[1] : generalInformation.generalObjects.redTagCoord[1];
+
+            Vector2 robotVector = new Vector2(matrix.getX(), matrix.getY()).rotateToGlobal(pos.getYaw());
+            double robotX = tagX - robotVector.x;
+            double robotY = tagY - robotVector.y;
+
+            Position2D robotPos = new Position2D(robotX, robotY, pos.getYaw());
+
+            dataForRobot.getPosition().setX(robotPos.getX());
+            dataForRobot.getPosition().setY(robotPos.getY());
+            dataForRobot.getPosition().setHeading(robotPos.getHeading() - (Math.toRadians(-90) + turretMotor.localHead));
+
+            dataForTurret.getPosition().setX(robotPos.getX());
+            dataForTurret.getPosition().setY(robotPos.getY());
+            dataForTurret.getPosition().setHeading(robotPos.getHeading());
         }else{
-            Position2D turretPos = turretBuf.read2().getPosition();
-            Position2D encodersPos = encodersBuf.read2().getPosition();
-            Position2D gyroPos = gyroBuf.read2().getPosition();
+            Position2D turretPos = turretData.getPosition();
+            Position2D encodersPos = encodersData.getPosition();
+            Position2D gyroPos = gyroData.getPosition();
 
             //Если гиро умер
             double deltaHead = gyroPos.getHeading() != 0 ? gyroPos.getHeading() : encodersPos.getHeading();
@@ -96,8 +114,8 @@ public class Odometry extends UpdatableCollector {
             dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
         }
 
-//        outPutDataForRobot.rotateVelocity();
-//        outPutDataForRobot.rotateAccel();
+        dataForRobot.rotateVelocity();
+        dataForTurret.rotateAccel();
 
         bufferForRobot.beginWrite().set(dataForRobot);
         bufferForRobot.endWrite();

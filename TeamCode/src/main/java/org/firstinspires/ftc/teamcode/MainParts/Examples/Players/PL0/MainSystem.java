@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
 
 public class MainSystem extends ExecutorModule {
     protected GeneralInformation generalInformation;
@@ -87,13 +86,11 @@ public class MainSystem extends ExecutorModule {
                 break;
         }
 
-//        robotClass.hoodedShooter.update(iterationCount, 1);
-//        robotClass.drivetrain.update(iterationCount, 1);
         robotClass.update(iterationCount, 1);
     }
 
     public void startExecuting(){
-        createRunnable(semiAutoPlayerClass1).createRunnable(autoPlayerClass2);
+        createRunnable(semiAutoPlayerClass1);
         for (Thread thread: threads) {
             thread.start();
         }
@@ -234,7 +231,7 @@ public class MainSystem extends ExecutorModule {
                     semiAutoPlayerClass1.programState = ProgramState.Executing;
                 } else if (isPlayer1Finished && !isPlayer2Finished) {
                     //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
-                    semiAutoPlayerClass1.positionController.switchPos();
+                    semiAutoPlayerClass1.positionController.removePos();
                 } else if (isPlayer2Finished && !isPlayer1Finished) {
                     //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
                     autoPlayerClass2.isInterrupted = true;

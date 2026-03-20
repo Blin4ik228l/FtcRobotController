@@ -102,7 +102,7 @@ public class GyroscopeClass extends UpdatableCollector {
             double rawVel = imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
             gyroCurHeadVel = Double.isFinite(rawVel) ? rawVel : 0;
 
-            double filtr = 0.2;
+            double filtr = 0.9;
             fltrdHeadVel = filtr * gyroCurHeadVel + (1 - filtr) * fltrdHeadVel;
 
             gyroCurHeadVel = fltrdHeadVel;

@@ -11,9 +11,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.OdometryData;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position3D;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableCollector;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -31,12 +33,14 @@ public class CameraClass extends UpdatableCollector {
     private VisionPortal visionPortal;
     public GeneralLogic generalLogic;
     public RandomizeStatus randomizeStatus;
+    public GeneralInformation generalInformation;
     public ElapsedTime updateTime;
     public CameraClass(){
         super(false);
+        generalInformation = MainFile.generalInformation;
         try {
             webcamName = MainFile.op.hardwareMap.get(WebcamName.class, controlHubDevices.webcam1);
-            cameraPosition = new Position(DistanceUnit.CM,0, -16,0, 0);//Позиция камеры относительно координат робота
+            cameraPosition = new Position(DistanceUnit.CM,-19, 0,0, 0);//Позиция камеры относительно координат робота
 // СМЕЩЕНИЕ КАМЕРЫ НА 19 СМ К СБОРЩИКУ
             cameraOrientation = new YawPitchRollAngles(AngleUnit.RADIANS, Math.toRadians(-90) , Math.toRadians(-85), Math.toRadians(0), 0);
 
@@ -66,12 +70,12 @@ public class CameraClass extends UpdatableCollector {
         generalLogic = GeneralLogic.Check_camera_state;
 
         randomizeStatus = RandomizeStatus.UnDetected;
-        absoluteData = new OdometryData();
+        absoluteRawPos3D = new Position3D();
 
         updateTime = new ElapsedTime();
         sayCreated();
     }
-    public OdometryData absoluteData;
+    public Position3D absoluteRawPos3D;
     private ExposureControl exposure;
     private GainControl gain;
     private int index;
@@ -85,32 +89,12 @@ public class CameraClass extends UpdatableCollector {
         Processing,
         Stop
     }
-    protected double robotFieldX;
-    protected double robotFieldY;
-    protected double robotFieldZ;
-
     protected double robotFieldPitch;
     protected double robotFieldRoll;
     protected double robotFieldYaw;
-
-    protected double rangeToTag;
-    protected double cameraElevation;
-
-
-    protected double ftcFieldYaw;
-    protected double ftcFieldPitch;
-    protected double ftcFieldRoll;
-
-    protected double ftcFieldX;
-    protected double ftcFieldY;
-    protected double ftcFieldZ;
-
-    protected double centerX;
-    protected double centerY;
-
     public int id;
-    public double cameraBearing;
     private boolean isCameraCoverUp = false;
+    public double decisionMargin = 0;
 
     public void coverUpCamera(){
         isCameraCoverUp = true;
@@ -156,47 +140,42 @@ public class CameraClass extends UpdatableCollector {
 
                     //Если камера смотрит на нужные таги, берём с них позу и повышаем степень уверенности
                     //Уменьшаем её если слишком далеко от тага
-                    double decisionMargin;
                     if (id == 20 || id == 24){
                         decisionMargin = detection.decisionMargin;
 
-                        robotFieldX = detection.robotPose.getPosition().x;
-                        robotFieldY = detection.robotPose.getPosition().y;
-                        robotFieldZ = detection.robotPose.getPosition().z;
+                        double range = detection.ftcPose.range;
+                        double bear = detection.ftcPose.bearing;
+                        double elev = detection.ftcPose.elevation;
+
+                        double camX = range * Math.cos(elev) * Math.cos(bear);
+                        double camY = range * Math.cos(elev) * Math.sin(bear) + 19;
+                        double camZ = range * Math.sin(bear);
 
                         robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);
                         robotFieldRoll  = detection.robotPose.getOrientation().getRoll(AngleUnit.RADIANS);
                         robotFieldYaw   = detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS);
 
-                        rangeToTag = detection.ftcPose.range;
-                        cameraElevation = detection.ftcPose.elevation;
-                        cameraBearing   = detection.ftcPose.bearing;
+//                        robotX = detection.robotPose.getPosition().x;
+//                        robotY = detection.robotPose.getPosition().y;
 
-                        ftcFieldYaw = detection.ftcPose.yaw;
-                        ftcFieldPitch = detection.ftcPose.pitch;
-                        ftcFieldRoll = detection.ftcPose.roll;
-
-                        ftcFieldX = detection.ftcPose.x;
-                        ftcFieldY = detection.ftcPose.y;
-                        ftcFieldZ = detection.ftcPose.z;
-
-                        centerX = detection.center.x;
-                        centerY = detection.center.y;
-
-                        if (rangeToTag > 300){
-                            decisionMargin = 0;
-                        }
-                        absoluteData.setPosition(new Position2D(robotFieldX, robotFieldY, robotFieldYaw));
+//                        if (rangeToTag > 300){
+//                            decisionMargin = 0;
+//                        }
+                        absoluteRawPos3D.setX(camX);
+                        absoluteRawPos3D.setY(camY);
+                        absoluteRawPos3D.setZ(camZ);
+                        absoluteRawPos3D.setRoll(robotFieldRoll);
+                        absoluteRawPos3D.setPitch(robotFieldPitch);
+                        absoluteRawPos3D.setYaw(robotFieldYaw);
                     }
                     else{
                         decisionMargin = 0;
                     }
-                    absoluteData.setDesisionMarg(decisionMargin);
                 }
                 else
                 {
+                    decisionMargin = 0;
                     setRandomizedArtifactFromId(0);
-                    absoluteData.setDesisionMarg(0);
                     index = 0;
                 }
                 break;
@@ -244,5 +223,6 @@ public class CameraClass extends UpdatableCollector {
         telemetry.addData("General logic", generalLogic.toString());
         telemetry.addData("Randomize status", randomizeStatus.toString());
         telemetry.addData("motif", "%s %s %s",motif[0], motif[1], motif[2]);
+        telemetry.addData("des", decisionMargin);
     }
 }

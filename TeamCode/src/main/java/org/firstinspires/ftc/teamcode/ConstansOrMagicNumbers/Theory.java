@@ -22,8 +22,8 @@ public interface Theory {
     double MAX_ROBOT_LINEAR_SP = (DRIVETRAIN_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * DRIVETRAIN_ENCODER_RADIUS) / 60.0;
     double MAX_ROBOT_HEAD_SP = MAX_ROBOT_LINEAR_SP / (DRIVETRAIN_DISTANCE_BETWEEN_WHEELS / 2.0);
 
-    double MIN_ROBOT_LINEAR_SP = 15;
-    double MIN_ROBOT_HEAD_SP = Math.toRadians(10);
+    double MIN_ROBOT_LINEAR_SP = 10;
+    double MIN_ROBOT_HEAD_SP = Math.toRadians(45);
 
     //Турель
     double TURRET_MOTOR_RPM = 435;

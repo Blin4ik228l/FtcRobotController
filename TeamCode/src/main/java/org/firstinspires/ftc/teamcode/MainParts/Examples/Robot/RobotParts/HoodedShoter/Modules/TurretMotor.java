@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableColle
 
 public class TurretMotor extends ExecutableCollector {
     public OdometryBuffer turretBuffer;
-    public double localHead = 0;
+    public double localHead = Math.toRadians(90);
     public ClassMath classMath;
     public TurretMotor() {
         super(false);
@@ -61,7 +61,7 @@ public class TurretMotor extends ExecutableCollector {
 
         @Override
         protected void updateExt() {
-            double filtr = 1;
+            double filtr = 0.9;
             //Тиков на оборот мотора
             curMotorPos = motorsCollector.get(turretMotor).getCurPos(Units.Rad);
             deltaPos = lastMotorPos - curMotorPos;

@@ -38,7 +38,8 @@ public class RobotClass extends UpdatableCollector {
 
     @Override
     protected void updateExt() {
-        voltageSensor.update(iterationCount, 10);
+        voltageSensor.update(iterationCount, 15);
+//        drivetrain.update(iterationCount, 1);
         gyro.update(iterationCount, 1);
         cameraClass.update(iterationCount, 1);
         odometry.update(iterationCount, 1);

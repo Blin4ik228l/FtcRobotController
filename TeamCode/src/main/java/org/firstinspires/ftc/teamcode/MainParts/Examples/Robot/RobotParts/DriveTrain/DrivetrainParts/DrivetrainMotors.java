@@ -111,8 +111,6 @@ public class DrivetrainMotors extends ExecutableCollector {
             encCurPositions[1] = motorsCollector.get(encMid).getCurPos(Units.Cm);
             encCurPositions[2] = motorsCollector.get(encRight).getCurPos(Units.Cm);
             encCurPositions[3] = motorsCollector.get(testEnc).getCurPos(Units.Cm);
-
-            currentTime[0] = runTime.milliseconds();// Время в которое мы фиксируем показания с датчиков
         }
 
         private void updateDeltasPos() {//Время привязанное к обновлению позиции
@@ -124,13 +122,10 @@ public class DrivetrainMotors extends ExecutableCollector {
 
             encDeltaPositions[2] = encCurPositions[2] - encLastPositions[2];
             encLastPositions[2] = encCurPositions[2];
-
-            deltaTimes[0] = (currentTime[0] - oldTimes[1]) / 1000;//время за которое программа доходит до сюда(время обновление программы)
-            oldTimes[0] = currentTime[0];
         }
 
         private void updateVel() {//Обновляем скорость с датчиков
-            double filtr = 0.3;
+            double filtr = 0.9;
             fltrdVelLeft = filtr * motorsCollector.get(encLeft).getCurVel(Units.Cm)  + (1 - filtr) * fltrdVelLeft;
             fltrdVelMid = filtr * motorsCollector.get(encMid).getCurVel(Units.Cm) + (1 - filtr) * fltrdVelMid;
             fltrdVelRight = filtr * motorsCollector.get(encRight).getCurVel(Units.Cm) + (1 - filtr) * fltrdVelRight;
@@ -191,6 +186,7 @@ public class DrivetrainMotors extends ExecutableCollector {
         }
 
         private void updateGlobalPosition() {
+            if(encDeltaPositions[0] == 0 && encDeltaPositions[1] == 0 && encDeltaPositions[2] == 0) return;
             // Расчет перемещений робота за время, пройденное с момента предыдущего вызова метода
             // Для корректной работы этот метод должен работать в непрерывном цикле
             double encDeltaHeading = -(encDeltaPositions[0] - encDeltaPositions[2]) / DIST_BETWEEN_ENC_X;

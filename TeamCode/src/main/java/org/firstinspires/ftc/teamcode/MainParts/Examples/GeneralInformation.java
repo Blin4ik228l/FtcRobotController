@@ -105,13 +105,13 @@ public class GeneralInformation {
                 2.54 * (29.5),//Z
                 0
         };
-        private final double[] bluePointVyrCoord = new double[]{
+        public final double[] bluePointVyrCoord = new double[]{
                 -155,
                 -155,
                 2.54 * (29.5),//Z
                 0//Угол относительно поля
         };
-        private final double[] redPointVyrCoord = new double[]{
+        public final double[] redPointVyrCoord = new double[]{
                 -155,
                 155,
                 2.54 * (29.5),//Z

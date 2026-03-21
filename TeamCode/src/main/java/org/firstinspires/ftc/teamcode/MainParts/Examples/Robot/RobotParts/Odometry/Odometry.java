@@ -114,8 +114,8 @@ public class Odometry extends UpdatableCollector {
             dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
         }
 
-        dataForRobot.rotateVelocity();
-        dataForTurret.rotateAccel();
+//        dataForRobot.rotateVelocity();
+//        dataForTurret.rotateAccel();
 
         bufferForRobot.beginWrite().set(dataForRobot);
         bufferForRobot.endWrite();

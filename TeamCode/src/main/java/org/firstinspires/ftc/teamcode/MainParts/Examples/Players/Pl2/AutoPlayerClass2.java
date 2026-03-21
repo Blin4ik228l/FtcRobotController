@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odomet
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.HoodedShoter.HoodedShooter;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramState;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.ServoMotorWrapper;
 
 public class AutoPlayerClass2 extends PlayerClass{
     public AutoPlayerClass2(RobotClass robotClass) {
@@ -25,9 +26,16 @@ public class AutoPlayerClass2 extends PlayerClass{
         turretController = new TurretController();
         flyWheelController = new FlyWheelController();
         PIDFTurner = new PIDFTurner();
+
+
+        push0 = servoBuilder.initialize(controlHubDevices.getServo(0)).setFields(1000.0, 180.0).get();
+        push1 = servoBuilder.initialize(controlHubDevices.getServo(1)).setFields(750.0, 180.0).get();
+        push2 = servoBuilder.initialize(controlHubDevices.getServo(2)).setFields(1000.0, 180.0).get();
     }
     public HoodedShooter hoodedShooter;
     public Odometry odometry;
+
+    public ServoMotorWrapper push0, push1, push2;
 
     public TurretController turretController;
     public PIDFTurner PIDFTurner;
@@ -99,11 +107,11 @@ public class AutoPlayerClass2 extends PlayerClass{
         flyWheelPow = Range.clip(flyWheelPow, -1, 1);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
 
-//        hoodedShooter.angleController.execute(angleServoPos);
+        hoodedShooter.angleController.execute(angleServoPos);
 
-        hoodedShooter.turretMotor.execute(turretPow);
-        hoodedShooter.flyWheelClass.execute(flyWheelPow);
-        hoodedShooter.collector.execute(collectorPow);
+//        hoodedShooter.turretMotor.execute(turretPow);
+//        hoodedShooter.flyWheelClass.execute(flyWheelPow);
+//        hoodedShooter.collector.execute(collectorPow);
 
         hoodedShooter.update(iterationCount, 1);
     }
@@ -212,10 +220,12 @@ public class AutoPlayerClass2 extends PlayerClass{
     @Override
     public void buttonAReleased() {
         //Есть реализация у 1 игрока
+        push0.servo.setPosition(0.4);
+
     }
     @Override
     public void buttonAUnReleased() {
-
+        push0.servo.setPosition(0.1);
     }
 
     @Override
@@ -234,31 +244,6 @@ public class AutoPlayerClass2 extends PlayerClass{
                 collectorPow = -1;
                 break;
         }
-
-        switch (joystickActivityClass.tDpadDownPressed % 7) {
-            case 0:
-                hoodedShooter.digitalCellsClass.fire(1);
-                break;
-            case 1:
-                hoodedShooter.digitalCellsClass.prepareServo();
-                joystickActivityClass.tDpadDownPressed = 2;
-                break;
-            case 2:
-                hoodedShooter.digitalCellsClass.fire(2);
-                break;
-            case 3:
-                hoodedShooter.digitalCellsClass.prepareServo();
-                joystickActivityClass.tDpadDownPressed = 4;
-                break;
-            case 5:
-                hoodedShooter.digitalCellsClass.fire(2);
-                break;
-            case 6:
-                hoodedShooter.digitalCellsClass.prepareServo();
-                joystickActivityClass.tDpadDownPressed = 7;
-                break;
-        }
-
     }
 
     @Override
@@ -271,22 +256,22 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonXReleased() {
-
+        push1.servo.setPosition(0.4);
     }
 
     @Override
     public void buttonXUnReleased() {
-
+        push1.servo.setPosition(0.1);
     }
 
     @Override
     public void buttonYReleased() {
-
+        push2.servo.setPosition(0.4);
     }
 
     @Override
     public void buttonYUnReleased() {
-
+        push2.servo.setPosition(0.1);
     }
 
     public class PIDFTurner extends PIDF {
@@ -393,7 +378,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                 }
                 targHeadL = fixedAngle - delta;
             }else {
-                targHeadL = Math.toRadians(90) + targHeadL;
+                targHeadL = targHeadL + Math.toRadians(45);
                 flag = false;
             }
 

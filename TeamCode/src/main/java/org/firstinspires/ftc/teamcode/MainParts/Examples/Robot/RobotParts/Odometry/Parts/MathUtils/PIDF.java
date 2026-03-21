@@ -69,6 +69,9 @@ public class PIDF extends Module {
         runtime.reset();
     }
 
+    public void  resetI(){
+        I = 0;
+    }
     public double calculate(double target, double current){
         this.target = target;
         this.current = current;

@@ -26,18 +26,20 @@ public class DigitalCellsClass extends UpdatableCollector {
                         colorBuilder.initialize( expansionHubDevices.getI2C(1)).setFields(0.229, 0.263, 0.263, 0.0).get()
                 )
                 .add("cell2",
-                        colorBuilder.initialize( expansionHubDevices.getI2C(2)).setFields(0.186, 0.203, 0.203, 0.0).get(),
-                        colorBuilder.initialize( expansionHubDevices.getI2C(3)).setFields(0.150, 0.203, 0.203, 0.0).get())
+                        colorBuilder.initialize(expansionHubDevices.getI2C(2)).setFields(0.186, 0.203, 0.203, 0.0).get(),
+                        colorBuilder.initialize(expansionHubDevices.getI2C(3)).setFields(0.150, 0.203, 0.203, 0.0).get())
                 .add("cell3",
-                        colorBuilder.initialize( controlHubDevices.getI2C(0)).setFields(0.161, 0.195, 0.195, 0.0).get(),
-                        colorBuilder.initialize( controlHubDevices.getI2C(1)).setFields(0.161, 0.186, 0.195, 0.0).get());
+                        colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.161, 0.195, 0.195, 0.0).get(),
+                        colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.161, 0.186, 0.195, 0.0).get());
 
         servosCollector
-                .add(servoBuilder.initialize( pusher0).setFields(1000.0, 180.0).get())
-                .add(servoBuilder.initialize( pusher2).setFields(750.0, 180.0).get())
-                .add(servoBuilder.initialize( pusher1).setFields(1000.0, 180.0).get());
+                .add(servoBuilder.initialize(pusher0).setFields(1000.0, 180.0).get())
+                .add(servoBuilder.initialize(pusher2).setFields(750.0, 180.0).get())
+                .add(servoBuilder.initialize(pusher1).setFields(1000.0, 180.0).get());
 
+        isInitialized = false;
         prepareServo();
+
         sayCreated();
     }
     /*1 - в массиве это зелёный шар
@@ -62,6 +64,7 @@ public class DigitalCellsClass extends UpdatableCollector {
         servosCollector.showData();
     }
     public void fire(int color){
+        if(!isInitialized) return;
         triggeredCell = cells.getNeededCell(color);
 
         if (triggeredCell == null) {
@@ -83,9 +86,10 @@ public class DigitalCellsClass extends UpdatableCollector {
         }
     }
     public void prepareServo(){
-       servosCollector.get(pusher0).execute(0.08);
-       servosCollector.get(pusher1).execute(0.07);
-       servosCollector.get(pusher2).execute(0.08);
+        if(!isInitialized) return;
+       servosCollector.get(pusher0).execute(0.14);
+       servosCollector.get(pusher1).execute(0.14);
+       servosCollector.get(pusher2).execute(0.14);
     }
 
     public boolean isAllReady(){

@@ -20,7 +20,7 @@ public class HoodedShooter extends UpdatableCollector {
         flyWheelClass = new FlyWheelClass();
         collector = new Collector();
 
-//        angleController = new AngleController();
+        angleController = new AngleController();
 
         digitalCellsClass = new DigitalCellsClass();
 

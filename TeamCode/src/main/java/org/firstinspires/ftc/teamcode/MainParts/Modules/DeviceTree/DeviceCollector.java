@@ -8,4 +8,8 @@ public abstract class DeviceCollector extends DevicesBuilder {
     protected ServoMotorWrapper.InnerCollector servosCollector;
     protected ColorSensorWrapper.InnerCollector colorsCollector;
     protected MotorWrapper.InnerCollector motorsCollector;
+
+    public MotorWrapper.InnerCollector getMotorsCollector() {
+        return motorsCollector;
+    }
 }

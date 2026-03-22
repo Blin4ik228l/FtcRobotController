@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.Units;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.OdometryBuffer;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.OdometryData;
@@ -56,9 +57,19 @@ public class DrivetrainMotors extends ExecutableCollector {
         motorsCollector.get(leftFront).execute(forwardPow - sidePow - anglePow);
         motorsCollector.get(leftBack).execute(forwardPow + sidePow - anglePow);
     }
+    public double getCurrent(){
+        return (motorsCollector.get(rightBack).getMotorEx().getCurrent(CurrentUnit.AMPS) +
+                motorsCollector.get(rightFront).getMotorEx().getCurrent(CurrentUnit.AMPS) +
+                motorsCollector.get(leftFront).getMotorEx().getCurrent(CurrentUnit.AMPS) +
+                motorsCollector.get(leftBack).getMotorEx().getCurrent(CurrentUnit.AMPS)) / 4.0;
+    }
     @Override
     public void showDataExt() {
         motorsCollector.showData();
+        telemetry.addData(rightBack, motorsCollector.get(rightBack).getMotorEx().getCurrent(CurrentUnit.AMPS));
+        telemetry.addData(rightFront, motorsCollector.get(rightFront).getMotorEx().getCurrent(CurrentUnit.AMPS));
+        telemetry.addData(leftFront, motorsCollector.get(leftFront).getMotorEx().getCurrent(CurrentUnit.AMPS));
+        telemetry.addData(leftBack, motorsCollector.get(leftBack).getMotorEx().getCurrent(CurrentUnit.AMPS));
         classMath.showData();
     }
     public class ClassMath extends UpdatableCollector {

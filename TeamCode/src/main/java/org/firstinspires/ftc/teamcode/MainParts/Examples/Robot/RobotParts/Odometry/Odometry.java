@@ -67,15 +67,15 @@ public class Odometry extends UpdatableCollector {
                 .setHeadAccel(headAccelRobot);
 
         dataForTurret
-                .setHeadVel(turretData.getHeadVel() + headVelRobot)
-                .setHeadAccel(turretData.getHeadAccel() + headAccelRobot);
+                .setHeadVel(turretData.getHeadVel() )
+                .setHeadAccel(turretData.getHeadAccel());
 
         //Камера видит таг -> Полностью считываем позицию с неё
         if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){
 
             Position3D pos = cameraClass.absoluteRawPos3D;
 
-            Vector3 matrix = new Vector3(pos.getX(), pos.getY(), pos.getZ()).rotate(Math.toRadians(-15), 0, Math.toRadians(-90) + turretMotor.localHead);
+            Vector3 matrix = new Vector3(pos.getX(), pos.getY(), pos.getZ()).rotate(Math.toRadians(-21), 0, Math.toRadians(-90) + turretMotor.localHead);
 
             double tagX = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
             double tagY = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[1] : generalInformation.generalObjects.redTagCoord[1];

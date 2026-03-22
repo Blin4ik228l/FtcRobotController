@@ -20,24 +20,24 @@ public class DigitalCellsClass extends UpdatableCollector {
 
         createColorWrapperUtils();
         createServoWrapperUtils();
+        double tresh = 1.25;
+        double treshG = 1.8;
         cells = new CellWrapper.Builder()
                 .add("cell1",
-                        colorBuilder.initialize( expansionHubDevices.getI2C(0)).setFields(0.229, 0.297, 0.297, 0.0).get(),
-                        colorBuilder.initialize( expansionHubDevices.getI2C(1)).setFields(0.229, 0.263, 0.263, 0.0).get()
-                )
+                        colorBuilder.initialize(expansionHubDevices.getI2C(0)).setFields(0.152 * tresh, 0.184 * treshG, 0.149 * tresh, 0.0).get(),
+                        colorBuilder.initialize(expansionHubDevices.getI2C(1)).setFields(0.192 * tresh, 0.203 * treshG, 0.170 * tresh, 0.0).get())
                 .add("cell2",
-                        colorBuilder.initialize(expansionHubDevices.getI2C(2)).setFields(0.186, 0.203, 0.203, 0.0).get(),
-                        colorBuilder.initialize(expansionHubDevices.getI2C(3)).setFields(0.150, 0.203, 0.203, 0.0).get())
+                        colorBuilder.initialize(expansionHubDevices.getI2C(2)).setFields(0.146 * tresh, 0.187 * treshG, 0.148 * tresh, 0.0).get(),
+                        colorBuilder.initialize(expansionHubDevices.getI2C(3)).setFields(0.115 * tresh, 0.120 * treshG, 0.104 * tresh, 0.0).get())
                 .add("cell3",
-                        colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.161, 0.195, 0.195, 0.0).get(),
-                        colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.161, 0.186, 0.195, 0.0).get());
+                        colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.153 * tresh, 0.175 * treshG, 0.149 * tresh, 0.0).get(),
+                        colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.136 * tresh, 0.145 * treshG, 0.120 * tresh, 0.0).get());
 
         servosCollector
                 .add(servoBuilder.initialize(pusher0).setFields(1000.0, 180.0).get())
                 .add(servoBuilder.initialize(pusher2).setFields(750.0, 180.0).get())
                 .add(servoBuilder.initialize(pusher1).setFields(1000.0, 180.0).get());
 
-        isInitialized = false;
         prepareServo();
 
         sayCreated();
@@ -87,9 +87,9 @@ public class DigitalCellsClass extends UpdatableCollector {
     }
     public void prepareServo(){
         if(!isInitialized) return;
-       servosCollector.get(pusher0).execute(0.14);
-       servosCollector.get(pusher1).execute(0.14);
-       servosCollector.get(pusher2).execute(0.14);
+       servosCollector.get(pusher0).execute(0.09);
+       servosCollector.get(pusher1).execute(0.06);
+       servosCollector.get(pusher2).execute(0.08);
     }
 
     public boolean isAllReady(){
@@ -140,9 +140,9 @@ public class DigitalCellsClass extends UpdatableCollector {
         @Override
         protected void showDataExt() {
             telemetry.addData("color", getColor());
-//            for (ColorSensorWrapper color:sensorsWrapper) {
-//                color.showData();
-//            };
+            for (ColorSensorWrapper color:sensorsWrapper) {
+                color.showData();
+            };
         }
 
         public static class Builder{

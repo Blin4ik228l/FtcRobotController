@@ -148,7 +148,7 @@ public class CameraClass extends UpdatableCollector {
                         double elev = detection.ftcPose.elevation;
 
                         double camX = range * Math.cos(elev) * Math.cos(bear);
-                        double camY = range * Math.cos(elev) * Math.sin(bear) + 19;
+                        double camY = (range * Math.cos(elev) * Math.sin(bear)) + 19;
                         double camZ = range * Math.sin(bear);
 
                         robotFieldPitch = detection.robotPose.getOrientation().getPitch(AngleUnit.RADIANS);

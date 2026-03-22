@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odome
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Wrappers.Examples.MotorWrapper;
 import org.firstinspires.ftc.teamcode.MainParts.Modules.Module;
+
+import java.util.ArrayList;
 
 public class PIDF extends Module {
     private ElapsedTime runtime = new ElapsedTime();
@@ -72,7 +75,7 @@ public class PIDF extends Module {
     public void  resetI(){
         I = 0;
     }
-    public double calculate(double target, double current){
+    public double calculate(double target, double current, double currentAmps){
         this.target = target;
         this.current = current;
 
@@ -81,23 +84,13 @@ public class PIDF extends Module {
         P = error * kP;
         I += error * (runtime.milliseconds() - oldtime) * kI;
         D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
-        F = target * kF;
+        double correction = Math.max(0, (currentAmps - 0.6) * 0.0);
+        F = target * (kF + correction);
 
         olderror = error;
         oldtime = runtime.milliseconds();
 
         return P + Range.clip(I, minI, maxI) + D + F;
-    }
-
-    public double calculate(double error){
-        P = error * kP;
-        I += error * (runtime.milliseconds() - oldtime) * kI;
-        D = (error - olderror) /(runtime.milliseconds() - oldtime) * kD;
-
-        olderror = error;
-        oldtime = runtime.milliseconds();
-
-        return P + Range.clip(I, minI, maxI) + D;
     }
 
     @Override

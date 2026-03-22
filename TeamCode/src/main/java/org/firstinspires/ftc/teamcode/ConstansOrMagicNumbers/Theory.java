@@ -22,7 +22,7 @@ public interface Theory {
     double MAX_ROBOT_LINEAR_SP = (DRIVETRAIN_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * DRIVETRAIN_ENCODER_RADIUS) / 60.0;
     double MAX_ROBOT_HEAD_SP = MAX_ROBOT_LINEAR_SP / (DRIVETRAIN_DISTANCE_BETWEEN_WHEELS / 2.0);
 
-    double MIN_ROBOT_LINEAR_SP = 50;
+    double MIN_ROBOT_LINEAR_SP = 10;
     double MIN_ROBOT_HEAD_SP = Math.toRadians(20);
 
     //Турель
@@ -37,7 +37,7 @@ public interface Theory {
     double MAX_TURRET_LINEAR_SP = (TURRET_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * TURRET_WHEEL_RADIUS) / 60.0;
     double MAX_TURRET_HEAD_SP = (MAX_TURRET_LINEAR_SP / TURRET_WHEEL_RADIUS);
 
-    double MIN_TURRET_HEAD_SP = Math.toRadians(1);
+    double MIN_TURRET_HEAD_SP = Math.toRadians(15);
 
     double ALLOWED_ZAZOR = Math.toRadians(3);
 

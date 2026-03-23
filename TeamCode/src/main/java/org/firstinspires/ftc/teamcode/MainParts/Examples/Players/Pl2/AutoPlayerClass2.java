@@ -285,7 +285,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         public PIDFTurner() {
             super(0.0, 0,1.0,0.35,-1,1, "TestPid");
-            setPID(turretController);
+
         }
         double targetSpeed = 0;
         double targetHeadSpeed = 0;
@@ -380,8 +380,22 @@ public class AutoPlayerClass2 extends PlayerClass{
             double localHead = hoodedShooter.turretMotor.localHead;
 
             double length = targHeadG - currentPos.getHeading();
-
+//
             double curRobotAngle = robotCurrentData.getPosition().getHeading();
+//            double rawError = targHeadG - currentPos.getHeading();
+//            double errorShort = normalizeAngle(rawError);
+//            double errorLong = errorShort > 0 ? errorShort - 2*Math.PI : errorShort + 2*Math.PI;
+//
+//
+//            double newPositionShort = localHead + errorShort;
+//
+//            double errorHeading;
+//            if (newPositionShort > Math.toRadians(270) || newPositionShort < Math.toRadians(-90)) {
+//                errorHeading = errorLong;
+//            } else {
+//                errorHeading = errorShort;
+//            }
+
             if(!flag){
                 if(Math.abs(length) > Math.PI) {long_length = length; short_length = getNorm(length);}
                 else {long_length = getNorm(length); short_length = length;}

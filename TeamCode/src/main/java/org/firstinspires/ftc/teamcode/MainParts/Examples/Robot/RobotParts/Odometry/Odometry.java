@@ -79,20 +79,22 @@ public class Odometry extends UpdatableCollector {
 
             double tagX = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
             double tagY = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[1] : generalInformation.generalObjects.redTagCoord[1];
-
+            double tagHead = cameraClass.id == 20 ? generalInformation.generalObjects.blueTagCoord[3] : generalInformation.generalObjects.redTagCoord[3];
             Vector2 robotVector = new Vector2(matrix.getX(), matrix.getY()).rotateToGlobal(pos.getYaw());
             double robotX = tagX - robotVector.x;
             double robotY = tagY - robotVector.y;
 
-            Position2D robotPos = new Position2D(robotX, robotY, pos.getYaw());
+            double robotHead = tagHead - pos.getYaw();
+
+            Position2D robotPos = new Position2D(robotX, robotY, robotHead);
 
             dataForRobot.getPosition().setX(robotPos.getX());
             dataForRobot.getPosition().setY(robotPos.getY());
-            dataForRobot.getPosition().setHeading(robotPos.getHeading() - (Math.toRadians(-90) + turretMotor.localHead));
+            dataForRobot.getPosition().setHeading(robotPos.getHeading());
 
             dataForTurret.getPosition().setX(robotPos.getX());
             dataForTurret.getPosition().setY(robotPos.getY());
-            dataForTurret.getPosition().setHeading(robotPos.getHeading());
+            dataForTurret.getPosition().setHeading(robotPos.getHeading() + turretMotor.localHead);
         }else{
             Position2D turretPos = turretData.getPosition();
             Position2D encodersPos = encodersData.getPosition();

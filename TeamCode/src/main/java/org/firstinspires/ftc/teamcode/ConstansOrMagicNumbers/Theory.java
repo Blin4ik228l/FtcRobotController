@@ -54,7 +54,7 @@ public interface Theory {
     double MAX_FLYWHEEL_HEAD_SP = MAX_FLYWHEEL_LINEAR_SP / FLYWHEEL_RADIUS;
 
     //пятно контакта мяча
-    double CONTACT_PATCH = 1.15;
+    double CONTACT_PATCH = 1.25;
 
     //Для улитки
     double MAX_ANGLE = 44;

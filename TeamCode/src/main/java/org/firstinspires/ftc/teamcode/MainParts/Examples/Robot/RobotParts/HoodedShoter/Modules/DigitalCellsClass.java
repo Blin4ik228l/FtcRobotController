@@ -20,8 +20,8 @@ public class DigitalCellsClass extends UpdatableCollector {
 
         createColorWrapperUtils();
         createServoWrapperUtils();
-        double tresh = 1.25;
-        double treshG = 1.8;
+        double tresh = 1.6;
+        double treshG = 2.2;
         cells = new CellWrapper.Builder()
                 .add("cell1",
                         colorBuilder.initialize(expansionHubDevices.getI2C(0)).setFields(0.152 * tresh, 0.184 * treshG, 0.149 * tresh, 0.0).get(),
@@ -32,6 +32,10 @@ public class DigitalCellsClass extends UpdatableCollector {
                 .add("cell3",
                         colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.153 * tresh, 0.175 * treshG, 0.149 * tresh, 0.0).get(),
                         colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.136 * tresh, 0.145 * treshG, 0.120 * tresh, 0.0).get());
+
+        cells.getCell("cell1").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
+        cells.getCell("cell2").tresholder = new double[]{0.133 * tresh,0.155 * treshG,0.114 * tresh};
+        cells.getCell("cell3").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
 
         servosCollector
                 .add(servoBuilder.initialize(pusher0).setFields(1000.0, 180.0).get())
@@ -89,11 +93,11 @@ public class DigitalCellsClass extends UpdatableCollector {
         if(!isInitialized) return;
        servosCollector.get(pusher0).execute(0.09);
        servosCollector.get(pusher1).execute(0.06);
-       servosCollector.get(pusher2).execute(0.08);
+       servosCollector.get(pusher2).execute(0.09);
     }
 
     public boolean isAllReady(){
-        return !servosCollector.get(pusher0).isBusy(1) && !servosCollector.get(pusher1).isBusy(1) && !servosCollector.get(pusher2).isBusy(1);
+        return !servosCollector.get(pusher0).isBusy(4) && !servosCollector.get(pusher1).isBusy(4) && !servosCollector.get(pusher2).isBusy(4);
     }
     public static class CellWrapper extends UpdatableModule {
         public ArrayList<ColorSensorWrapper> sensorsWrapper = new ArrayList<>();
@@ -105,6 +109,8 @@ public class DigitalCellsClass extends UpdatableCollector {
 
             sensorsWrapper.addAll(Arrays.asList(sensorsWrapperIn));
         }
+        public double[] tresholder = new double[3];
+        public double r, g, b;
         public int isFounded(){
             int count = 0;
             for (ColorSensorWrapper color : sensorsWrapper) {
@@ -130,19 +136,40 @@ public class DigitalCellsClass extends UpdatableCollector {
             telemetry.addLine(name.toUpperCase());
         }
 
+        public double foundedColor;
         @Override
         protected void updateExt() {
+            boolean redDetected = false;
+            boolean greenDetected = false;
+            boolean blueDetected = false;
+            boolean nothingDetected = false;
+
             for (ColorSensorWrapper color:sensorsWrapper) {
                 color.update();
-            };
+                r += color.rgba.red;
+                g += color.rgba.green;
+                b += color.rgba.blue;
+            }
+            r /= 2;
+            g /= 2;
+            b /= 2;
+
+            if(r > g && r > b && r > tresholder[0]) {
+                redDetected = true;}
+            else if(g > r && g > b && g > tresholder[1]) {
+                greenDetected = true;}
+            else if(b > r && b > g && b > tresholder[2]) {
+                blueDetected = true;
+            }else nothingDetected = true;
+            if (!nothingDetected){
+                foundedColor = redDetected || blueDetected ? 2 : 1;
+            }else foundedColor = 0;
         }
 
         @Override
         protected void showDataExt() {
-            telemetry.addData("color", getColor());
-            for (ColorSensorWrapper color:sensorsWrapper) {
-                color.showData();
-            };
+            telemetry.addData("color", foundedColor);
+            telemetry.addData("Data", "r %.3f g %.3f b %.3f", r, g, b);
         }
 
         public static class Builder{
@@ -168,7 +195,7 @@ public class DigitalCellsClass extends UpdatableCollector {
             public CellWrapper getNeededCell(int color){
                 CellWrapper found = null;
                 for (CellWrapper cell : cells.values()) {
-                    if (cell.getColor() == color) {found = cell; break;}
+                    if (cell.foundedColor == color) {found = cell; break;}
                     else found = cell;
                 }
                 if(found == null) found = getFullCell();
@@ -177,7 +204,7 @@ public class DigitalCellsClass extends UpdatableCollector {
             public CellWrapper getFullCell(){
                 CellWrapper found = null;
                 for (CellWrapper cell : cells.values()) {
-                    if (cell.getColor() != 0) {found = cell; break;}
+                    if (cell.foundedColor != 0) {found = cell; break;}
                     else found = cell;
                 }
                 return found;

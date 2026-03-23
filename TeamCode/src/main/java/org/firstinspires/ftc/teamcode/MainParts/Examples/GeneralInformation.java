@@ -48,14 +48,12 @@ public class GeneralInformation {
     }
     public class GeneralObjects {
         public GeneralObjects() {
-            blueTagCoord[3] = Math.atan2(blueTagCoord[1], blueTagCoord[0]);
+            blueTagCoord[3] = Math.atan2(blueTagCoord[0], blueTagCoord[1]);
             redTagCoord[3] = Math.atan2(redTagCoord[1], redTagCoord[0]);
 
             bluePointVyrCoord[3] = Math.atan2(bluePointVyrCoord[1], bluePointVyrCoord[0]);
             redPointVyrCoord[3] = Math.atan2(redPointVyrCoord[1], redPointVyrCoord[0]);
 
-//        aprilTagIds = color == Color.Red ? aprilTagRedIds : aprilTagBlueIds ;
-//        tagCoord = color == Color.Red ? redTagCoord : blueTagCoord;
             pointVyr = teamAliance == TeamAliance.RED ? redPointVyrCoord : bluePointVyrCoord;
             artifactsCoord = teamAliance == TeamAliance.RED ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }

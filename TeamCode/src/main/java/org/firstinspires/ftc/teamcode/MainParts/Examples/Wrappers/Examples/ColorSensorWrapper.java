@@ -78,7 +78,7 @@ public class ColorSensorWrapper extends UpdatableModule {
     protected void updateExt() {
         updateData();
 
-        compareColor();
+//        compareColor();
     }
 
     private void updateData(){

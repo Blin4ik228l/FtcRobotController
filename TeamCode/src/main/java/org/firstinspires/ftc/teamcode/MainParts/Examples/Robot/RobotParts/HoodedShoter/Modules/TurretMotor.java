@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.MainParts.Modules.Extenders.UpdatableColle
 
 public class TurretMotor extends ExecutableCollector {
     public OdometryBuffer turretBuffer;
-    public double localHead = Math.toRadians(90);
+    public double localHead = 0;
     public ClassMath classMath;
     public TurretMotor() {
         super(false);

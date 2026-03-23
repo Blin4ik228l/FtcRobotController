@@ -88,13 +88,13 @@ public class GyroscopeClass extends UpdatableCollector {
             gyroLastHeading = gyroCurHeading;
 
             localHead += gyroDeltaHeading;
-            if (localHead >= 2 * Math.PI){
-                localHead -= 2 * Math.PI;
-            }
-
-            if (localHead <= -2 * Math.PI){
-                localHead += 2 * Math.PI;
-            }
+//            if (localHead >= 2 * Math.PI){
+//                localHead -= 2 * Math.PI;
+//            }
+//
+//            if (localHead <= -2 * Math.PI){
+//                localHead += 2 * Math.PI;
+//            }
 
             rawData.setPosition(new Position2D(0, 0, gyroDeltaHeading));
         }

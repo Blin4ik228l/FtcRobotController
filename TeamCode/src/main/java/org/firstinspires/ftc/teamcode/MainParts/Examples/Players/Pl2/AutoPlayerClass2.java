@@ -92,7 +92,6 @@ public class AutoPlayerClass2 extends PlayerClass{
                 flyWheelPow = 0;
                 break;
             case Main_loop:
-                odometry.cameraClass.coverUpCamera();
                 if (!isInterrupted){
                     if (generalInformation.programName == GeneralInformation.ProgramName.TeleOp) executeTeleOp();
                     else executeAuto();
@@ -183,7 +182,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                                 }
                                 break;
                             case firing:
-                                if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(16)) {
+                                if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(10)) {
                                     hoodedShooter.digitalCellsClass.prepareServo();
                                     count = Math.max(count - 1, 0);
                                     servoState = ServoState.waiting;
@@ -284,7 +283,8 @@ public class AutoPlayerClass2 extends PlayerClass{
         private int index;
 
         public PIDFTurner() {
-            super(0.0, 0,1.0,0.35,-1,1, "TestPid");
+            super(0.0, 0,0.0,0.0,-1,1, "TestPid");
+            setPID(turretController);
 
         }
         double targetSpeed = 0;
@@ -358,63 +358,30 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     public class TurretController extends PIDF{
         public TurretController(){
-            super(0.07, 0,0.009,0.12, -1, 1, "TurretPid");
+            super(0.05, 0,0.05,0.2, -1, 1, "TurretPid");
         }
 
         private double returnDistance(double VelMax, double accel){
             return Math.pow(VelMax, 2) / (2 * accel);
         }
 
-        double lastRobotAngle;
-        boolean flag = false;
-        double futCur;
-        double long_length;
-        double short_length;
-        double errorHeading;
         public OdometryData calculateVol(OdometryData targetData, OdometryData currentData){
             Position2D targetPos = targetData.getPosition();
             Position2D currentPos = currentData.getPosition();
 
             // Находим ошибку положения
             double targHeadG = targetPos.getHeading();
+            double robotHeadG = robotCurrentData.getPosition().getHeading();
+            double targHeadL = targHeadG - robotHeadG;
             double localHead = hoodedShooter.turretMotor.localHead;
 
-            double length = targHeadG - currentPos.getHeading();
-//
-            double curRobotAngle = robotCurrentData.getPosition().getHeading();
-//            double rawError = targHeadG - currentPos.getHeading();
-//            double errorShort = normalizeAngle(rawError);
-//            double errorLong = errorShort > 0 ? errorShort - 2*Math.PI : errorShort + 2*Math.PI;
-//
-//
-//            double newPositionShort = localHead + errorShort;
-//
-//            double errorHeading;
-//            if (newPositionShort > Math.toRadians(270) || newPositionShort < Math.toRadians(-90)) {
-//                errorHeading = errorLong;
-//            } else {
-//                errorHeading = errorShort;
-//            }
-
-            if(!flag){
-                if(Math.abs(length) > Math.PI) {long_length = length; short_length = getNorm(length);}
-                else {long_length = getNorm(length); short_length = length;}
-
-                futCur = localHead + short_length;
-                lastRobotAngle = curRobotAngle;
-                flag = true;
-            }else {
-                if(Math.abs(curRobotAngle - lastRobotAngle) > Math.toRadians(1)){
-                    flag = false;
-                }
+            if (targHeadL > Math.PI || targHeadL < -Math.PI){
+                targHeadL = getNorm(targHeadL);
             }
-
-            if(futCur > Math.toRadians(270) || futCur < Math.toRadians(-90)){
-                errorHeading = getNorm(futCur) - localHead;
-            }else errorHeading = futCur - localHead;
 
             double target_head_vel = targetData.getHeadVel();
             double head_safe_brake = returnDistance(target_head_vel, target_head_vel);
+            double errorHeading = targHeadL - localHead;
 
             double headVel = Math.signum(errorHeading) * Math.max(target_head_vel * Math.min(1, Math.abs(errorHeading) / head_safe_brake), MIN_TURRET_HEAD_SP);
 
@@ -431,9 +398,6 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         @Override
         public void showData() {
-            telemetry.addData("error", errorHeading * RAD);
-            telemetry.addData("local", hoodedShooter.turretMotor.localHead * RAD);
-            telemetry.addData("futurCurent", futCur * RAD);
             this.showDataExt();
         }
 
@@ -458,7 +422,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class FlyWheelController extends PIDF {
         public FlyWheelController(){
-             super(0.003, 0, 0,0.00178,-1, 1, "FlyWheelPid");
+             super(0.003, 0, 0,0.0022,-1, 1, "FlyWheelPid");
         }
 
         public OdometryData calculateVol(double targetSpeed, double curSpeed){

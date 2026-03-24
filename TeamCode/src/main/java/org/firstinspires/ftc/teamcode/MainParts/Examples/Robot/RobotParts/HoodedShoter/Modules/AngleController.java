@@ -11,7 +11,6 @@ public class AngleController extends ExecutableCollector {
         super(false);
         createServoWrapperUtils();
         servosCollector.add(servoBuilder.initialize(angleServo).setFields(60.0, 120.0).get());
-        executeExt(1.0);
         sayCreated();
     }
 

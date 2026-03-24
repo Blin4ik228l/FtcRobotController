@@ -37,7 +37,7 @@ public class FlyWheelClass extends ExecutableCollector {
         double targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(underRoot));
 
         //Если по формуле скоость отриц значит не стреляем
-        if (underRoot < 0) return  0;
+//        if (underRoot < 0) return  0;
 
         targetSpeed = targetSpeed / CONTACT_PATCH;
 

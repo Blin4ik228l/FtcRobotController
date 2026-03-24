@@ -50,7 +50,7 @@ public class CameraClass extends UpdatableCollector {
                     .setDrawCubeProjection(false)
                     .setDrawTagID(true)
                     .setDrawTagOutline(false)
-                    .setLensIntrinsics(708.013f, 708.013f, 311.973f, 253.313f)
+                    .setLensIntrinsics(705.693,705.693,322.799, 239.459)
                     .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                     .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                     .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
@@ -155,9 +155,10 @@ public class CameraClass extends UpdatableCollector {
                         range = detection.ftcPose.range;      // расстояние до тега (см)
                         bearing = detection.ftcPose.bearing;  // горизонтальный угол (рад)
                         yaw = detection.ftcPose.yaw;          // угол тега относительно камеры
+                        double elev = detection.ftcPose.elevation + Math.toRadians(0);
 
-                        camToTagX = range * Math.cos(bearing);
-                        camToTagY = range * Math.sin(bearing);
+                        camToTagX = range * Math.cos(elev) * Math.cos(bearing);
+                        camToTagY = range * Math.cos(elev) * Math.sin(bearing);
 
                         double camOffsetX = 0;
                         double camOffsetY = 19;
@@ -219,7 +220,9 @@ public class CameraClass extends UpdatableCollector {
     public void showDataExt() {
         telemetry.addData("Ve", "%s %s",globalVector.x, globalVector.y);
         telemetry.addData("Searching", searchingHead * RAD);
-        telemetry.addData("headinsg", "%s ftcYaw %s",head * RAD,cameraYaw * RAD );
+        telemetry.addData("headinsg", "%s ftcYaw %s bear %s",head * RAD,yaw
+
+                * RAD, bearing *RAD );
         telemetry.addData("robotL", robotPos.toVector().length());
         telemetry.addData("Range", range);
         telemetry.addData("Headings", "Y %s R %s P %s", cameraYaw * RAD, cameraRoll * RAD, cameraPitch * RAD);

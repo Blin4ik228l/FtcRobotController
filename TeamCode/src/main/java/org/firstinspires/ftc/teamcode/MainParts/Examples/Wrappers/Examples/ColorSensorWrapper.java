@@ -33,6 +33,7 @@ public class ColorSensorWrapper extends UpdatableModule {
         super(searchingDevice);
 
         try {
+
             normalizedColorSensor = amsInit();
 
             if(normalizedColorSensor instanceof RevColorSensorV3){
@@ -66,6 +67,7 @@ public class ColorSensorWrapper extends UpdatableModule {
         }
 
         amsColorSensor1.initialize(parameters);
+        amsColorSensor1.enableLed(false);
         return amsColorSensor1;
     }
     private float gain = 15f;

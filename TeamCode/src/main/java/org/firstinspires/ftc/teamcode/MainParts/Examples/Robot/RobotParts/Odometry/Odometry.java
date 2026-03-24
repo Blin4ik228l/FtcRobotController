@@ -72,7 +72,7 @@ public class Odometry extends UpdatableCollector {
                 .setHeadAccel(turretData.getHeadAccel());
 
         //Камера видит таг -> Полностью считываем позицию с неё
-        if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < MIN_TURRET_HEAD_SP){
+        if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < Math.toRadians(30)){
             taken = true;
             Position2D robotPos = cameraClass.robotPos;
             double tagX = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
@@ -111,7 +111,7 @@ public class Odometry extends UpdatableCollector {
             dataForRobot.getPosition().add(0, 0, deltaHead);
 
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
-            Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(dataForRobot.getPosition().getHeading());
+            Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(Math.toRadians(-90) + dataForRobot.getPosition().getHeading());
 
             dataForRobot.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
             dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);

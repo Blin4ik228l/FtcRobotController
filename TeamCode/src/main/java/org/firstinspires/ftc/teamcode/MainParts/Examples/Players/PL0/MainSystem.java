@@ -74,7 +74,7 @@ public class MainSystem extends ExecutorModule {
                     if (TELEOP_SECONDS - matchTimer.seconds() < 5) {
 //                    generalInformation.gameTactick = GameTactick.Parking;
                     }
-                    executeTeleOp();
+//                    executeTeleOp();
                 }
                 else {
                     if (AUTO_SECONDS - matchTimer.seconds() < 5) {

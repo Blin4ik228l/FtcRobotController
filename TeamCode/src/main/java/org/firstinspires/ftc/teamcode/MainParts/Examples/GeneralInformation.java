@@ -48,8 +48,10 @@ public class GeneralInformation {
     }
     public class GeneralObjects {
         public GeneralObjects() {
-            blueTagCoord[3] = Math.atan2(blueTagCoord[0], blueTagCoord[1]);
-            redTagCoord[3] = Math.atan2(redTagCoord[1], redTagCoord[0]);
+            blueTagCoord[3] = Math.atan(blueTagCoord[0] / blueTagCoord[1]) - Math.signum(Math.atan(blueTagCoord[0] / blueTagCoord[1])) * Math.PI;
+            redTagCoord[3] = Math.atan(redTagCoord[0] / redTagCoord[1]) - Math.signum(Math.atan(redTagCoord[0] / redTagCoord[1])) * Math.PI;
+//            blueTagCoord[3] = Math.atan2(blueTagCoord[0], blueTagCoord[1]);
+//            redTagCoord[3] = Math.atan2(redTagCoord[0], redTagCoord[1]);
 
             bluePointVyrCoord[3] = Math.atan2(bluePointVyrCoord[1], bluePointVyrCoord[0]);
             redPointVyrCoord[3] = Math.atan2(redPointVyrCoord[1], redPointVyrCoord[0]);

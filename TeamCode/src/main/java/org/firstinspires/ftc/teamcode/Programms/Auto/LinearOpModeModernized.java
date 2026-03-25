@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramStage;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 
 import java.util.concurrent.CyclicBarrier;
 
@@ -14,6 +15,7 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
     public MainSystem mainSystem;
     public MainFile mainFile;
     private CyclicBarrier barrier = new CyclicBarrier(3);
+    public Position2D startPos;
     @Override
     public void runOpMode() throws InterruptedException {
         initialization();

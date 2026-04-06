@@ -50,7 +50,7 @@ public class CameraClass extends UpdatableCollector {
                     .setDrawCubeProjection(false)
                     .setDrawTagID(true)
                     .setDrawTagOutline(false)
-                    .setLensIntrinsics(705.693,705.693,322.799, 239.459)
+                    .setLensIntrinsics(694.068,694.068,313.099, 236.335)
                     .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
                     .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                     .setOutputUnits(DistanceUnit.CM, AngleUnit.RADIANS)
@@ -115,6 +115,7 @@ public class CameraClass extends UpdatableCollector {
     public double range;
     public double bearing;
     public double yaw;
+    public double horizontal_range;
     @Override
     protected void updateExt() {
         switch (generalLogic){
@@ -128,9 +129,9 @@ public class CameraClass extends UpdatableCollector {
                     gain = visionPortal.getCameraControl(GainControl.class);
 
                     //утром 130 - вечером 170
-                    gain.setGain(130);//яркость
+                    gain.setGain(135);//яркость
 
-                    aprilTagProcessor.setDecimation(2.0f);
+                    aprilTagProcessor.setDecimation(1.5f);
 
                     generalLogic = GeneralLogic.Processing;
                 }
@@ -138,9 +139,9 @@ public class CameraClass extends UpdatableCollector {
             case Processing:
                 //Фиксируем один раз
                 AprilTagProcessor aprilTagDetection = aprilTagProcessor;
-                if (!aprilTagDetection.getDetections().isEmpty() && !isCameraCoverUp)
+                if (!aprilTagDetection.getDetections().isEmpty() && !isCameraCoverUp && (visionPortal.getCameraState() == VisionPortal.CameraState.STREAMING))
                 {
-                    index = index % aprilTagDetection.getDetections().size();
+                    index = index % Math.max(aprilTagDetection.getDetections().size(), 1);
 
                     AprilTagDetection detection = aprilTagDetection.getDetections().get(index);
 
@@ -155,10 +156,11 @@ public class CameraClass extends UpdatableCollector {
                         range = detection.ftcPose.range;      // расстояние до тега (см)
                         bearing = detection.ftcPose.bearing;  // горизонтальный угол (рад)
                         yaw = detection.ftcPose.yaw;          // угол тега относительно камеры
-                        double elev = detection.ftcPose.elevation + Math.toRadians(0);
+                        double elev = detection.ftcPose.elevation;
 
-                        camToTagX = range * Math.cos(elev) * Math.cos(bearing);
-                        camToTagY = range * Math.cos(elev) * Math.sin(bearing);
+                        horizontal_range = range * Math.cos(elev);
+                        camToTagX = horizontal_range * Math.cos(bearing);
+                        camToTagY = horizontal_range * Math.sin(bearing);
 
                         double camOffsetX = 0;
                         double camOffsetY = 19;

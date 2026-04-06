@@ -56,11 +56,12 @@ public class GeneralInformation {
             bluePointVyrCoord[3] = Math.atan2(bluePointVyrCoord[1], bluePointVyrCoord[0]);
             redPointVyrCoord[3] = Math.atan2(redPointVyrCoord[1], redPointVyrCoord[0]);
 
+            aprilTagIds = teamAliance == TeamAliance.RED ? 24: 20;
             pointVyr = teamAliance == TeamAliance.RED ? redPointVyrCoord : bluePointVyrCoord;
             artifactsCoord = teamAliance == TeamAliance.RED ? artifactsUnderRedWallCoord : artifactsUnderBlueWallCoord;
         }
 
-        public int[] aprilTagIds;
+        public int aprilTagIds;
         private double[] tagCoord;
         private ArrayList<double[]> artifactsCoord;
         private double[] pointVyr;
@@ -68,9 +69,7 @@ public class GeneralInformation {
         public final int[] aprilTagBlueIds = {20};
         public final int[] aprilTagRedIds = {24};
 
-        public int[] getAprilTagIds() {
-            return aprilTagIds;
-        }
+
 
         public double[] getPointVyr() {
             return pointVyr;

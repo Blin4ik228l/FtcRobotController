@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramStage;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.PL0.MainSystem;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry.Parts.MathUtils.Position2D;
 
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,7 @@ public abstract class TeleOpModernized extends OpMode {
     public MainFile mainFile;
     public MainSystem mainSystem;
     private CyclicBarrier barrier = new CyclicBarrier(3);
+
     public void initAfterRobot(){
         mainFile = new MainFile(this, generalInformation);
         mainSystem = new MainSystem(barrier);

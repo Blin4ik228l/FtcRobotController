@@ -29,7 +29,7 @@ import java.util.concurrent.CyclicBarrier;
 
 public class MainSystem extends ExecutorModule {
     protected GeneralInformation generalInformation;
-    protected SemiAutoPlayerClass1 semiAutoPlayerClass1;
+    public SemiAutoPlayerClass1 semiAutoPlayerClass1;
     protected AutoPlayerClass2 autoPlayerClass2;
     protected RobotClass robotClass;
     protected FileSystem fileSystem;
@@ -80,8 +80,7 @@ public class MainSystem extends ExecutorModule {
                     if (AUTO_SECONDS - matchTimer.seconds() < 5) {
 
                     }
-                    executeAuto();
-                    fileSystem.update(iterationCount, 1);
+//                    executeAuto();
                 }
                 break;
         }
@@ -133,7 +132,6 @@ public class MainSystem extends ExecutorModule {
         }
         switch (generalInformation.programName){
             case TeleOp:
-                fileSystem.writeAnother();
                 fileSystem.deleteOdometry();
                 break;
             default:
@@ -213,61 +211,55 @@ public class MainSystem extends ExecutorModule {
                         isPlayer1Finished = true;
                         break;
                 }
-                switch (autoPlayerClass2.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer2Finished = true;
-                        break;
-                }
+//                switch (autoPlayerClass2.programState){
+//                    case Executing:
+//                        break;
+//                    case Interrupted:
+//                        break;
+//                    case Finished:
+//                        isPlayer2Finished = true;
+//                        break;
+//                }
 
-                if (isPlayer1Finished && isPlayer2Finished){
-                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-                    autoPlayerClass2.isInterrupted = true;
+                if(isPlayer1Finished){
                     generalInformation.gameTactick = GameTactick.Fire;
-                    autoPlayerClass2.programState = ProgramState.Executing;
-                    semiAutoPlayerClass1.programState = ProgramState.Executing;
-                } else if (isPlayer1Finished && !isPlayer2Finished) {
-                    //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
-                    semiAutoPlayerClass1.positionController.removePos();
-                } else if (isPlayer2Finished && !isPlayer1Finished) {
-                    //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
-                    autoPlayerClass2.isInterrupted = true;
-                    generalInformation.gameTactick = GameTactick.Fire;
-                    autoPlayerClass2.programState = ProgramState.Executing;
-                    semiAutoPlayerClass1.programState = ProgramState.Executing;
                 }
+//                if (isPlayer1Finished && isPlayer2Finished){
+//                    //прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+//                    autoPlayerClass2.isInterrupted = true;
+//                    generalInformation.gameTactick = GameTactick.Fire;
+//                    autoPlayerClass2.programState = ProgramState.Executing;
+//                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+//                } else if (isPlayer1Finished && !isPlayer2Finished) {
+//                    //Если 1 игрок доехал до точки, но 2 игрок ещё не собрал 3 артефакта -> едем к следующему
+//                    semiAutoPlayerClass1.positionController.removePos();
+//                } else if (isPlayer2Finished && !isPlayer1Finished) {
+//                    //Если 2 игрок уже собрал (каким то образом 3 артефакта, когда 1 игрок не доехал до след артефакта), то едем стрелять, и прерываем работу 2 игрока чтобы он не начал стрелять пока едет
+//                    autoPlayerClass2.isInterrupted = true;
+//                    generalInformation.gameTactick = GameTactick.Fire;
+//                    autoPlayerClass2.programState = ProgramState.Executing;
+//                    semiAutoPlayerClass1.programState = ProgramState.Executing;
+//                }
                 break;
             case Fire:
-                switch (semiAutoPlayerClass1.programState){
-                    case Executing:
-                        break;
-                    case Interrupted:
-                        break;
-                    case Finished:
-                        isPlayer1Finished = true;
-                        break;
-
-                }
                 switch (autoPlayerClass2.programState){
                     case Executing:
                         break;
                     case Interrupted:
-                        if (isPlayer1Finished) {autoPlayerClass2.isInterrupted = false; autoPlayerClass2.programState = ProgramState.Executing;}
                         break;
                     case Finished:
                         isPlayer2Finished = true;
                         break;
                 }
                 //тут самое главное подъехать к точке стрельбы, а потом в игру вступит 2 игрок
-                if (isPlayer1Finished && isPlayer2Finished){
+                if (isPlayer2Finished){
                     //Закончили цикл стрельбы -> едем собирать артефакты
                     generalInformation.gameTactick = GameTactick.Load;
 
+                    semiAutoPlayerClass1.positionController.removePos();
                     autoPlayerClass2.programState = ProgramState.Executing;
                     semiAutoPlayerClass1.programState = ProgramState.Executing;
+
                 }
                 break;
             default:
@@ -278,9 +270,6 @@ public class MainSystem extends ExecutorModule {
     @Override
     public void showData() {
         if (iterationCount % 15 != 0) return;
-
-        telemetry.addData("ROBOT", "LIN %.2f HEAD %.2f", MAX_ROBOT_LINEAR_SP, MAX_ROBOT_HEAD_SP * RAD);
-        telemetry.addData("TURRET", "LIN %.2f HEAD %.2f", MAX_TURRET_LINEAR_SP, MAX_TURRET_HEAD_SP * RAD);
 
         switch (generalInformation.programName){
             case TeleOp:
@@ -336,13 +325,13 @@ public class MainSystem extends ExecutorModule {
 
     }
 
-    public class FileSystem extends UpdatableCollector {
+    public class FileSystem {
         //Данному классу требуется доступ ко всем объектам программы
         private File odometryData, anotherData;
         private List<String> logBuffer;
         private Date date;
         public FileSystem(){
-            super(false);
+
             odometryData = AppUtil.getInstance().getSettingsFile("OdometryData.txt");
             anotherData = AppUtil.getInstance().getSettingsFile("AnotherData.txt");
 
@@ -350,35 +339,31 @@ public class MainSystem extends ExecutorModule {
             date = new Date();
         }
 
-        @Override
-        protected void updateExt() {
-//            logBuffer.add(String.format("%.2f %.2f %.2f %.2f %s %n", Math.abs(autoPlayerClass2.trackEmulator.targHeadVel * RAD), Math.abs(robotClass.odometry.odometryBufferForTuret.read().getHeadVel() * RAD),
-//                    autoPlayerClass2.trackEmulator.targHead * RAD, robotClass.odometry.odometryBufferForTuret.read().getPosition().getHeading() * RAD, matchTimer.seconds()));
-        }
-        public void loadLastPosition() {
-            OdometryData lastData = null;
 
+        public void loadLastPosition() {
             try (BufferedReader br = new BufferedReader(new FileReader(odometryData))) {
                 String line;
                 String lastLine = null;
 
-                // Читаем до последней строки
                 while ((line = br.readLine()) != null) {
                     lastLine = line;
                 }
 
                 if (lastLine != null) {
                     String[] parts = lastLine.split(",");
-                    if (parts.length >= 4) {
-                        double x = Double.parseDouble(parts[1]);
-                        double y = Double.parseDouble(parts[2]);
-                        double heading = Double.parseDouble(parts[3]);
+                    if (parts.length >= 5) {
+                        double robotX = Double.parseDouble(parts[1]);
+                        double robotY = Double.parseDouble(parts[2]);
+                        double robotHeading = Double.parseDouble(parts[3]);
+                        double turretHeading = Double.parseDouble(parts[4]);
 
-                        Position2D pos = new Position2D(x, y, heading);
-                        lastData = new OdometryData(pos, new Vector2(0), 0);
+                        Position2D robotPos = new Position2D(robotX, robotY, robotHeading);
+                        Position2D turretPos = new Position2D(robotX, robotY, turretHeading);
 
+                        robotClass.odometry.setStartPos(robotPos, turretPos);
 
-                        telemetry.addData("Loaded", "X:%.1f Y:%.1f H:%.1f", x, y, Math.toDegrees(heading));
+                        telemetry.addData("Loaded", "Robot X:%.1f Y:%.1f H:%.1f Turret H:%.1f",
+                                robotX, robotY, Math.toDegrees(robotHeading), Math.toDegrees(turretHeading));
                     }
                 }
 
@@ -388,37 +373,30 @@ public class MainSystem extends ExecutorModule {
                 telemetry.addData("Load Error", e.getMessage());
             }
         }
-        public void writeOdometry(){
-            try (FileWriter fw = new FileWriter(odometryData, true); ) {
-                OdometryData savedRobotData = robotClass.odometry.bufferForRobot.read();
-                List<String> odometryBuffer = new ArrayList<>();
-                odometryBuffer.add(String.format("X", savedRobotData.getPosition().getX()));
-                odometryBuffer.add(String.format("Y", savedRobotData.getPosition().getY()));
-                odometryBuffer.add(String.format("Heading", savedRobotData.getPosition().getHeading()));
-                for (String line : odometryBuffer) fw.write(line);
-            }catch (IOException e) {
+        public void writeOdometry() {
+            try (FileWriter fw = new FileWriter(odometryData, true)) {
+                // Сохраняем позицию робота
+                OdometryData robotData = robotClass.odometry.bufferForRobot.read();
+                OdometryData turretData = robotClass.odometry.bufferForTurret.read();
+
+                // Формат: время, robotX, robotY, robotHeading, turretHeading
+                String line = String.format("%d,%.2f,%.2f,%.2f,%.2f%n",
+                        date.getTime(),
+                        robotData.getPosition().getX(),
+                        robotData.getPosition().getY(),
+                        robotData.getPosition().getHeading(),
+                        turretData.getPosition().getHeading()
+                );
+
+                fw.write(line);
+
+            } catch (IOException e) {
+                telemetry.addData("Write Error", e.getMessage());
             }
         }
-        public void writeAnother(){
-            try (FileWriter fw = new FileWriter(anotherData, true); ) {
-                for (String line : logBuffer) fw.write(line);
-            }catch (IOException e) {
-            }
-        }
-        public void deleteAnother(){
-            anotherData.delete();
-        }
+
         public void deleteOdometry(){
             odometryData.delete();
-        }
-        @Override
-        public void showData() {
-
-        }
-
-        @Override
-        protected void showDataExt() {
-
         }
     }
 }

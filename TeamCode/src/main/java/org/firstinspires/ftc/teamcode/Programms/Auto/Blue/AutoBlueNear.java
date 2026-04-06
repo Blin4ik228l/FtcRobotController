@@ -12,7 +12,7 @@ public class AutoBlueNear extends LinearOpModeModernized {
     @Override
     public void initialization() {
         generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, TeamAliance.BLUE, GeneralInformation.StartPos.Near_wall);
-        startPos = new Position2D(-140, -70, 0);
+        startPos = new Position2D(159,-101, 0);
     }
 
     @Override

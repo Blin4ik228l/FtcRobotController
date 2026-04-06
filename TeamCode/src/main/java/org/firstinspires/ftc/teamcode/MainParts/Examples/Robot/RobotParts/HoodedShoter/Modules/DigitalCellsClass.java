@@ -22,29 +22,31 @@ public class DigitalCellsClass extends UpdatableCollector {
         createServoWrapperUtils();
         double tresh = 1.6;
         double treshG = 2.2;
-        cells = new CellWrapper.Builder()
-                .add("cell1",
-                        colorBuilder.initialize(expansionHubDevices.getI2C(0)).setFields(0.152 * tresh, 0.184 * treshG, 0.149 * tresh, 0.0).get(),
-                        colorBuilder.initialize(expansionHubDevices.getI2C(1)).setFields(0.192 * tresh, 0.203 * treshG, 0.170 * tresh, 0.0).get())
-                .add("cell2",
-                        colorBuilder.initialize(expansionHubDevices.getI2C(2)).setFields(0.146 * tresh, 0.187 * treshG, 0.148 * tresh, 0.0).get(),
-                        colorBuilder.initialize(expansionHubDevices.getI2C(3)).setFields(0.115 * tresh, 0.120 * treshG, 0.104 * tresh, 0.0).get())
-                .add("cell3",
-                        colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.153 * tresh, 0.175 * treshG, 0.149 * tresh, 0.0).get(),
-                        colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.136 * tresh, 0.145 * treshG, 0.120 * tresh, 0.0).get());
+//        cells = new CellWrapper.Builder()
+//                .add("cell1",
+//                        colorBuilder.initialize(expansionHubDevices.getI2C(0)).setFields(0.152 * tresh, 0.184 * treshG, 0.149 * tresh, 0.0).get(),
+//                        colorBuilder.initialize(expansionHubDevices.getI2C(1)).setFields(0.192 * tresh, 0.203 * treshG, 0.170 * tresh, 0.0).get())
+//                .add("cell2",
+//                        colorBuilder.initialize(expansionHubDevices.getI2C(2)).setFields(0.146 * tresh, 0.187 * treshG, 0.148 * tresh, 0.0).get(),
+//                        colorBuilder.initialize(expansionHubDevices.getI2C(3)).setFields(0.115 * tresh, 0.120 * treshG, 0.104 * tresh, 0.0).get())
+//                .add("cell3",
+//                        colorBuilder.initialize(controlHubDevices.getI2C(0)).setFields(0.153 * tresh, 0.175 * treshG, 0.149 * tresh, 0.0).get(),
+//                        colorBuilder.initialize(controlHubDevices.getI2C(1)).setFields(0.136 * tresh, 0.145 * treshG, 0.120 * tresh, 0.0).get());
 
+        cells = new CellWrapper.Builder();
 
-        cells.getCell("cell1").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
-        cells.getCell("cell2").tresholder = new double[]{0.133 * tresh,0.155 * treshG,0.114 * tresh};
-        cells.getCell("cell3").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
+//        cells.getCell("cell1").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
+//        cells.getCell("cell2").tresholder = new double[]{0.133 * tresh,0.155 * treshG,0.114 * tresh};
+//        cells.getCell("cell3").tresholder = new double[]{0.123 * tresh,0.154 * treshG,0.122 * tresh};
 
         servosCollector
                 .add(servoBuilder.initialize(pusher0).setFields(1000.0, 180.0).get())
                 .add(servoBuilder.initialize(pusher2).setFields(750.0, 180.0).get())
                 .add(servoBuilder.initialize(pusher1).setFields(1000.0, 180.0).get());
 
-        prepareServo();
-
+        prepareServo(0);
+        prepareServo(1);
+        prepareServo(2);
         sayCreated();
     }
     /*1 - в массиве это зелёный шар
@@ -93,27 +95,61 @@ public class DigitalCellsClass extends UpdatableCollector {
     public void fireCell(int cellNum){
         switch (cellNum){
             case 0:
-                triggeredCell = cells.getCell("cell1");
-                servosCollector.get(pusher0).execute(0.47);
-                triggeredServo = servosCollector.get(pusher0);
+                triggeredCell = cells.getCell("cell3");
+                servosCollector.get(pusher1).execute(0.5);
+                triggeredServo = servosCollector.get(pusher1);
                 break;
             case 1:
                 triggeredCell = cells.getCell("cell2");
-                servosCollector.get(pusher2).execute(0.65);
+                servosCollector.get(pusher2).execute(0.73);
                 triggeredServo = servosCollector.get(pusher2);
                 break;
             case 2:
-                triggeredCell = cells.getCell("cell3");
-                servosCollector.get(pusher1).execute(0.48);
-                triggeredServo = servosCollector.get(pusher1);
+                triggeredCell = cells.getCell("cell1");
+                servosCollector.get(pusher0).execute(0.58);
+                triggeredServo = servosCollector.get(pusher0);
                 break;
         }
     }
-    public void prepareServo(){
+    public void prepareServo(int cellNum){
         if(!isInitialized) return;
-       servosCollector.get(pusher0).execute(0.075);
-       servosCollector.get(pusher1).execute(0.075);
-       servosCollector.get(pusher2).execute(0.075);
+        switch (cellNum){
+            case 0:
+                triggeredCell = cells.getCell("cell3");
+                servosCollector.get(pusher1).execute(0.06);
+                triggeredServo = servosCollector.get(pusher1);
+                break;
+            case 1:
+                triggeredCell = cells.getCell("cell2");
+                servosCollector.get(pusher2).execute(0.05);
+                triggeredServo = servosCollector.get(pusher2);
+                break;
+            case 2:
+                triggeredCell = cells.getCell("cell1");
+                servosCollector.get(pusher0).execute(0.05);
+                triggeredServo = servosCollector.get(pusher0);
+                break;
+        }
+    }
+
+    public void prefirePos(int cellNum){
+        switch (cellNum){
+            case 0:
+                triggeredCell = cells.getCell("cell3");
+                servosCollector.get(pusher1).execute(0.19);
+                triggeredServo = servosCollector.get(pusher1);
+                break;
+            case 1:
+                triggeredCell = cells.getCell("cell2");
+                servosCollector.get(pusher2).execute(0.27);
+                triggeredServo = servosCollector.get(pusher2);
+                break;
+            case 2:
+                triggeredCell = cells.getCell("cell1");
+                servosCollector.get(pusher0).execute(0.19);
+                triggeredServo = servosCollector.get(pusher0);
+                break;
+        }
     }
 
     public boolean isAllReady(){

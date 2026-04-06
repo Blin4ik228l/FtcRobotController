@@ -33,13 +33,16 @@ public class FlyWheelClass extends ExecutableCollector {
         double alpha = Math.toRadians(theta);
         double underRoot = 981 / (2 * (range * Math.tan(alpha) - 80));
 
-        //Нужная скорость мяча в м/с
+        //Нужная скорость мяча в см/с
         double targetSpeed = (range / Math.cos(alpha)) * Math.sqrt(Math.abs(underRoot));
 
         //Если по формуле скоость отриц значит не стреляем
-//        if (underRoot < 0) return  0;
+        if (underRoot < 0) return  0;
 
-        targetSpeed = targetSpeed / CONTACT_PATCH;
+        if(theta == 46){
+            targetSpeed = targetSpeed / CONTACT_PATCH_FAR;
+        }else  targetSpeed = targetSpeed / CONTACT_PATCH_NEAR;
+
 
         return targetSpeed;
     }

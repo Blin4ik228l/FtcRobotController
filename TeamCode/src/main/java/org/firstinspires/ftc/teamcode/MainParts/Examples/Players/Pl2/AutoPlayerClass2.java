@@ -37,7 +37,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     public Odometry odometry;
 
     private OdometryData.DataBuilder trajectory1;
-
+    double range;
     public TurretController turretController;
     public PIDFTurner pidfTurner;
     public FlyWheelController flyWheelController;
@@ -55,6 +55,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     private double flyWheelPow;
     private int count = 0;
 
+    private int iteratNum = 0;
     private double angleServoPos;
     private OdometryData targetData;
     private OdometryData turretCurrentData;
@@ -109,6 +110,9 @@ public class AutoPlayerClass2 extends PlayerClass{
                 break;
         }
 
+//        if(generalInformation.programName == GeneralInformation.ProgramName.Auto){
+//            turretPow = 0;
+//        }
         turretPow = Range.clip(-turretPow, -maxVol, maxVol);
         flyWheelPow = Range.clip(flyWheelPow, -1, 1);
         collectorPow = Range.clip(collectorPow, -maxVol, maxVol);
@@ -130,15 +134,16 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     double targetSpeed;
     @Override
-    protected void executeAuto() {
-        double range;
-        if(odometry.cameraClass.decisionMargin > 0){
+    protected void
+    executeAuto() {
+
+        if(odometry.cameraClass.decisionMargin > 0 && odometry.cameraClass.id == generalInformation.generalObjects.aprilTagIds ){
             range = odometry.cameraClass.range;
         }else range = new Vector2(targetData.getPosition().getX() - turretCurrentData.getPosition().getX(), targetData.getPosition().getY() - turretCurrentData.getPosition().getY()).length();
 
         double theta;
         //в градусах
-        if (range >= 290) theta = 46;
+        if (range >= 230) theta = 46;
         else if (range >= 150) theta = 55;
         else if (range >= 70) theta = 65;
         else theta = 70;
@@ -152,60 +157,68 @@ public class AutoPlayerClass2 extends PlayerClass{
 
         switch (generalInformation.gameTactick){
             case Load:
+                iteratNum = 0;
                 targetSpeed = 0;
 
                 collectorPow = 1;
-//                if (innerCount != 3){
-//                    collectorPow = 1;
-//                }else {
-//                    count = 3;
-//                    collectorPow = 0;
-////                    programState = ProgramState.Finished;
-//                }
-                odometry.cameraClass.openUpCamera();
-                hoodedShooter.digitalCellsClass.prepareServo();
+
+//                odometry.cameraClass.openUpCamera();
+                count = 3;
+                hoodedShooter.digitalCellsClass.prepareServo(0);
+                hoodedShooter.digitalCellsClass.prepareServo(1);
+                hoodedShooter.digitalCellsClass.prepareServo(2);
+                servoState = ServoState.waiting;
                 break;
             case Fire:
-                collectorPow = 0;
-
 //                odometry.cameraClass.coverUpCamera();
+                collectorPow = 0;
 
                 angleServoPos = hoodedShooter.angleController.getPos(theta);
                 targetSpeed = hoodedShooter.flyWheelClass.getTargetSpeed(theta, range);
 
                 isFlyWheelReady = flyWheelController.checkReadnees(targetSpeed, curSpeed);
                 isAngleGrowUp = !hoodedShooter.angleController.getServo().isBusy(1);
+                boolean isTurretReady = (turretCurrentData.getPosition().getHeading() - targetData.getPosition().getHeading()) < ALLOWED_ZAZOR;
                 if(count != 0){
                     switch (servoState){
                         case waiting:
-                            if(isFlyWheelReady && (turretCurrentData.getPosition().getHeading() - targetData.getPosition().getHeading()) < ALLOWED_ZAZOR){
-                                int index = 3 - count;
-                                int neededColor = odometry.cameraClass.motif[index];
+                            if(isFlyWheelReady && isTurretReady){
+                                int index = count - 1;
+//                                int neededColor = odometry.cameraClass.motif[index];
                                 hoodedShooter.digitalCellsClass.fireCell(index);
                                 servoState = ServoState.firing;
                             }
                             break;
                         case firing:
-                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(8)) {
-                                hoodedShooter.digitalCellsClass.prepareServo();
+                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(2.2)) {
+                                int index = count - 1;
+
+                                hoodedShooter.digitalCellsClass.prefirePos(index);
+
                                 servoState = ServoState.prep;
                             }
                             break;
                         case prep:
-                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(5)){
+                            if(!hoodedShooter.digitalCellsClass.triggeredServo.isBusy(1)){
                                 count = Math.max(count - 1, 0);
                                 servoState = ServoState.waiting;
                             }
                             break;
                     }
                 }else{
+                    iteratNum++;
                     count = 3;
-                    hoodedShooter.digitalCellsClass.prepareServo();
+                    hoodedShooter.digitalCellsClass.prepareServo(0);
+                    hoodedShooter.digitalCellsClass.prepareServo(1);
+                    hoodedShooter.digitalCellsClass.prepareServo(2);
                 }
+                if(iteratNum == 3) {programState = ProgramState.Finished;}
                 break;
             default:
                 break;
         }
+
+        targetSpeed = Range.clip(targetSpeed, 0, 628);
 
         OdometryData calculatedData = flyWheelController.calculateVol(targetSpeed, curSpeed);
         flyWheelPow = calculatedData.getHeadVel();
@@ -213,12 +226,13 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     protected void showDataExt() {
-        telemetry.addData("spees", targetSpeed);
+        telemetry.addData("range", range);
+        telemetry.addData("speed", targetSpeed);
         telemetry.addData("flyPow",flyWheelPow);
         telemetry.addData("states", "fly %s turret %s", isFlyWheelReady , (turretCurrentData.getPosition().getHeading() - targetData.getPosition().getHeading()) < ALLOWED_ZAZOR);
         telemetry.addData("servoState", servoState.name());
-        joystickActivityClass.showData();
-        hoodedShooter.showData();
+//        joystickActivityClass.showData();
+//        hoodedShooter.showData();
         flyWheelController.showData();
         turretController.showData();
         pidfTurner.showData();
@@ -262,7 +276,7 @@ public class AutoPlayerClass2 extends PlayerClass{
 
     @Override
     public void buttonXReleased() {
-        turretPow = 0;
+        turretPow = joystickActivityClass.sinB;
     }
 
     @Override
@@ -390,7 +404,7 @@ public class AutoPlayerClass2 extends PlayerClass{
                 errorHeading = targHeadL - localHead;
             }
             else {
-                if(odometry.cameraClass.decisionMargin > 0){
+                if(odometry.cameraClass.decisionMargin > 0 && odometry.cameraClass.id == generalInformation.generalObjects.aprilTagIds ){
                     errorHeading = odometry.cameraClass.bearing;
                 }
                 else errorHeading = targHeadL - localHead;
@@ -401,8 +415,12 @@ public class AutoPlayerClass2 extends PlayerClass{
             if(Math.abs(errorHeading) < ALLOWED_ZAZOR) {
                 headVel = 0;
                 resetI();
+                setPID(0.05, 0,0.05,0.25);
             }
 
+            if(Math.abs(headVel - currentData.getHeadVel()) < Math.abs(headVel) && headVel != 0){
+                setPID(0.05, 0,0.05,getkF() * 1.02);
+            }
             double pidHeadVel = calculate(headVel, currentData.getHeadVel(), 1);
 
             return new OdometryData(new Vector2(0), pidHeadVel);
@@ -434,7 +452,7 @@ public class AutoPlayerClass2 extends PlayerClass{
     }
     public class FlyWheelController extends PIDF {
         public FlyWheelController(){
-             super(0.010, 0, 0,0.00185,-1, 1, "FlyWheelPid");
+             super(0.005, 0, 0,0.00185,-1, 1, "FlyWheelPid");
         }
 
         public OdometryData calculateVol(double targetSpeed, double curSpeed){

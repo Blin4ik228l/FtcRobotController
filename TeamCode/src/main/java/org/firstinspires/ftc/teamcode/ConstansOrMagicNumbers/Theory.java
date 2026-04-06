@@ -37,9 +37,9 @@ public interface Theory {
     double MAX_TURRET_LINEAR_SP = (TURRET_ENC_OUTPUT_MAX_SPEED * 2.0 * Math.PI * TURRET_WHEEL_RADIUS) / 60.0;
     double MAX_TURRET_HEAD_SP = (MAX_TURRET_LINEAR_SP / TURRET_WHEEL_RADIUS);
 
-    double MIN_TURRET_HEAD_SP = Math.toRadians(15);
+    double MIN_TURRET_HEAD_SP = Math.toRadians(5);
 
-    double ALLOWED_ZAZOR = Math.toRadians(3);
+    double ALLOWED_ZAZOR = Math.toRadians(2);
 
     //Маховик
     double FLYWHEEL_MOTOR_RPM = 6000;
@@ -54,7 +54,9 @@ public interface Theory {
     double MAX_FLYWHEEL_HEAD_SP = MAX_FLYWHEEL_LINEAR_SP / FLYWHEEL_RADIUS;
 
     //пятно контакта мяча
-    double CONTACT_PATCH = 1.15;
+    double CONTACT_PATCH_NEAR = 1.38;
+
+    double CONTACT_PATCH_FAR = 1.505;
 
     //Для улитки
     double MAX_ANGLE = 44;

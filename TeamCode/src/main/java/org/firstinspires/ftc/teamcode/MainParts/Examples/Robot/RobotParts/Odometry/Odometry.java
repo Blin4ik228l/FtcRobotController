@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.Odometry;
 
 import org.firstinspires.ftc.teamcode.MainParts.Examples.GeneralInformation;
+import org.firstinspires.ftc.teamcode.MainParts.Examples.Players.Enums.ProgramStage;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.Config.MainFile;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.CameraClass;
 import org.firstinspires.ftc.teamcode.MainParts.Examples.Robot.RobotParts.DriveTrain.DrivetrainParts.DrivetrainMotors;
@@ -43,9 +44,9 @@ public class Odometry extends UpdatableCollector {
 
         sayCreated();
     }
-    public void setStartPos(OdometryData savedRobotData, OdometryData savedTurretData){
-        dataForTurret.setPosition(savedRobotData.getPosition());
-        dataForTurret.setPosition(savedTurretData.getPosition());
+    public void setStartPos(Position2D robotPos, Position2D turretPos) {
+        dataForRobot.setPosition(robotPos);
+        dataForTurret.setPosition(turretPos);
     }
 
     boolean taken = false;
@@ -72,35 +73,21 @@ public class Odometry extends UpdatableCollector {
                 .setHeadAccel(turretData.getHeadAccel());
 
         //Камера видит таг -> Полностью считываем позицию с неё
-        if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < Math.toRadians(30)){
-            taken = true;
-            Position2D robotPos = cameraClass.robotPos;
-            double tagX = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
-            double tagY = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[1] : generalInformation.generalObjects.redTagCoord[1];
+
+        Position2D turretPos = turretData.getPosition();
+        Position2D encodersPos = encodersData.getPosition();
+        Position2D gyroPos = gyroData.getPosition();
+
+        if (cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < Math.toRadians(30)) {
             double tagHeading = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[3] : generalInformation.generalObjects.redTagCoord[3];
 
             double turretAngle = tagHeading - cameraClass.yaw;// угол турели (рад)
             double robotHeading = turretAngle - (turretMotor.localHead);
 
-            Vector2 robotToTag = new Vector2(cameraClass.camToTagX, cameraClass.camToTagY)
-                    .rotateToGlobal(turretAngle);
-
-            double robotX = tagX - robotToTag.x;
-            double robotY = tagY - robotToTag.y;
-
-            dataForRobot.getPosition().setX(robotX);
-            dataForRobot.getPosition().setY(robotY);
             dataForRobot.getPosition().setHeading(robotHeading);
 
-            dataForTurret.getPosition().setX(robotX);
-            dataForTurret.getPosition().setY(robotY);
             dataForTurret.getPosition().setHeading(turretAngle);
         }else{
-            taken = false;
-            Position2D turretPos = turretData.getPosition();
-            Position2D encodersPos = encodersData.getPosition();
-            Position2D gyroPos = gyroData.getPosition();
-
             //Если гиро умер
             double deltaHead = gyroPos.getHeading() != 0 ? gyroPos.getHeading() : encodersPos.getHeading();
 
@@ -109,13 +96,31 @@ public class Odometry extends UpdatableCollector {
 
             //добавляем угол из буффера гироскопа
             dataForRobot.getPosition().add(0, 0, deltaHead);
+        }
+        if(generalInformation.programName == GeneralInformation.ProgramName.TeleOp && cameraClass.decisionMargin > 0 && Math.abs(dataForTurret.getHeadVel()) < Math.toRadians(30)){
+            double tagX = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[0] : generalInformation.generalObjects.redTagCoord[0];
+            double tagY = (cameraClass.id == 20) ? generalInformation.generalObjects.blueTagCoord[1] : generalInformation.generalObjects.redTagCoord[1];
 
+            Vector2 robotToTag = new Vector2(cameraClass.camToTagX, cameraClass.camToTagY)
+                    .rotateToGlobal(dataForTurret.getPosition().getHeading());
+
+            double robotX = tagX - robotToTag.x;
+            double robotY = tagY - robotToTag.y;
+
+            dataForRobot.getPosition().setX(robotX);
+            dataForRobot.getPosition().setY(robotY);
+
+            dataForTurret.getPosition().setX(robotX);
+            dataForTurret.getPosition().setY(robotY);
+        }else{
             // Векторный поворот и добавление глобального перемещения к глобальным координатам
+
             Vector2 deltaVector2 = new Vector2(encodersPos.getX(), encodersPos.getY()).rotateToGlobal(Math.toRadians(-90) + dataForRobot.getPosition().getHeading());
 
             dataForRobot.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
             dataForTurret.getPosition().add(deltaVector2.x, deltaVector2.y , 0);
         }
+
 
 //        dataForRobot.rotateVelocity();
 //        dataForTurret.rotateAccel();

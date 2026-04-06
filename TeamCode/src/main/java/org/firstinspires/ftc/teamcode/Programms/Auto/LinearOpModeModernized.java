@@ -21,11 +21,14 @@ public abstract class LinearOpModeModernized extends LinearOpMode {
         initialization();
         mainFile = new MainFile(this, generalInformation);
         mainSystem = new MainSystem(barrier);
+        mainSystem.semiAutoPlayerClass1.odometry.setStartPos(startPos, startPos);
         run();
     }
     public void run(){
         generalInformation.programStage = ProgramStage.Init_loop;
         while (!isStarted() && !isStopRequested()){
+            //////////////////////////////
+            mainSystem.execute();
             mainSystem.showData();
             telemetry.update();
         }

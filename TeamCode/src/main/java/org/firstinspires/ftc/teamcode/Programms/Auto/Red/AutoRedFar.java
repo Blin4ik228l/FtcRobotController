@@ -12,7 +12,7 @@ public class AutoRedFar extends LinearOpModeModernized {
     @Override
     public void initialization() {
         generalInformation = new GeneralInformation(GeneralInformation.ProgramName.Auto, TeamAliance.RED, GeneralInformation.StartPos.Far_from_wall);
-        startPos = new Position2D(140, 15, 0);
+        startPos = new Position2D(-152, 40, 0);
     }
 
     @Override
